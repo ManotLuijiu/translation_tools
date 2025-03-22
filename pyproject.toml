@@ -24,6 +24,6 @@ build-backend = "flit_core.buildapi"
 # package_name = "~=1.1.0"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/translation_tools"
-Repository = "https://github.com/yourusername/translation_tools.git"
-"Bug Reports" = "https://github.com/yourusername/translation_tools/issues"
+Homepage = "https://github.com/ManotLuijiu/translation_tools"
+Repository = "https://github.com/ManotLuijiu/translation_tools.git"
+"Bug Reports" = "https://github.com/ManotLuijiu/translation_tools/issues"
