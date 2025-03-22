@@ -26,8 +26,15 @@ echo "Activating ERPNext environment..."
 source "$ERPNEXT_ENV/bin/activate"
 
 # Install dependencies
+# echo "Installing dependencies..."
+# pip install openai>=1.3.0 polib>=1.2.0 tqdm>=4.64.0 anthropic>=0.5.0
+
+# Install dependencies
 echo "Installing dependencies..."
-pip install openai>=1.3.0 polib>=1.2.0 tqdm>=4.64.0 anthropic>=0.5.0
+pip install "openai>=1.3.0"
+pip install "polib>=1.2.0"
+pip install "tqdm>=4.64.0"
+pip install "anthropic>=0.5.0"
 
 # Create a wrapper script in the bench bin directory
 WRAPPER_SCRIPT="$PWD/bin/translate-po"
