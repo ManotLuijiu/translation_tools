@@ -46,7 +46,7 @@ if [ -f "$CONFIG_FILE" ]; then
 fi
 
 # Run the translator with the provided arguments
-python "$PWD/apps/translation_tools/utils/translate_po_files.py" \${OPENAI_API_KEY:+--api-key=\$OPENAI_API_KEY} \${MODEL_PROVIDER:+--model-provider=\$MODEL_PROVIDER} "\$@"
+python "$PWD/apps/translation_tools/translation_tools/utils/translate_po_files.py" \${OPENAI_API_KEY:+--api-key=\$OPENAI_API_KEY} \${MODEL_PROVIDER:+--model-provider=\$MODEL_PROVIDER} "\$@"
 EOF
 
 chmod +x "$WRAPPER_SCRIPT"

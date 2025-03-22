@@ -12,7 +12,9 @@ def after_install():
         )
 
         # Path to the setup script
-        setup_script = os.path.join(bench_dir, "apps", "translation_tools", "setup.sh")
+        setup_script = os.path.join(
+            bench_dir, "apps", "translation_tools", "translation_tools", "setup.sh"
+        )
 
         # Make the script executable
         subprocess.check_call(["chmod", "+x", setup_script])
@@ -24,4 +26,6 @@ def after_install():
 
     except Exception as e:
         print(f"❌ Error during Translation Tools setup: {str(e)}")
-        print("Please run the setup script manually: ./apps/translation_tools/setup.sh")
+        print(
+            "Please run the setup script manually: ./apps/translation_tools/translation_tools/setup.sh"
+        )

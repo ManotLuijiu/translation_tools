@@ -44,7 +44,7 @@ bench --site your-site.local install-app translation_tools
 # ./apps/translation_tools/setup.sh would be run automatically
 # if not
 # Manual run the setup script
-./apps/translation_tools/setup.sh
+./apps/translation_tools/translation_tools/setup.sh
 ```
 
 The setup script will:
@@ -222,7 +222,7 @@ bench --site your-site.local install-app translation_tools
 # ./apps/translation_tools/setup.sh จะรันโดยอัตโนมัติในขั้นตอนนี้
 # ถ้าไม่รันอัตโนมัติ สามารถสั่งรันไฟล์ setup.sh ได้ โดยการ
 # รันสคริปต์ติดตั้ง
-./apps/translation_tools/setup.sh
+./apps/translation_tools/translation_tools/setup.sh
 ```
 
 สคริปต์ติดตั้งจะ:
