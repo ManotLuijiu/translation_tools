@@ -21,4 +21,17 @@ app_license = "mit"
 # 	}
 # ]
 
+# Installation
 after_install = "translation_tools.install.after_install"
+
+# Uninstallation
+# ------------
+
+before_uninstall = "translation_tools.uninstall.before_uninstall"
+after_uninstall = "translation_tools.uninstall.after_uninstall"
+
+# Custom bench commands
+# --------------------
+commands = [
+    "translation_tools.commands.repair_translation_tools"
+]
