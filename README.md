@@ -36,12 +36,14 @@ This tool is particularly useful for translating ERPNext to Thai, but it can be 
 cd frappe-bench
 
 # Get the app from GitHub
-bench get-app https://github.com/yourusername/translation_tools
+bench get-app https://github.com/ManotLuijiu/translation_tools.git
 
 # Install the app on your site
 bench --site your-site.local install-app translation_tools
 
-# Run the setup script
+# ./apps/translation_tools/setup.sh would be run automatically
+# if not
+# Manual run the setup script
 ./apps/translation_tools/setup.sh
 ```
 
@@ -51,6 +53,7 @@ The setup script will:
 2. Set up the translation utility
 3. Create a convenient bench command (`translate-po`)
 4. Prompt you to save your API key for future use
+5. Help you generate PO files for translation
 
 ## Usage
 
@@ -211,11 +214,13 @@ Translation Tools เป็นแอปสแตนด์อโลนสำห�
 cd frappe-bench
 
 # รับแอปจาก GitHub
-bench get-app https://github.com/yourusername/translation_tools
+bench get-app https://github.com/ManotLuijiu/translation_tools.git
 
 # ติดตั้งแอปบนไซต์ของคุณ
 bench --site your-site.local install-app translation_tools
 
+# ./apps/translation_tools/setup.sh จะรันโดยอัตโนมัติในขั้นตอนนี้
+# ถ้าไม่รันอัตโนมัติ สามารถสั่งรันไฟล์ setup.sh ได้ โดยการ
 # รันสคริปต์ติดตั้ง
 ./apps/translation_tools/setup.sh
 ```
