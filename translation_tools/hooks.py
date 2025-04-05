@@ -35,3 +35,4 @@ after_uninstall = "translation_tools.uninstall.after_uninstall"
 commands = [
     "translation_tools.commands.repair_translation_tools"
 ]
+website_route_rules = [{'from_route': '/thai_translation_dashboard/<path:app_path>', 'to_route': 'thai_translation_dashboard'},]

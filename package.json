@@ -1,0 +1,15 @@
+{
+  "name": "translation_tools",
+  "version": "1.0.0",
+  "description": "An AI-powered translation utility for ERPNext that helps translate PO files using advanced language models like OpenAI GPT and Anthropic Claude.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "cd thai_translation_dashboard && yarn install",
+    "dev": "cd thai_translation_dashboard && yarn dev",
+    "build": "cd thai_translation_dashboard && yarn build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
