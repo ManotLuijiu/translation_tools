@@ -16,7 +16,7 @@ Options:
   --help                     Show this help message
 """
 
-from thai_glossary import GLOSSARY
+from translation_tools.utils.thai_glossary import GLOSSARY
 import os
 import re
 import sys

@@ -1,0 +1,26 @@
+{
+  "content": null,
+  "creation": "2025-04-06 10:00:00.000000",
+  "docstatus": 0,
+  "doctype": "Page",
+  "idx": 0,
+  "modified": "2025-04-06 10:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Translation Tools",
+  "name": "translation-dashboard",
+  "owner": "Administrator",
+  "page_name": "translation-dashboard",
+  "roles": [
+    {
+      "role": "System Manager"
+    },
+    {
+      "role": "Administrator"
+    }
+  ],
+  "script": null,
+  "standard": "Yes",
+  "style": null,
+  "system_page": 0,
+  "title": "Translation Dashboard"
+}

@@ -1,0 +1,135 @@
+# Translations template for Translation Tools.
+# Copyright (C) 2025 Manot Luijiu
+# This file is distributed under the same license as the Translation Tools project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Translation Tools VERSION\n"
+"Report-Msgid-Bugs-To: moocoding@gmail.com\n"
+"POT-Creation-Date: 2025-04-06 13:21+0642\n"
+"PO-Revision-Date: 2025-04-06 13:21+0642\n"
+"Last-Translator: moocoding@gmail.com\n"
+"Language-Team: moocoding@gmail.com\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.13.1\n"
+
+#. Name of a role
+#: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "All"
+msgstr ""
+
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
+#. Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Business"
+msgstr ""
+
+#. Label of a Select field in DocType 'Translation Glossary Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Category"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'Translation Glossary Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Context"
+msgstr ""
+
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
+#. Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Date/Time"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'ERPNext Module'
+#: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
+msgid "Description"
+msgstr ""
+
+#. Name of a DocType
+#: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
+msgid "ERPNext Module"
+msgstr ""
+
+#. Label of a Check field in DocType 'Translation Glossary Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Is Approved"
+msgstr ""
+
+#: translation_tools/translation_tools/page/translation_dashboard/translation_dashboard.js:22
+msgid "Loading translation dashboard..."
+msgstr ""
+
+#. Label of a Link field in DocType 'Translation Glossary Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Module"
+msgstr ""
+
+#. Label of a Data field in DocType 'ERPNext Module'
+#: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
+msgid "Module Name"
+msgstr ""
+
+#: translation_tools/public/dist/thai_translation_das.bundle.QSH7C73B.js:19597
+msgid "Print Message"
+msgstr ""
+
+#. Label of a Int field in DocType 'ERPNext Module'
+#: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
+msgid "Priority"
+msgstr ""
+
+#: translation_tools/translation_tools/page/translation_dashboard/translation_dashboard.js:9
+msgid "Refresh"
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation Glossary Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Source Term"
+msgstr ""
+
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
+#. Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Status"
+msgstr ""
+
+#. Name of a role
+#: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "System Manager"
+msgstr ""
+
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
+#. Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Technical"
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation Glossary Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Thai Translation"
+msgstr ""
+
+#: translation_tools/translation_tools/page/translation_dashboard/translation_dashboard.js:4
+msgid "Translation Dashboard"
+msgstr ""
+
+#. Name of a DocType
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Translation Glossary Term"
+msgstr ""
+
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
+#. Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "UI"
+msgstr ""
+
+#: translation_tools/translation_tools/page/thai_translation_das/thai_translation_das.js:4
+msgid "thai-translation-dashboard"
+msgstr ""
+

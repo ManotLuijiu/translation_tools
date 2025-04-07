@@ -36,3 +36,19 @@ commands = [
     "translation_tools.commands.repair_translation_tools"
 ]
 website_route_rules = [{'from_route': '/thai_translation_dashboard/<path:app_path>', 'to_route': 'thai_translation_dashboard'},]
+
+# Add page to navbar
+get_desk_sidebar_items = [
+    {
+        "label": "Thai Translation",
+        "items": [
+            {
+                "type": "Page",
+                "name": "thai-translation-dash",
+                "label": "Thai Translation Dashboard",
+                "icon": "translate",
+                "description": "AI-powered Thai translation dashboard"
+            }
+        ]
+    }
+]
