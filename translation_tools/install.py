@@ -28,6 +28,26 @@ def after_install():
 
         print("✅ Translation Tools setup completed successfully")
 
+        # Create necessary doctypes
+        from translation_tools.translation_tools.setup.create_doctypes import create_glossary_doctypes, create_po_file_doctypes
+        create_glossary_doctypes()
+        create_po_file_doctypes()
+
+        # Import default glossary
+        print("Importing default Thai glossary...")
+        from translation_tools.translation_tools.setup.import_default_glossary import import_default_glossary_terms
+        glossary_result = import_default_glossary_terms()
+        print(f"Imported {glossary_result} default glossary terms")
+
+        # Initial scan of PO files
+        print("Starting initial scan of PO files...")
+        from translation_tools.translation_tools.api import scan_po_files
+        scan_result = scan_po_files()
+        if scan_result.get("success"):
+            print(f"Found {scan_result['total_files']} PO files")
+        else:
+            print(f"Error scanning PO files: {scan_result.get('error')}")
+
     except Exception as e:
         print(f"❌ Error during Translation Tools setup: {str(e)}")
         print(

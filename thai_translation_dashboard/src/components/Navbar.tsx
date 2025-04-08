@@ -1,5 +1,3 @@
-// File location: thai_translation_dashboard/src/components/Navbar.tsx
-
 import React from "react";
 import mooLogo from "../assets/moo_logo.svg";
 

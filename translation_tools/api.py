@@ -3,8 +3,9 @@ import os
 import json
 import polib
 from glob import glob
+import threading
 from frappe import _
-from frappe.utils import cstr, get_site_path, get_bench_path
+from frappe.utils import cstr, get_site_path, get_bench_path, cint
 import subprocess
 import time
 import re
@@ -16,6 +17,7 @@ from typing import Dict, List, Any, Optional
 from frappe.utils.safe_exec import safe_eval
 from translation_tools.utils.translate_po_files import translate_po_file
 from translation_tools.utils.thai_glossary import GLOSSARY
+from frappe.utils.background_jobs import enqueue
 
 # Configure logging
 import logging
@@ -40,251 +42,750 @@ CACHE_EXPIRY = 300  # 5 minutes
 
 @frappe.whitelist()
 def get_cached_po_files():
-    """Get a list of all PO files in the Frappe/ERPNext ecosystem with caching"""
-    global PO_FILES_CACHE, PO_FILES_CACHE_TIMESTAMP
+    """Get a list of all PO files from the database"""
+    po_files = frappe.get_all(
+        "PO File",
+        fields=[
+            "file_path", 
+            "app_name as app", 
+            "filename", 
+            "language",
+            "total_entries", 
+            "translated_entries", 
+            "translation_status as translated_percentage",
+            "last_modified", 
+            "last_scanned"
+        ],
+        order_by="app_name, filename"
+    )
     
-    current_time = time.time()
-    
-    # Return cached result if still valid
-    if PO_FILES_CACHE and (current_time - PO_FILES_CACHE_TIMESTAMP) < CACHE_EXPIRY:
-        return PO_FILES_CACHE
-    
-    logger.info("Cache expired or not initialized, fetching PO files")
-    
-    # Run the scan in a background thread to avoid blocking
-    def scan_po_files():
-        global PO_FILES_CACHE, PO_FILES_CACHE_TIMESTAMP
-        
-        try:
-            # Get the bench path
-            bench_path = get_bench_path()
-            apps_path = os.path.join(bench_path, "apps")
-            
-            po_files = []
-            
-            # Scan for all .po files in apps
-            pattern = os.path.join(apps_path, "*", "**", "*.po")
-            for file_path in glob(pattern, recursive=True):
-                # Skip translation_tools/translations (to avoid self-translations)
-                if "translation_tools/translations" in file_path:
-                    continue
-                
-                rel_path = os.path.relpath(file_path, apps_path)
-                app_name = rel_path.split(os.path.sep)[0]
-                filename = os.path.basename(file_path)
-                
-                # Get last modified time
-                try:
-                    last_modified = os.path.getmtime(file_path)
-                    last_modified_str = time.strftime("%Y-%m-%d %H:%M", time.localtime(last_modified))
-                except:
-                    last_modified_str = "Unknown"
-                
-                # Calculate the translation percentage
-                try:
-                    po = polib.pofile(file_path)
-                    total = len(po)
-                    translated = len(po.translated_entries())
-                    percentage = int((translated / total) * 100) if total > 0 else 0
-                except Exception as e:
-                    logger.error(f"Error parsing PO file {file_path}: {e}")
-                    percentage = 0
-
-                 po_files.append({
-                    "path": file_path, 
-                    "app": app_name, 
-                    "filename": filename,
-                    "last_modified": last_modified_str,
-                    "translated_percentage": percentage
-                })
-            # Sort by app name and then by filename
-            po_files.sort(key=lambda x: (x["app"], x["filename"]))
-            
-            # Update the cache
-            PO_FILES_CACHE = po_files
-            PO_FILES_CACHE_TIMESTAMP = current_time
-            
-            logger.info(f"Found {len(po_files)} PO files")
-        except Exception as e:
-            logger.error(f"Error in scan_po_files: {e}")
-            PO_FILES_CACHE = []
-            PO_FILES_CACHE_TIMESTAMP = current_time
-
-    # Start a quick scan to return initial results
-    quick_scan_thread = threading.Thread(target=scan_po_files)
-    quick_scan_thread.daemon = True
-    quick_scan_thread.start()
-    
-    # Wait for a moment to let the quick scan complete
-    quick_scan_thread.join(timeout=3)
-    
-    # If scan completed, return the results, otherwise return empty list
-    return PO_FILES_CACHE or []
-
-
-
-@frappe.whitelist()
-def get_po_files():
-    """Get a list of all PO files in the Frappe/ERPNext ecosystem"""
-    logger.info("Fetching PO files")
-
-    # Get the root apps directory instead of just frappe's parent
-    bench_path = get_bench_path()
-    apps_path = os.path.join(bench_path, "apps")
-    logger.info(f"Apps path: {apps_path}")
-    # apps_path = frappe.get_app_path("frappe", "..")
-    po_files = []
-
-    # Scan for all .po files in apps
-    pattern = os.path.join(apps_path, "*", "**", "*.po")
-    for file_path in glob(pattern, recursive=True):
-        # Skip translation_tools/translations (to avoid self-translations)
-        if "translation_tools/translations" in file_path:
-            continue
-
-        rel_path = os.path.relpath(file_path, apps_path)
-        app_name = rel_path.split(os.path.sep)[0]
-        filename = os.path.basename(file_path)
-
-        po_files.append({"path": file_path, "app": app_name, "filename": filename})
-
-    logger.info(f"Found {len(po_files)} PO files")
     return po_files
 
+@frappe.whitelist()
+def scan_po_files():
+    """Scan the filesystem for PO files and update the database"""
+    try:
+        # Get the bench path
+        bench_path = get_bench_path()
+        apps_path = os.path.join(bench_path, "apps")
+        
+        # Count for statistics
+        total_files = 0
+        new_files = 0
+        updated_files = 0
+        
+        # Scan for all Thai PO files in apps
+        pattern = os.path.join(apps_path, "*", "**", "th.po")
+        for file_path in glob(pattern, recursive=True):
+            # Skip translation_tools/translations (to avoid self-translations)
+            if "translation_tools/translations" in file_path:
+                continue
+            
+            total_files += 1
+            
+            rel_path = os.path.relpath(file_path, apps_path)
+            app_name = rel_path.split(os.path.sep)[0]
+            filename = os.path.basename(file_path)
+            
+            # Get file stats
+            last_modified = os.path.getmtime(file_path)
+            last_modified_datetime = frappe.utils.convert_utc_to_user_timezone(
+                datetime.datetime.fromtimestamp(last_modified)
+            ).strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Parse PO file to get translation statistics
+            try:
+                po = polib.pofile(file_path)
+                total = len(po)
+                translated = len(po.translated_entries())
+                translation_status = int((translated / total) * 100) if total > 0 else 0
+                language = po.metadata.get("Language", "")
+            except Exception as e:
+                logger.error(f"Error parsing PO file {file_path}: {e}")
+                total = 0
+                translated = 0
+                translation_status = 0
+                language = ""
+            
+            # Check if file already exists in database
+            file_doc = None
+            if frappe.db.exists("PO File", {"file_path": file_path}):
+                file_doc = frappe.get_doc("PO File", {"file_path": file_path})
+                updated_files += 1
+            else:
+                file_doc = frappe.new_doc("PO File")
+                file_doc.file_path = file_path
+                new_files += 1
+            
+            # Update file information
+            file_doc.app_name = app_name
+            file_doc.filename = filename
+            file_doc.language = language
+            file_doc.total_entries = total
+            file_doc.translated_entries = translated
+            file_doc.translation_status = translation_status
+            file_doc.last_modified = last_modified_datetime
+            file_doc.last_scanned = frappe.utils.now()
+            
+            file_doc.save()
+        
+        frappe.db.commit()
+        
+        return {
+            "success": True,
+            "total_files": total_files,
+            "new_files": new_files,
+            "updated_files": updated_files
+        }
+        
+    except Exception as e:
+        frappe.log_error(f"Error scanning PO files: {e}")
+        return {"success": False, "error": str(e)}
+
+def get_bench_path():
+    """Get the bench directory path"""
+    return os.path.abspath(os.path.join(frappe.utils.get_bench_path()))
+
+# @frappe.whitelist()
+# def get_po_files():
+#     """Get a list of all PO files in the Frappe/ERPNext ecosystem"""
+#     logger.info("Fetching PO files")
+
+#     # Get the root apps directory instead of just frappe's parent
+#     bench_path = get_bench_path()
+#     apps_path = os.path.join(bench_path, "apps")
+#     logger.info(f"Apps path: {apps_path}")
+#     # apps_path = frappe.get_app_path("frappe", "..")
+#     po_files = []
+
+#     # Scan for all .po files in apps
+#     pattern = os.path.join(apps_path, "*", "**", "*.po")
+#     for file_path in glob(pattern, recursive=True):
+#         # Skip translation_tools/translations (to avoid self-translations)
+#         if "translation_tools/translations" in file_path:
+#             continue
+
+#         rel_path = os.path.relpath(file_path, apps_path)
+#         app_name = rel_path.split(os.path.sep)[0]
+#         filename = os.path.basename(file_path)
+
+#         po_files.append({"path": file_path, "app": app_name, "filename": filename})
+
+#     logger.info(f"Found {len(po_files)} PO files")
+#     return po_files
 
 @frappe.whitelist()
-def get_po_file_contents(file_path):
-    """Get the contents of a PO file with translation status"""
-    logger.info(f"Getting PO file contents for {file_path}")
+def translate_po_file(file_path, model_provider="openai", model=None):
+    """Translate an entire PO file using AI"""
+    if not os.path.exists(file_path):
+        frappe.throw(_("File not found: {0}").format(file_path))
+    
+    # Create a log file
+    log_dir = os.path.join(frappe.utils.get_bench_path(), "logs", "translation_logs")
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, f"translate_{os.path.basename(file_path)}_{frappe.utils.now().replace(':', '-')}.log")
+    
+    # Set up logging
+    file_handler = logging.FileHandler(log_file)
+    logger.addHandler(file_handler)
+    logger.setLevel(logging.DEBUG)
+    
+    try:
+        logger.info(f"Starting translation of {file_path}")
+        
+        # Load the PO file
+        po = polib.pofile(file_path)
+        
+        # Get settings
+        settings = get_translation_settings()
+        
+        # Use the specified model provider or default
+        provider = model_provider or settings.get("default_model_provider", "openai")
+        
+        # Use the specified model or default based on provider
+        if not model:
+            if provider == "openai":
+                model = settings.get("default_model", "gpt-4-1106-preview")
+            else:
+                model = settings.get("default_model", "claude-3-haiku")
+        
+        # Get API keys
+        api_key = None
+        if provider == "openai":
+            api_key = settings.get("openai_api_key")
+        else:
+            api_key = settings.get("anthropic_api_key")
+        
+        if not api_key:
+            frappe.throw(_("API key not configured for {0}").format(provider))
+        
+        # Get entries to translate
+        entries_to_translate = [entry for entry in po if not entry.msgstr]
+        total_entries = len(entries_to_translate)
+        translated_count = 0
+        
+        logger.info(f"Found {total_entries} entries to translate")
+        
+        # Batch size from settings
+        batch_size = settings.get("batch_size", 10)
+        
+        # Process in batches
+        for i in range(0, total_entries, batch_size):
+            batch = entries_to_translate[i:i + batch_size]
+            logger.info(f"Processing batch {i//batch_size + 1}, entries {i+1}-{min(i+batch_size, total_entries)}")
+            
+            # Translate each entry in the batch
+            for entry in batch:
+                try:
+                    translation = call_ai_translation_api(
+                        source_text=entry.msgid,
+                        provider=provider,
+                        model=model,
+                        api_key=api_key,
+                        temperature=settings.get("temperature", 0.3)
+                    )
+                    
+                    entry.msgstr = translation
+                    translated_count += 1
+                    logger.info(f"Translated: '{entry.msgid}' → '{translation}'")
+                except Exception as e:
+                    logger.error(f"Error translating entry: {e}")
+            
+            # Save progress after each batch
+            po.metadata["PO-Revision-Date"] = time.strftime("%Y-%m-%d %H:%M%z")
+            po.save(file_path)
+            logger.info(f"Saved progress after batch {i//batch_size + 1}")
+            
+            # Sleep between batches to avoid rate limiting
+            if i + batch_size < total_entries:
+                time.sleep(2)
+        
+        # Update PO File record in database
+        if frappe.db.exists("PO File", {"file_path": file_path}):
+            file_doc = frappe.get_doc("PO File", {"file_path": file_path})
+            file_doc.translated_entries = len(po.translated_entries())
+            file_doc.translation_status = int((file_doc.translated_entries / file_doc.total_entries) * 100) if file_doc.total_entries > 0 else 0
+            file_doc.last_modified = frappe.utils.now()
+            file_doc.save()
+        
+        logger.info(f"Translation completed. Translated {translated_count} entries.")
+        
+        return {
+            "success": True,
+            "translated_count": translated_count,
+            "log_file": log_file
+        }
+    except Exception as e:
+        logger.error(f"Error during translation: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "log_file": log_file
+        }
+    finally:
+        # Remove file handler
+        logger.removeHandler(file_handler)
+        file_handler.close()
 
+@frappe.whitelist()
+def get_po_file_entries(file_path):
+    """Get entries from a PO file"""
+    if not os.path.exists(file_path):
+        frappe.throw(_("File not found: {0}").format(file_path))
+    
     try:
         po = polib.pofile(file_path)
-
-        print("po.metadata", po.metadata)
-
-        # Get file stats
-        total_entries = len(po)
-        translated = len(po.translated_entries())
-        untranslated = len(po.untranslated_entries())
-        fuzzy = len(po.fuzzy_entries())
-
-        # Get metadata
+        
+        # Get file metadata
         metadata = {
-            "Project": po.metadata.get("Project-Id-Version", ""),
-            "Language": po.metadata.get("Language", ""),
-            "Last-Translator": po.metadata.get("Last-Translator", ""),
-            "POT-Creation-Date": po.metadata.get("POT-Creation-Date", ""),
-            "PO-Revision-Date": po.metadata.get("PO-Revision-Date", ""),
+            "language": po.metadata.get("Language", "Unknown"),
+            "project": po.metadata.get("Project-Id-Version", "Unknown"),
+            "last_updated": po.metadata.get("PO-Revision-Date", "Unknown")
         }
-
-        # Get a limited number of entries for preview
+        
+        # Process entries
         entries = []
-        max_entries = 100  # Limit the number of entries to prevent large responses
-        count = 0
+        for i, entry in enumerate(po):
+            entries.append({
+                "id": str(i),  # Use index as ID
+                "msgid": entry.msgid,
+                "msgstr": entry.msgstr,
+                "is_translated": bool(entry.msgstr),
+                "comments": [c for c in entry.comment.split("\n") if c] if entry.comment else [],
+                "context": entry.msgctxt
+            })
+        
+        # Calculate statistics
+        total = len(po)
+        translated = len(po.translated_entries())
+        
+        return {
+            "path": file_path,
+            "metadata": metadata,
+            "entries": entries,
+            "stats": {
+                "total": total,
+                "translated": translated,
+                "untranslated": total - translated,
+                "percentage": int((translated / total) * 100) if total > 0 else 0
+            }
+        }
+    except Exception as e:
+        frappe.log_error(f"Error parsing PO file: {e}")
+        frappe.throw(_("Error parsing PO file: {0}").format(str(e)))
 
-        for entry in po:
-            if count >= max_entries:
+@frappe.whitelist()
+def get_po_file_contents(file_path, limit=100, offset=0):
+    """Get contents of a PO file including metadata and statistics"""
+    if not os.path.exists(file_path):
+        frappe.throw(_("File not found: {0}").format(file_path))
+    
+    try:
+        # Load the PO file
+        po = polib.pofile(file_path)
+        
+        # Extract metadata
+        metadata = po.metadata
+        
+        # Calculate statistics
+        total = len(po)
+        translated = len(po.translated_entries())
+        fuzzy = len(po.fuzzy_entries())
+        untranslated = total - translated - fuzzy
+        
+        # Process entries with pagination
+        entries = []
+        start_idx = int(offset)
+        end_idx = start_idx + int(limit)
+        has_more = total > end_idx
+        
+        for i, entry in enumerate(po):
+            if i < start_idx:
+                continue
+            if i >= end_idx:
                 break
-
-            entries.append(
-                {
-                    "msgid": entry.msgid,
-                    "msgstr": entry.msgstr,
-                    "msgctxt": entry.msgctxt,
-                    "is_translated": bool(entry.msgstr),
-                    "is_fuzzy": "fuzzy" in entry.flags,
-                    "locations": entry.occurrences,
-                    "entry_type": (
-                        "fuzzy"
-                        if "fuzzy" in entry.flags
-                        else ("translated" if entry.msgstr else "untranslated")
-                    ),
-                    "index": count,
-                }
-            )
-            count += 1
-
-        result = {
+                
+            entries.append({
+                "msgid": entry.msgid,
+                "msgstr": entry.msgstr,
+                "is_translated": bool(entry.msgstr),
+                "is_fuzzy": "fuzzy" in entry.flags,
+                "entry_type": "fuzzy" if "fuzzy" in entry.flags else "translated" if entry.msgstr else "untranslated"
+            })
+        
+        return {
             "metadata": metadata,
             "statistics": {
-                "total": total_entries,
+                "total": total,
                 "translated": translated,
                 "untranslated": untranslated,
                 "fuzzy": fuzzy,
-                "percent_translated": round(
-                    (translated / total_entries) * 100 if total_entries > 0 else 0, 2
-                ),
+                "percent_translated": int((translated / total) * 100) if total > 0 else 0
             },
             "entries": entries,
-            "has_more": count < total_entries,
+            "has_more": has_more
         }
-
-        logger.info(
-            f"Successfully retrieved PO file contents with {len(entries)} entries"
-        )
-        return result
-
     except Exception as e:
-        logger.error(f"Error getting PO file contents: {str(e)}", exc_info=True)
-        frappe.log_error(f"Error getting PO file contents: {str(e)}")
-        return {"error": str(e)}
+        frappe.log_error(f"Error processing PO file: {e}")
+        frappe.throw(_("Error processing PO file: {0}").format(str(e)))
 
 
 @frappe.whitelist()
 def get_glossary_terms():
-    """Get all terms from the Translation Glossary"""
-    try:
-        terms = frappe.get_all(
-            "Translation Glossary Term",
-            fields=[
-                "source_term",
-                "thai_translation",
-                "context",
-                "category",
-                "is_approved",
-                "module",
-            ],
-            order_by="source_term",
-        )
+    """Get all glossary terms"""
+    return frappe.get_all(
+        "Translation Glossary Term",
+        fields=["name", "source_term", "thai_translation", "context", "category", "module", "is_approved"],
+        order_by="source_term"
+    )
 
-        # Also get the modules for proper display
-        modules = {}
-        for module in frappe.get_all("ERPNext Module", fields=["name", "module_name"]):
-            modules[module.name] = module.module_name
-
-        return {"terms": terms, "modules": modules}
-    except Exception as e:
-        logger.error(f"Error getting glossary terms: {str(e)}", exc_info=True)
-        frappe.log_error(f"Error getting glossary terms: {str(e)}")
-        return {"error": str(e)}
-
+def get_glossary_terms_dict():
+    """Get glossary terms as a dictionary for AI context"""
+    terms = get_glossary_terms()
+    return {term.source_term: term.thai_translation for term in terms if term.is_approved}
 
 @frappe.whitelist()
-def add_glossary_term(
-    source_term, thai_translation, context=None, category=None, module=None
-):
-    """Add a new term to the glossary"""
+def add_glossary_term(term):
+    """Add a new glossary term"""
+    term_data = frappe._dict(term) if isinstance(term, dict) else frappe._dict(json.loads(term))
+    
+    doc = frappe.new_doc("Translation Glossary Term")
+    doc.source_term = term_data.source_term
+    doc.thai_translation = term_data.thai_translation
+    
+    if term_data.context:
+        doc.context = term_data.context
+    
+    if term_data.category:
+        doc.category = term_data.category
+    
+    if term_data.module:
+        doc.module = term_data.module
+    
+    doc.is_approved = cint(term_data.is_approved)
+    
+    doc.insert()
+    frappe.db.commit()
+    
+    return {"success": True, "name": doc.name}
+
+@frappe.whitelist()
+def update_glossary_term(term_name, updates):
+    """Update a glossary term"""
+    updates_data = frappe._dict(updates) if isinstance(updates, dict) else frappe._dict(json.loads(updates))
+    
+    doc = frappe.get_doc("Translation Glossary Term", term_name)
+    
+    # Update fields
+    if "source_term" in updates_data:
+        doc.source_term = updates_data.source_term
+    
+    if "thai_translation" in updates_data:
+        doc.thai_translation = updates_data.thai_translation
+    
+    if "context" in updates_data:
+        doc.context = updates_data.context
+    
+    if "category" in updates_data:
+        doc.category = updates_data.category
+    
+    if "module" in updates_data:
+        doc.module = updates_data.module
+    
+    if "is_approved" in updates_data:
+        doc.is_approved = cint(updates_data.is_approved)
+    
+    doc.save()
+    frappe.db.commit()
+    
+    return {"success": True}
+
+@frappe.whitelist()
+def delete_glossary_term(term_name):
+    """Delete a glossary term"""
+    frappe.delete_doc("Translation Glossary Term", term_name)
+    frappe.db.commit()
+    
+    return {"success": True}
+
+@frappe.whitelist()
+def get_erpnext_modules():
+    """Get all ERPNext modules"""
+    return frappe.get_all(
+        "ERPNext Module",
+        fields=["name", "module_name", "description"],
+        order_by="module_name"
+    )
+
+@frappe.whitelist()
+def get_translation_settings():
+    """Get translation settings"""
+    settings = frappe._dict({
+        "default_model_provider": "openai",
+        "default_model": "gpt-4-1106-preview",
+        "openai_api_key": frappe.db.get_single_value("Translation Settings", "openai_api_key") or "",
+        "anthropic_api_key": frappe.db.get_single_value("Translation Settings", "anthropic_api_key") or "",
+        "batch_size": cint(frappe.db.get_single_value("Translation Settings", "batch_size") or 10),
+        "temperature": float(frappe.db.get_single_value("Translation Settings", "temperature") or 0.3),
+        "auto_save": cint(frappe.db.get_single_value("Translation Settings", "auto_save") or 0),
+        "preserve_formatting": cint(frappe.db.get_single_value("Translation Settings", "preserve_formatting") or 1)
+    })
+    
+    return settings
+
+@frappe.whitelist()
+def save_translation_settings(settings):
+    """Save translation settings"""
+    settings_data = frappe._dict(settings) if isinstance(settings, dict) else frappe._dict(json.loads(settings))
+    
+    # Check if Translation Settings doctype exists, create if not
+    if not frappe.db.exists("DocType", "Translation Settings"):
+        create_translation_settings_doctype()
+    
+    # Get or create the settings doc
+    if not frappe.db.exists("Translation Settings", "Translation Settings"):
+        doc = frappe.new_doc("Translation Settings")
+        doc.name = "Translation Settings"
+    else:
+        doc = frappe.get_doc("Translation Settings", "Translation Settings")
+    
+    # Update settings
+    doc.default_model_provider = settings_data.get("default_model_provider", "openai")
+    doc.default_model = settings_data.get("default_model", "gpt-4-1106-preview")
+    
+    if "openai_api_key" in settings_data:
+        doc.openai_api_key = settings_data.openai_api_key
+    
+    if "anthropic_api_key" in settings_data:
+        doc.anthropic_api_key = settings_data.anthropic_api_key
+    
+    doc.batch_size = cint(settings_data.get("batch_size", 10))
+    doc.temperature = float(settings_data.get("temperature", 0.3))
+    doc.auto_save = cint(settings_data.get("auto_save", 0))
+    doc.preserve_formatting = cint(settings_data.get("preserve_formatting", 1))
+    
+    doc.save()
+    frappe.db.commit()
+    
+    return {"success": True}
+
+def create_translation_settings_doctype():
+    """Create the Translation Settings DocType"""
+    from frappe.modules.import_file import import_doc_from_dict
+    
+    # Create Translation Settings DocType
+    translation_settings_doctype = {
+        "doctype": "DocType",
+        "name": "Translation Settings",
+        "module": "Translation Tools",
+        "custom": 1,
+        "issingle": 1,
+        "fields": [
+            {
+                "fieldname": "default_model_provider",
+                "label": "Default Model Provider",
+                "fieldtype": "Select",
+                "options": "openai\nclaude",
+                "default": "openai"
+            },
+            {
+                "fieldname": "default_model",
+                "label": "Default Model",
+                "fieldtype": "Data",
+                "default": "gpt-4-1106-preview"
+            },
+            {
+                "fieldname": "openai_api_key",
+                "label": "OpenAI API Key",
+                "fieldtype": "Password",
+            },
+            {
+                "fieldname": "anthropic_api_key",
+                "label": "Anthropic API Key",
+                "fieldtype": "Password",
+            },
+            {
+                "fieldname": "batch_size",
+                "label": "Batch Size",
+                "fieldtype": "Int",
+                "default": "10"
+            },
+            {
+                "fieldname": "temperature",
+                "label": "Temperature",
+                "fieldtype": "Float",
+                "default": "0.3"
+            },
+            {
+                "fieldname": "auto_save",
+                "label": "Auto-save Translations",
+                "fieldtype": "Check",
+                "default": "0"
+            },
+            {
+                "fieldname": "preserve_formatting",
+                "label": "Preserve Formatting",
+                "fieldtype": "Check",
+                "default": "1"
+            }
+        ],
+        "permissions": [
+            {
+                "role": "System Manager",
+                "read": 1,
+                "write": 1,
+                "create": 1,
+                "delete": 1,
+                "permlevel": 0
+            }
+        ]
+    }
+    
+    doc = import_doc_from_dict(translation_settings_doctype)
+    doc.save()
+    frappe.db.commit()
+
+@frappe.whitelist()
+def translate_single_entry(file_path, entry_id, model_provider="openai", model=None):
+    """Translate a single entry using AI"""
+    if not os.path.exists(file_path):
+        frappe.throw(_("File not found: {0}").format(file_path))
+
+    # Create a log file
+    log_dir = os.path.join(frappe.utils.get_bench_path(), "logs", "translation_logs")
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, f"entry_{os.path.basename(file_path)}_{entry_id}_{frappe.utils.now().replace(':', '-')}.log")
+    
+    # Set up logging
+    file_handler = logging.FileHandler(log_file)
+    logger.addHandler(file_handler)
+    logger.setLevel(logging.DEBUG)
+    
     try:
-        term = frappe.new_doc("Translation Glossary Term")
-        term.source_term = source_term
-        term.thai_translation = thai_translation
+        # Load the PO file
+        po = polib.pofile(file_path)
+        
+        # Find the entry by ID (index)
+        index = int(entry_id)
+        if index < 0 or index >= len(po):
+            frappe.throw(_("Invalid entry ID"))
+        
+        entry = po[index]
+        
+        # Get the text to translate
+        source_text = entry.msgid
+        logger.info(f"Translating entry: {source_text}")
+        
+        # Get settings
+        settings = get_translation_settings()
+        
+        # Use the specified model provider or default
+        provider = model_provider or settings.get("default_model_provider", "openai")
+        
+        # Use the specified model or default based on provider
+        if not model:
+            if provider == "openai":
+                model = settings.get("default_model", "gpt-4-1106-preview")
+            else:
+                model = settings.get("default_model", "claude-3-haiku")
+        
+        # Get API keys
+        api_key = None
+        if provider == "openai":
+            api_key = settings.get("openai_api_key")
+        else:
+            api_key = settings.get("anthropic_api_key")
+        
+        if not api_key:
+            frappe.throw(_("API key not configured for {0}").format(provider))
+        
+        # Get translation
+        translation = call_ai_translation_api(
+            source_text=source_text,
+            provider=provider,
+            model=model,
+            api_key=api_key,
+            temperature=settings.get("temperature", 0.3)
+        )
 
-        if context:
-            term.context = context
-        if category:
-            term.category = category
-        if module:
-            term.module = module
+        logger.info(f"Translation result: {translation}")
+        
+        # Automatically save if enabled
+        if settings.get("auto_save"):
+            # Update the translation
+            entry.msgstr = translation
+            
+            # Update metadata
+            po.metadata["PO-Revision-Date"] = time.strftime("%Y-%m-%d %H:%M%z")
+            
+            # Save the file
+            po.save(file_path)
+            
+            # Clear cache
+            global PO_FILES_CACHE
+            PO_FILES_CACHE = None
 
-        term.save()
-        frappe.db.commit()
-
-        return {"success": True, "message": _("Term added successfully")}
+            # Update PO File record in database
+            if frappe.db.exists("PO File", {"file_path": file_path}):
+                file_doc = frappe.get_doc("PO File", {"file_path": file_path})
+                if not entry.msgstr and translation:  # If this was previously untranslated
+                    file_doc.translated_entries += 1
+                    file_doc.translation_status = int((file_doc.translated_entries / file_doc.total_entries) * 100) if file_doc.total_entries > 0 else 0
+                file_doc.last_modified = frappe.utils.now()
+                file_doc.save()
+            
+            logger.info("Translation automatically saved")
+        
+        return {
+            "success": True, 
+            "translation": translation,
+            "log_file": log_file
+        }
     except Exception as e:
-        logger.error(f"Error adding glossary term: {str(e)}", exc_info=True)
-        frappe.log_error(f"Error adding glossary term: {str(e)}")
-        return {"error": str(e)}
+        logger.error(f"Error translating entry: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "log_file": log_file
+        }
+    finally:
+        # Remove file handler
+        logger.removeHandler(file_handler)
+        file_handler.close()
 
+def call_ai_translation_api(source_text, provider, model, api_key, temperature=0.3):
+    """Call the AI translation API"""
+    if provider == "openai":
+        import openai
+        client = openai.OpenAI(api_key=api_key)
+        
+        # Prepare glossary context
+        glossary_terms = get_glossary_terms_dict()
+        glossary_context = ""
+        if glossary_terms:
+            glossary_context = "Use these specific term translations:\n" + json.dumps(glossary_terms, indent=2)
+        
+        # Create the prompt
+        system_message = f"""
+        You are an expert translator specializing in technical and software localization.
+        Translate the following text from English to Thai.
+        {glossary_context}
+        
+        Ensure proper tone and formality appropriate for business software.
+        Preserve any formatting placeholders like {{%s}}, {{}}, or {{0}}.
+        For technical terms not in the glossary, you may keep them in English if that's conventional.
+        Return only the translation, without any explanations or notes.
+        """
+        
+        # Make the API call
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": source_text}
+            ],
+            temperature=temperature
+        )
+        
+        return response.choices[0].message.content.strip()
+    
+    elif provider == "claude":
+        import anthropic
+        client = anthropic.Anthropic(api_key=api_key)
+        
+        # Prepare glossary context
+        glossary_terms = get_glossary_terms_dict()
+        glossary_context = ""
+        if glossary_terms:
+            glossary_context = "Use these specific term translations:\n" + json.dumps(glossary_terms, indent=2)
+        
+        # Create the prompt
+        prompt = f"""
+        You are an expert translator specializing in technical and software localization.
+        Translate the following text from English to Thai.
+        {glossary_context}
+        
+        Ensure proper tone and formality appropriate for business software.
+        Preserve any formatting placeholders like {{%s}}, {{}}, or {{0}}.
+        For technical terms not in the glossary, you may keep them in English if that's conventional.
+        Return only the translation, without any explanations or notes.
+        
+        Text to translate:
+        {source_text}
+        """
+        
+        # Make the API call
+        response = client.messages.create(
+            model=model,
+            max_tokens=1000,
+            temperature=temperature,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        
+        return response.content[0].text.strip()
+    
+    else:
+        frappe.throw(_("Unsupported model provider: {0}").format(provider))
 
 @frappe.whitelist()
 def translate_entries(
@@ -463,6 +964,35 @@ def get_translation_logs(log_file=None):
         frappe.log_error(f"Error getting translation logs: {str(e)}")
         return {"error": str(e)}
 
+def analyze_logs(logs):
+    """Analyze translation logs for common patterns and issues"""
+    analysis = {
+        "api_calls": 0,
+        "api_responses": 0,
+        "errors": []
+    }
+    
+    # Count API calls
+    api_calls = re.findall(r"API call", logs)
+    analysis["api_calls"] = len(api_calls)
+    
+    # Count responses
+    responses = re.findall(r"Raw response:", logs)
+    analysis["api_responses"] = len(responses)
+    
+    # Detect errors
+    error_patterns = [
+        r"Error during translation: (.*?)(?=\n|$)",
+        r"OpenAI API error: (.*?)(?=\n|$)",
+        r"JSON parsing error: (.*?)(?=\n|$)",
+        r"Unexpected error: (.*?)(?=\n|$)"
+    ]
+    
+    for pattern in error_patterns:
+        errors = re.findall(pattern, logs)
+        analysis["errors"].extend(errors)
+    
+    return analysis
 
 @frappe.whitelist()
 def save_translations(file_path, translations):
@@ -507,24 +1037,48 @@ def save_translations(file_path, translations):
         frappe.log_error(f"Error saving translations: {str(e)}")
         return {"error": str(e)}
 
-
 @frappe.whitelist()
-def save_translation(file_path, index, msgstr):
-    """Save a single translation to the PO file"""
+def save_translation(file_path, entry_id, translation):
+    """Save a translation to a PO file and update database stats"""
+    if not os.path.exists(file_path):
+        frappe.throw(_("File not found: {0}").format(file_path))
+    
     try:
-        if not os.path.exists(file_path):
-            return {"error": "File not found"}
-
+        # Load the PO file
         po = polib.pofile(file_path)
-        po[int(index)].msgstr = msgstr
-        po.save()
-
-        return {"success": True, "message": "Translation saved successfully"}
+        
+        # Find the entry by ID (index)
+        index = int(entry_id)
+        if index < 0 or index >= len(po):
+            frappe.throw(_("Invalid entry ID"))
+        
+        entry = po[index]
+        
+        # Check if this is a new translation (i.e., previously untranslated)
+        was_untranslated = not entry.msgstr
+        
+        # Update the translation
+        entry.msgstr = translation
+        
+        # Update metadata
+        po.metadata["PO-Revision-Date"] = time.strftime("%Y-%m-%d %H:%M%z")
+        
+        # Save the file
+        po.save(file_path)
+        
+        # Update database stats if this is a new translation
+        if was_untranslated and translation:
+            if frappe.db.exists("PO File", {"file_path": file_path}):
+                file_doc = frappe.get_doc("PO File", {"file_path": file_path})
+                file_doc.translated_entries += 1
+                file_doc.translation_status = int((file_doc.translated_entries / file_doc.total_entries) * 100) if file_doc.total_entries > 0 else 0
+                file_doc.last_modified = frappe.utils.now()
+                file_doc.save()
+        
+        return {"success": True}
     except Exception as e:
-        logger.error(f"Error saving translation: {str(e)}", exc_info=True)
-        frappe.log_error(f"Error saving translation: {str(e)}")
-        return {"error": str(e)}
-
+        frappe.log_error(f"Error saving translation: {e}")
+        frappe.throw(_("Error saving translation: {0}").format(str(e)))
 
 @frappe.whitelist()
 def start_translation(

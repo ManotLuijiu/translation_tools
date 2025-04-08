@@ -123,3 +123,89 @@ def create_glossary_doctypes():
         doc = import_doc_from_dict(glossary_doctype)
         doc.save()
         print("Created DocType: Translation Glossary Term")
+
+def create_po_file_doctypes():
+    """Create DocTypes needed for the PO file tracking system"""
+    from frappe.modules.import_file import import_doc_from_dict
+    
+    # Create PO File DocType
+    if not frappe.db.exists("DocType", "PO File"):
+        po_file_doctype = {
+            "doctype": "DocType",
+            "name": "PO File",
+            "module": "Translation Tools",
+            "custom": 1,
+            "autoname": "field:file_path",
+            "fields": [
+                {
+                    "fieldname": "file_path",
+                    "label": "File Path",
+                    "fieldtype": "Data",
+                    "reqd": 1,
+                    "unique": 1,
+                },
+                {
+                    "fieldname": "app_name",
+                    "label": "App Name",
+                    "fieldtype": "Data",
+                    "reqd": 1,
+                },
+                {
+                    "fieldname": "filename",
+                    "label": "Filename",
+                    "fieldtype": "Data",
+                    "reqd": 1,
+                },
+                {
+                    "fieldname": "language",
+                    "label": "Language",
+                    "fieldtype": "Data",
+                },
+                {
+                    "fieldname": "total_entries",
+                    "label": "Total Entries",
+                    "fieldtype": "Int",
+                    "default": "0",
+                },
+                {
+                    "fieldname": "translated_entries",
+                    "label": "Translated Entries",
+                    "fieldtype": "Int",
+                    "default": "0",
+                },
+                {
+                    "fieldname": "last_modified",
+                    "label": "Last Modified",
+                    "fieldtype": "Datetime",
+                },
+                {
+                    "fieldname": "translation_status",
+                    "label": "Translation Status",
+                    "fieldtype": "Percent",
+                    "default": "0",
+                },
+                {
+                    "fieldname": "last_scanned",
+                    "label": "Last Scanned",
+                    "fieldtype": "Datetime",
+                }
+            ],
+            "permissions": [
+                {
+                    "role": "System Manager",
+                    "read": 1,
+                    "write": 1,
+                    "create": 1,
+                    "delete": 1,
+                },
+                {
+                    "role": "All",
+                    "read": 1,
+                }
+            ]
+        }
+        
+        doc = import_doc_from_dict(po_file_doctype)
+        doc.save()
+        frappe.db.commit()
+        print("Created DocType: PO File")

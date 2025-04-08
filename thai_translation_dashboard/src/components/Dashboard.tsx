@@ -1,4 +1,3 @@
-// File: apps/translation_tools/thai_translation_dashboard/src/components/Dashboard.tsx
 import React, { useState } from "react";
 import {
   Tabs,
@@ -10,9 +9,20 @@ import FileManager from "./FileManager";
 import TranslationEditor from "./TranslationEditor";
 import GlossaryManager from "./GlossaryManager";
 import SettingsPanel from "./SettingsPanel";
+import LogViewer from "./LogViewer";
 
 const Dashboard: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [logFilePath, setLogFilePath] = useState<string | null>(null);
+
+  // When a translation process completes, you can set the log file path
+  // This would typically be returned from your translation API
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleTranslationComplete = (result: any) => {
+    if (result.log_file) {
+      setLogFilePath(result.log_file);
+    }
+  };
 
   return (
     <div className="container mx-auto p-4 space-y-6">
@@ -28,6 +38,7 @@ const Dashboard: React.FC = () => {
           <TabsTrigger value="files">Files</TabsTrigger>
           <TabsTrigger value="translate">Translate</TabsTrigger>
           <TabsTrigger value="glossary">Glossary</TabsTrigger>
+          <TabsTrigger value="logs">Logs</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
@@ -39,11 +50,17 @@ const Dashboard: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="translate">
-          <TranslationEditor filePath={selectedFile} />
+          <TranslationEditor filePath={selectedFile}
+           onTranslationComplete={handleTranslationComplete}
+          />
         </TabsContent>
 
         <TabsContent value="glossary">
           <GlossaryManager />
+        </TabsContent>
+
+        <TabsContent value="logs">
+          <LogViewer logFilePath={logFilePath} />
         </TabsContent>
 
         <TabsContent value="settings">
