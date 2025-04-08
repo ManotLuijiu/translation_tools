@@ -33,6 +33,95 @@ CONFIG_FILE = os.path.join(get_bench_path(), ".erpnext_translate_config")
 print("CONFIG_FILE", CONFIG_FILE)
 logger.info(f"CONFIG_FILE: {CONFIG_FILE}")
 
+# Cache for PO files list to avoid repetitive expensive file system operations
+PO_FILES_CACHE = None
+PO_FILES_CACHE_TIMESTAMP = 0
+CACHE_EXPIRY = 300  # 5 minutes
+
+@frappe.whitelist()
+def get_cached_po_files():
+    """Get a list of all PO files in the Frappe/ERPNext ecosystem with caching"""
+    global PO_FILES_CACHE, PO_FILES_CACHE_TIMESTAMP
+    
+    current_time = time.time()
+    
+    # Return cached result if still valid
+    if PO_FILES_CACHE and (current_time - PO_FILES_CACHE_TIMESTAMP) < CACHE_EXPIRY:
+        return PO_FILES_CACHE
+    
+    logger.info("Cache expired or not initialized, fetching PO files")
+    
+    # Run the scan in a background thread to avoid blocking
+    def scan_po_files():
+        global PO_FILES_CACHE, PO_FILES_CACHE_TIMESTAMP
+        
+        try:
+            # Get the bench path
+            bench_path = get_bench_path()
+            apps_path = os.path.join(bench_path, "apps")
+            
+            po_files = []
+            
+            # Scan for all .po files in apps
+            pattern = os.path.join(apps_path, "*", "**", "*.po")
+            for file_path in glob(pattern, recursive=True):
+                # Skip translation_tools/translations (to avoid self-translations)
+                if "translation_tools/translations" in file_path:
+                    continue
+                
+                rel_path = os.path.relpath(file_path, apps_path)
+                app_name = rel_path.split(os.path.sep)[0]
+                filename = os.path.basename(file_path)
+                
+                # Get last modified time
+                try:
+                    last_modified = os.path.getmtime(file_path)
+                    last_modified_str = time.strftime("%Y-%m-%d %H:%M", time.localtime(last_modified))
+                except:
+                    last_modified_str = "Unknown"
+                
+                # Calculate the translation percentage
+                try:
+                    po = polib.pofile(file_path)
+                    total = len(po)
+                    translated = len(po.translated_entries())
+                    percentage = int((translated / total) * 100) if total > 0 else 0
+                except Exception as e:
+                    logger.error(f"Error parsing PO file {file_path}: {e}")
+                    percentage = 0
+
+                 po_files.append({
+                    "path": file_path, 
+                    "app": app_name, 
+                    "filename": filename,
+                    "last_modified": last_modified_str,
+                    "translated_percentage": percentage
+                })
+            # Sort by app name and then by filename
+            po_files.sort(key=lambda x: (x["app"], x["filename"]))
+            
+            # Update the cache
+            PO_FILES_CACHE = po_files
+            PO_FILES_CACHE_TIMESTAMP = current_time
+            
+            logger.info(f"Found {len(po_files)} PO files")
+        except Exception as e:
+            logger.error(f"Error in scan_po_files: {e}")
+            PO_FILES_CACHE = []
+            PO_FILES_CACHE_TIMESTAMP = current_time
+
+    # Start a quick scan to return initial results
+    quick_scan_thread = threading.Thread(target=scan_po_files)
+    quick_scan_thread.daemon = True
+    quick_scan_thread.start()
+    
+    # Wait for a moment to let the quick scan complete
+    quick_scan_thread.join(timeout=3)
+    
+    # If scan completed, return the results, otherwise return empty list
+    return PO_FILES_CACHE or []
+
+
 
 @frappe.whitelist()
 def get_po_files():
@@ -70,6 +159,8 @@ def get_po_file_contents(file_path):
 
     try:
         po = polib.pofile(file_path)
+
+        print("po.metadata", po.metadata)
 
         # Get file stats
         total_entries = len(po)

@@ -22,3 +22,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+../translation_tools/public/thai_translation_dashboard/assets/index-*.js/css

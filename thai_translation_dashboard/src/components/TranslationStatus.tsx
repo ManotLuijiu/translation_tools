@@ -68,6 +68,8 @@ const TranslationStatus: React.FC<TranslationStatusProps> = ({ filePath }) => {
   }
 
   const { metadata, statistics } = data.message;
+  console.log('metadata',metadata)
+  console.log('statistics',statistics)
 
   return (
     <div className="mb-6">

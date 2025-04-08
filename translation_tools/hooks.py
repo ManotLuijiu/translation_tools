@@ -37,6 +37,10 @@ commands = [
 ]
 website_route_rules = [{'from_route': '/thai_translation_dashboard/<path:app_path>', 'to_route': 'thai_translation_dashboard'},]
 
+app_include_js = [
+    "/assets/translation_tools/thai_translation_dashboard/index.js"
+]
+
 # Add page to navbar
 get_desk_sidebar_items = [
     {

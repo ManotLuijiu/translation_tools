@@ -1,5 +1,9 @@
 GLOSSARY = {
     # Basic business terms
+    "All": "ทั้งหมด",
+    "Business": "ธุรกิจ",
+    "Category": "หมวดหมู่",
+    "Context": "บริบท",
     "Invoice": "ใบแจ้งหนี้",
     "Sales Invoice": "ใบแจ้งหนี้ขาย",
     "Purchase Invoice": "ใบแจ้งหนี้ซื้อ",
@@ -14,8 +18,15 @@ GLOSSARY = {
     "Sales Order": "ใบสั่งขาย",
     "Delivery Note": "ใบส่งสินค้า",
     "Receipt": "ใบเสร็จรับเงิน",
+    "Description": "รายละเอียด",
+    "Quantity": "จำนวน",
+    "Unit Price": "ราคาต่อหน่วย",
     # Common ERPNext modules
+    "Sales": "ขาย",
+    "Purchases": "ซื้อ",
+    "Inventory": "คลังสินค้า",
     "Accounting": "การบัญชี",
+    "ERPNext Module": "โมดูล ERPNext",
     "Human Resources": "ทรัพยากรบุคคล",
     "Manufacturing": "การผลิต",
     "Buying": "การซื้อ",
@@ -30,6 +41,8 @@ GLOSSARY = {
     "Withholding Tax": "ภาษีหัก ณ ที่จ่าย",
     "Tax Invoice": "ใบกำกับภาษี",
     # Date/Time terms
+    "Date/Time": "วัน/เวลา",
+    "Date and Time": "วันที่และเวลา",
     "Date": "วันที่",
     "Time": "เวลา",
     "Year": "ปี",
@@ -42,5 +55,17 @@ GLOSSARY = {
     "Draft": "ฉบับร่าง",
     "Submitted": "ส่งแล้ว",
     "Paid": "ชำระแล้ว",
-    # Add more terms as needed
+    "Is Approved": "อนุมัติแล้ว",
+    "Is Rejected": "ปฏิเสธแล้ว",
+    # Other"
+    "Loading translation dashboard...": "กำลังโหลดกระดานข้อมูลแปลภาษา",
+    "Module Name": "ชื่อ โมดูล",
+    "Module": "โมดูล",
+    "Print Message": "พิมพ์ข้อความ",
+    "Priority": "ลำดับความสำคัญ",
+    "Refresh": "ดึงข้อมูลใหม่",
+    "Source Term": "แหล่งข้อมูล",
+    "Status": "สถานะ",
+    "Thai Translation": "แปลเป็นไทย",
+    "Translation Dashboard": "กระดานข้อมูลแปลภาษา",
 }

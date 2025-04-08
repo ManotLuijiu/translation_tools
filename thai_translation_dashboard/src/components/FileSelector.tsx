@@ -34,7 +34,12 @@ const FileSelector: React.FC<Props> = ({ onFileSelect, selectedFile }) => {
       <h2 className="text-xl font-semibold">Select a PO file</h2>
 
       <div className="flex items-center gap-2">
-        <Button onClick={() => mutate()} variant="outline" size="sm">
+        <Button
+          onClick={() => mutate()}
+          variant="outline"
+          size="sm"
+          className="cursor-pointer"
+        >
           Refresh Files
         </Button>
 
@@ -51,7 +56,7 @@ const FileSelector: React.FC<Props> = ({ onFileSelect, selectedFile }) => {
 
       {isLoading ? (
         <div className="h-60 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-moo-blue"></div>
         </div>
       ) : error ? (
         <div className="p-4 border border-red-200 bg-red-50 text-red-700 rounded">
@@ -111,6 +116,7 @@ const FileSelector: React.FC<Props> = ({ onFileSelect, selectedFile }) => {
                             selectedFile === file.path ? "secondary" : "outline"
                           }
                           size="sm"
+                          className="cursor-pointer"
                         >
                           {selectedFile === file.path ? "Selected" : "Select"}
                         </Button>

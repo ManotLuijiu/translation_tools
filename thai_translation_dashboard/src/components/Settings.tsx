@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -11,10 +11,8 @@ import {
 } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Input } from "./ui/input";
-// import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-// import { Badge } from "./ui/badge";
 import { Switch } from "./ui/switch";
 import {
   Select,
@@ -23,11 +21,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-// import { InfoCircle, AlertCircle, HelpCircle } from "lucide-react";
-import { Info, HelpCircle } from "lucide-react";
+import { Info, HelpCircle, Eye, EyeOff, Loader2 } from "lucide-react";
+import { useFrappeGetCall } from "frappe-react-sdk";
 
-// Note: This is a simplified settings component. In a real application,
-// you would connect this to the API to save/load settings.
+interface ConfigResponse {
+  success: boolean;
+  config?: {
+    OPENAI_API_KEY?: string;
+    ANTHROPIC_API_KEY?: string;
+    MODEL_PROVIDER?: string;
+  };
+  exists: boolean;
+}
+
+const __ = (window as any).__ || ((msg: string) => msg); // fallback
+
+console.log(window.__);
+// console.log(frappe.call);
 
 const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"api" | "translation" | "about">(
@@ -36,14 +46,33 @@ const Settings: React.FC = () => {
 
   // API Settings
   const [apiConfig, setApiConfig] = useState({
-    openaiApiKey: "******************************", // Masked for security
-    anthropicApiKey: "******************************", // Masked for security
+    openaiApiKey: "",
+    anthropicApiKey: "",
     defaultProvider: "openai",
   });
 
+  // State for showing/hiding API keys
+  const [showOpenAiKey, setShowOpenAiKey] = useState(false);
+  const [showAnthropicKey, setShowAnthropicKey] = useState(false);
+
+  // State for config file status
+  const [configFileExists, setConfigFileExists] = useState<boolean | null>(
+    null
+  );
+
+  // Fetch config file data
+  const {
+    data: configData,
+    error: configError,
+    isLoading: configLoading,
+  } = useFrappeGetCall<{ message: ConfigResponse }>(
+    "translation_tools.api.get_config_file",
+    {}
+  );
+
   // Translation Settings
   const [translationSettings, setTranslationSettings] = useState({
-    defaultModel: "gpt-4-1106-preview",
+    defaultModel: "gpt-4o-mini",
     batchSize: "10",
     temperature: "0.3",
     maxTokens: "512",
@@ -58,6 +87,22 @@ const Settings: React.FC = () => {
     repository: "https://github.com/ManotLuijiu/translation_tools",
     license: "MIT",
   };
+
+  // Load config data from the API response
+  useEffect(() => {
+    if (configData && configData.message) {
+      const { exists, config } = configData.message;
+      setConfigFileExists(exists);
+
+      if (exists && config) {
+        setApiConfig({
+          openaiApiKey: config.OPENAI_API_KEY || "",
+          anthropicApiKey: config.ANTHROPIC_API_KEY || "",
+          defaultProvider: config.MODEL_PROVIDER || "openai",
+        });
+      }
+    }
+  }, [configData]);
 
   const handleApiConfigChange = (
     key: keyof typeof apiConfig,
@@ -74,15 +119,64 @@ const Settings: React.FC = () => {
   };
 
   const handleSaveApiSettings = () => {
-    console.log("API settings saved:", apiConfig);
     // In a real application, this would call the API to save settings
-    alert("API settings saved successfully!");
+    // Using frappe.call to call a Python method
+    (window as any).frappe.call({
+      method: "translation_tools.api.save_api_settings",
+      args: {
+        openai_api_key: apiConfig.openaiApiKey,
+        anthropic_api_key: apiConfig.anthropicApiKey,
+        default_provider: apiConfig.defaultProvider,
+      },
+      callback: function (response: any) {
+        if (response.message && response.message.success) {
+          (window as any).frappe.show_alert({
+            message: __("API settings saved successfully!"),
+            indicator: "green",
+          });
+        } else {
+          (window as any).frappe.show_alert({
+            message: __("Failed to save API settings"),
+            indicator: "red",
+          });
+        }
+      },
+    });
   };
 
   const handleSaveTranslationSettings = () => {
-    console.log("Translation settings saved:", translationSettings);
     // In a real application, this would call the API to save settings
-    alert("Translation settings saved successfully!");
+    (window as any).frappe.call({
+      method: "translation_tools.api.save_translation_settings",
+      args: {
+        default_model: translationSettings.defaultModel,
+        batch_size: parseInt(translationSettings.batchSize),
+        temperature: parseFloat(translationSettings.temperature),
+        max_tokens: parseInt(translationSettings.maxTokens),
+        use_glossary: translationSettings.useGlossary,
+      },
+      callback: function (response: any) {
+        if (response.message && response.message.success) {
+          (window as any).frappe.show_alert({
+            message: __("Translation settings saved successfully!"),
+            indicator: "green",
+          });
+        } else {
+          (window as any).frappe.show_alert({
+            message: __("Failed to save translation settings"),
+            indicator: "red",
+          });
+        }
+      },
+    });
+  };
+
+  // Mask API keys for display
+  const maskApiKey = (key: string): string => {
+    if (!key) return "";
+    const firstFour = key.substring(0, 4);
+    const lastFour = key.substring(key.length - 4);
+    return `${firstFour}...${lastFour}`;
   };
 
   return (
@@ -112,44 +206,101 @@ const Settings: React.FC = () => {
                 <AlertDescription>
                   API keys are stored in the .erpnext_translate_config file in
                   your bench directory. Changes made here will update that file.
+                  {configFileExists === false && (
+                    <div className="mt-2 text-amber-600">
+                      Config file not found. It will be created when you save
+                      settings.
+                    </div>
+                  )}
                 </AlertDescription>
               </Alert>
 
-              <div className="grid gap-2">
-                <Label htmlFor="openai-api-key">OpenAI API Key</Label>
-                <Input
-                  id="openai-api-key"
-                  type="password"
-                  value={apiConfig.openaiApiKey}
-                  onChange={(e) =>
-                    handleApiConfigChange("openaiApiKey", e.target.value)
-                  }
-                  placeholder="sk-..."
-                />
-                <p className="text-xs text-muted-foreground">
-                  Your OpenAI API key for GPT models. Get one at{" "}
-                  <a
-                    href="https://platform.openai.com/api-keys"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
-                  >
-                    platform.openai.com
-                  </a>
-                </p>
-              </div>
+              {configLoading ? (
+                <div className="flex items-center justify-center p-6">
+                  <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                  <span>Loading configuration...</span>
+                </div>
+              ) : configError ? (
+                <Alert variant="destructive">
+                  <AlertTitle>Error loading configuration</AlertTitle>
+                  <AlertDescription>
+                    Failed to load API settings. Please try again or check
+                    server logs.
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <>
+                  <div className="grid gap-2">
+                    <Label htmlFor="openai-api-key">OpenAI API Key</Label>
+                    <div className="flex">
+                      <Input
+                        id="openai-api-key"
+                        type={showOpenAiKey ? "text" : "password"}
+                        value={
+                          showOpenAiKey
+                            ? apiConfig.openaiApiKey
+                            : maskApiKey(apiConfig.openaiApiKey)
+                        }
+                        onChange={(e) =>
+                          handleApiConfigChange("openaiApiKey", e.target.value)
+                        }
+                        placeholder="sk-..."
+                        className="flex-grow"
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="ml-2"
+                        onClick={() => setShowOpenAiKey(!showOpenAiKey)}
+                      >
+                        {showOpenAiKey ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Your OpenAI API key for GPT models. Get one at{" "}
+                      <a
+                        href="https://platform.openai.com/api-keys"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        platform.openai.com
+                      </a>
+                    </p>
+                  </div>
+                </>
+              )}
 
               <div className="grid gap-2">
                 <Label htmlFor="anthropic-api-key">Anthropic API Key</Label>
-                <Input
-                  id="anthropic-api-key"
-                  type="password"
-                  value={apiConfig.anthropicApiKey}
-                  onChange={(e) =>
-                    handleApiConfigChange("anthropicApiKey", e.target.value)
-                  }
-                  placeholder="sk_ant_..."
-                />
+                <div className="flex">
+                  <Input
+                    id="anthropic-api-key"
+                    type={showAnthropicKey ? "text" : "password"}
+                    value={apiConfig.anthropicApiKey}
+                    onChange={(e) =>
+                      handleApiConfigChange("anthropicApiKey", e.target.value)
+                    }
+                    placeholder="sk_ant_..."
+                    className="flex-grow"
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="ml-2"
+                    onClick={() => setShowAnthropicKey(!showAnthropicKey)}
+                  >
+                    {showAnthropicKey ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
                 <p className="text-xs text-muted-foreground">
                   Your Anthropic API key for Claude models. Get one at{" "}
                   <a
@@ -208,11 +359,9 @@ const Settings: React.FC = () => {
                     <SelectValue placeholder="Select default model" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-                    <SelectItem value="gpt-4">GPT-4</SelectItem>
-                    <SelectItem value="gpt-4-1106-preview">
-                      GPT-4 Turbo
-                    </SelectItem>
+                    <SelectItem value="gpt-4o-mini">GPT-4o mini</SelectItem>
+                    <SelectItem value="gpt-4o">GPT-4o</SelectItem>
+                    <SelectItem value="gpt-4-turbo">GPT-4 Turbo</SelectItem>
                     <SelectItem value="claude-3-haiku-20240307">
                       Claude 3 Haiku
                     </SelectItem>

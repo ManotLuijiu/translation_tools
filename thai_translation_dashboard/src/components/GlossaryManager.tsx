@@ -79,9 +79,7 @@ const GlossaryManager: React.FC = () => {
     call: addTermCall,
     loading: addingTerm,
     error: addTermError,
-  } = useFrappePostCall(
-    "translation_tools.api.add_glossary_term"
-  );
+  } = useFrappePostCall("translation_tools.api.add_glossary_term");
 
   // Filter terms
   const filteredTerms =
@@ -91,9 +89,10 @@ const GlossaryManager: React.FC = () => {
           term.thai_translation.toLowerCase().includes(searchTerm.toLowerCase())
         : true;
 
-      const matchesCategory = categoryFilter
-        ? term.category === categoryFilter
-        : true;
+      const matchesCategory =
+        categoryFilter && categoryFilter !== "all"
+          ? term.category === categoryFilter
+          : true;
 
       return matchesSearch && matchesCategory;
     }) || [];
@@ -160,7 +159,7 @@ const GlossaryManager: React.FC = () => {
             <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Categories</SelectItem>
+            <SelectItem value="all">All Categories</SelectItem>
             {categoryOptions.map((category) => (
               <SelectItem key={category.value} value={category.value}>
                 {category.label}

@@ -12,6 +12,7 @@ export default defineConfig({
     host: "0.0.0.0",
     proxy: proxyOptions,
     allowedHosts: ["erpnext-dev.bunchee.online"],
+    // allowedHosts: ["all"],
   },
   resolve: {
     alias: {
