@@ -16,7 +16,7 @@ export type TranslationSettings = {
  */
 export function useGetTranslationSettings() {
   return useFrappeGetCall<{ message: TranslationSettings }>(
-    "translation_tools.api.get_translation_settings",
+    "translation_tools.api.settings.get_translation_settings",
     {}
   );
 }
@@ -26,7 +26,7 @@ export function useGetTranslationSettings() {
  */
 export function useSaveTranslationSettings() {
   return useFrappePostCall<{ success: boolean }>(
-    "translation_tools.api.save_translation_settings"
+    "translation_tools.api.settings.save_translation_settings"
   );
 }
 
@@ -35,6 +35,27 @@ export function useSaveTranslationSettings() {
  */
 export function useSaveApiKey() {
   return useFrappePostCall<{ message: string; status: string }>(
-    "translation_tools.api.save_api_key"
+    "translation_tools.api.settings.save_api_key"
   );
+}
+
+/**
+ * Get translation settings from file
+ */
+export function useGetTranslationSettingsFile() {
+  return useFrappeGetCall(
+    "translation_tools.api.settings.get_translation_settings_file",
+    {}
+  );
+}
+
+/**
+ * Save translation settings to file
+ */
+export function useSaveTranslationSettingsFile() {
+  return useFrappePostCall<{
+    success: boolean;
+    message?: string;
+    error?: string;
+  }>("translation_tools.api.settings.save_translation_settings_file");
 }

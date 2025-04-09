@@ -1,4 +1,4 @@
-import { useFrappePostCall } from 'frappe-react-sdk';
+import { useFrappePostCall } from "frappe-react-sdk";
 
 export type TranslationResult = {
   success: boolean;
@@ -25,7 +25,7 @@ export type LogAnalysis = {
  */
 export function useTranslateSingleEntry() {
   return useFrappePostCall<TranslationResult>(
-    'translation_tools.api.translate_single_entry'
+    "translation_tools.api.translation.translate_single_entry"
   );
 }
 
@@ -34,16 +34,7 @@ export function useTranslateSingleEntry() {
  */
 export function useTranslatePOFile() {
   return useFrappePostCall<TranslationResult>(
-    'translation_tools.api.translate_po_file'
-  );
-}
-
-/**
- * Save a translation to a PO file
- */
-export function useSaveTranslation() {
-  return useFrappePostCall<{ success: boolean }>(
-    'translation_tools.api.save_translation'
+    "translation_tools.api.translation.translate_po_file"
   );
 }
 
@@ -52,7 +43,7 @@ export function useSaveTranslation() {
  */
 export function useTranslateBatch() {
   return useFrappePostCall<BatchTranslationResult>(
-    'translation_tools.api.translate_batch'
+    "translation_tools.api.translation.translate_batch"
   );
 }
 
@@ -60,23 +51,12 @@ export function useTranslateBatch() {
  * Get translation logs
  */
 export function useGetTranslationLogs() {
-  return useFrappePostCall<{ 
+  return useFrappePostCall<{
     success: boolean;
     logs?: string;
     analysis?: LogAnalysis;
     error?: string;
-  }>('translation_tools.api.get_translation_logs');
-}
-
-/**
- * Save multiple translations to a PO file
- */
-export function useSaveTranslations() {
-  return useFrappePostCall<{
-    success?: boolean;
-    message?: string;
-    error?: string;
-  }>('translation_tools.api.save_translations');
+  }>("translation_tools.api.translation.get_translation_logs");
 }
 
 /**
@@ -86,5 +66,5 @@ export function useStartTranslation() {
   return useFrappePostCall<{
     message: string;
     status: string;
-  }>('translation_tools.api.start_translation');
+  }>("translation_tools.api.translation.start_translation");
 }

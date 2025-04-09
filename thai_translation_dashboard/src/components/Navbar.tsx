@@ -5,10 +5,17 @@ interface NavbarProps {
   currentTab?: string;
 }
 
+const tabMap: Record<string, string> = {
+  files: "File Explorer",
+  editor: "Translation Editor",
+  glossary: "Glossary Manager",
+  settings: "Settings",
+};
+
 const Navbar: React.FC<NavbarProps> = ({ currentTab }) => {
   return (
     <nav className="bg-card">
-      <div className="container mx-auto px-4 py-3">
+      <div className="container mx-auto py-3">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <a
@@ -27,8 +34,8 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab }) => {
 
         {/* Simple breadcrumb for tab-based navigation */}
         <div className="flex items-center py-2 text-sm">
-          <span className="text-primary">Dashboard</span>
-          {currentTab && (
+          <span className="text-primary">Home</span>
+          {currentTab && tabMap[currentTab] && (
             <>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -45,7 +52,8 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab }) => {
                 <polyline points="9 18 15 12 9 6" />
               </svg>
               <span className="text-muted-foreground font-medium">
-                {currentTab.charAt(0).toUpperCase() + currentTab.slice(1)}
+                {/* {currentTab.charAt(0).toUpperCase() + currentTab.slice(1)} */}
+                {tabMap[currentTab]}
               </span>
             </>
           )}

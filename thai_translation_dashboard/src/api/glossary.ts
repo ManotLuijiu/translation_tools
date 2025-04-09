@@ -21,7 +21,7 @@ export type ERPNextModule = {
  */
 export function useGetGlossaryTerms() {
   return useFrappeGetCall<{ message: GlossaryTerm[] }>(
-    "translation_tools.api.get_glossary_terms",
+    "translation_tools.api.glossary.get_glossary_terms",
     {}
   );
 }
@@ -31,7 +31,7 @@ export function useGetGlossaryTerms() {
  */
 export function useAddGlossaryTerm() {
   return useFrappePostCall<{ success: boolean; name: string }>(
-    "translation_tools.api.add_glossary_term"
+    "translation_tools.api.glossary.add_glossary_term"
   );
 }
 
@@ -40,7 +40,7 @@ export function useAddGlossaryTerm() {
  */
 export function useUpdateGlossaryTerm() {
   return useFrappePostCall<{ success: boolean }>(
-    "translation_tools.api.update_glossary_term"
+    "translation_tools.api.glossary.update_glossary_term"
   );
 }
 
@@ -49,7 +49,7 @@ export function useUpdateGlossaryTerm() {
  */
 export function useDeleteGlossaryTerm() {
   return useFrappePostCall<{ success: boolean }>(
-    "translation_tools.api.delete_glossary_term"
+    "translation_tools.api.glossary.delete_glossary_term"
   );
 }
 
@@ -58,7 +58,7 @@ export function useDeleteGlossaryTerm() {
  */
 export function useGetERPNextModules() {
   return useFrappeGetCall<{ message: ERPNextModule[] }>(
-    "translation_tools.api.get_erpnext_modules",
+    "translation_tools.api.glossary.get_erpnext_modules",
     {}
   );
 }

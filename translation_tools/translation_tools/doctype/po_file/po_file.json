@@ -1,0 +1,110 @@
+{
+  "actions": [],
+  "allow_rename": 1,
+  "autoname": "field:file_path",
+  "creation": "2025-04-01 12:00:00.000000",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "file_path",
+    "app_name",
+    "filename",
+    "language",
+    "total_entries",
+    "translated_entries",
+    "translation_status",
+    "last_modified",
+    "last_scanned"
+  ],
+  "fields": [
+    {
+      "fieldname": "file_path",
+      "fieldtype": "Data",
+      "label": "File Path",
+      "reqd": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "app_name",
+      "fieldtype": "Data",
+      "label": "App Name",
+      "reqd": 1
+    },
+    {
+      "fieldname": "filename",
+      "fieldtype": "Data",
+      "label": "Filename",
+      "reqd": 1
+    },
+    {
+      "fieldname": "language",
+      "fieldtype": "Data",
+      "label": "Language",
+      "reqd": 1
+    },
+    {
+      "fieldname": "total_entries",
+      "fieldtype": "Int",
+      "label": "Total Entries",
+      "default": 0
+    },
+    {
+      "fieldname": "translated_entries",
+      "fieldtype": "Int",
+      "label": "Translated Entries",
+      "default": 0
+    },
+    {
+      "fieldname": "translation_status",
+      "fieldtype": "Percent",
+      "label": "Translation Status",
+      "default": 0,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "last_modified",
+      "fieldtype": "Datetime",
+      "label": "Last Modified"
+    },
+    {
+      "fieldname": "last_scanned",
+      "fieldtype": "Datetime",
+      "label": "Last Scanned"
+    }
+  ],
+  "modified": "2025-04-01 12:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Translation Tools",
+  "name": "PO File",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "delete": 0,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "All",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "track_changes": 1
+}

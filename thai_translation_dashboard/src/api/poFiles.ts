@@ -42,7 +42,7 @@ export type POFileContents = {
  */
 export function useGetCachedPOFiles() {
   return useFrappeGetCall<{ message: POFile[] }>(
-    "translation_tools.api.get_cached_po_files",
+    "translation_tools.api.po_files.get_cached_po_files",
     {}
   );
 }
@@ -71,7 +71,7 @@ export function useScanPOFiles() {
  */
 export function useGetPOFileEntries(filePath: string | null) {
   return useFrappeGetCall<{ message: POFileContents }>(
-    "translation_tools.api.get_po_file_entries",
+    "translation_tools.api.po_files.get_po_file_entries",
     { file_path: filePath },
     // Only execute when a file path is provided
     filePath ? undefined : { enabled: false }
@@ -87,7 +87,7 @@ export function useGetPOFileContents(
   offset = 0
 ) {
   return useFrappeGetCall(
-    "translation_tools.api.get_po_file_contents",
+    "translation_tools.api.po_files.get_po_file_contents",
     {
       file_path: filePath,
       limit,
@@ -96,4 +96,24 @@ export function useGetPOFileContents(
     // Only execute when a file path is provided
     filePath ? undefined : { enabled: false }
   );
+}
+
+/**
+ * Save a translation to a PO file
+ */
+export function useSaveTranslation() {
+  return useFrappePostCall<{ success: boolean }>(
+    "translation_tools.api.po_files.save_translation"
+  );
+}
+
+/**
+ * Save multiple translations to a PO file
+ */
+export function useSaveTranslations() {
+  return useFrappePostCall<{
+    success?: boolean;
+    message?: string;
+    error?: string;
+  }>("translation_tools.api.po_files.save_translations");
 }
