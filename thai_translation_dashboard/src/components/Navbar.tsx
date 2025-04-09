@@ -1,5 +1,7 @@
 import React from "react";
 import mooLogo from "../assets/moo_logo.svg";
+import { useFrappeAuth } from "frappe-react-sdk";
+import { RefreshCw } from "lucide-react";
 
 interface NavbarProps {
   currentTab?: string;
@@ -13,6 +15,25 @@ const tabMap: Record<string, string> = {
 };
 
 const Navbar: React.FC<NavbarProps> = ({ currentTab }) => {
+  const { currentUser, isValidating, isLoading, error } = useFrappeAuth();
+
+  if (isLoading)
+    return (
+      <div>
+        <RefreshCw className="h-4 w-4 animate-spin" />
+        loading...
+      </div>
+    );
+  if (isValidating)
+    return (
+      <div>
+        <RefreshCw className="h-4 w-4 animate-spin" />
+        validating...
+      </div>
+    );
+  if (error) return <div>{error.message}</div>;
+  if (!currentUser) return <div>not logged in</div>;
+
   return (
     <nav className="bg-card">
       <div className="container mx-auto py-3">
@@ -27,8 +48,16 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab }) => {
             </a>
           </div>
 
-          <div>
+          <div className="text-muted-foreground flex items-center gap-4">
             <h1 className="text-lg font-semibold">Translation Tools</h1>
+            <div className="flex items-center gap-4">
+              {currentUser && (
+                <div className="text-sm">
+                  Logged in as:{" "}
+                  <span className="font-medium">{currentUser}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

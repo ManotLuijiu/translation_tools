@@ -1,5 +1,6 @@
 import os
 import subprocess
+import frappe
 from frappe import _
 
 
@@ -28,10 +29,18 @@ def after_install():
 
         print("✅ Translation Tools setup completed successfully")
 
+        # In your after_install function:
+        from translation_tools.translation_tools.setup.create_page import create_translation_page
+        create_translation_page()
+
         # Create necessary doctypes
         from translation_tools.translation_tools.setup.create_doctypes import create_glossary_doctypes, create_po_file_doctypes
         create_glossary_doctypes()
         create_po_file_doctypes()
+
+        # Create workspace
+        from translation_tools.translation_tools.setup.create_workspace import create_translation_workspace
+        create_translation_workspace()
 
         # Import default glossary
         print("Importing default Thai glossary...")
