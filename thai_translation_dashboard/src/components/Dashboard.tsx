@@ -52,7 +52,7 @@ export default function Dashboard() {
   };
 
   const handleRunSetup = async () => {
-    console.log("clicked");
+    // console.log("clicked");
     setIsSettingUp(true);
     try {
       const result = await runSetup.call({});

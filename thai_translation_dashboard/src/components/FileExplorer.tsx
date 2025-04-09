@@ -32,8 +32,12 @@ export default function FileExplorer({
   const handleScan = async () => {
     setIsScanning(true);
     try {
-      await scanFiles.call();
+      const result = await scanFiles.call();
+      console.log("Scan result", result);
+
       await mutate();
+    } catch (error) {
+      console.error("Error scanning files:", error);
     } finally {
       setIsScanning(false);
     }

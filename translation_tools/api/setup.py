@@ -2,7 +2,6 @@ import frappe
 # from frappe.modules.import_file import import_doc_from_dict
 from frappe.core.doctype.data_import.data_import import import_doc
 
-
 def create_po_file_doctype():
     """Create PO File DocType if it doesn't exist"""
     if not frappe.db.exists("DocType", "PO File"):
@@ -242,6 +241,28 @@ def create_required_doctypes():
     print("All required DocTypes have been created successfully.")
 
 def setup_translation_tools():
-    """Initial setup for Translation Tools"""
-    create_required_doctypes()
-    print("Translation Tools setup is complete.")
+     """Initial setup for Translation Tools (safe to run during development)"""
+    import logging
+    from translation_tools.translation_tools.setup.create_doctypes import create_required_doctypes
+    from translation_tools.translation_tools.setup.create_workspace import add_translation_tools_link_to_integrations
+
+    logger = logging.getLogger("translation_tools_setup")
+    logger.info("Setting up Translation Tools...")
+
+    try:
+        logger.info("Creating required DocTypes...")
+        create_required_doctypes()
+        print("Translation Tools setup is complete.")
+        print("✅ Required DocTypes created.")
+
+        logger.info("Creating translation workspace...")
+        add_translation_tools_link_to_integrations()
+        frappe.db.commit()
+        print("✅ Translation Workspace created.")
+
+        print("🎉 Translation Tools setup is complete.")
+
+    except Exception as e:
+        logger.error(f"Setup failed: {e}")
+        frappe.db.rollback()
+        raise

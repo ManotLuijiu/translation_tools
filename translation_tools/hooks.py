@@ -34,12 +34,18 @@ after_uninstall = "translation_tools.uninstall.after_uninstall"
 # --------------------
 commands = [
     "translation_tools.commands.repair_translation_tools",
-    "translation_tools.commands.open_translation_dashboard"
+    "translation_tools.commands.open_translation_dashboard",
 ]
-website_route_rules = [{'from_route': '/thai_translation_dashboard/<path:app_path>', 'to_route': 'thai_translation_dashboard'},]
+website_route_rules = [
+    {
+        "from_route": "/thai_translation_dashboard/<path:app_path>",
+        "to_route": "thai_translation_dashboard",
+    },
+]
 
 app_include_js = [
-    "/assets/translation_tools/thai_translation_dashboard/index.js"
+    "/assets/translation_tools/thai_translation_dashboard/index.js",
+    "translation_tools.app.bundle.js",
 ]
 
 # Add page to navbar
@@ -52,8 +58,8 @@ get_desk_sidebar_items = [
                 "name": "thai-translation-dash",
                 "label": "Thai Translation Dashboard",
                 "icon": "translate",
-                "description": "AI-powered Thai translation dashboard"
+                "description": "AI-powered Thai translation dashboard",
             }
-        ]
+        ],
     }
 ]

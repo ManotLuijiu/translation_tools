@@ -35,6 +35,9 @@ def scan_po_files():
         # Get the bench path
         bench_path = get_bench_path()
         apps_path = os.path.join(bench_path, "apps")
+
+        frappe.log_error(f"Bench path: {bench_path}")
+        frappe.log_error(f"Apps path: {apps_path}")
         
         # Count for statistics
         total_files = 0
@@ -42,7 +45,22 @@ def scan_po_files():
         updated_files = 0
         
         # Scan for all Thai PO files in apps
-        pattern = os.path.join(apps_path, "*", "**", "th.po")
+        pattern = os.path.join(apps_path, "*", "*", "locale", "th.po")
+        frappe.log_error(f"Looking for files with pattern: {pattern}")
+
+        # Try listing all the .po files to debug
+        all_po_files = glob(os.path.join(apps_path, "**", "*.po"), recursive=True)
+        frappe.log_error(f"All PO files found: {len(all_po_files)}")
+        for po_file in all_po_files:
+            frappe.log_error(f"Found PO file: {po_file}")
+
+        # Continue with your original pattern
+        matching_files = glob(pattern, recursive=True)
+        frappe.log_error(f"Pattern matched {len(matching_files)} files")
+
+        for file in matching_files:
+            frappe.log_error(f"Pattern matched file: {file}")
+
         for file_path in glob(pattern, recursive=True):
             # Skip translation_tools/translations (to avoid self-translations)
             if "translation_tools/translations" in file_path:
@@ -56,9 +74,9 @@ def scan_po_files():
             
             # Get file stats
             last_modified = os.path.getmtime(file_path)
-            last_modified_datetime = frappe.utils.convert_utc_to_user_timezone(
-                datetime.fromtimestamp(last_modified)
-            ).strftime("%Y-%m-%d %H:%M:%S")
+
+            # Format in MySQL-compatible datetime format (YYYY-MM-DD HH:MM:SS)
+            last_modified_datetime = datetime.fromtimestamp(last_modified).strftime("%Y-%m-%d %H:%M:%S")
             
             # Parse PO file to get translation statistics
             try:
@@ -66,13 +84,27 @@ def scan_po_files():
                 total = len(po)
                 translated = len(po.translated_entries())
                 translation_status = int((translated / total) * 100) if total > 0 else 0
+                
+                # Extract language from metadata or filename
                 language = po.metadata.get("Language", "")
+                
+                # If language is not in metadata, try to determine from filename
+                if not language and filename.endswith(".po"):
+                    # Extract language from filename (e.g., "th.po" → "th")
+                    language = filename.split(".")[-2]
+                
+                # If still no language, default to "th" since we're scanning Thai files
+                if not language:
+                    language = "th"
+
             except Exception as e:
-                logger.error(f"Error parsing PO file {file_path}: {e}")
+                # Make error message shorter to avoid truncation
+                err_msg = str(e)[:50] + "..." if len(str(e)) > 50 else str(e)
+                logger.error(f"Error parsing PO file {file_path}: {err_msg}")
                 total = 0
                 translated = 0
                 translation_status = 0
-                language = ""
+                language = "th"
             
             # Check if file already exists in database
             file_doc = None
@@ -93,8 +125,17 @@ def scan_po_files():
             file_doc.translation_status = translation_status
             file_doc.last_modified = last_modified_datetime
             file_doc.last_scanned = frappe.utils.now()
+
+            # Print field values for debugging
+            frappe.log_error(f"File: {file_path}, Language: {language}, App: {app_name}")
             
-            file_doc.save()
+            try:
+                file_doc.save()
+            except Exception as save_error:
+                frappe.log_error(f"Error saving PO File {file_path}: {save_error}")
+                # Try to get more information about the error
+                if hasattr(file_doc, 'as_dict'):
+                    frappe.log_error(f"PO File fields: {file_doc.as_dict()}")
         
         frappe.db.commit()
         
@@ -106,8 +147,10 @@ def scan_po_files():
         }
         
     except Exception as e:
-        frappe.log_error(f"Error scanning PO files: {e}")
-        return {"success": False, "error": str(e)}
+        # Make error message shorter to avoid truncation in error log
+        short_error = str(e)[:100] + "..." if len(str(e)) > 100 else str(e)
+        frappe.log_error(f"Error scanning PO files: {short_error}")
+        return {"success": False, "error": short_error}
 
 @frappe.whitelist()
 def get_po_file_entries(file_path):
