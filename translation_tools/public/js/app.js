@@ -4,13 +4,30 @@ translation_tools.setup_integration_button = function () {
   console.log("Translation Tools: Checking for Integrations page");
 
   // Check if we're on the Integrations page
-  if (window.location.href.includes("/app/integrations")) {
+  const currentPath = window.location.pathname;
+  const isIntegrationsPage =
+    currentPath === "/app/integrations" ||
+    currentPath.endsWith("/app/integrations") ||
+    (frappe.router &&
+      frappe.router.current_route &&
+      frappe.router.current_route.length > 0 &&
+      frappe.router.current_route[0] === "Integrations");
+  console.log("isIntegrationsPage", isIntegrationsPage);
+
+  if (isIntegrationsPage) {
     console.log(
       "Translation Tools: On Integrations page, checking for existing link"
     );
 
     // First check if button already exists to avoid duplicates
     if ($("#trigger-translation-tools").length > 0) return;
+
+    // Add a flag to the sessionStorage to prevent reload loops
+    if (sessionStorage.getItem("translation_tools_reload_executed")) {
+      console.log("Translation Tools: Reload already executed, skipping");
+      sessionStorage.removeItem("translation_tools_reload_executed");
+      return;
+    }
 
     frappe.call({
       method: "translation_tools.api.integrations.check_translation_tools_link",
@@ -39,8 +56,16 @@ translation_tools.setup_integration_button = function () {
                     indicator: "green",
                   });
 
+                  // Set a flag to prevent reload loops
+                  sessionStorage.setItem(
+                    "translation_tools_reload_executed",
+                    "true"
+                  );
+
+                  // Force a complete page reload rather than just refreshing
                   setTimeout(function () {
-                    window.location.reload();
+                    // frappe.ui.toolbar.clear_cache();
+                    window.location.reload(true); // True forces reload from server, not cache
                   }, 1500);
                 } else {
                   frappe.msgprint(
@@ -90,6 +115,23 @@ translation_tools.setup_integration_button = function () {
         }
       },
     });
+
+    // Clear Workspace Cache
+    // frappe.call({
+    //   method: "translation_tools.api.integrations.clear_workspace_cache",
+    //   callback: function () {
+    //     frappe.show_alert({
+    //       message: __(
+    //         "Translation Tools link added and cache cleared. Refreshing..."
+    //       ),
+    //       indicator: "green",
+    //     });
+
+    //     setTimeout(function () {
+    //       window.location.reload(true);
+    //     }, 1500);
+    //   },
+    // });
   }
 };
 

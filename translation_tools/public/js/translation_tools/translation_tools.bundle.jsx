@@ -3,7 +3,7 @@ import { App } from "./App";
 import { createRoot } from "react-dom/client";
 
 
-class ThaiTranslationDas {
+class TranslationTools {
 	constructor({ page, wrapper }) {
 		this.$wrapper = $(wrapper);
 		this.page = page;
@@ -27,10 +27,10 @@ class ThaiTranslationDas {
 		// create and mount the react app
 		const root = createRoot(this.$wrapper.get(0));
 		root.render(<App />);
-		this.$thai_translation_das = root;
+		this.$translation_tools = root;
 	}
 }
 
 frappe.provide("frappe.ui");
-frappe.ui.ThaiTranslationDas = ThaiTranslationDas;
-export default ThaiTranslationDas;
+frappe.ui.TranslationTools = TranslationTools;
+export default TranslationTools;

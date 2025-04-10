@@ -36,11 +36,20 @@ commands = [
     "translation_tools.commands.repair_translation_tools",
     "translation_tools.commands.open_translation_dashboard",
 ]
+
 website_route_rules = [
     {
         "from_route": "/thai_translation_dashboard/<path:app_path>",
         "to_route": "thai_translation_dashboard",
     },
+]
+
+workspace_route_rules = [
+    {
+        "from_route": "integrations",
+        "to_route": "",
+        "apply_on": "update",
+    }
 ]
 
 app_include_js = [
@@ -61,5 +70,14 @@ get_desk_sidebar_items = [
                 "description": "AI-powered Thai translation dashboard",
             }
         ],
+    }
+]
+
+fixtures = [
+    {
+        "dt": "Workspace",
+        "filters": [
+            ["name", "in", ["Integrations"]]
+        ]
     }
 ]

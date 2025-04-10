@@ -1,19 +1,19 @@
 {
  "content": null,
- "creation": "2025-04-06 12:45:42.215715",
+ "creation": "2025-04-09 23:03:00.837612",
  "docstatus": 0,
  "doctype": "Page",
  "idx": 0,
- "modified": "2025-04-06 12:45:42.215715",
+ "modified": "2025-04-09 23:03:00.837612",
  "modified_by": "Administrator",
  "module": "Translation Tools",
- "name": "thai-translation-das",
+ "name": "translation-tools",
  "owner": "Administrator",
- "page_name": "thai-translation-das",
+ "page_name": "translation-tools",
  "roles": [],
  "script": null,
  "standard": "Yes",
  "style": null,
  "system_page": 0,
- "title": "thai-translation-dashboard"
+ "title": "translation-tools"
 }

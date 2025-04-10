@@ -3,12 +3,20 @@
   frappe.provide("translation_tools");
   translation_tools.setup_integration_button = function() {
     console.log("Translation Tools: Checking for Integrations page");
-    if (window.location.href.includes("/app/integrations")) {
+    const currentPath = window.location.pathname;
+    const isIntegrationsPage = currentPath === "/app/integrations" || currentPath.endsWith("/app/integrations") || frappe.router && frappe.router.current_route && frappe.router.current_route.length > 0 && frappe.router.current_route[0] === "Integrations";
+    console.log("isIntegrationsPage", isIntegrationsPage);
+    if (isIntegrationsPage) {
       console.log(
         "Translation Tools: On Integrations page, checking for existing link"
       );
       if ($("#trigger-translation-tools").length > 0)
         return;
+      if (sessionStorage.getItem("translation_tools_reload_executed")) {
+        console.log("Translation Tools: Reload already executed, skipping");
+        sessionStorage.removeItem("translation_tools_reload_executed");
+        return;
+      }
       frappe.call({
         method: "translation_tools.api.integrations.check_translation_tools_link",
         args: {},
@@ -30,8 +38,12 @@
                       message: __("Translation Tools link added successfully!"),
                       indicator: "green"
                     });
+                    sessionStorage.setItem(
+                      "translation_tools_reload_executed",
+                      "true"
+                    );
                     setTimeout(function() {
-                      window.location.reload();
+                      window.location.reload(true);
                     }, 1500);
                   } else {
                     frappe.msgprint(
@@ -82,4 +94,4 @@
     setTimeout(translation_tools.setup_integration_button, 2e3);
   });
 })();
-//# sourceMappingURL=translation_tools.app.bundle.X5B4UMLS.js.map
+//# sourceMappingURL=translation_tools.app.bundle.CC6IJVFD.js.map
