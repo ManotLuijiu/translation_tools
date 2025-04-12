@@ -5,3 +5,10 @@
 tags
 node_modules
 __pycache__
+
+# Local configuration files
+*.env
+*.local
+*.local.json
+*.local.yaml
+/translation_tools/pubilc/css/styles.css

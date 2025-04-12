@@ -19568,21 +19568,21 @@
     }
   });
 
-  // ../translation_tools/translation_tools/public/js/translation_tools/translation_tools.bundle.jsx
+  // ../translation_tools/translation_tools/public/js/thai_translator/thai_translator.bundle.jsx
   var React2 = __toESM(require_react());
 
-  // ../translation_tools/translation_tools/public/js/translation_tools/App.jsx
+  // ../translation_tools/translation_tools/public/js/thai_translator/App.jsx
   var React = __toESM(require_react());
   function App() {
     const dynamicMessage = React.useState("Hello from App.jsx");
     return /* @__PURE__ */ React.createElement("div", {
-      className: "m-4 text-center text-moo-blue"
-    }, /* @__PURE__ */ React.createElement("h3", null, dynamicMessage), /* @__PURE__ */ React.createElement("h4", null, "Start editing at translation_tools/public/js/translation_tools/App.jsx"));
+      className: "m-4"
+    }, /* @__PURE__ */ React.createElement("h3", null, dynamicMessage), /* @__PURE__ */ React.createElement("h4", null, "Start editing at translation_tools/public/js/thai_translator/App.jsx"));
   }
 
-  // ../translation_tools/translation_tools/public/js/translation_tools/translation_tools.bundle.jsx
+  // ../translation_tools/translation_tools/public/js/thai_translator/thai_translator.bundle.jsx
   var import_client = __toESM(require_client());
-  var TranslationTools = class {
+  var Thai_Translator = class {
     constructor({ page, wrapper }) {
       this.$wrapper = $(wrapper);
       this.page = page;
@@ -19593,20 +19593,36 @@
       this.setup_app();
     }
     setup_page_actions() {
-      this.primary_btn = this.page.set_primary_action(
-        __("Print Message"),
-        () => frappe.msgprint("Hello My Page!")
+      this.page.set_primary_action(
+        __("Translate File"),
+        () => this.translateFile(),
+        "octicon octicon-sync"
       );
+      this.page.add_menu_item(__("Settings"), () => this.showSettings(), true);
+      this.page.add_menu_item(
+        __("View Glossary"),
+        () => this.viewGlossary(),
+        true
+      );
+    }
+    translateFile() {
+      frappe.msgprint(__("Please select a file to translate"));
+    }
+    showSettings() {
+      frappe.set_route("Form", "Translation Settings");
+    }
+    viewGlossary() {
+      frappe.set_route("List", "Translation Glossary Term");
     }
     setup_app() {
       const root = (0, import_client.createRoot)(this.$wrapper.get(0));
       root.render(/* @__PURE__ */ React2.createElement(App, null));
-      this.$translation_tools = root;
+      this.$thai_translator = root;
     }
   };
   frappe.provide("frappe.ui");
-  frappe.ui.TranslationTools = TranslationTools;
-  var translation_tools_bundle_default = TranslationTools;
+  frappe.ui.Thai_Translator = Thai_Translator;
+  var thai_translator_bundle_default = Thai_Translator;
 })();
 /**
  * @license React
@@ -19644,4 +19660,4 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-//# sourceMappingURL=translation_tools.bundle.GHOYW3DH.js.map
+//# sourceMappingURL=thai_translator.bundle.IGOMSPHY.js.map

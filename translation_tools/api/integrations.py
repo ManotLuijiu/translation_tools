@@ -20,17 +20,17 @@ def add_translation_tools_link_to_integrations():
     """Add Translation Tools link to Integrations workspace"""
     try:
         # First, ensure the Page exists for our dashboard
-        if not frappe.db.exists("Page", "thai-translation-dashboard"):
+        if not frappe.db.exists("Page", "thai_translator"):
             # Create a page to serve as a bridge to the SPA
             page = frappe.new_doc("Page")
-            page.page_name = "thai-translation-dashboard"
+            page.page_name = "thai_translator"
             page.title = "Thai Translation Dashboard"
             page.module = "Translation Tools"
             page.standard = "Yes"
             
             # Create a simple page that redirects to your SPA
             page.script = """
-            frappe.pages['thai-translation-dashboard'].on_page_load = function(wrapper) {
+            frappe.pages['thai_translator'].on_page_load = function(wrapper) {
                 var page = frappe.ui.make_app_page({
                     parent: wrapper,
                     title: 'Thai Translation Dashboard',
@@ -79,7 +79,7 @@ def add_translation_tools_link_to_integrations():
             workspace.append("links", {
                 "label": "Translation Tools",
                 "type": "Link",
-                "link_to": "thai-translation-dashboard",
+                "link_to": "thai_translator",
                 "link_type": "Page",
                 "hidden": 0,
                 "is_query_report": 0,

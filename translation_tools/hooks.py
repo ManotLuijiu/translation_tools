@@ -53,31 +53,42 @@ workspace_route_rules = [
 ]
 
 app_include_js = [
-    "/assets/translation_tools/thai_translation_dashboard/index.js",
+    # "/assets/translation_tools/thai_translation_dashboard/index.js",
     "translation_tools.app.bundle.js",
 ]
 
-# Add page to navbar
+app_include_css = [
+    "/assets/translation_tools/css/tailwind.css"
+]
+
+# Desk sidebar item
 get_desk_sidebar_items = [
     {
-        "label": "Thai Translation",
+        "label": "Integrations",  # Will appear under "Integrations"
         "items": [
             {
                 "type": "Page",
-                "name": "thai-translation-dash",
-                "label": "Thai Translation Dashboard",
-                "icon": "translate",
+                "name": "translation-tools",  # This must match the Page doctype name
+                "label": "Translation Tools",
+                "icon": "translate",  # Optional: use Frappe icon names
                 "description": "AI-powered Thai translation dashboard",
             }
         ],
     }
 ]
 
+# Fixtures: export workspace so your link stays after migration/restart
 fixtures = [
     {
         "dt": "Workspace",
         "filters": [
-            ["name", "in", ["Integrations"]]
+            ["name", "=", "Integrations"]
+        ]
+    },
+    {
+        "dt": "Page",
+        "filters": [
+            ["name", "=", "translation-tools"]
         ]
     }
 ]
