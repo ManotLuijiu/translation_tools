@@ -11,4 +11,6 @@ __pycache__
 *.local
 *.local.json
 *.local.yaml
-/translation_tools/pubilc/css/styles.css
+# /translation_tools/pubilc/css/styles.css
+/translation_tools/public/dist/
+
