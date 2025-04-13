@@ -1,10 +1,15 @@
 frappe.pages['thai_translator'].on_page_load = function (wrapper) {
   console.log('wrapper', wrapper);
-  frappe.ui.make_app_page({
+
+  let page = frappe.ui.make_app_page({
     parent: wrapper,
     title: __('Thai Translator'),
     single_column: false,
   });
+
+  console.log('page', page);
+
+  page.set_indicator('อังกฤษ -> ไทย', 'green');
 };
 
 frappe.pages['thai_translator'].on_page_show = function (wrapper) {

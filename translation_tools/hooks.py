@@ -21,6 +21,30 @@ app_license = "mit"
 # 	}
 # ]
 
+# Module configuration for Desk
+# ------------------
+app_icon = "assets/translation_tools/images/translation_icon.svg"
+app_color = "#4183c4"  # A nice blue color
+app_title = "Translation Tools"
+app_email = "moocoding@gmail.com"
+app_license = "MIT"
+
+# Desktop Sections
+# -------------------
+# Define your desktop sections
+desktop_icons = ["Translation Tools"]
+
+# Modules Definition
+# -----------------
+modules = {
+    "Translation Tools": {
+        "color": "blue",
+        "icon": "assets/translation_tools/images/translation_icon.svg",
+        "type": "module",
+        "label": "Translation Tools"
+    }
+}
+
 # Installation
 after_install = "translation_tools.install.after_install"
 
