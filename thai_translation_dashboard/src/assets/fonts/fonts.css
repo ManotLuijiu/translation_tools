@@ -1,0 +1,601 @@
+/* Kanit Font Family */
+@font-face {
+    font-family: 'Kanit';
+    font-weight: 100;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-Thin.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 200;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-ExtraLight.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 300;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-Light.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 400;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-Regular.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 500;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-Medium.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 600;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-SemiBold.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 700;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-Bold.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 800;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-ExtraBold.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 900;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-Black.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 100;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-ThinItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 200;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-ExtraLightItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 300;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-LightItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 400;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-Italic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 500;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-MediumItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 600;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-SemiBoldItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 700;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-BoldItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 800;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-ExtraBoldItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Kanit';
+    font-weight: 900;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Kanit/Kanit-BlackItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  /* Sarabun Font Family */
+  @font-face {
+    font-family: 'Sarabun';
+    font-weight: 100;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-Thin.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Sarabun';
+    font-weight: 200;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-ExtraLight.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Sarabun';
+    font-weight: 300;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-Light.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Sarabun';
+    font-weight: 400;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-Regular.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Sarabun';
+    font-weight: 500;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-Medium.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Sarabun';
+    font-weight: 600;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-SemiBold.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Sarabun';
+    font-weight: 700;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-Bold.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Sarabun';
+    font-weight: 800;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-ExtraBold.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Sarabun';
+    font-weight: 100;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-ThinItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Sarabun';
+    font-weight: 200;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-ExtraLightItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Sarabun';
+    font-weight: 300;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-LightItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Sarabun';
+    font-weight: 400;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-Italic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Sarabun';
+    font-weight: 500;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-MediumItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Sarabun';
+    font-weight: 600;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-SemiBoldItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Sarabun';
+    font-weight: 700;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-BoldItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Sarabun';
+    font-weight: 800;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-ExtraBoldItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  /* Prompt Font Family */
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 100;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-Thin.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 200;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-ExtraLight.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 300;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-Light.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 400;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-Regular.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 500;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-Medium.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 600;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-SemiBold.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 700;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-Bold.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 800;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-ExtraBold.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 900;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-Black.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 100;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-ThinItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 200;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-ExtraLightItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 300;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-LightItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 400;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-Italic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 500;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-MediumItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 600;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-SemiBoldItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 700;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-BoldItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 800;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-ExtraBoldItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Prompt';
+    font-weight: 900;
+    font-style: italic;
+    src: url('/assets/translation_tools/fonts/Prompt/Prompt-BlackItalic.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  /* Pattaya Font */
+  @font-face {
+    font-family: 'Pattaya';
+    font-weight: 400;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Pattaya/Pattaya-Regular.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  /* Noto Sans Thai Font */
+  @font-face {
+    font-family: 'Noto Sans Thai';
+    font-weight: 400;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Noto_Sans_Thai/NotoSansThai-Regular.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  /* Pridi Font Family */
+  @font-face {
+    font-family: 'Pridi';
+    font-weight: 200;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Pridi/Pridi-ExtraLight.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Pridi';
+    font-weight: 300;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Pridi/Pridi-Light.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Pridi';
+    font-weight: 400;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Pridi/Pridi-Regular.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Pridi';
+    font-weight: 500;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Pridi/Pridi-Medium.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Pridi';
+    font-weight: 600;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Pridi/Pridi-SemiBold.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Pridi';
+    font-weight: 700;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Pridi/Pridi-Bold.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  /* Mitr Font Family */
+  @font-face {
+    font-family: 'Mitr';
+    font-weight: 200;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Mitr/Mitr-ExtraLight.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Mitr';
+    font-weight: 300;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Mitr/Mitr-Light.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Mitr';
+    font-weight: 400;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Mitr/Mitr-Regular.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Mitr';
+    font-weight: 500;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Mitr/Mitr-Medium.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Mitr';
+    font-weight: 600;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Mitr/Mitr-SemiBold.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'Mitr';
+    font-weight: 700;
+    font-style: normal;
+    src: url('/assets/translation_tools/fonts/Mitr/Mitr-Bold.ttf')
+      format('truetype');
+    font-display: swap;
+  }
+  

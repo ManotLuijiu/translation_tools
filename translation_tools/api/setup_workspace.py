@@ -24,9 +24,7 @@ def setup_workspace_and_links():
         if frappe.db.exists("Page", "thai_translator"):
             logger.info("Thai Translator page found")
         else:
-            logger.warning(
-                "Thai Translator page not found - it should have been created during app installation"
-            )
+            logger.warning("Thai Translator page not found - it should have been created during app installation")
 
         # Check if Thai Business Suite workspace exists
         workspace_exists = frappe.db.exists("Workspace", "Thai Business Suite")
@@ -51,21 +49,8 @@ def setup_workspace_and_links():
 
     except Exception as e:
         logger.error(f"Error during workspace setup: {str(e)}")
-        frappe.log_error(
-            frappe.get_traceback(), "Translation Tools Workspace Setup Error"
-        )
+        frappe.log_error(frappe.get_traceback(), "Translation Tools Workspace Setup Error")
         return {"success": False, "error": str(e)}
-
-
-# def create_translator_page():
-#     """Create the Thai Translator page if it doesn't exist"""
-#     page = frappe.new_doc("Page")
-#     page.page_name = "thai_translator"
-#     page.title = "Thai Translator"
-#     page.module = "Translation Tools"
-#     page.standard = "Yes"
-#     page.insert(ignore_permissions=True)
-#     return page
 
 
 def create_thai_business_workspace():
@@ -77,14 +62,12 @@ def create_thai_business_workspace():
     else:
         workspace = frappe.new_doc("Workspace")
         workspace.name = "Thai Business Suite"
-        workspace.label = "Thai Business Suite"
-        workspace.module = "Translation Tools"  # Or another appropriate module
-        workspace.public = 1
-        workspace.is_standard = 0
-        workspace.icon = "🇹🇭"  # Thai flag emoji
-        workspace.content = json.dumps(
-            [{"type": "header", "label": "Thai Business Suite"}]
-        )
+        workspace.set("label", "Thai Business Suite")
+        workspace.set("module", "Translation Tools")  # Or another appropriate module
+        workspace.set("public", 1)
+        workspace.set("is_standard", 0)
+        workspace.set("icon", "🇹🇭")  # Thai flag emoji
+        workspace.set("content", json.dumps([{"type": "header", "label": "Thai Business Suite"}]))
         workspace.save(ignore_permissions=True)
         logger.info(f"Created Thai Business Suite workspace: {workspace.name}")
 
@@ -98,7 +81,7 @@ def add_translation_link_to_workspace(workspace):
     # Parse current content
     try:
         content = json.loads(workspace.content) if workspace.content else []
-    except:
+    except Exception as e:
         logger.error(f"Error parsing workspace content: {str(e)}")
         content = []
 
@@ -125,13 +108,9 @@ def add_translation_link_to_workspace(workspace):
                         "description": "AI-powered translation tool for Thai language",
                     }
                 )
-                logger.info(
-                    "Added Thai Translator link to existing Translation Tools card"
-                )
+                logger.info("Added Thai Translator link to existing Translation Tools card")
             else:
-                logger.info(
-                    "Thai Translator link already exists in Translation Tools card"
-                )
+                logger.info("Thai Translator link already exists in Translation Tools card")
             break
 
     # If card doesn't exist, add it with the link
@@ -192,11 +171,9 @@ def add_to_integrations_workspace():
         integrations_ws = frappe.get_doc("Workspace", "Integrations")
 
         # Avoid adding it multiple times
-        existing_links = [l.link_to for l in integrations_ws.links or []]
+        existing_links = [l.link_to for l in integrations_ws.links or []]  # type: ignore
         if "Translation Settings" in existing_links:
-            logger.info(
-                "Link to Translation Settings already exists in Integrations workspace"
-            )
+            logger.info("Link to Translation Settings already exists in Integrations workspace")
             return
 
         integrations_ws.append(
@@ -212,9 +189,7 @@ def add_to_integrations_workspace():
 
         integrations_ws.save(ignore_permissions=True)
         frappe.db.commit()
-        logger.info(
-            "Successfully added Translation Tools link to Integrations workspace"
-        )
+        logger.info("Successfully added Translation Tools link to Integrations workspace")
 
     except Exception as e:
         logger.error(f"Failed to add link to Integrations workspace: {e}")

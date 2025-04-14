@@ -39,6 +39,14 @@ module.exports = {
       },
       fontFamily: {
         sans: ['var(--font-sans)', ...fontFamily.sans],
+        // Add your Thai fonts
+        kanit: ['Kanit', 'sans-serif'],
+        sarabun: ['Sarabun', 'sans-serif'],
+        prompt: ['Prompt', 'sans-serif'],
+        pridi: ['Pridi', 'serif'],
+        mitr: ['Mitr', 'sans-serif'],
+        'noto-thai': ['"Noto Sans Thai"', 'sans-serif'],
+        pattaya: ['Pattaya', 'sans-serif'],
       },
       typography: (theme) => ({
         DEFAULT: {

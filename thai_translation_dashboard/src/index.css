@@ -37,6 +37,17 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --font-kanit: 'Kanit', sans-serif;
+  --font-sarabun: 'Sarabun', sans-serif;
+  --font-prompt: 'Prompt', sans-serif;
+  --font-pridi: 'Pridi', serif;
+  --font-mitr: 'Mitr', sans-serif;
+  --font-noto-thai: 'Noto Sans Thai', sans-serif;
+  --font-pattaya: 'Pattaya', sans-serif;
+  --font-kanit-light: 300;
+  --font-kanit-regular: 400;
+  --font-kanit-medium: 500;
+  --font-kanit-bold: 700;
 }
 
 .dark {
@@ -71,6 +82,17 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --font-kanit: 'Kanit', sans-serif;
+  --font-sarabun: 'Sarabun', sans-serif;
+  --font-prompt: 'Prompt', sans-serif;
+  --font-pridi: 'Pridi', serif;
+  --font-mitr: 'Mitr', sans-serif;
+  --font-noto-thai: 'Noto Sans Thai', sans-serif;
+  --font-pattaya: 'Pattaya', sans-serif;
+  --font-kanit-light: 300;
+  --font-kanit-regular: 400;
+  --font-kanit-medium: 500;
+  --font-kanit-bold: 700;
 }
 
 @theme inline {
@@ -119,4 +141,423 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+
+/* Custom utility classes for Thai fonts */
+.kanit-thin {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.kanit-extralight {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.kanit-light {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.kanit-regular {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.kanit-medium {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.kanit-semibold {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.kanit-bold {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.kanit-extrabold {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.kanit-black {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.kanit-thin-italic {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.kanit-extralight-italic {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 200;
+  font-style: italic;
+}
+
+.kanit-light-italic {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.kanit-regular-italic {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.kanit-medium-italic {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.kanit-semibold-italic {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.kanit-bold-italic {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.kanit-extrabold-italic {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.kanit-black-italic {
+  font-family: 'Kanit', sans-serif;
+  font-weight: 900;
+  font-style: italic;
+}
+
+.sarabun-thin {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.sarabun-extralight {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.sarabun-light {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.sarabun-regular {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.sarabun-medium {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.sarabun-semibold {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.sarabun-bold {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.sarabun-extrabold {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.sarabun-thin-italic {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.sarabun-extralight-italic {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 200;
+  font-style: italic;
+}
+
+.sarabun-light-italic {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.sarabun-regular-italic {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.sarabun-medium-italic {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.sarabun-semibold-italic {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.sarabun-bold-italic {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.sarabun-extrabold-italic {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.prompt-thin {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.prompt-extralight {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.prompt-light {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.prompt-regular {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.prompt-medium {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.prompt-semibold {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.prompt-bold {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.prompt-extrabold {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 800;
+  font-style: normal;
+}
+
+.prompt-black {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.prompt-thin-italic {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.prompt-extralight-italic {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 200;
+  font-style: italic;
+}
+
+.prompt-light-italic {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.prompt-regular-italic {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.prompt-medium-italic {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.prompt-semibold-italic {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.prompt-bold-italic {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.prompt-extrabold-italic {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.prompt-black-italic {
+  font-family: 'Prompt', sans-serif;
+  font-weight: 900;
+  font-style: italic;
+}
+
+.pattaya-regular {
+  font-family: 'Pattaya', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.noto-sans-thai-regular {
+  font-family: 'Noto Sans Thai', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: 'wdth' 100;
+}
+
+.pridi-extralight {
+  font-family: 'Pridi', serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.pridi-light {
+  font-family: 'Pridi', serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.pridi-regular {
+  font-family: 'Pridi', serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.pridi-medium {
+  font-family: 'Pridi', serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.pridi-semibold {
+  font-family: 'Pridi', serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.pridi-bold {
+  font-family: 'Pridi', serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.mitr-extralight {
+  font-family: 'Mitr', sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.mitr-light {
+  font-family: 'Mitr', sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.mitr-regular {
+  font-family: 'Mitr', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.mitr-medium {
+  font-family: 'Mitr', sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.mitr-semibold {
+  font-family: 'Mitr', sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.mitr-bold {
+  font-family: 'Mitr', sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* Apply Thai fonts to specific elements based on language */
+html[lang='th'] body {
+  font-family: 'Sarabun', sans-serif;
+}
+
+html[lang='th'] h1,
+html[lang='th'] h2,
+html[lang='th'] h3,
+html[lang='th'] h4,
+html[lang='th'] h5,
+html[lang='th'] h6 {
+  font-family: 'Prompt', sans-serif;
+}
+
+[data-radix-popper-content-wrapper],
+[role="dialog"] {
+  font-family: var(--font-sarabun);
 }
