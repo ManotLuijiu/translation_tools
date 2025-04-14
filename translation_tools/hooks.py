@@ -94,7 +94,9 @@ website_context = {
 app_include_js = [
     # "/assets/translation_tools/thai_translation_dashboard/index.js",
     "translation_tools.app.bundle.js",
-    "/assets/translation_tools/js/translation_tools.client.js"
+    "/assets/translation_tools/js/translation_tools.client.js",
+    "/assets/translation_tools/js/pdfmake.min.js",
+    "/assets/translation_tools/js/vfs_fonts.js",
 ]
 
 app_include_css = [
