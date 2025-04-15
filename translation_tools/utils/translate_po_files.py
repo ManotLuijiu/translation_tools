@@ -201,7 +201,7 @@ def translate_batch_claude(
         )
 
         # Extract the response text
-        response_text = response.content[0].text
+        response_text = response.content[0].text  # type: ignore
 
         # Split the response by new lines
         translations = [line.strip() for line in response_text.strip().split("\n")]

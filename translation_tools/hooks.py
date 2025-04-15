@@ -120,17 +120,17 @@ fixtures = [
 sounds = [
     {
         "name": "chat-notification",
-        "src": "/assets/chat/sounds/chat-notification.mp3",
+        "src": "/assets/translation_tools/sounds/chat-notification.mp3",
         "volume": 0.2,
     },
     {
         "name": "chat-message-send",
-        "src": "/assets/chat/sounds/chat-message-send.mp3",
+        "src": "/assets/translation_tools/sounds/chat-message-send.mp3",
         "volume": 0.2,
     },
     {
         "name": "chat-message-receive",
-        "src": "/assets/chat/sounds/chat-message-receive.mp3",
+        "src": "/assets/translation_tools/sounds/chat-message-receive.mp3",
         "volume": 0.5,
     },
 ]

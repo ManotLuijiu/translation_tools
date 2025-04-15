@@ -90,40 +90,40 @@ def update_room(room, last_message=None, is_read=0, update_modified=True):
     frappe.db.set_value("Chat Room", room, new_values, update_modified=update_modified)
 
 
-def get_chat_settings():
-    """Get the chat settings
-    Returns:
-        dict: Dictionary containing chat settings.
-    """
-    chat_settings = frappe.get_cached_doc("Chat Settings")
-    user_roles = frappe.get_roles()
+# def get_chat_settings():
+#     """Get the chat settings
+#     Returns:
+#         dict: Dictionary containing chat settings.
+#     """
+#     chat_settings = frappe.get_cached_doc("Chat Settings")
+#     user_roles = frappe.get_roles()
 
-    allowed_roles = [u.role for u in (chat_settings.get("allowed_roles") or [])]
-    allowed_roles.extend(["System Manager", "Administrator"])
-    result = {"enable_chat": False}
+#     allowed_roles = [u.role for u in (chat_settings.get("allowed_roles") or [])]
+#     allowed_roles.extend(["System Manager", "Administrator"])
+#     result = {"enable_chat": False}
 
-    if frappe.session.user == "Guest":
-        result["enable_chat"] = True
+#     if frappe.session.user == "Guest":
+#         result["enable_chat"] = True
 
-    if not getattr(chat_settings, "enable_chat", False) or not has_common(allowed_roles, user_roles):  # type: ignore
-        return result
+#     if not getattr(chat_settings, "enable_chat", False) or not has_common(allowed_roles, user_roles):  # type: ignore
+#         return result
 
-    chat_settings.chat_operators = [co.user for co in chat_settings.chat_operators]  # type: ignore
+#     chat_settings.chat_operators = [co.user for co in chat_settings.chat_operators]  # type: ignore
 
-    if chat_settings.start_time and chat_settings.end_time:  # type: ignore
-        start_time = datetime.time.fromisoformat(chat_settings.start_time)  # type: ignore
-        end_time = datetime.time.fromisoformat(chat_settings.end_time)  # type: ignore
-        current_time = datetime.datetime.now().time()
+#     if chat_settings.start_time and chat_settings.end_time:  # type: ignore
+#         start_time = datetime.time.fromisoformat(chat_settings.start_time)  # type: ignore
+#         end_time = datetime.time.fromisoformat(chat_settings.end_time)  # type: ignore
+#         current_time = datetime.datetime.now().time()
 
-        chat_status = (
-            "Online" if time_in_range(start_time, end_time, current_time) else "Offline"
-        )
-    else:
-        chat_status = "Online"
+#         chat_status = (
+#             "Online" if time_in_range(start_time, end_time, current_time) else "Offline"
+#         )
+#     else:
+#         chat_status = "Online"
 
-    result["enable_chat"] = True
-    result["chat_status"] = chat_status  # type: ignore
-    return result
+#     result["enable_chat"] = True
+#     result["chat_status"] = chat_status  # type: ignore
+#     return result
 
 
 def display_warning():
