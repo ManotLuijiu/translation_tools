@@ -47,24 +47,22 @@ def translate_text(
     settings = frappe.get_doc("Translation Tools Settings")
 
     if provider == "openai":
-        api_key = settings.openai_api_key
+        api_key = settings.openai_api_key  # type: ignore
         if not api_key:
             return {"error": "OpenAI API key not configured"}
 
-        used_model = model or settings.openai_model
-        result = translate_with_openai(
-            text, api_key, target_lang, used_model, source_lang
-        )
+        used_model = model or settings.openai_model  # type: ignore
+        result = _translate_with_openai(text, api_key, used_model)
 
     elif provider == "claude":
-        api_key = settings.anthropic_api_key
+        api_key = getattr(settings, "anthropic_api_key", None)
         if not api_key:
             return {"error": "Anthropic API key not configured"}
 
-        used_model = model or settings.anthropic_model
-        result = translate_with_claude(
-            text, api_key, target_lang, used_model, source_lang
+        used_model = model or getattr(
+            settings, "anthropic_model", "default_anthropic_model"
         )
+        result = _translate_with_claude(text, api_key, used_model)
 
     else:
         return {"error": "Invalid provider specified"}
@@ -121,6 +119,8 @@ def save_to_translation_history(
             }
         ).insert()
     else:
+        if not frappe.session.user or not isinstance(frappe.session.user, str):
+            raise ValueError("Invalid user session")
         user_settings = frappe.get_doc("Translation User Settings", frappe.session.user)
 
     # Add history entry
@@ -147,11 +147,11 @@ def translate_single_entry(file_path, entry_id, model_provider="openai", model=N
         frappe.throw(_("File not found: {0}").format(file_path))
 
     # Create a log file
-    log_dir = os.path.join(frappe.utils.get_bench_path(), "logs", "translation_logs")
+    log_dir = os.path.join(get_bench_path(), "logs", "translation_logs")
     os.makedirs(log_dir, exist_ok=True)
     log_file = os.path.join(
         log_dir,
-        f"entry_{os.path.basename(file_path)}_{entry_id}_{frappe.utils.now().replace(':', '-')}.log",
+        f"entry_{os.path.basename(file_path)}_{entry_id}_{now().replace(':', '-')}.log",
     )
 
     # Set up logging
@@ -211,7 +211,7 @@ def translate_single_entry(file_path, entry_id, model_provider="openai", model=N
         # Automatically save if enabled
         if settings.get("auto_save"):
             # Update the translation
-            entry.msgstr = translation
+            entry.msgstr = translation  # type: ignore
 
             # Update metadata
             po.metadata["PO-Revision-Date"] = time.strftime("%Y-%m-%d %H:%M%z")
@@ -225,19 +225,19 @@ def translate_single_entry(file_path, entry_id, model_provider="openai", model=N
 
             # Update PO File record in database
             if frappe.db.exists("PO File", {"file_path": file_path}):
-                file_doc = frappe.get_doc("PO File", {"file_path": file_path})
+                file_doc = frappe.get_doc("PO File", {"file_path": file_path})  # type: ignore
                 if (
                     not entry.msgstr and translation
                 ):  # If this was previously untranslated
-                    file_doc.translated_entries += 1
-                    file_doc.translation_status = (
+                    file_doc.translated_entries += 1  # type: ignore
+                    file_doc.translation_status = (  # type: ignore
                         int(
-                            (file_doc.translated_entries / file_doc.total_entries) * 100
+                            (file_doc.translated_entries / file_doc.total_entries) * 100  # type: ignore
                         )
-                        if file_doc.total_entries > 0
+                        if file_doc.total_entries > 0  # type: ignore
                         else 0
                     )
-                file_doc.last_modified = frappe.utils.now()
+                file_doc.modified = now()
                 file_doc.save()
 
             logger.info("Translation automatically saved")
@@ -259,11 +259,11 @@ def translate_po_file(file_path, model_provider="openai", model=None):
         frappe.throw(_("File not found: {0}").format(file_path))
 
     # Create a log file
-    log_dir = os.path.join(frappe.utils.get_bench_path(), "logs", "translation_logs")
+    log_dir = os.path.join(get_bench_path(), "logs", "translation_logs")
     os.makedirs(log_dir, exist_ok=True)
     log_file = os.path.join(
         log_dir,
-        f"translate_{os.path.basename(file_path)}_{frappe.utils.now().replace(':', '-')}.log",
+        f"translate_{os.path.basename(file_path)}_{now().replace(':', '-')}.log",
     )
 
     # Set up logging
@@ -328,7 +328,7 @@ def translate_po_file(file_path, model_provider="openai", model=None):
                         temperature=settings.get("temperature", 0.3),
                     )
 
-                    entry.msgstr = translation
+                    entry.msgstr = translation  # type: ignore
                     translated_count += 1
                     logger.info(f"Translated: '{entry.msgid}' → '{translation}'")
                 except Exception as e:
@@ -600,7 +600,7 @@ def translate_entries(
                 )
 
                 # Log in real time
-                for line in process.stdout:
+                for line in process.stdout:  # type: ignore
                     log_f.write(line)
                     log_f.flush()
                     logger.debug(line.strip())
@@ -758,7 +758,7 @@ def call_ai_translation_api(source_text, provider, model, api_key, temperature=0
             temperature=temperature,
         )
 
-        return response.choices[0].message.content.strip()
+        return response.choices[0].message.content.strip()  # type: ignore
 
     elif provider == "claude":
         import anthropic
@@ -796,7 +796,7 @@ def call_ai_translation_api(source_text, provider, model, api_key, temperature=0
             messages=[{"role": "user", "content": prompt}],
         )
 
-        return response.content[0].text.strip()
+        return response.content[0].text.strip()  # type: ignore
 
     else:
         frappe.throw(_("Unsupported model provider: {0}").format(provider))
@@ -829,7 +829,7 @@ Only respond with the translated text, nothing else.""",
             temperature=0.3,
         )
 
-        return response.choices[0].message.content.strip()
+        return response.choices[0].message.content.strip()  # type: ignore
     except Exception as e:
         logger.error(f"OpenAI translation error: {str(e)}", exc_info=True)
         frappe.log_error(f"OpenAI translation error: {str(e)}")
@@ -865,7 +865,7 @@ Text to translate: {text}""",
             ],
         )
 
-        return response.content[0].text.strip()
+        return response.content[0].text.strip()  # type: ignore
     except Exception as e:
         logger.error(f"Claude translation error: {str(e)}", exc_info=True)
         frappe.log_error(f"Claude translation error: {str(e)}")
@@ -907,7 +907,7 @@ For each entry, respond with 'Entry X: [Thai translation]' where X is the entry 
         response_text = response.choices[0].message.content
         translations = {}
 
-        for line in response_text.split("\n"):
+        for line in response_text.split("\n"):  # type: ignore
             if line.startswith("Entry "):
                 try:
                     parts = line.split(":", 1)
@@ -961,7 +961,7 @@ For each entry, respond with 'Entry X: [Thai translation]' where X is the entry 
         )
 
         # Parse the response to extract translations
-        response_text = response.content[0].text
+        response_text = response.content[0].text  # type: ignore
         translations = {}
 
         for line in response_text.split("\n"):

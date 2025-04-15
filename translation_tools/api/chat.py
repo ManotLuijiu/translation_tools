@@ -1,7 +1,7 @@
 import frappe
 from frappe import _
 import json
-from translation_tools.translation_tools.api.translation import translate_text
+from translation_tools.api.translation import translate_text
 
 
 @frappe.whitelist()
@@ -68,7 +68,7 @@ def process_message(message, room=None):
         if is_translation_request:
             result = translate_text(
                 msg_text,
-                target_lang=translation_lang or target_lang,
+                target_lang=translation_lang or target_lang,  # type: ignore
                 source_lang=source_lang,
                 save_history=True,
             )
