@@ -1,0 +1,114 @@
+{
+  "actions": [],
+  "allow_rename": 0,
+  "creation": "2025-04-15 23:27:25.446695",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "general_section",
+    "enable_translation",
+    "default_source_language",
+    "default_target_language",
+    "section_break_5",
+    "openai_section",
+    "openai_api_key",
+    "openai_model",
+    "section_break_9",
+    "anthropic_section",
+    "anthropic_api_key",
+    "anthropic_model"
+  ],
+  "fields": [
+    {
+      "fieldname": "general_section",
+      "fieldtype": "Section Break",
+      "label": "General Settings"
+    },
+    {
+      "default": "1",
+      "fieldname": "enable_translation",
+      "fieldtype": "Check",
+      "label": "Enable Translation Service"
+    },
+    {
+      "default": "en",
+      "fieldname": "default_source_language",
+      "fieldtype": "Data",
+      "label": "Default Source Language"
+    },
+    {
+      "default": "th",
+      "fieldname": "default_target_language",
+      "fieldtype": "Data",
+      "label": "Default Target Language"
+    },
+    {
+      "fieldname": "section_break_5",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "openai_section",
+      "fieldtype": "Section Break",
+      "label": "OpenAI Configuration"
+    },
+    {
+      "fieldname": "openai_api_key",
+      "fieldtype": "Password",
+      "label": "OpenAI API Key"
+    },
+    {
+      "default": "gpt-4-1106-preview",
+      "fieldname": "openai_model",
+      "fieldtype": "Select",
+      "label": "OpenAI Model",
+      "options": "gpt-4-1106-preview\ngpt-4\ngpt-3.5-turbo"
+    },
+    {
+      "fieldname": "section_break_9",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "anthropic_section",
+      "fieldtype": "Section Break",
+      "label": "Anthropic Configuration"
+    },
+    {
+      "fieldname": "anthropic_api_key",
+      "fieldtype": "Password",
+      "label": "Anthropic API Key"
+    },
+    {
+      "default": "claude-3-haiku-20240307",
+      "fieldname": "anthropic_model",
+      "fieldtype": "Select",
+      "label": "Anthropic Model",
+      "options": "claude-3-haiku-20240307\nclaude-3-opus-20240229\nclaude-3-sonnet-20240229"
+    }
+  ],
+  "grid_page_length": 50,
+  "index_web_pages_for_search": 0,
+  "issingle": 1,
+  "links": [],
+  "modified": "2025-04-15 23:27:25.446695",
+  "modified_by": "Administrator",
+  "module": "Translation Tools",
+  "name": "Translation Tools Settings",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "print": 1,
+      "read": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "row_format": "Dynamic",
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": []
+}
