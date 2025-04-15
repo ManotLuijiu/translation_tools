@@ -2,12 +2,12 @@ import frappe
 
 def setup_all_doctypes():
     """Set up all DocTypes and initial data for Translation Tools"""
-    from translation_tools.translation_tools.setup.create_doctypes import (
+    from translation_tools.setup.create_doctypes import (
         create_glossary_doctypes,
         create_po_file_doctypes,
         create_translation_settings_doctype
     )
-    from translation_tools.translation_tools.setup.import_default_glossary import import_default_glossary_terms
+    from translation_tools.setup.import_default_glossary import import_default_glossary_terms
     from translation_tools.translation_tools.api import scan_po_files
     
     print("Creating DocTypes...")

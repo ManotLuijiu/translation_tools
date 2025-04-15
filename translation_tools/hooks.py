@@ -1,33 +1,15 @@
+from . import __version__ as app_version
+from frappe import __version__ as frappe_version
+
 app_name = "translation_tools"
 app_title = "Translation Tools"
 app_publisher = "Manot Luijiu"
 app_description = "Translate English to Thai in Frappe/ERPNext ecosystem"
 app_email = "moocoding@gmail.com"
 app_license = "mit"
-
-# Apps
-# ------------------
-
-# required_apps = []
-
-# Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "translation_tools",
-# 		"logo": "/assets/translation_tools/logo.png",
-# 		"title": "Translation Tools",
-# 		"route": "/translation_tools",
-# 		"has_permission": "translation_tools.api.permission.has_app_permission"
-# 	}
-# ]
-
-# Module configuration for Desk
-# ------------------
 app_icon = "assets/translation_tools/images/translation_icon.svg"
 app_color = "#4183c4"  # A nice blue color
-app_title = "Translation Tools"
-app_email = "moocoding@gmail.com"
-app_license = "MIT"
+guest_title = app_title
 
 # Desktop Sections
 # -------------------
@@ -46,7 +28,10 @@ modules = {
 }
 
 # Installation
-after_install = "translation_tools.install.after_install"
+after_install = [
+    "translation_tools.install.after_install",
+    "chat.patches.migrate_chat_data.execute",
+]
 
 # Uninstallation
 # ------------
@@ -97,15 +82,18 @@ app_include_js = [
     "/assets/translation_tools/js/translation_tools.client.js",
     "/assets/translation_tools/js/pdfmake.min.js",
     "/assets/translation_tools/js/vfs_fonts.js",
+    "chat.bundle.js",
 ]
 
 app_include_css = [
     "/assets/translation_tools/css/tailwind.css",
     "/assets/translation_tools/css/thai_fonts.css",
     "/assets/translation_tools/css/fonts.css",
+    "chat.bundle.css",
 ]
 
-web_include_css = ["/assets/translation_tools/css/thai_fonts.css"]
+web_include_css = ["/assets/translation_tools/css/thai_fonts.css", "chat.bundle.css"]
+web_include_js = ["chat.bundle.js"]
 
 # Desk sidebar item
 get_desk_sidebar_items = [
@@ -127,4 +115,22 @@ get_desk_sidebar_items = [
 fixtures = [
     {"dt": "Workspace", "filters": [["name", "=", "Integrations"]]},
     {"dt": "Page", "filters": [["name", "=", "translation-tools"]]},
+]
+
+sounds = [
+    {
+        "name": "chat-notification",
+        "src": "/assets/chat/sounds/chat-notification.mp3",
+        "volume": 0.2,
+    },
+    {
+        "name": "chat-message-send",
+        "src": "/assets/chat/sounds/chat-message-send.mp3",
+        "volume": 0.2,
+    },
+    {
+        "name": "chat-message-receive",
+        "src": "/assets/chat/sounds/chat-message-receive.mp3",
+        "volume": 0.5,
+    },
 ]

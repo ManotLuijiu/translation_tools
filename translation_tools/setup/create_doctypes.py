@@ -1,5 +1,5 @@
 import frappe
-from frappe.modules.import_file import import_doc_from_dict
+from frappe.modules.import_file import import_doc_from_dict  # type: ignore
 
 
 def create_glossary_doctypes():
@@ -124,10 +124,11 @@ def create_glossary_doctypes():
         doc.save()
         print("Created DocType: Translation Glossary Term")
 
+
 def create_po_file_doctypes():
     """Create DocTypes needed for the PO file tracking system"""
-    from frappe.modules.import_file import import_doc_from_dict
-    
+    from frappe.modules.import_file import import_doc_from_dict  # type: ignore
+
     # Create PO File DocType
     if not frappe.db.exists("DocType", "PO File"):
         po_file_doctype = {
@@ -188,7 +189,7 @@ def create_po_file_doctypes():
                     "fieldname": "last_scanned",
                     "label": "Last Scanned",
                     "fieldtype": "Datetime",
-                }
+                },
             ],
             "permissions": [
                 {
@@ -201,10 +202,10 @@ def create_po_file_doctypes():
                 {
                     "role": "All",
                     "read": 1,
-                }
-            ]
+                },
+            ],
         }
-        
+
         doc = import_doc_from_dict(po_file_doctype)
         doc.save()
         frappe.db.commit()
