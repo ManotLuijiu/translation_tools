@@ -1,0 +1,90 @@
+{
+  "actions": [],
+  "allow_rename": 0,
+  "creation": "2025-04-15 23:11:05.758427",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "user",
+    "enable_notifications",
+    "enable_message_tone",
+    "preferred_language",
+    "translation_history"
+  ],
+  "fields": [
+    {
+      "fieldname": "user",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "User",
+      "options": "User",
+      "reqd": 1,
+      "unique": 1
+    },
+    {
+      "default": "1",
+      "fieldname": "enable_notifications",
+      "fieldtype": "Check",
+      "label": "Enable Notifications"
+    },
+    {
+      "default": "1",
+      "fieldname": "enable_message_tone",
+      "fieldtype": "Check",
+      "label": "Enable Message Tone"
+    },
+    {
+      "default": "th",
+      "fieldname": "preferred_language",
+      "fieldtype": "Select",
+      "label": "Preferred Language",
+      "options": "th\nja\nzh-CN\nko\nvi\nes\nfr\nde"
+    },
+    {
+      "fieldname": "translation_history",
+      "fieldtype": "Table",
+      "label": "Translation History",
+      "options": "Translation History Entry"
+    }
+  ],
+  "grid_page_length": 50,
+  "index_web_pages_for_search": 0,
+  "links": [],
+  "modified": "2025-04-15 23:11:05.758427",
+  "modified_by": "Administrator",
+  "module": "Translation Tools",
+  "name": "Translation User Settings",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "delete": 0,
+      "email": 1,
+      "export": 0,
+      "if_owner": 1,
+      "print": 1,
+      "read": 1,
+      "report": 0,
+      "role": "All",
+      "share": 0,
+      "write": 1
+    }
+  ],
+  "row_format": "Dynamic",
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": []
+}

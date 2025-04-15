@@ -15,6 +15,130 @@ from typing import Dict, List, Any, Optional
 from .common import get_bench_path, logger, _get_translation_config
 from .glossary import get_glossary_terms_dict
 from .settings import get_translation_settings
+from frappe.utils import now
+from translation_tools.utils.thai_glossary import GLOSSARY
+
+
+@frappe.whitelist()
+def translate_text(
+    text,
+    target_lang="th",
+    provider="openai",
+    model=None,
+    source_lang="en",
+    save_history=True,
+):
+    """Translate text using AI services
+
+    Args:
+        text (str): Text to translate
+        target_lang (str, optional): Target language code. Defaults to "th".
+        provider (str, optional): AI provider (openai/claude). Defaults to "openai".
+        model (str, optional): Specific model to use. Defaults to None.
+        source_lang (str, optional): Source language code. Defaults to "en".
+        save_history (bool, optional): Whether to save translation to history. Defaults to True.
+
+    Returns:
+        dict: Translation result with original and translated text
+    """
+    if not text:
+        return {"error": "No text provided"}
+
+    settings = frappe.get_doc("Translation Tools Settings")
+
+    if provider == "openai":
+        api_key = settings.openai_api_key
+        if not api_key:
+            return {"error": "OpenAI API key not configured"}
+
+        used_model = model or settings.openai_model
+        result = translate_with_openai(
+            text, api_key, target_lang, used_model, source_lang
+        )
+
+    elif provider == "claude":
+        api_key = settings.anthropic_api_key
+        if not api_key:
+            return {"error": "Anthropic API key not configured"}
+
+        used_model = model or settings.anthropic_model
+        result = translate_with_claude(
+            text, api_key, target_lang, used_model, source_lang
+        )
+
+    else:
+        return {"error": "Invalid provider specified"}
+
+    # Save to history if requested and user is logged in
+    if (
+        save_history
+        and frappe.session.user
+        and frappe.session.user != "Guest"
+        and not isinstance(result, dict)
+    ):
+        try:
+            save_to_translation_history(
+                text, result, source_lang, target_lang, provider, used_model
+            )
+        except Exception as e:
+            frappe.log_error(
+                f"Error saving translation history: {e}", "Translation History Error"
+            )
+
+    if isinstance(result, dict) and "error" in result:
+        return result
+    else:
+        return {
+            "original": text,
+            "translated": result,
+            "source_language": source_lang,
+            "target_language": target_lang,
+        }
+
+
+def save_to_translation_history(
+    source_text, translated_text, source_lang, target_lang, provider, model
+):
+    """Save translation to user's history
+
+    Args:
+        source_text (str): Original text
+        translated_text (str): Translated text
+        source_lang (str): Source language code
+        target_lang (str): Target language code
+        provider (str): AI provider used
+        model (str): Model used
+    """
+    # Get or create user settings
+    if not frappe.db.exists("Translation User Settings", frappe.session.user):
+        user_settings = frappe.get_doc(
+            {
+                "doctype": "Translation User Settings",
+                "user": frappe.session.user,
+                "enable_notifications": 1,
+                "enable_message_tone": 1,
+                "preferred_language": target_lang,
+            }
+        ).insert()
+    else:
+        user_settings = frappe.get_doc("Translation User Settings", frappe.session.user)
+
+    # Add history entry
+    user_settings.append(
+        "translation_history",
+        {
+            "source_text": source_text[:1000],  # Limit text length
+            "translated_text": translated_text[:1000],  # Limit text length
+            "source_language": source_lang,
+            "target_language": target_lang,
+            "translation_date": now(),
+            "provider": provider,
+            "model": model,
+        },
+    )
+
+    user_settings.save()
+
 
 @frappe.whitelist()
 def translate_single_entry(file_path, entry_id, model_provider="openai", model=None):
@@ -25,73 +149,76 @@ def translate_single_entry(file_path, entry_id, model_provider="openai", model=N
     # Create a log file
     log_dir = os.path.join(frappe.utils.get_bench_path(), "logs", "translation_logs")
     os.makedirs(log_dir, exist_ok=True)
-    log_file = os.path.join(log_dir, f"entry_{os.path.basename(file_path)}_{entry_id}_{frappe.utils.now().replace(':', '-')}.log")
-    
+    log_file = os.path.join(
+        log_dir,
+        f"entry_{os.path.basename(file_path)}_{entry_id}_{frappe.utils.now().replace(':', '-')}.log",
+    )
+
     # Set up logging
     file_handler = logging.FileHandler(log_file)
     logger.addHandler(file_handler)
     logger.setLevel(logging.DEBUG)
-    
+
     try:
         # Load the PO file
         po = polib.pofile(file_path)
-        
+
         # Find the entry by ID (index)
         index = int(entry_id)
         if index < 0 or index >= len(po):
             frappe.throw(_("Invalid entry ID"))
-        
+
         entry = po[index]
-        
+
         # Get the text to translate
         source_text = entry.msgid
         logger.info(f"Translating entry: {source_text}")
-        
+
         # Get settings
         settings = get_translation_settings()
-        
+
         # Use the specified model provider or default
         provider = model_provider or settings.get("default_model_provider", "openai")
-        
+
         # Use the specified model or default based on provider
         if not model:
             if provider == "openai":
                 model = settings.get("default_model", "gpt-4-1106-preview")
             else:
                 model = settings.get("default_model", "claude-3-haiku")
-        
+
         # Get API keys
         api_key = None
         if provider == "openai":
             api_key = settings.get("openai_api_key")
         else:
             api_key = settings.get("anthropic_api_key")
-        
+
         if not api_key:
             frappe.throw(_("API key not configured for {0}").format(provider))
-        
+
         # Get translation
         translation = call_ai_translation_api(
             source_text=source_text,
             provider=provider,
             model=model,
             api_key=api_key,
-            temperature=settings.get("temperature", 0.3)
+            temperature=settings.get("temperature", 0.3),
         )
 
         logger.info(f"Translation result: {translation}")
-        
+
         # Automatically save if enabled
         if settings.get("auto_save"):
             # Update the translation
             entry.msgstr = translation
-            
+
             # Update metadata
             po.metadata["PO-Revision-Date"] = time.strftime("%Y-%m-%d %H:%M%z")
-            
+
             # Save the file
             po.save(file_path)
-            
+
             # Clear cache
             global PO_FILES_CACHE
             PO_FILES_CACHE = None
@@ -99,91 +226,97 @@ def translate_single_entry(file_path, entry_id, model_provider="openai", model=N
             # Update PO File record in database
             if frappe.db.exists("PO File", {"file_path": file_path}):
                 file_doc = frappe.get_doc("PO File", {"file_path": file_path})
-                if not entry.msgstr and translation:  # If this was previously untranslated
+                if (
+                    not entry.msgstr and translation
+                ):  # If this was previously untranslated
                     file_doc.translated_entries += 1
-                    file_doc.translation_status = int((file_doc.translated_entries / file_doc.total_entries) * 100) if file_doc.total_entries > 0 else 0
+                    file_doc.translation_status = (
+                        int(
+                            (file_doc.translated_entries / file_doc.total_entries) * 100
+                        )
+                        if file_doc.total_entries > 0
+                        else 0
+                    )
                 file_doc.last_modified = frappe.utils.now()
                 file_doc.save()
-            
+
             logger.info("Translation automatically saved")
-        
-        return {
-            "success": True, 
-            "translation": translation,
-            "log_file": log_file
-        }
+
+        return {"success": True, "translation": translation, "log_file": log_file}
     except Exception as e:
         logger.error(f"Error translating entry: {e}")
-        return {
-            "success": False,
-            "error": str(e),
-            "log_file": log_file
-        }
+        return {"success": False, "error": str(e), "log_file": log_file}
     finally:
         # Remove file handler
         logger.removeHandler(file_handler)
         file_handler.close()
+
 
 @frappe.whitelist()
 def translate_po_file(file_path, model_provider="openai", model=None):
     """Translate an entire PO file using AI"""
     if not os.path.exists(file_path):
         frappe.throw(_("File not found: {0}").format(file_path))
-    
+
     # Create a log file
     log_dir = os.path.join(frappe.utils.get_bench_path(), "logs", "translation_logs")
     os.makedirs(log_dir, exist_ok=True)
-    log_file = os.path.join(log_dir, f"translate_{os.path.basename(file_path)}_{frappe.utils.now().replace(':', '-')}.log")
-    
+    log_file = os.path.join(
+        log_dir,
+        f"translate_{os.path.basename(file_path)}_{frappe.utils.now().replace(':', '-')}.log",
+    )
+
     # Set up logging
     file_handler = logging.FileHandler(log_file)
     logger.addHandler(file_handler)
     logger.setLevel(logging.DEBUG)
-    
+
     try:
         logger.info(f"Starting translation of {file_path}")
-        
+
         # Load the PO file
         po = polib.pofile(file_path)
-        
+
         # Get settings
         settings = get_translation_settings()
-        
+
         # Use the specified model provider or default
         provider = model_provider or settings.get("default_model_provider", "openai")
-        
+
         # Use the specified model or default based on provider
         if not model:
             if provider == "openai":
                 model = settings.get("default_model", "gpt-4-1106-preview")
             else:
                 model = settings.get("default_model", "claude-3-haiku")
-        
+
         # Get API keys
         api_key = None
         if provider == "openai":
             api_key = settings.get("openai_api_key")
         else:
             api_key = settings.get("anthropic_api_key")
-        
+
         if not api_key:
             frappe.throw(_("API key not configured for {0}").format(provider))
-        
+
         # Get entries to translate
         entries_to_translate = [entry for entry in po if not entry.msgstr]
         total_entries = len(entries_to_translate)
         translated_count = 0
-        
+
         logger.info(f"Found {total_entries} entries to translate")
-        
+
         # Batch size from settings
         batch_size = settings.get("batch_size", 10)
-        
+
         # Process in batches
         for i in range(0, total_entries, batch_size):
-            batch = entries_to_translate[i:i + batch_size]
-            logger.info(f"Processing batch {i//batch_size + 1}, entries {i+1}-{min(i+batch_size, total_entries)}")
-            
+            batch = entries_to_translate[i : i + batch_size]
+            logger.info(
+                f"Processing batch {i//batch_size + 1}, entries {i+1}-{min(i+batch_size, total_entries)}"
+            )
+
             # Translate each entry in the batch
             for entry in batch:
                 try:
@@ -192,53 +325,56 @@ def translate_po_file(file_path, model_provider="openai", model=None):
                         provider=provider,
                         model=model,
                         api_key=api_key,
-                        temperature=settings.get("temperature", 0.3)
+                        temperature=settings.get("temperature", 0.3),
                     )
-                    
+
                     entry.msgstr = translation
                     translated_count += 1
                     logger.info(f"Translated: '{entry.msgid}' → '{translation}'")
                 except Exception as e:
                     logger.error(f"Error translating entry: {e}")
-            
+
             # Save progress after each batch
             po.metadata["PO-Revision-Date"] = time.strftime("%Y-%m-%d %H:%M%z")
             po.save(file_path)
             logger.info(f"Saved progress after batch {i//batch_size + 1}")
-            
+
             # Sleep between batches to avoid rate limiting
             if i + batch_size < total_entries:
                 time.sleep(2)
-        
+
         # Update PO File record in database
         if frappe.db.exists("PO File", {"file_path": file_path}):
             file_doc = frappe.get_doc("PO File", {"file_path": file_path})
             file_doc.translated_entries = len(po.translated_entries())
-            file_doc.translation_status = int((file_doc.translated_entries / file_doc.total_entries) * 100) if file_doc.total_entries > 0 else 0
+            file_doc.translation_status = (
+                int((file_doc.translated_entries / file_doc.total_entries) * 100)
+                if file_doc.total_entries > 0
+                else 0
+            )
             file_doc.last_modified = frappe.utils.now()
             file_doc.save()
-        
+
         logger.info(f"Translation completed. Translated {translated_count} entries.")
-        
+
         return {
             "success": True,
             "translated_count": translated_count,
-            "log_file": log_file
+            "log_file": log_file,
         }
     except Exception as e:
         logger.error(f"Error during translation: {e}")
-        return {
-            "success": False,
-            "error": str(e),
-            "log_file": log_file
-        }
+        return {"success": False, "error": str(e), "log_file": log_file}
     finally:
         # Remove file handler
         logger.removeHandler(file_handler)
         file_handler.close()
 
+
 @frappe.whitelist()
-def start_translation(po_file_path, batch_size=10, model_provider="openai", model="gpt-4-1106-preview"):
+def start_translation(
+    po_file_path, batch_size=10, model_provider="openai", model="gpt-4-1106-preview"
+):
     """Start the translation process for a PO file."""
     if not frappe.has_permission("Translation Tools", "write"):
         frappe.throw(_("You do not have permission to use the translation tools"))
@@ -266,13 +402,18 @@ def start_translation(po_file_path, batch_size=10, model_provider="openai", mode
 
     return {"message": "Translation started in the background", "status": "success"}
 
-def translate_po_file_background(po_file_path, api_key, batch_size=10, model_provider="openai", model="gpt-4-1106-preview"):
+
+def translate_po_file_background(
+    po_file_path,
+    api_key,
+    batch_size=10,
+    model_provider="openai",
+    model="gpt-4-1106-preview",
+):
     """Background job to translate a PO file."""
     try:
         output_path = translate_po_file(
-            po_file_path=po_file_path,
-            model_provider=model_provider,
-            model=model
+            po_file_path=po_file_path, model_provider=model_provider, model=model
         )
 
         # Log the output
@@ -282,6 +423,7 @@ def translate_po_file_background(po_file_path, api_key, batch_size=10, model_pro
         logger.error(f"Translation failed: {str(e)}")
         frappe.logger().error(f"Translation failed: {str(e)}")
         raise
+
 
 @frappe.whitelist()
 def translate_batch(file_path, indices):
@@ -334,6 +476,7 @@ def translate_batch(file_path, indices):
         frappe.log_error(f"Error in batch translation: {str(e)}")
         return {"error": str(e)}
 
+
 @frappe.whitelist()
 def translate_entry(file_path, msgid, index):
     """Translate a single entry using AI"""
@@ -372,8 +515,11 @@ def translate_entry(file_path, msgid, index):
         frappe.log_error(f"Error translating entry: {str(e)}")
         return {"error": str(e)}
 
+
 @frappe.whitelist()
-def translate_entries(file_path, entries, model="gpt-4", model_provider="openai", temperature=0.3):
+def translate_entries(
+    file_path, entries, model="gpt-4", model_provider="openai", temperature=0.3
+):
     """
     Translate a batch of entries using AI
     entries: list of dictionaries with msgid and other details
@@ -514,6 +660,7 @@ def translate_entries(file_path, entries, model="gpt-4", model_provider="openai"
         frappe.log_error(f"Error in translate_entries: {str(e)}")
         return {"error": str(e)}
 
+
 @frappe.whitelist()
 def get_translation_logs(log_file=None):
     """Get the translation logs"""
@@ -546,48 +693,49 @@ def get_translation_logs(log_file=None):
         frappe.log_error(f"Error getting translation logs: {str(e)}")
         return {"error": str(e)}
 
+
 def analyze_logs(logs):
     """Analyze translation logs for common patterns and issues"""
-    analysis = {
-        "api_calls": 0,
-        "api_responses": 0,
-        "errors": []
-    }
-    
+    analysis = {"api_calls": 0, "api_responses": 0, "errors": []}
+
     # Count API calls
     api_calls = re.findall(r"API call", logs)
     analysis["api_calls"] = len(api_calls)
-    
+
     # Count responses
     responses = re.findall(r"Raw response:", logs)
     analysis["api_responses"] = len(responses)
-    
+
     # Detect errors
     error_patterns = [
         r"Error during translation: (.*?)(?=\n|$)",
         r"OpenAI API error: (.*?)(?=\n|$)",
         r"JSON parsing error: (.*?)(?=\n|$)",
-        r"Unexpected error: (.*?)(?=\n|$)"
+        r"Unexpected error: (.*?)(?=\n|$)",
     ]
-    
+
     for pattern in error_patterns:
         errors = re.findall(pattern, logs)
         analysis["errors"].extend(errors)
-    
+
     return analysis
+
 
 def call_ai_translation_api(source_text, provider, model, api_key, temperature=0.3):
     """Call the AI translation API"""
     if provider == "openai":
         import openai
+
         client = openai.OpenAI(api_key=api_key)
-        
+
         # Prepare glossary context
         glossary_terms = get_glossary_terms_dict()
         glossary_context = ""
         if glossary_terms:
-            glossary_context = "Use these specific term translations:\n" + json.dumps(glossary_terms, indent=2)
-        
+            glossary_context = "Use these specific term translations:\n" + json.dumps(
+                glossary_terms, indent=2
+            )
+
         # Create the prompt
         system_message = f"""
         You are an expert translator specializing in technical and software localization.
@@ -599,29 +747,32 @@ def call_ai_translation_api(source_text, provider, model, api_key, temperature=0
         For technical terms not in the glossary, you may keep them in English if that's conventional.
         Return only the translation, without any explanations or notes.
         """
-        
+
         # Make the API call
         response = client.chat.completions.create(
             model=model,
             messages=[
                 {"role": "system", "content": system_message},
-                {"role": "user", "content": source_text}
+                {"role": "user", "content": source_text},
             ],
-            temperature=temperature
+            temperature=temperature,
         )
-        
+
         return response.choices[0].message.content.strip()
-    
+
     elif provider == "claude":
         import anthropic
+
         client = anthropic.Anthropic(api_key=api_key)
-        
+
         # Prepare glossary context
         glossary_terms = get_glossary_terms_dict()
         glossary_context = ""
         if glossary_terms:
-            glossary_context = "Use these specific term translations:\n" + json.dumps(glossary_terms, indent=2)
-        
+            glossary_context = "Use these specific term translations:\n" + json.dumps(
+                glossary_terms, indent=2
+            )
+
         # Create the prompt
         prompt = f"""
         You are an expert translator specializing in technical and software localization.
@@ -636,19 +787,20 @@ def call_ai_translation_api(source_text, provider, model, api_key, temperature=0
         Text to translate:
         {source_text}
         """
-        
+
         # Make the API call
         response = client.messages.create(
             model=model,
             max_tokens=1000,
             temperature=temperature,
-            messages=[{"role": "user", "content": prompt}]
+            messages=[{"role": "user", "content": prompt}],
         )
-        
+
         return response.content[0].text.strip()
-    
+
     else:
         frappe.throw(_("Unsupported model provider: {0}").format(provider))
+
 
 def _translate_with_openai(api_key, model, text):
     """Translate text using OpenAI API"""
@@ -682,6 +834,7 @@ Only respond with the translated text, nothing else.""",
         logger.error(f"OpenAI translation error: {str(e)}", exc_info=True)
         frappe.log_error(f"OpenAI translation error: {str(e)}")
         return None
+
 
 def _translate_with_claude(api_key, model, text):
     """Translate text using Anthropic Claude API"""
@@ -717,6 +870,7 @@ Text to translate: {text}""",
         logger.error(f"Claude translation error: {str(e)}", exc_info=True)
         frappe.log_error(f"Claude translation error: {str(e)}")
         return None
+
 
 def _batch_translate_with_openai(api_key, model, entries):
     """Translate multiple entries using OpenAI API"""
@@ -771,6 +925,7 @@ For each entry, respond with 'Entry X: [Thai translation]' where X is the entry 
         logger.error(f"OpenAI batch translation error: {str(e)}", exc_info=True)
         frappe.log_error(f"OpenAI batch translation error: {str(e)}")
         return {}
+
 
 def _batch_translate_with_claude(api_key, model, entries):
     """Translate multiple entries using Anthropic Claude API"""
