@@ -2,7 +2,7 @@ frappe.pages['pdf-override'].on_page_load = function (wrapper) {
   frappe.ui.make_app_page({
     parent: wrapper,
     title: __('Thai PDF Generator'),
-    single_column: true,
+    single_column: false,
   });
 };
 
@@ -14,6 +14,18 @@ frappe.pages['pdf-override'].on_page_show = function (wrapper) {
       'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js',
     ],
     function () {
+      // Fix the font definition
+      if (window.pdfMake) {
+        // Explicitly define Roboto font
+        window.pdfMake.fonts = {
+          Roboto: {
+            normal: 'Roboto-Regular.ttf',
+            bold: 'Roboto-Medium.ttf',
+            italics: 'Roboto-Italic.ttf',
+            bolditalics: 'Roboto-MediumItalic.ttf',
+          },
+        };
+      }
       setup_page(wrapper);
     }
   );
@@ -25,25 +37,25 @@ function setup_page(wrapper) {
   const $content = $(wrapper).find('.layout-main-section');
 
   // Setup Thai fonts for pdfMake
-  if (window.pdfMake) {
-    window.pdfMake.fonts = {
-      Roboto: {
-        normal: 'Roboto-Regular.ttf',
-        bold: 'Roboto-Medium.ttf',
-        italics: 'Roboto-Italic.ttf',
-        bolditalics: 'Roboto-MediumItalic.ttf',
-      },
-      Kanit: {
-        normal:
-          'https://cdn.jsdelivr.net/npm/@fontsource/kanit@4.5.10/files/kanit-thai-400-normal.woff2',
-        bold: 'https://cdn.jsdelivr.net/npm/@fontsource/kanit@4.5.10/files/kanit-thai-700-normal.woff2',
-        italics:
-          'https://cdn.jsdelivr.net/npm/@fontsource/kanit@4.5.10/files/kanit-thai-400-italic.woff2',
-        bolditalics:
-          'https://cdn.jsdelivr.net/npm/@fontsource/kanit@4.5.10/files/kanit-thai-700-italic.woff2',
-      },
-    };
-  }
+  //   if (window.pdfMake) {
+  //     window.pdfMake.fonts = {
+  //       Roboto: {
+  //         normal: 'Roboto-Regular.ttf',
+  //         bold: 'Roboto-Medium.ttf',
+  //         italics: 'Roboto-Italic.ttf',
+  //         bolditalics: 'Roboto-MediumItalic.ttf',
+  //       },
+  //       Kanit: {
+  //         normal:
+  //           'https://cdn.jsdelivr.net/npm/@fontsource/kanit@4.5.10/files/kanit-thai-400-normal.woff2',
+  //         bold: 'https://cdn.jsdelivr.net/npm/@fontsource/kanit@4.5.10/files/kanit-thai-700-normal.woff2',
+  //         italics:
+  //           'https://cdn.jsdelivr.net/npm/@fontsource/kanit@4.5.10/files/kanit-thai-400-italic.woff2',
+  //         bolditalics:
+  //           'https://cdn.jsdelivr.net/npm/@fontsource/kanit@4.5.10/files/kanit-thai-700-italic.woff2',
+  //       },
+  //     };
+  //   }
 
   // Clear content area
   $content.empty();
@@ -60,7 +72,7 @@ function setup_page(wrapper) {
   // Build the UI
   const html = `
 	  <div class="pdf-generator-container">
-		<div class="card">
+		<div class="tw-relative tw-flex tw-flex-col tw-min-w-0 tw-break-words tw-bg-clip tw-border tw-border-black/10 tw-rounded-xl">
 		  <div class="card-body">
 			<h5 class="card-title">${__('Thai PDF Generator')}</h5>
 			<p class="card-text">${__('Generate PDFs with Thai language support.')}</p>
@@ -82,6 +94,15 @@ function setup_page(wrapper) {
 				</label>
 			  </div>
 			</div>
+
+			<div class="form-group">
+				<label for="font-select">${__('Font')}</label>
+				<select class="form-control" id="font-select">
+				<option value="THSarabun" selected>THSarabun (ภาษาไทย)</option>
+				<option value="Roboto">Roboto (English only)</option>
+				</select>
+				<small class="text-muted">Note: For proper Thai text display, use the THSarabun option</small>
+          	</div>
 			
 			<button class="btn btn-primary" id="btn-generate-pdf">${__('Generate PDF')}</button>
 			<button class="btn btn-secondary" id="btn-generate-from-doc">${__('Generate from Document')}</button>
@@ -145,42 +166,134 @@ function setup_page(wrapper) {
       return;
     }
 
-    const title = $content.find('#pdf-title').val() || 'Thai PDF';
+    const title = $content.find('#pdf-title').val() || 'PDF Document';
     const content = $content.find('#pdf-content').val() || '';
     const includeLogo = $content.find('#pdf-include-logo').prop('checked');
+    const selectedFont = $content.find('#font-select').val();
 
-    const docDefinition = {
-      content: [{ text: title, style: 'header' }],
-      styles: {
-        header: { fontSize: 18, bold: true, margin: [0, 0, 0, 10] },
-      },
-      defaultStyle: {
-        font: 'Kanit',
-      },
-    };
+    console.log('selectedFont', selectedFont);
 
-    // Add logo if requested
-    if (includeLogo && frappe.boot.company_logo) {
-      docDefinition.content.unshift({
-        image: 'data:image/png;base64,' + frappe.boot.company_logo,
-        width: 150,
-        alignment: 'center',
-        margin: [0, 0, 0, 10],
-      });
-    }
+    // If Thai font is selected, load it first
+    const prepare =
+      selectedFont === 'THSarabun' ? load_thai_fonts() : Promise.resolve();
 
-    // Add content
-    if (content) {
-      // Split by newlines and add each line as a paragraph
-      const lines = content.split('\n');
-      lines.forEach((line) => {
-        if (line.trim()) {
-          docDefinition.content.push({ text: line, margin: [0, 5, 0, 0] });
+    console.log('Selected font:', selectedFont);
+    console.log('prepare:', prepare);
+
+    // Show loading
+    frappe.show_alert({
+      message: __('Generating PDF...'),
+      indicator: 'blue',
+    });
+
+    // let fontConfig = {};
+    // if (selectedFont === 'ThaiRoboto') {
+    //   // Use special fallback configuration for Thai
+    //   fontConfig = {
+    //     fallback: true,
+    //     lang: 'th',
+    //   };
+    // }
+
+    prepare
+      .then(() => {
+        // Font config based on selection
+        const fontConfig = {
+          font: selectedFont === 'THSarabun' ? 'THSarabun' : undefined,
+        };
+        const docDefinition = {
+          content: [{ text: title, style: 'header' }],
+          styles: {
+            header: { fontSize: 18, bold: true, margin: [0, 0, 0, 10] },
+          },
+          defaultStyle: fontConfig,
+        };
+
+        // Add logo if requested
+        if (includeLogo && frappe.boot.company_logo) {
+          docDefinition.content.unshift({
+            image: 'data:image/png;base64,' + frappe.boot.company_logo,
+            width: 150,
+            alignment: 'center',
+            margin: [0, 0, 0, 10],
+          });
         }
+
+        // Add content
+        if (content) {
+          console.log('content',content)
+          // Split by newlines and add each line as a paragraph
+          const lines = content.split('\n');
+          lines.forEach((line) => {
+            if (line.trim()) {
+              docDefinition.content.push({ text: line, margin: [0, 5, 0, 0] });
+            }
+          });
+        }
+        window.pdfMake.createPdf(docDefinition).open();
+      })
+      .catch((error) => {
+        frappe.msgprint(__('Error loading fonts ครับ: {0}', [error]));
+      });
+  }
+
+  // Load Thai fonts dynamically
+  function load_thai_fonts() {
+    if (!window.pdfMake) return Promise.reject('pdfMake not loaded');
+
+    // Check if fonts already loaded
+    if (window.thai_fonts_loaded) return Promise.resolve();
+
+    // Function to load a font
+    function load_font(font_name) {
+      return new Promise((resolve, reject) => {
+        frappe.call({
+          method: 'translation_tools.api.pdf_fonts.get_font_base64',
+          args: { font_name: font_name },
+          callback: function (response) {
+            if (response.message && !response.message.error) {
+              const fontData = response.message;
+              resolve({ name: font_name, data: fontData });
+            } else {
+              reject(response.message?.error || 'Failed to load font');
+            }
+          },
+          error: function (err) {
+            reject(err);
+          },
+        });
       });
     }
 
-    window.pdfMake.createPdf(docDefinition).open();
+    // Load all needed fonts
+    return Promise.all([
+      load_font('THSarabun'),
+      load_font('THSarabunBold'),
+      load_font('THSarabunBold'),
+      load_font('THSarabunBold'),
+    ]).then((fonts) => {
+      // Add fonts to pdfMake
+      if (!window.pdfMake.vfs) window.pdfMake.vfs = {};
+
+      // Add each font to the virtual file system
+      fonts.forEach((font) => {
+        window.pdfMake.vfs[font.name + '.ttf'] = font.data;
+      });
+
+      // Configure Thai font
+      window.pdfMake.fonts = {
+        ...window.pdfMake.fonts,
+        THSarabun: {
+          normal: 'THSarabun.ttf',
+          bold: 'THSarabunBold.ttf',
+          italics: 'THSarabun.ttf',
+          bolditalics: 'THSarabunBold.ttf',
+        },
+      };
+
+      window.thai_fonts_loaded = true;
+      return true;
+    });
   }
 
   // Function to generate PDF from an ERPNext document
@@ -204,8 +317,7 @@ function setup_page(wrapper) {
       ],
       function (values) {
         frappe.call({
-          method:
-            'translation_tools.translation_tools.api.pdfmake_generator.get_print_data',
+          method: 'translation_tools.api.pdfmake_generator.get_print_data',
           args: {
             doc_type: values.doctype,
             doc_name: values.docname,
@@ -245,13 +357,13 @@ function setup_page(wrapper) {
   function show_settings() {
     frappe.prompt(
       [
-        {
-          label: 'Default Font',
-          fieldname: 'default_font',
-          fieldtype: 'Select',
-          options: 'Kanit\nRoboto',
-          default: 'Kanit',
-        },
+        // {
+        //   label: 'Default Font',
+        //   fieldname: 'default_font',
+        //   fieldtype: 'Select',
+        //   options: 'Kanit\nRoboto',
+        //   default: 'Kanit',
+        // },
         {
           label: 'Default Page Size',
           fieldname: 'page_size',

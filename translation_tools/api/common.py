@@ -17,7 +17,7 @@ CACHE_EXPIRY = 300  # 5 minutes
 
 def get_bench_path():
     """Get the bench directory path"""
-    return os.path.abspath(os.path.join(frappe.utils.get_bench_path()))
+    return os.path.abspath(os.path.join(get_bench_path()))
 
 def _get_translation_config():
     """Get translation configuration from file"""

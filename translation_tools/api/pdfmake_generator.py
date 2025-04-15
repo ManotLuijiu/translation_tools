@@ -2,8 +2,6 @@ import frappe
 from frappe import _
 from frappe.utils.pdf import get_pdf
 from frappe.utils import get_site_name
-import json
-import os
 
 
 @frappe.whitelist()
@@ -41,39 +39,5 @@ def get_print_data(doc_type, doc_name, print_format=None):
     except Exception as e:
         frappe.log_error(
             message=f"Error getting print data: {str(e)}", title="PDF Make Error"
-        )
-        return {"error": str(e)}
-
-
-@frappe.whitelist()
-def get_thai_fonts():
-    """Get Thai font information for pdfMake"""
-    try:
-        app_path = frappe.get_app_path("translation_tools")
-        fonts_path = os.path.join(app_path, "public", "fonts")
-
-        # List available Thai fonts
-        fonts = []
-        if os.path.exists(fonts_path):
-            for file in os.listdir(fonts_path):
-                if file.endswith(".ttf") or file.endswith(".otf"):
-                    fonts.append(
-                        {
-                            "name": os.path.splitext(file)[0],
-                            "path": f"/assets/translation_tools/fonts/{file}",
-                        }
-                    )
-
-        return {
-            "fonts": fonts,
-            "default_font": (
-                "THSarabun"
-                if any(f["name"].startswith("THSarabun") for f in fonts)
-                else None
-            ),
-        }
-    except Exception as e:
-        frappe.log_error(
-            message=f"Error getting Thai fonts: {str(e)}", title="Thai Fonts Error"
         )
         return {"error": str(e)}
