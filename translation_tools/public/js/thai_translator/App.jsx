@@ -1,14 +1,14 @@
 import * as React from 'react';
-// import { FileSelector } from './FileSelector';
+import '../../css/tailwind.css';
+import { Button } from '@/components/ui/button';
+import Dashboard from './components/Dashboard';
 
 export function App() {
-  const dynamicMessage = React.useState('Hello from App.jsx');
   return (
-    <div className="m-4">
-      <h3>{dynamicMessage}</h3>
-      <h4>
-        Start editing at translation_tools/public/js/thai_translator/App.jsx
-      </h4>
-    </div>
+    <main className="tw">
+      <div className="tw-flex tw-flex-col tw-items-center tw-justify-center">
+        <Button>Click me</Button>
+      </div>
+    </main>
   );
 }

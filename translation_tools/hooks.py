@@ -134,3 +134,21 @@ sounds = [
         "volume": 0.5,
     },
 ]
+
+# Override doctype class
+override_doctype_class = {
+    "Sales Invoice": "translation_tools.translation_tools.override.custom_sales_invoice.CustomSalesInvoice"
+}
+
+# Include JS file
+doctype_js = {
+    "Sales Invoice": "public/js/sales_invoice.js"
+}
+
+# Include Thai font files
+app_include_fonts = [
+    "public/fonts/Sarabun/Sarabun-Regular.ttf",
+    "public/fonts/Sarabun/Sarabun-Bold.ttf",
+    "public/fonts/Sarabun/Sarabun-Italic.ttf",
+    "public/fonts/Sarabun/Sarabun-BoldItalic.ttf"
+]

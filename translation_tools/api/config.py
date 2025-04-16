@@ -1,4 +1,3 @@
-# File: translation_tools/translation_tools/api/config.py
 import frappe
 from frappe import _
 import json

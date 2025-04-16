@@ -12,7 +12,8 @@ dependencies = [
     "openai>=1.3.0",
     "polib>=1.2.0",
     "tqdm>=4.64.0",
-    "anthropic>=0.5.0"
+    "anthropic>=0.5.0",
+    "weasyprint"
 ]
 
 [build-system]
@@ -22,6 +23,9 @@ build-backend = "flit_core.buildapi"
 # These dependencies are only installed when developer mode is enabled
 [tool.bench.dev-dependencies]
 # package_name = "~=1.1.0"
+
+[tool.flit.scripts]
+check_weasyprint_deps = "translation_tools.setup.check_weasyprint_deps:check_dependencies"
 
 [project.urls]
 Homepage = "https://github.com/ManotLuijiu/translation_tools"
