@@ -8,6 +8,7 @@
   "field_order": [
     "general_section",
     "enable_translation",
+    "chat_enable",
     "default_source_language",
     "default_target_language",
     "section_break_5",
@@ -17,7 +18,9 @@
     "section_break_9",
     "anthropic_section",
     "anthropic_api_key",
-    "anthropic_model"
+    "anthropic_model",
+    "api_keys_section",
+    "tax_consultant_license_key"
   ],
   "fields": [
     {
@@ -30,6 +33,12 @@
       "fieldname": "enable_translation",
       "fieldtype": "Check",
       "label": "Enable Translation Service"
+    },
+    {
+      "default": "1",
+      "fieldname": "chat_enabled",
+      "fieldtype": "Check",
+      "label": "Enable Chat Features"
     },
     {
       "default": "en",
@@ -84,6 +93,16 @@
       "fieldtype": "Select",
       "label": "Anthropic Model",
       "options": "claude-3-haiku-20240307\nclaude-3-opus-20240229\nclaude-3-sonnet-20240229"
+    },
+    {
+      "fieldname": "api_keys_section",
+      "fieldtype": "Section Break",
+      "label": "API Keys"
+    },
+    {
+      "fieldname": "tax_consultant_license_key",
+      "fieldtype": "Password",
+      "label": "Thai Tax Consultant License Key"
     }
   ],
   "grid_page_length": 50,

@@ -3,12 +3,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Loader2 } from 'lucide-react';
-import { useGetTranslationSettings } from '../../translation_tools/api/settings';
 import FileExplorer from './FileExplorer';
 import TranslationEditor from './TranslationEditor';
 import GlossaryManager from './GlossaryManager';
 import SettingsPanel from './SettingsPanel';
-import {checkSetupStatus, runSetup} from "../../translation_tools/hooks/useSetup"
+import {
+  checkSetupStatus,
+  runSetup,
+} from '../../translation_tools/hooks/useSetup';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('files');
@@ -22,11 +24,11 @@ export default function Dashboard() {
     try {
       // Check setup status
       const setupStatus = await checkSetupStatus();
-      
+
       if (!setupStatus.is_setup_complete) {
         // Show setup UI
         // ...
-        
+
         // When user clicks "Run Setup"
         const setupResult = await runSetup();
         if (setupResult.success) {

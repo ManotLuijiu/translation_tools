@@ -1,12 +1,7 @@
-import { useState, useEffect } from "react";
-import {
-  useGetPOFileEntries,
-  useTranslateSingleEntry,
-  useSaveTranslation,
-} from "../../translation_tools/api/settings";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Card,
   CardContent,
@@ -14,27 +9,24 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Save, RefreshCw, Check, AlertCircle } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import TranslationStats from "./TranslationStats";
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, Save, RefreshCw, Check, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import TranslationStats from './TranslationStats';
 
-export default function TranslationEditor({
-  selectedFile,
-  settings,
-}) {
+export default function TranslationEditor({ selectedFile, settings }) {
   const [selectedEntryId, setSelectedEntryId] = useState(null);
-  const [entryFilter, setEntryFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [editedTranslation, setEditedTranslation] = useState("");
+  const [entryFilter, setEntryFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [editedTranslation, setEditedTranslation] = useState('');
   const [statusMessage, setStatusMessage] = useState(null);
 
   const { data, error, isLoading, mutate } = useGetPOFileEntries(
@@ -47,7 +39,7 @@ export default function TranslationEditor({
   // Reset selected entry when file changes
   useEffect(() => {
     setSelectedEntryId(null);
-    setEditedTranslation("");
+    setEditedTranslation('');
     setStatusMessage(null);
   }, [selectedFile]);
 
@@ -57,7 +49,7 @@ export default function TranslationEditor({
 
     const entry = data.message.entries.find((e) => e.id === selectedEntryId);
     if (entry) {
-      setEditedTranslation(entry.msgstr || "");
+      setEditedTranslation(entry.msgstr || '');
     }
   }, [selectedEntryId, data]);
 
@@ -88,7 +80,7 @@ export default function TranslationEditor({
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Error</AlertTitle>
         <AlertDescription>
-          Failed to load file: {error.message || "Unknown error"}
+          Failed to load file: {error.message || 'Unknown error'}
         </AlertDescription>
       </Alert>
     );
@@ -104,13 +96,13 @@ export default function TranslationEditor({
   }
 
   const { entries, stats, metadata } = fileData;
-  console.log("metadata", metadata);
+  console.log('metadata', metadata);
 
   // Filter entries based on user selection
   const filteredEntries = entries.filter((entry) => {
     // First filter by translation status
-    if (entryFilter === "untranslated" && entry.is_translated) return false;
-    if (entryFilter === "translated" && !entry.is_translated) return false;
+    if (entryFilter === 'untranslated' && entry.is_translated) return false;
+    if (entryFilter === 'translated' && !entry.is_translated) return false;
 
     // Then filter by search term
     if (!searchTerm) return true;
@@ -129,19 +121,19 @@ export default function TranslationEditor({
   const handleTranslate = async () => {
     if (!selectedEntry || !selectedFile.file_path) return;
 
-    setStatusMessage({ type: "info", message: "Translating..." });
+    setStatusMessage({ type: 'info', message: 'Translating...' });
 
     try {
       const result = await translateEntry.call({
         file_path: selectedFile.file_path,
         entry_id: selectedEntry.id,
-        model_provider: settings?.default_model_provider || "openai",
+        model_provider: settings?.default_model_provider || 'openai',
         model: settings?.default_model || undefined,
       });
 
       if (result.success && result.translation) {
         setEditedTranslation(result.translation);
-        setStatusMessage({ type: "success", message: "Translation completed" });
+        setStatusMessage({ type: 'success', message: 'Translation completed' });
 
         // If auto-save is enabled, also save the translation
         if (settings?.auto_save) {
@@ -149,14 +141,14 @@ export default function TranslationEditor({
         }
       } else {
         setStatusMessage({
-          type: "error",
-          message: result.error || "Translation failed",
+          type: 'error',
+          message: result.error || 'Translation failed',
         });
       }
     } catch (err) {
       setStatusMessage({
-        type: "error",
-        message: err.message || "An error occurred during translation",
+        type: 'error',
+        message: err.message || 'An error occurred during translation',
       });
     }
   };
@@ -164,7 +156,7 @@ export default function TranslationEditor({
   const handleSave = async () => {
     if (!selectedEntry || !selectedFile.file_path) return;
 
-    setStatusMessage({ type: "info", message: "Saving..." });
+    setStatusMessage({ type: 'info', message: 'Saving...' });
 
     try {
       const result = await saveTranslation.call({
@@ -174,20 +166,20 @@ export default function TranslationEditor({
       });
 
       if (result.success) {
-        setStatusMessage({ type: "success", message: "Translation saved" });
+        setStatusMessage({ type: 'success', message: 'Translation saved' });
 
         // Refresh file data to update translation stats
         mutate();
       } else {
         setStatusMessage({
-          type: "error",
-          message: "Failed to save translation",
+          type: 'error',
+          message: 'Failed to save translation',
         });
       }
     } catch (err) {
       setStatusMessage({
-        type: "error",
-        message: err.message || "An error occurred while saving",
+        type: 'error',
+        message: err.message || 'An error occurred while saving',
       });
     }
   };
@@ -244,15 +236,15 @@ export default function TranslationEditor({
                   <li key={entry.id}>
                     <button
                       className={`w-full p-3 text-left transition-colors hover:bg-muted/50 ${
-                        selectedEntryId === entry.id ? "bg-muted" : ""
+                        selectedEntryId === entry.id ? 'bg-muted' : ''
                       }`}
                       onClick={() => setSelectedEntryId(entry.id)}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <Badge
-                          variant={entry.is_translated ? "default" : "outline"}
+                          variant={entry.is_translated ? 'default' : 'outline'}
                         >
-                          {entry.is_translated ? "Translated" : "Untranslated"}
+                          {entry.is_translated ? 'Translated' : 'Untranslated'}
                         </Badge>
                       </div>
                       <p className="text-sm truncate">{entry.msgid}</p>
@@ -311,26 +303,26 @@ export default function TranslationEditor({
                   {statusMessage && (
                     <Alert
                       variant={
-                        statusMessage.type === "error"
-                          ? "destructive"
-                          : "default"
+                        statusMessage.type === 'error'
+                          ? 'destructive'
+                          : 'default'
                       }
                     >
-                      {statusMessage.type === "success" && (
+                      {statusMessage.type === 'success' && (
                         <Check className="h-4 w-4" />
                       )}
-                      {statusMessage.type === "error" && (
+                      {statusMessage.type === 'error' && (
                         <AlertCircle className="h-4 w-4" />
                       )}
-                      {statusMessage.type === "info" && (
+                      {statusMessage.type === 'info' && (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       )}
                       <AlertTitle>
-                        {statusMessage.type === "success"
-                          ? "Success"
-                          : statusMessage.type === "error"
-                          ? "Error"
-                          : "Info"}
+                        {statusMessage.type === 'success'
+                          ? 'Success'
+                          : statusMessage.type === 'error'
+                            ? 'Error'
+                            : 'Info'}
                       </AlertTitle>
                       <AlertDescription>
                         {statusMessage.message}

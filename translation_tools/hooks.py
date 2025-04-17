@@ -1,5 +1,6 @@
 from . import __version__ as app_version
 from frappe import __version__ as frappe_version
+from frappe import _
 
 app_name = "translation_tools"
 app_title = "Translation Tools"
@@ -51,6 +52,7 @@ website_route_rules = [
         "from_route": "/thai_translation_dashboard/<path:app_path>",
         "to_route": "thai_translation_dashboard",
     },
+    {"from_route": "/tax_consultant", "to_route": "tax_consultant"},
 ]
 
 workspace_route_rules = [
@@ -111,6 +113,21 @@ get_desk_sidebar_items = [
     }
 ]
 
+# Add the desk page to the desk sidebar
+desk_page = {
+    "Translation Tools": {
+        "category": "Tools",
+        "icon": "octicon octicon-graph",
+        "label": _("Translation Tools"),
+        "module": "Translation Tools",
+        "type": "module",
+        "_doctype": "Translation Tools Settings",
+        "link": "List/Translation Tools Settings",
+        "color": "#3498db",
+        "onboard": 0,
+    }
+}
+
 # Fixtures: export workspace so your link stays after migration/restart
 fixtures = [
     {"dt": "Workspace", "filters": [["name", "=", "Integrations"]]},
@@ -141,14 +158,17 @@ override_doctype_class = {
 }
 
 # Include JS file
-doctype_js = {
-    "Sales Invoice": "public/js/sales_invoice.js"
-}
+doctype_js = {"Sales Invoice": "public/js/sales_invoice.js"}
 
 # Include Thai font files
 app_include_fonts = [
     "public/fonts/Sarabun/Sarabun-Regular.ttf",
     "public/fonts/Sarabun/Sarabun-Bold.ttf",
     "public/fonts/Sarabun/Sarabun-Italic.ttf",
-    "public/fonts/Sarabun/Sarabun-BoldItalic.ttf"
+    "public/fonts/Sarabun/Sarabun-BoldItalic.ttf",
 ]
+
+# Set workspace at bottom of public workspace
+workspace_order = {
+    "Translation Tools": 9999  # Use a very high number to ensure it's at the bottom
+}

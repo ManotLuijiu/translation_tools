@@ -1,18 +1,10 @@
-import { useState } from "react";
-import {
-  getGlossaryTerms,
-  addGlossaryTerm,
-  updateGlossaryTerm,
-  deleteGlossaryTerm,
-  getERPNextModules,
-  GlossaryTerm,
-} from "../../translation_tools/hooks/useGlossary";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -20,14 +12,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -36,7 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,7 +38,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 import {
   Loader2,
   Plus,
@@ -55,21 +47,21 @@ import {
   Trash,
   Pencil,
   AlertCircle,
-} from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+} from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function GlossaryManager() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedTerm, setSelectedTerm] = useState(null);
   const [formData, setFormData] = useState({
-    source_term: "",
-    thai_translation: "",
-    context: "",
-    category: "",
-    module: "",
+    source_term: '',
+    thai_translation: '',
+    context: '',
+    category: '',
+    module: '',
     is_approved: false,
   });
   const [statusMessage, setStatusMessage] = useState(null);
@@ -84,14 +76,12 @@ export default function GlossaryManager() {
   const { data: modulesData, isLoading: isLoadingModules } =
     useGetERPNextModules();
 
-  console.log("isLoadingModules", isLoadingModules);
+  console.log('isLoadingModules', isLoadingModules);
   const addTerm = useAddGlossaryTerm();
   const updateTerm = useUpdateGlossaryTerm();
   const deleteTerm = useDeleteGlossaryTerm();
 
-  const handleInputChange = (
-    e
-  ) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -106,11 +96,11 @@ export default function GlossaryManager() {
 
   const resetForm = () => {
     setFormData({
-      source_term: "",
-      thai_translation: "",
-      context: "",
-      category: "",
-      module: "",
+      source_term: '',
+      thai_translation: '',
+      context: '',
+      category: '',
+      module: '',
       is_approved: false,
     });
     setSelectedTerm(null);
@@ -138,8 +128,8 @@ export default function GlossaryManager() {
     try {
       if (!formData.source_term || !formData.thai_translation) {
         setStatusMessage({
-          type: "error",
-          message: "Source term and Thai translation are required",
+          type: 'error',
+          message: 'Source term and Thai translation are required',
         });
         return;
       }
@@ -148,22 +138,22 @@ export default function GlossaryManager() {
 
       if (result.success) {
         setStatusMessage({
-          type: "success",
-          message: "Term added successfully",
+          type: 'success',
+          message: 'Term added successfully',
         });
         resetForm();
         setIsAddDialogOpen(false);
         refreshTerms();
       } else {
         setStatusMessage({
-          type: "error",
-          message: "Failed to add term",
+          type: 'error',
+          message: 'Failed to add term',
         });
       }
     } catch (err) {
       setStatusMessage({
-        type: "error",
-        message: err.message || "An error occurred",
+        type: 'error',
+        message: err.message || 'An error occurred',
       });
     }
   };
@@ -176,8 +166,8 @@ export default function GlossaryManager() {
         !formData.thai_translation
       ) {
         setStatusMessage({
-          type: "error",
-          message: "Source term and Thai translation are required",
+          type: 'error',
+          message: 'Source term and Thai translation are required',
         });
         return;
       }
@@ -189,22 +179,22 @@ export default function GlossaryManager() {
 
       if (result.success) {
         setStatusMessage({
-          type: "success",
-          message: "Term updated successfully",
+          type: 'success',
+          message: 'Term updated successfully',
         });
         resetForm();
         setIsEditDialogOpen(false);
         refreshTerms();
       } else {
         setStatusMessage({
-          type: "error",
-          message: "Failed to update term",
+          type: 'error',
+          message: 'Failed to update term',
         });
       }
     } catch (err) {
       setStatusMessage({
-        type: "error",
-        message: err.message || "An error occurred",
+        type: 'error',
+        message: err.message || 'An error occurred',
       });
     }
   };
@@ -219,22 +209,22 @@ export default function GlossaryManager() {
 
       if (result.success) {
         setStatusMessage({
-          type: "success",
-          message: "Term deleted successfully",
+          type: 'success',
+          message: 'Term deleted successfully',
         });
         resetForm();
         setIsDeleteDialogOpen(false);
         refreshTerms();
       } else {
         setStatusMessage({
-          type: "error",
-          message: "Failed to delete term",
+          type: 'error',
+          message: 'Failed to delete term',
         });
       }
     } catch (err) {
       setStatusMessage({
-        type: "error",
-        message: err.message || "An error occurred",
+        type: 'error',
+        message: err.message || 'An error occurred',
       });
     }
   };
@@ -251,11 +241,11 @@ export default function GlossaryManager() {
     }) || [];
 
   const categories = [
-    { value: "Business", label: "Business" },
-    { value: "Technical", label: "Technical" },
-    { value: "UI", label: "UI" },
-    { value: "Date/Time", label: "Date/Time" },
-    { value: "Status", label: "Status" },
+    { value: 'Business', label: 'Business' },
+    { value: 'Technical', label: 'Technical' },
+    { value: 'UI', label: 'UI' },
+    { value: 'Date/Time', label: 'Date/Time' },
+    { value: 'Status', label: 'Status' },
   ];
 
   return (
@@ -285,7 +275,7 @@ export default function GlossaryManager() {
                   <Input
                     id="source_term"
                     name="source_term"
-                    value={formData.source_term || ""}
+                    value={formData.source_term || ''}
                     onChange={handleInputChange}
                     placeholder="Enter source term"
                     required
@@ -296,7 +286,7 @@ export default function GlossaryManager() {
                   <Input
                     id="thai_translation"
                     name="thai_translation"
-                    value={formData.thai_translation || ""}
+                    value={formData.thai_translation || ''}
                     onChange={handleInputChange}
                     placeholder="Enter Thai translation"
                     required
@@ -309,7 +299,7 @@ export default function GlossaryManager() {
                 <Textarea
                   id="context"
                   name="context"
-                  value={formData.context || ""}
+                  value={formData.context || ''}
                   onChange={handleInputChange}
                   placeholder="Provide context for this term (optional)"
                   className="resize-none h-20"
@@ -320,9 +310,9 @@ export default function GlossaryManager() {
                 <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
                   <Select
-                    value={formData.category || ""}
+                    value={formData.category || ''}
                     onValueChange={(value) =>
-                      handleSelectChange("category", value)
+                      handleSelectChange('category', value)
                     }
                   >
                     <SelectTrigger>
@@ -341,9 +331,9 @@ export default function GlossaryManager() {
                 <div className="space-y-2">
                   <Label htmlFor="module">Module</Label>
                   <Select
-                    value={formData.module || ""}
+                    value={formData.module || ''}
                     onValueChange={(value) =>
-                      handleSelectChange("module", value)
+                      handleSelectChange('module', value)
                     }
                   >
                     <SelectTrigger>
@@ -372,16 +362,16 @@ export default function GlossaryManager() {
               {statusMessage && (
                 <Alert
                   variant={
-                    statusMessage.type === "error" ? "destructive" : "default"
+                    statusMessage.type === 'error' ? 'destructive' : 'default'
                   }
                 >
-                  {statusMessage.type === "success" ? (
+                  {statusMessage.type === 'success' ? (
                     <Check className="h-4 w-4" />
                   ) : (
                     <AlertCircle className="h-4 w-4" />
                   )}
                   <AlertTitle>
-                    {statusMessage.type === "success" ? "Success" : "Error"}
+                    {statusMessage.type === 'success' ? 'Success' : 'Error'}
                   </AlertTitle>
                   <AlertDescription>{statusMessage.message}</AlertDescription>
                 </Alert>
@@ -402,7 +392,7 @@ export default function GlossaryManager() {
                     Adding...
                   </>
                 ) : (
-                  "Save Term"
+                  'Save Term'
                 )}
               </Button>
             </DialogFooter>
@@ -429,13 +419,13 @@ export default function GlossaryManager() {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
-            {termsError.message || "Failed to load glossary terms"}
+            {termsError.message || 'Failed to load glossary terms'}
           </AlertDescription>
         </Alert>
       ) : filteredTerms.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
           {searchTerm
-            ? "No terms match your search"
+            ? 'No terms match your search'
             : 'No glossary terms found. Click "Add Term" to create one.'}
         </div>
       ) : (
@@ -458,8 +448,8 @@ export default function GlossaryManager() {
                     {term.source_term}
                   </TableCell>
                   <TableCell>{term.thai_translation}</TableCell>
-                  <TableCell>{term.category || "-"}</TableCell>
-                  <TableCell>{term.module || "-"}</TableCell>
+                  <TableCell>{term.category || '-'}</TableCell>
+                  <TableCell>{term.module || '-'}</TableCell>
                   <TableCell>
                     {term.is_approved ? (
                       <Badge variant="default" className="bg-green-500">
@@ -512,7 +502,7 @@ export default function GlossaryManager() {
                 <Input
                   id="edit_source_term"
                   name="source_term"
-                  value={formData.source_term || ""}
+                  value={formData.source_term || ''}
                   onChange={handleInputChange}
                   placeholder="Enter source term"
                   required
@@ -525,7 +515,7 @@ export default function GlossaryManager() {
                 <Input
                   id="edit_thai_translation"
                   name="thai_translation"
-                  value={formData.thai_translation || ""}
+                  value={formData.thai_translation || ''}
                   onChange={handleInputChange}
                   placeholder="Enter Thai translation"
                   required
@@ -538,7 +528,7 @@ export default function GlossaryManager() {
               <Textarea
                 id="edit_context"
                 name="context"
-                value={formData.context || ""}
+                value={formData.context || ''}
                 onChange={handleInputChange}
                 placeholder="Provide context for this term (optional)"
                 className="resize-none h-20"
@@ -549,9 +539,9 @@ export default function GlossaryManager() {
               <div className="space-y-2">
                 <Label htmlFor="edit_category">Category</Label>
                 <Select
-                  value={formData.category || ""}
+                  value={formData.category || ''}
                   onValueChange={(value) =>
-                    handleSelectChange("category", value)
+                    handleSelectChange('category', value)
                   }
                 >
                   <SelectTrigger>
@@ -570,8 +560,8 @@ export default function GlossaryManager() {
               <div className="space-y-2">
                 <Label htmlFor="edit_module">Module</Label>
                 <Select
-                  value={formData.module || ""}
-                  onValueChange={(value) => handleSelectChange("module", value)}
+                  value={formData.module || ''}
+                  onValueChange={(value) => handleSelectChange('module', value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select module" />
@@ -599,16 +589,16 @@ export default function GlossaryManager() {
             {statusMessage && (
               <Alert
                 variant={
-                  statusMessage.type === "error" ? "destructive" : "default"
+                  statusMessage.type === 'error' ? 'destructive' : 'default'
                 }
               >
-                {statusMessage.type === "success" ? (
+                {statusMessage.type === 'success' ? (
                   <Check className="h-4 w-4" />
                 ) : (
                   <AlertCircle className="h-4 w-4" />
                 )}
                 <AlertTitle>
-                  {statusMessage.type === "success" ? "Success" : "Error"}
+                  {statusMessage.type === 'success' ? 'Success' : 'Error'}
                 </AlertTitle>
                 <AlertDescription>{statusMessage.message}</AlertDescription>
               </Alert>
@@ -629,7 +619,7 @@ export default function GlossaryManager() {
                   Updating...
                 </>
               ) : (
-                "Update Term"
+                'Update Term'
               )}
             </Button>
           </DialogFooter>
@@ -661,7 +651,7 @@ export default function GlossaryManager() {
                   Deleting...
                 </>
               ) : (
-                "Delete"
+                'Delete'
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

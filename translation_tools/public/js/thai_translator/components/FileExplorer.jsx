@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { useGetCachedPOFiles, useScanPOFiles } from '../../translation_tools/api/poFiles';
-import { formatPercentage, formatDate } from '../../translation_tools/utils/helpers';
+import {
+  formatPercentage,
+  formatDate,
+} from '../../translation_tools/utils/helpers';
 import { Button } from '@/components/ui/button';
 import {
   Table,

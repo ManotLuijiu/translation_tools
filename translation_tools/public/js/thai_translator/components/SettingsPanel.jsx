@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useGetTranslationSettings, useSaveTranslationSettings } from '../../translation_tools/api/settings';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -26,10 +25,10 @@ import { AlertCircle, Check, Loader2 } from 'lucide-react';
 
 export default function SettingsPanel() {
   const [settings, setSettings] = useState({
-    default_model_provider: "openai",
-    default_model: "gpt-4-1106-preview",
-    openai_api_key: "",
-    anthropic_api_key: "",
+    default_model_provider: 'openai',
+    default_model: 'gpt-4-1106-preview',
+    openai_api_key: '',
+    anthropic_api_key: '',
     batch_size: 10,
     temperature: 0.3,
     auto_save: false,
