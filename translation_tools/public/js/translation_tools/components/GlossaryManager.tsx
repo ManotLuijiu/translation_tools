@@ -83,7 +83,7 @@ export default function GlossaryManager() {
     data: termsData,
     error: termsError,
     isLoading: isLoadingTerms,
-    mutate: refreshTerms,
+    refetch: refreshTerms,
   } = useGetGlossaryTerms();
   const { data: modulesData, isLoading: isLoadingModules } =
     useGetERPNextModules();
@@ -150,7 +150,7 @@ export default function GlossaryManager() {
         return;
       }
 
-      const result = await addTerm.call({ term: formData });
+      const result = await addTerm.mutateAsync(formData);
 
       if (result.success) {
         setStatusMessage({
@@ -188,9 +188,9 @@ export default function GlossaryManager() {
         return;
       }
 
-      const result = await updateTerm.call({
-        term_name: selectedTerm.name,
-        updates: formData,
+      const result = await updateTerm.mutateAsync({
+        name: selectedTerm.name,
+        ...formData,
       });
 
       if (result.success) {
@@ -219,9 +219,7 @@ export default function GlossaryManager() {
     try {
       if (!selectedTerm) return;
 
-      const result = await deleteTerm.call({
-        term_name: selectedTerm.name,
-      });
+      const result = await deleteTerm.mutateAsync(selectedTerm.name);
 
       if (result.success) {
         setStatusMessage({
@@ -246,7 +244,7 @@ export default function GlossaryManager() {
   };
 
   const filteredTerms =
-    termsData?.message?.filter((term) => {
+    termsData?.filter((term) => {
       if (!searchTerm) return true;
 
       const searchLower = searchTerm.toLowerCase();
@@ -265,14 +263,14 @@ export default function GlossaryManager() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Translation Glossary</h2>
+    <div className="tw-space-y-6">
+      <div className="tw-flex tw-items-center tw-justify-between">
+        <h2 className="tw-text-2xl tw-font-bold">Translation Glossary</h2>
 
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button>
-              <Plus className="mr-2 h-4 w-4" />
+              <Plus className="tw-mr-2 tw-h-4 tw-w-4" />
               Add Term
             </Button>
           </DialogTrigger>
@@ -284,9 +282,9 @@ export default function GlossaryManager() {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
+            <div className="tw-space-y-4 tw-py-4">
+              <div className="tw-grid tw-grid-cols-2 tw-gap-4">
+                <div className="tw-space-y-2">
                   <Label htmlFor="source_term">English Term *</Label>
                   <Input
                     id="source_term"
@@ -297,7 +295,7 @@ export default function GlossaryManager() {
                     required
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="tw-space-y-2">
                   <Label htmlFor="thai_translation">Thai Translation *</Label>
                   <Input
                     id="thai_translation"
@@ -310,7 +308,7 @@ export default function GlossaryManager() {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="tw-space-y-2">
                 <Label htmlFor="context">Context</Label>
                 <Textarea
                   id="context"
@@ -318,12 +316,12 @@ export default function GlossaryManager() {
                   value={formData.context || ''}
                   onChange={handleInputChange}
                   placeholder="Provide context for this term (optional)"
-                  className="resize-none h-20"
+                  className="tw-h-20 tw-resize-none"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
+              <div className="tw-grid tw-grid-cols-2 tw-gap-4">
+                <div className="tw-space-y-2">
                   <Label htmlFor="category">Category</Label>
                   <Select
                     value={formData.category || ''}
@@ -344,7 +342,7 @@ export default function GlossaryManager() {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
+                <div className="tw-space-y-2">
                   <Label htmlFor="module">Module</Label>
                   <Select
                     value={formData.module || ''}
@@ -356,7 +354,7 @@ export default function GlossaryManager() {
                       <SelectValue placeholder="Select module" />
                     </SelectTrigger>
                     <SelectContent>
-                      {modulesData?.message?.map((module) => (
+                      {modulesData?.map((module) => (
                         <SelectItem key={module.name} value={module.name}>
                           {module.module_name}
                         </SelectItem>
@@ -366,7 +364,7 @@ export default function GlossaryManager() {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="tw-flex tw-items-center tw-space-x-2">
                 <Switch
                   checked={!!formData.is_approved}
                   onCheckedChange={handleSwitchChange}
@@ -382,9 +380,9 @@ export default function GlossaryManager() {
                   }
                 >
                   {statusMessage.type === 'success' ? (
-                    <Check className="h-4 w-4" />
+                    <Check className="tw-h-4 tw-w-4" />
                   ) : (
-                    <AlertCircle className="h-4 w-4" />
+                    <AlertCircle className="tw-h-4 tw-w-4" />
                   )}
                   <AlertTitle>
                     {statusMessage.type === 'success' ? 'Success' : 'Error'}
@@ -401,10 +399,10 @@ export default function GlossaryManager() {
               >
                 Cancel
               </Button>
-              <Button onClick={handleAddTerm} disabled={addTerm.loading}>
-                {addTerm.loading ? (
+              <Button onClick={handleAddTerm} disabled={addTerm.isPending}>
+                {addTerm.isPending ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="tw-mr-2 tw-h-4 tw-w-4 tw-animate-spin" />
                     Adding...
                   </>
                 ) : (
@@ -416,36 +414,36 @@ export default function GlossaryManager() {
         </Dialog>
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+      <div className="tw-relative">
+        <Search className="tw-absolute tw-left-2 tw-top-2.5 tw-h-4 tw-w-4 tw-text-muted-foreground" />
         <Input
           placeholder="Search terms..."
-          className="pl-8"
+          className="tw-pl-8"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
       {isLoadingTerms ? (
-        <div className="flex justify-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="tw-flex tw-justify-center tw-py-8">
+          <Loader2 className="tw-h-8 tw-w-8 tw-animate-spin tw-text-primary" />
         </div>
       ) : termsError ? (
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="tw-h-4 tw-w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
             {termsError.message || 'Failed to load glossary terms'}
           </AlertDescription>
         </Alert>
       ) : filteredTerms.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">
+        <div className="tw-py-8 tw-text-center tw-text-muted-foreground">
           {searchTerm
             ? 'No terms match your search'
             : 'No glossary terms found. Click "Add Term" to create one.'}
         </div>
       ) : (
-        <div className="rounded-md border">
+        <div className="tw-rounded-md tw-border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -454,13 +452,13 @@ export default function GlossaryManager() {
                 <TableHead>Category</TableHead>
                 <TableHead>Module</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead className="tw-w-[100px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredTerms.map((term) => (
                 <TableRow key={term.name}>
-                  <TableCell className="font-medium">
+                  <TableCell className="tw-font-medium">
                     {term.source_term}
                   </TableCell>
                   <TableCell>{term.thai_translation}</TableCell>
@@ -468,7 +466,7 @@ export default function GlossaryManager() {
                   <TableCell>{term.module || '-'}</TableCell>
                   <TableCell>
                     {term.is_approved ? (
-                      <Badge variant="default" className="bg-green-500">
+                      <Badge variant="default" className="tw-bg-green-500">
                         Approved
                       </Badge>
                     ) : (
@@ -476,20 +474,20 @@ export default function GlossaryManager() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <div className="flex space-x-2">
+                    <div className="tw-flex tw-space-x-2">
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => openEditDialog(term)}
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="tw-h-4 tw-w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => openDeleteDialog(term)}
                       >
-                        <Trash className="h-4 w-4" />
+                        <Trash className="tw-h-4 tw-w-4" />
                       </Button>
                     </div>
                   </TableCell>
@@ -510,10 +508,10 @@ export default function GlossaryManager() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="tw-space-y-4 tw-py-4">
             {/* Same form fields as in Add Dialog */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
+            <div className="tw-grid tw-grid-cols-2 tw-gap-4">
+              <div className="tw-space-y-2">
                 <Label htmlFor="edit_source_term">English Term *</Label>
                 <Input
                   id="edit_source_term"
@@ -524,7 +522,7 @@ export default function GlossaryManager() {
                   required
                 />
               </div>
-              <div className="space-y-2">
+              <div className="tw-space-y-2">
                 <Label htmlFor="edit_thai_translation">
                   Thai Translation *
                 </Label>
@@ -539,7 +537,7 @@ export default function GlossaryManager() {
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="tw-space-y-2">
               <Label htmlFor="edit_context">Context</Label>
               <Textarea
                 id="edit_context"
@@ -547,12 +545,12 @@ export default function GlossaryManager() {
                 value={formData.context || ''}
                 onChange={handleInputChange}
                 placeholder="Provide context for this term (optional)"
-                className="resize-none h-20"
+                className="tw-h-20 tw-resize-none"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
+            <div className="tw-grid tw-grid-cols-2 tw-gap-4">
+              <div className="tw-space-y-2">
                 <Label htmlFor="edit_category">Category</Label>
                 <Select
                   value={formData.category || ''}
@@ -573,7 +571,7 @@ export default function GlossaryManager() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="tw-space-y-2">
                 <Label htmlFor="edit_module">Module</Label>
                 <Select
                   value={formData.module || ''}
@@ -583,7 +581,7 @@ export default function GlossaryManager() {
                     <SelectValue placeholder="Select module" />
                   </SelectTrigger>
                   <SelectContent>
-                    {modulesData?.message?.map((module) => (
+                    {modulesData?.map((module) => (
                       <SelectItem key={module.name} value={module.name}>
                         {module.module_name}
                       </SelectItem>
@@ -593,7 +591,7 @@ export default function GlossaryManager() {
               </div>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="tw-flex tw-items-center tw-space-x-2">
               <Switch
                 checked={!!formData.is_approved}
                 onCheckedChange={handleSwitchChange}
@@ -609,9 +607,9 @@ export default function GlossaryManager() {
                 }
               >
                 {statusMessage.type === 'success' ? (
-                  <Check className="h-4 w-4" />
+                  <Check className="tw-h-4 tw-w-4" />
                 ) : (
-                  <AlertCircle className="h-4 w-4" />
+                  <AlertCircle className="tw-h-4 tw-w-4" />
                 )}
                 <AlertTitle>
                   {statusMessage.type === 'success' ? 'Success' : 'Error'}
@@ -628,10 +626,10 @@ export default function GlossaryManager() {
             >
               Cancel
             </Button>
-            <Button onClick={handleUpdateTerm} disabled={updateTerm.loading}>
-              {updateTerm.loading ? (
+            <Button onClick={handleUpdateTerm} disabled={updateTerm.isPending}>
+              {updateTerm.isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="tw-mr-2 tw-h-4 tw-w-4 tw-animate-spin" />
                   Updating...
                 </>
               ) : (
@@ -659,11 +657,11 @@ export default function GlossaryManager() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteTerm}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="tw-bg-destructive tw-text-destructive-foreground hover:tw-bg-destructive/90"
             >
-              {deleteTerm.loading ? (
+              {deleteTerm.isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="tw-mr-2 tw-h-4 tw-w-4 tw-animate-spin" />
                   Deleting...
                 </>
               ) : (

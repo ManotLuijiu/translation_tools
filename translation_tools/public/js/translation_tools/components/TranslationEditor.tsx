@@ -50,12 +50,28 @@ export default function TranslationEditor({
     message: string;
   } | null>(null);
 
-  const { data, error, isLoading, mutate } = useGetPOFileEntries(
-    selectedFile?.file_path || null
-  );
+  const {
+    data,
+    error,
+    isLoading,
+    refetch: mutate,
+  } = useGetPOFileEntries(selectedFile?.file_path || null);
+
+  // const entries = fileData?.entries || [];
+  // const stats = fileData?.stats || {
+  //   total: 0,
+  //   translated: 0,
+  //   untranslated: 0,
+  //   percentage: 0,
+  // };
+  // const metadata = fileData?.metadata || {
+  //   language: '',
+  //   project: '',
+  //   last_updated: '',
+  // };
 
   const translateEntry = useTranslateSingleEntry();
-  const saveTranslation = useSaveTranslation();
+  const saveTranslation = useSaveTranslation({ args: {} });
 
   // Reset selected entry when file changes
   useEffect(() => {
@@ -66,9 +82,9 @@ export default function TranslationEditor({
 
   // Update edited translation when selected entry changes
   useEffect(() => {
-    if (!data?.message?.entries || !selectedEntryId) return;
+    if (!data?.entries || !selectedEntryId) return;
 
-    const entry = data.message.entries.find((e) => e.id === selectedEntryId);
+    const entry = data.entries.find((e) => e.id === selectedEntryId);
     if (entry) {
       setEditedTranslation(entry.msgstr || '');
     }
@@ -76,9 +92,9 @@ export default function TranslationEditor({
 
   if (!selectedFile) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-200px)]">
-        <div className="text-center space-y-4">
-          <p className="text-muted-foreground">
+      <div className="tw-flex tw-h-[calc(100vh-200px)] tw-items-center tw-justify-center">
+        <div className="tw-space-y-4 tw-text-center">
+          <p className="tw-text-muted-foreground">
             Please select a PO file to start translation
           </p>
         </div>
@@ -88,17 +104,17 @@ export default function TranslationEditor({
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-[calc(100vh-200px)]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <span className="ml-2">Loading file contents...</span>
+      <div className="tw-flex tw-h-[calc(100vh-200px)] tw-items-center tw-justify-center">
+        <Loader2 className="tw-h-8 tw-w-8 tw-animate-spin tw-text-primary" />
+        <span className="tw-ml-2">Loading file contents...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <Alert variant="destructive" className="mb-4">
-        <AlertCircle className="h-4 w-4" />
+      <Alert variant="destructive" className="tw-mb-4">
+        <AlertCircle className="tw-h-4 tw-w-4" />
         <AlertTitle>Error</AlertTitle>
         <AlertDescription>
           Failed to load file: {error.message || 'Unknown error'}
@@ -107,10 +123,10 @@ export default function TranslationEditor({
     );
   }
 
-  const fileData = data?.message;
+  const fileData = data;
   if (!fileData) {
     return (
-      <div className="text-center p-8">
+      <div className="tw-p-8 tw-text-center">
         <p>No data available for this file</p>
       </div>
     );
@@ -145,7 +161,7 @@ export default function TranslationEditor({
     setStatusMessage({ type: 'info', message: 'Translating...' });
 
     try {
-      const result = await translateEntry.call({
+      const result = await translateEntry.mutateAsync({
         file_path: selectedFile.file_path,
         entry_id: selectedEntry.id,
         model_provider: settings?.default_model_provider || 'openai',
@@ -180,7 +196,7 @@ export default function TranslationEditor({
     setStatusMessage({ type: 'info', message: 'Saving...' });
 
     try {
-      const result = await saveTranslation.call({
+      const result = await saveTranslation.mutateAsync({
         file_path: selectedFile.file_path,
         entry_id: selectedEntry.id,
         translation: editedTranslation,
@@ -206,26 +222,26 @@ export default function TranslationEditor({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="tw-space-y-6">
+      <div className="tw-flex tw-items-center tw-justify-between">
         <div>
-          <h2 className="text-2xl font-bold">{selectedFile.filename}</h2>
-          <p className="text-muted-foreground">{selectedFile.app}</p>
+          <h2 className="tw-text-2xl tw-font-bold">{selectedFile.filename}</h2>
+          <p className="tw-text-muted-foreground">{selectedFile.app}</p>
         </div>
 
         <TranslationStats stats={stats} />
       </div>
 
-      <div className="flex space-x-4">
-        <div className="w-1/3 border rounded-lg">
-          <div className="p-4 border-b">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-medium">Entries</h3>
+      <div className="tw-flex tw-space-x-4">
+        <div className="tw-w-1/3 tw-rounded-lg tw-border">
+          <div className="tw-border-b tw-p-4">
+            <div className="tw-mb-4 tw-flex tw-items-center tw-justify-between">
+              <h3 className="tw-font-medium">Entries</h3>
               <Select
                 value={entryFilter}
                 onValueChange={(value: any) => setEntryFilter(value)}
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="tw-w-[180px]">
                   <SelectValue placeholder="Filter entries" />
                 </SelectTrigger>
                 <SelectContent>
@@ -242,33 +258,33 @@ export default function TranslationEditor({
               placeholder="Search in entries..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="mb-2"
+              className="tw-mb-2"
             />
           </div>
 
-          <div className="h-[calc(100vh-400px)] overflow-y-auto">
+          <div className="tw-h-[calc(100vh-400px)] tw-overflow-y-auto">
             {filteredEntries.length === 0 ? (
-              <div className="p-4 text-center text-muted-foreground">
+              <div className="tw-p-4 tw-text-center tw-text-muted-foreground">
                 No entries match your filter
               </div>
             ) : (
-              <ul className="divide-y">
+              <ul className="tw-divide-y">
                 {filteredEntries.map((entry) => (
                   <li key={entry.id}>
                     <button
-                      className={`w-full p-3 text-left transition-colors hover:bg-muted/50 ${
-                        selectedEntryId === entry.id ? 'bg-muted' : ''
+                      className={`tw-w-full tw-p-3 tw-text-left tw-transition-colors hover:tw-bg-muted/50 ${
+                        selectedEntryId === entry.id ? 'tw-bg-muted' : ''
                       }`}
                       onClick={() => setSelectedEntryId(entry.id)}
                     >
-                      <div className="flex items-center justify-between mb-1">
+                      <div className="tw-mb-1 tw-flex tw-items-center tw-justify-between">
                         <Badge
                           variant={entry.is_translated ? 'default' : 'outline'}
                         >
                           {entry.is_translated ? 'Translated' : 'Untranslated'}
                         </Badge>
                       </div>
-                      <p className="text-sm truncate">{entry.msgid}</p>
+                      <p className="tw-truncate tw-text-sm">{entry.msgid}</p>
                     </button>
                   </li>
                 ))}
@@ -277,20 +293,20 @@ export default function TranslationEditor({
           </div>
         </div>
 
-        <div className="w-2/3">
+        <div className="tw-w-2/3">
           {selectedEntry ? (
             <Card>
               <CardHeader>
                 <CardTitle>Translation</CardTitle>
                 <CardDescription>
                   {selectedEntry.context && (
-                    <Badge variant="outline" className="mb-1">
+                    <Badge variant="outline" className="tw-mb-1">
                       Context: {selectedEntry.context}
                     </Badge>
                   )}
                   {selectedEntry.comments &&
                     selectedEntry.comments.length > 0 && (
-                      <div className="mt-2 text-xs text-muted-foreground">
+                      <div className="tw-mt-2 tw-text-xs tw-text-muted-foreground">
                         {selectedEntry.comments.map((comment, i) => (
                           <p key={i}>{comment}</p>
                         ))}
@@ -299,17 +315,17 @@ export default function TranslationEditor({
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="tw-space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="tw-mb-1 tw-block tw-text-sm tw-font-medium">
                       Source (English)
                     </label>
-                    <div className="p-3 rounded-md bg-muted whitespace-pre-wrap">
+                    <div className="tw-whitespace-pre-wrap tw-rounded-md tw-bg-muted tw-p-3">
                       {selectedEntry.msgid}
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
+                    <label className="wt-mb-1 tw-block tw-text-sm tw-font-medium">
                       Translation (Thai)
                     </label>
                     <Textarea
@@ -317,7 +333,7 @@ export default function TranslationEditor({
                       value={editedTranslation}
                       onChange={(e) => setEditedTranslation(e.target.value)}
                       placeholder="Enter translation here..."
-                      className="resize-y min-h-32"
+                      className="tw-min-h-32 tw-resize-y"
                     />
                   </div>
 
@@ -330,13 +346,13 @@ export default function TranslationEditor({
                       }
                     >
                       {statusMessage.type === 'success' && (
-                        <Check className="h-4 w-4" />
+                        <Check className="tw-h-4 tw-w-4" />
                       )}
                       {statusMessage.type === 'error' && (
-                        <AlertCircle className="h-4 w-4" />
+                        <AlertCircle className="tw-h-4 tw-w-4" />
                       )}
                       {statusMessage.type === 'info' && (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="tw-h-4 tw-w-4 tw-animate-spin" />
                       )}
                       <AlertTitle>
                         {statusMessage.type === 'success'
@@ -352,8 +368,8 @@ export default function TranslationEditor({
                   )}
                 </div>
               </CardContent>
-              <CardFooter className="justify-between">
-                <div className="flex space-x-2">
+              <CardFooter className="tw-justify-between">
+                <div className="tw-flex tw-space-x-2">
                   <Button
                     variant="secondary"
                     onClick={() => {
@@ -381,36 +397,36 @@ export default function TranslationEditor({
                     Next Untranslated
                   </Button>
                 </div>
-                <div className="flex space-x-2">
+                <div className="tw-flex tw-space-x-2">
                   <Button
                     variant="outline"
                     onClick={handleTranslate}
-                    disabled={translateEntry.loading}
+                    disabled={translateEntry.isPending}
                   >
-                    {translateEntry.loading ? (
+                    {translateEntry.isPending ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="tw-mr-2 tw-h-4 tw-w-4 tw-animate-spin" />
                         Translating...
                       </>
                     ) : (
                       <>
-                        <RefreshCw className="mr-2 h-4 w-4" />
+                        <RefreshCw className="tw-mr-2 tw-h-4 tw-w-4" />
                         Translate
                       </>
                     )}
                   </Button>
                   <Button
                     onClick={handleSave}
-                    disabled={saveTranslation.loading}
+                    disabled={saveTranslation.isPending}
                   >
-                    {saveTranslation.loading ? (
+                    {saveTranslation.isPending ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="tw-mr-2 tw-h-4 tw-w-4 tw-animate-spin" />
                         Saving...
                       </>
                     ) : (
                       <>
-                        <Save className="mr-2 h-4 w-4" />
+                        <Save className="tw-mr-2 tw-h-4 tw-w-4" />
                         Save
                       </>
                     )}
@@ -419,8 +435,8 @@ export default function TranslationEditor({
               </CardFooter>
             </Card>
           ) : (
-            <div className="flex items-center justify-center h-full border rounded-lg p-8">
-              <p className="text-muted-foreground">
+            <div className="tw-flex tw-h-full tw-items-center tw-justify-center tw-rounded-lg tw-border tw-p-8">
+              <p className="tw-text-muted-foreground">
                 Select an entry to start translating
               </p>
             </div>

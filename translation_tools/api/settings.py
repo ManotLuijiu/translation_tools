@@ -4,11 +4,22 @@ import json
 from frappe import _
 from frappe.utils import cint
 from .common import logger, CONFIG_FILE, get_bench_path
+import configparser
 
 
 @frappe.whitelist()
 def get_translation_settings():
     """Get translation settings"""
+    try:
+        temp_value = frappe.db.get_single_value("Translation Settings", "temperature")
+        temperature = (
+            float(temp_value)
+            if isinstance(temp_value, (int, float, str)) and temp_value is not None
+            else 0.3
+        )
+    except (TypeError, ValueError):
+        temperature = 0.3  # Default value if conversion fails
+
     settings = frappe._dict(
         {
             "default_model_provider": "openai",
@@ -22,23 +33,12 @@ def get_translation_settings():
             )
             or "",
             "batch_size": cint(
-                int(
-                    cint(
-                        int(
-                            frappe.db.get_single_value(
-                                "Translation Settings", "batch_size"
-                            )
-                            or 10
-                        )
-                    )
+                str(
+                    frappe.db.get_single_value("Translation Settings", "batch_size")
+                    or 10
                 )
             ),
-            "temperature": float(
-                float(
-                    frappe.db.get_single_value("Translation Settings", "temperature")
-                    or 0.3
-                )
-            ),
+            "temperature": temperature,
             "auto_save": cint(
                 cint(
                     str(
@@ -84,19 +84,19 @@ def save_translation_settings(settings):
         doc = frappe.get_doc("Translation Settings", "Translation Settings")
 
     # Update settings
-    doc.default_model_provider = settings_data.get("default_model_provider", "openai")
-    doc.default_model = settings_data.get("default_model", "gpt-4-1106-preview")
+    doc.default_model_provider = settings_data.get("default_model_provider", "openai")  # type: ignore
+    doc.default_model = settings_data.get("default_model", "gpt-4-1106-preview")  # type: ignore
 
     if "openai_api_key" in settings_data:
-        doc.openai_api_key = settings_data.openai_api_key
+        doc.openai_api_key = settings_data.openai_api_key  # type: ignore
 
     if "anthropic_api_key" in settings_data:
-        doc.anthropic_api_key = settings_data.anthropic_api_key
+        doc.anthropic_api_key = settings_data.anthropic_api_key  # type: ignore
 
-    doc.batch_size = cint(settings_data.get("batch_size", 10))
-    doc.temperature = float(settings_data.get("temperature", 0.3))
-    doc.auto_save = cint(settings_data.get("auto_save", 0))
-    doc.preserve_formatting = cint(settings_data.get("preserve_formatting", 1))
+    doc.batch_size = cint(settings_data.get("batch_size", 10))  # type: ignore
+    doc.temperature = float(settings_data.get("temperature", 0.3))  # type: ignore
+    doc.auto_save = cint(settings_data.get("auto_save", 0))  # type: ignore
+    doc.preserve_formatting = cint(settings_data.get("preserve_formatting", 1))  # type: ignore
 
     doc.save()
     frappe.db.commit()

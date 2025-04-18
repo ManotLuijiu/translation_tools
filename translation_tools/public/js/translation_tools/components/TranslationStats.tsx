@@ -13,34 +13,34 @@ interface TranslationStatsProps {
 
 export default function TranslationStats({ stats }: TranslationStatsProps) {
   return (
-    <div className="flex items-center space-x-4">
-      <div className="text-center">
-        <div className="text-2xl font-bold">{stats.total}</div>
-        <div className="text-xs text-muted-foreground">Total</div>
+    <div className="tw-flex tw-items-center tw-space-x-4">
+      <div className="tw-text-center">
+        <div className="tw-text-2xl tw-font-bold">{stats.total}</div>
+        <div className="tw-text-xs tw-text-muted-foreground">Total</div>
       </div>
 
-      <div className="text-center">
-        <div className="text-2xl font-bold text-green-600 dark:text-green-500">
+      <div className="tw-text-center">
+        <div className="tw-text-2xl tw-font-bold tw-text-green-600 dark:tw-text-green-500">
           {stats.translated}
         </div>
-        <div className="text-xs text-muted-foreground">Translated</div>
+        <div className="tw-text-xs tw-text-muted-foreground">Translated</div>
       </div>
 
-      <div className="text-center">
-        <div className="text-2xl font-bold text-orange-600 dark:text-orange-500">
+      <div className="tw-text-center">
+        <div className="tw-text-2xl tw-font-bold tw-text-orange-600 dark:tw-text-orange-500">
           {stats.untranslated}
         </div>
-        <div className="text-xs text-muted-foreground">Untranslated</div>
+        <div className="tw-text-xs tw-text-muted-foreground">Untranslated</div>
       </div>
 
-      <div className="w-48">
-        <div className="flex justify-between mb-1">
-          <span className="text-sm font-medium">Progress</span>
-          <span className="text-sm font-medium">
+      <div className="tw-w-48">
+        <div className="tw-mb-1 tw-flex tw-justify-between">
+          <span className="tw-text-sm tw-font-medium">Progress</span>
+          <span className="tw-text-sm tw-font-medium">
             {formatPercentage(stats.percentage)}
           </span>
         </div>
-        <Progress value={stats.percentage} className="h-2" />
+        <Progress value={stats.percentage} className="tw-h-2" />
       </div>
     </div>
   );

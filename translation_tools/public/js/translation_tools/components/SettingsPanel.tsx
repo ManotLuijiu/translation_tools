@@ -56,8 +56,8 @@ export default function SettingsPanel() {
   const saveSettings = useSaveTranslationSettings();
 
   useEffect(() => {
-    if (data?.message) {
-      setSettings(data.message);
+    if (data) {
+      setSettings(data);
     }
   }, [data]);
 
@@ -85,7 +85,7 @@ export default function SettingsPanel() {
     setStatusMessage({ type: 'info', message: 'Saving settings...' });
 
     try {
-      const result = await saveSettings.call({ settings });
+      const result = await saveSettings.mutateAsync(settings);
 
       if (result.success) {
         setStatusMessage({
@@ -108,8 +108,8 @@ export default function SettingsPanel() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-8">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="tw-flex tw-justify-center tw-py-8">
+        <Loader2 className="tw-h-8 tw-w-8 tw-animate-spin tw-text-primary" />
       </div>
     );
   }
@@ -117,7 +117,7 @@ export default function SettingsPanel() {
   if (error) {
     return (
       <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
+        <AlertCircle className="tw-h-4 tw-w-4" />
         <AlertTitle>Error</AlertTitle>
         <AlertDescription>
           {error.message || 'Failed to load settings'}
@@ -140,8 +140,8 @@ export default function SettingsPanel() {
   };
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Translation Settings</h2>
+    <div className="tw-space-y-6">
+      <h2 className="tw-text-2xl tw-font-bold">Translation Settings</h2>
 
       <Card>
         <CardHeader>
@@ -150,9 +150,9 @@ export default function SettingsPanel() {
             Configure which AI models to use for translations
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
+        <CardContent className="tw-space-y-6">
+          <div className="tw-space-y-4">
+            <div className="tw-space-y-2">
               <Label htmlFor="default_model_provider">
                 Default Model Provider
               </Label>
@@ -170,12 +170,12 @@ export default function SettingsPanel() {
                   <SelectItem value="claude">Anthropic Claude</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-sm text-muted-foreground">
+              <p className="tw-text-sm tw-text-muted-foreground">
                 Choose which AI provider to use by default for translations
               </p>
             </div>
 
-            <div className="space-y-2">
+            <div className="tw-space-y-2">
               <Label htmlFor="default_model">Default Model</Label>
               <Select
                 value={settings.default_model}
@@ -200,7 +200,7 @@ export default function SettingsPanel() {
                       ))}
                 </SelectContent>
               </Select>
-              <p className="text-sm text-muted-foreground">
+              <p className="tw-text-sm tw-text-muted-foreground">
                 Choose which model to use by default for translations
               </p>
             </div>
@@ -208,10 +208,10 @@ export default function SettingsPanel() {
 
           <Separator />
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">API Keys</h3>
+          <div className="tw-space-y-4">
+            <h3 className="tw-text-lg tw-font-medium">API Keys</h3>
 
-            <div className="space-y-2">
+            <div className="tw-space-y-2">
               <Label htmlFor="openai_api_key">OpenAI API Key</Label>
               <Input
                 id="openai_api_key"
@@ -223,12 +223,12 @@ export default function SettingsPanel() {
                   settings.openai_api_key ? '********' : 'Enter OpenAI API key'
                 }
               />
-              <p className="text-sm text-muted-foreground">
+              <p className="tw-text-sm tw-text-muted-foreground">
                 Your OpenAI API key for GPT models
               </p>
             </div>
 
-            <div className="space-y-2">
+            <div className="tw-space-y-2">
               <Label htmlFor="anthropic_api_key">Anthropic API Key</Label>
               <Input
                 id="anthropic_api_key"
@@ -242,7 +242,7 @@ export default function SettingsPanel() {
                     : 'Enter Anthropic API key'
                 }
               />
-              <p className="text-sm text-muted-foreground">
+              <p className="tw-text-sm tw-text-muted-foreground">
                 Your Anthropic API key for Claude models
               </p>
             </div>
@@ -257,9 +257,9 @@ export default function SettingsPanel() {
             Configure how translations are processed
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-4">
+        <CardContent className="tw-space-y-6">
+          <div className="tw-space-y-4">
+            <div className="tw-space-y-4">
               <Label htmlFor="batch_size">
                 Batch Size: {settings.batch_size}
               </Label>
@@ -273,13 +273,13 @@ export default function SettingsPanel() {
                   handleSliderChange('batch_size', value)
                 }
               />
-              <p className="text-sm text-muted-foreground">
+              <p className="tw-text-sm tw-text-muted-foreground">
                 Number of entries to translate in a batch (larger batches are
                 more efficient but may hit rate limits)
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="tw-space-y-4">
               <Label htmlFor="temperature">
                 Temperature: {settings.temperature?.toFixed(2)}
               </Label>
@@ -293,7 +293,7 @@ export default function SettingsPanel() {
                   handleSliderChange('temperature', value)
                 }
               />
-              <p className="text-sm text-muted-foreground">
+              <p className="tw-text-sm tw-text-muted-foreground">
                 Controls randomness in translations (lower values are more
                 consistent)
               </p>
@@ -302,8 +302,8 @@ export default function SettingsPanel() {
 
           <Separator />
 
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
+          <div className="tw-space-y-4">
+            <div className="tw-flex tw-items-center tw-space-x-2">
               <Switch
                 id="auto_save"
                 checked={!!settings.auto_save}
@@ -313,11 +313,11 @@ export default function SettingsPanel() {
               />
               <Label htmlFor="auto_save">Auto-save Translations</Label>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="tw-text-sm tw-text-muted-foreground">
               Automatically save translations after they are generated
             </p>
 
-            <div className="flex items-center space-x-2">
+            <div className="tw-flex tw-items-center tw-space-x-2">
               <Switch
                 id="preserve_formatting"
                 checked={!!settings.preserve_formatting}
@@ -327,16 +327,19 @@ export default function SettingsPanel() {
               />
               <Label htmlFor="preserve_formatting">Preserve Formatting</Label>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="tw-text-sm tw-text-muted-foreground">
               Maintain formatting tokens and placeholders in translations
             </p>
           </div>
         </CardContent>
         <CardFooter>
-          <Button onClick={handleSaveSettings} disabled={saveSettings.loading}>
-            {saveSettings.loading ? (
+          <Button
+            onClick={handleSaveSettings}
+            disabled={saveSettings.isPending}
+          >
+            {saveSettings.isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="tw-mr-2 tw-h-4 tw-w-4 tw-animate-spin" />
                 Saving...
               </>
             ) : (
@@ -349,16 +352,16 @@ export default function SettingsPanel() {
               variant={
                 statusMessage.type === 'error' ? 'destructive' : 'default'
               }
-              className="ml-4"
+              className="tw-ml-4"
             >
               {statusMessage.type === 'success' && (
-                <Check className="h-4 w-4" />
+                <Check className="tw-h-4 tw-w-4" />
               )}
               {statusMessage.type === 'error' && (
-                <AlertCircle className="h-4 w-4" />
+                <AlertCircle className="tw-h-4 tw-w-4" />
               )}
               {statusMessage.type === 'info' && (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="tw-h-4 tw-w-4 tw-animate-spin" />
               )}
               <AlertTitle>
                 {statusMessage.type === 'success'

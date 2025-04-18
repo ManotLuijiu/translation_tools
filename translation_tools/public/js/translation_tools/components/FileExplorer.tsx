@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useGetCachedPOFiles, useScanPOFiles } from '../api';
 import { POFile } from '../types';
 import { formatPercentage, formatDate } from '../utils/helpers';
@@ -18,6 +18,21 @@ import { Badge } from '@/components/ui/badge';
 interface FileExplorerProps {
   onFileSelect: (file: POFile) => void;
   selectedFilePath: string | null;
+  className?: string; // Optional className prop
+}
+
+interface ApiError {
+  message: string;
+  // Add other error properties as needed
+}
+
+interface POFileListResponse {
+  data: {
+    message?: POFile[];
+  };
+  error: Error | null;
+  isLoading: boolean;
+  mutate: () => Promise<any>;
 }
 
 export default function FileExplorer({
@@ -25,40 +40,48 @@ export default function FileExplorer({
   selectedFilePath,
 }: FileExplorerProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const { data, error, isLoading, mutate } = useGetCachedPOFiles();
+  const { data, error, isLoading, refetch } = useGetCachedPOFiles();
+  const files = data || [];
+  const errorMessage = (error as ApiError)?.message || 'Unknown error';
   const scanFiles = useScanPOFiles();
   const [isScanning, setIsScanning] = useState(false);
+  const [isMutating, setIsMutating] = useState(false);
 
   const handleScan = async () => {
     setIsScanning(true);
     try {
-      const result = await scanFiles.call();
+      const result = await scanFiles;
       console.log('Scan result', result);
-
-      await mutate();
+      if (result?.success) {
+        setIsMutating(true);
+        await refetch();
+      }
     } catch (error) {
       console.error('Error scanning files:', error);
     } finally {
       setIsScanning(false);
+      setIsMutating(false);
     }
   };
 
-  const filteredFiles =
-    data?.message?.filter((file) => {
-      if (!searchTerm) return true;
-
-      const searchLower = searchTerm.toLowerCase();
-      return (
+  const filteredFiles = useMemo(() => {
+    if (!searchTerm) return files;
+    const searchLower = searchTerm.toLowerCase();
+    return files.filter(
+      (file) =>
         file.filename.toLowerCase().includes(searchLower) ||
         file.app.toLowerCase().includes(searchLower)
-      );
-    }) || [];
+    );
+  }, [files, searchTerm]);
 
-  const sortedFiles = [...filteredFiles].sort((a, b) => {
-    // Sort by app name first, then filename
-    if (a.app !== b.app) return a.app.localeCompare(b.app);
-    return a.filename.localeCompare(b.filename);
-  });
+  const sortedFiles = useMemo(
+    () =>
+      [...filteredFiles].sort((a, b) => {
+        if (a.app !== b.app) return a.app.localeCompare(b.app);
+        return a.filename.localeCompare(b.filename);
+      }),
+    [filteredFiles]
+  );
 
   return (
     <div className="space-y-4">
@@ -135,7 +158,9 @@ export default function FileExplorer({
                       <div className="h-2 w-28 rounded-full bg-muted">
                         <div
                           className="h-full rounded-full bg-primary"
-                          style={{ width: `${file.translated_percentage}%` }}
+                          style={{
+                            width: `${Math.min(100, Math.max(0, file.translated_percentage || 0))}%`,
+                          }}
                         />
                       </div>
                       <span className="text-xs text-muted-foreground">
