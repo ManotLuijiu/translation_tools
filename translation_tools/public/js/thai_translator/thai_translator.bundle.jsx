@@ -6,6 +6,8 @@ class Thai_Translator {
   constructor({ page, wrapper }) {
     this.$wrapper = $(wrapper);
     this.page = page;
+    this.menuItems = []; // Track menu items for cleanup
+    this.root = null; // Store React root instance
 
     this.init();
   }
@@ -13,22 +15,111 @@ class Thai_Translator {
   init() {
     this.setup_page_actions();
     this.setup_app();
+    this.setupCleanup();
   }
 
   setup_page_actions() {
+    this.cleanupMenuItems();
     this.page.set_primary_action(
       __('Translate File'),
-      () => this.translateFile(),
-      'octicon octicon-sync'
+      () => this.translateFile()
+      // '<i class="fa fa-language" aria-hidden="true"></i>'
+      // 'refresh'
+      // 'globe'
     );
 
-    this.page.add_menu_item(__('Settings'), () => this.showSettings(), true);
+    // Add CSS class to modify primary action icon
+    // setTimeout(() => {
+    //   $('.page-actions .primary-action use').attr('href', '#icon-language'); // Your custom symbol ID
+    // }, 100);
 
-    this.page.add_menu_item(
-      __('View Glossary'),
-      () => this.viewGlossary(),
-      true
+    // Menu items with proper cleanup tracking
+    this.menuItems.push(
+      this.page.add_menu_item(
+        `<i class="fa fa-language mr-2" aria-hidden="true"></i> ${__('Translate File')}`,
+        () => this.translateFile(),
+        true
+      )
     );
+
+    this.menuItems.push(
+      this.page.add_menu_item(
+        `<i class="fa fa-cog mr-2" aria-hidden="true"></i> ${__('Settings')}`,
+        () => this.showSettings(),
+        true
+      )
+    );
+
+    this.menuItems.push(
+      this.page.add_menu_item(
+        `<i class="fa fa-book mr-2" aria-hidden="true"></i> ${__('View Glossary')}`,
+        () => this.viewGlossary(),
+        true
+      )
+    );
+
+    this.menuItems.push(
+      this.page.add_menu_item(
+        `<i class="fa fa-question-circle mr-2" aria-hidden="true"></i> ${__('Help')}`,
+        () => this.showHelp(),
+        true
+      )
+    );
+
+    // this.page.add_menu_item(
+    //   // __('Settings'),
+    //   `<i class="fa fa-cog mr-2" aria-hidden="true"></i> ${__('Settings')}`,
+    //   () => this.showSettings(),
+    //   true
+    // );
+
+    // this.page.add_menu_item(
+    //   // __('View Glossary'),
+    //   `<i class="octicon octicon-book mr-2" aria-hidden="true"></i> ${__('View Glossary')}
+    //   `,
+    //   () => this.viewGlossary(),
+    //   true
+    // );
+
+    // this.page.add_menu_item(
+    //   // __('Help'),
+    //   `<i class="fa fa-question-circle mr-2" aria-hidden="true"></i> ${__('Help')}`,
+    //   () => this.showHelp(),
+    //   true
+    // );
+  }
+
+  cleanupMenuItems() {
+    // Remove all tracked menu items
+    this.menuItems.forEach((item) => {
+      if (item && item.remove) item.remove();
+    });
+    this.menuItems = [];
+  }
+
+  setupCleanup() {
+    // Handle page navigation cleanup
+    $(document).on('page-change.thai_translator', () => {
+      this.cleanupMenuItems();
+      if (this.root) {
+        this.root.unmount();
+      }
+    });
+
+    // Handle window unload
+    $(window).on('beforeunload.thai_translator', () => {
+      this.cleanup();
+    });
+  }
+
+  cleanup() {
+    this.cleanupMenuItems();
+    if (this.root) {
+      this.root.unmount();
+      this.root = null;
+    }
+    $(document).off('page-change.thai_translator');
+    $(window).off('beforeunload.thai_translator');
   }
 
   translateFile() {
@@ -40,6 +131,10 @@ class Thai_Translator {
   }
 
   viewGlossary() {
+    frappe.set_route('List', 'Translation Glossary Term');
+  }
+
+  showHelp() {
     frappe.set_route('List', 'Translation Glossary Term');
   }
 

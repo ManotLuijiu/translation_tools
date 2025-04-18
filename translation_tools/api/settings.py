@@ -5,62 +5,109 @@ from frappe import _
 from frappe.utils import cint
 from .common import logger, CONFIG_FILE, get_bench_path
 
+
 @frappe.whitelist()
 def get_translation_settings():
     """Get translation settings"""
-    settings = frappe._dict({
-        "default_model_provider": "openai",
-        "default_model": "gpt-4-1106-preview",
-        "openai_api_key": frappe.db.get_single_value("Translation Settings", "openai_api_key") or "",
-        "anthropic_api_key": frappe.db.get_single_value("Translation Settings", "anthropic_api_key") or "",
-        "batch_size": cint(frappe.db.get_single_value("Translation Settings", "batch_size") or 10),
-        "temperature": float(frappe.db.get_single_value("Translation Settings", "temperature") or 0.3),
-        "auto_save": cint(frappe.db.get_single_value("Translation Settings", "auto_save") or 0),
-        "preserve_formatting": cint(frappe.db.get_single_value("Translation Settings", "preserve_formatting") or 1)
-    })
-    
+    settings = frappe._dict(
+        {
+            "default_model_provider": "openai",
+            "default_model": "gpt-4-1106-preview",
+            "openai_api_key": frappe.db.get_single_value(
+                "Translation Settings", "openai_api_key"
+            )
+            or "",
+            "anthropic_api_key": frappe.db.get_single_value(
+                "Translation Settings", "anthropic_api_key"
+            )
+            or "",
+            "batch_size": cint(
+                int(
+                    cint(
+                        int(
+                            frappe.db.get_single_value(
+                                "Translation Settings", "batch_size"
+                            )
+                            or 10
+                        )
+                    )
+                )
+            ),
+            "temperature": float(
+                float(
+                    frappe.db.get_single_value("Translation Settings", "temperature")
+                    or 0.3
+                )
+            ),
+            "auto_save": cint(
+                cint(
+                    str(
+                        frappe.db.get_single_value("Translation Settings", "auto_save")
+                        or 0
+                    )
+                )
+            ),
+            "preserve_formatting": cint(
+                cint(
+                    str(
+                        frappe.db.get_single_value(
+                            "Translation Settings", "preserve_formatting"
+                        )
+                        or 1
+                    )
+                )
+            ),
+        }
+    )
+
     return settings
+
 
 @frappe.whitelist()
 def save_translation_settings(settings):
     """Save translation settings"""
-    settings_data = frappe._dict(settings) if isinstance(settings, dict) else frappe._dict(json.loads(settings))
-    
+    settings_data = (
+        frappe._dict(settings)
+        if isinstance(settings, dict)
+        else frappe._dict(json.loads(settings))
+    )
+
     # Check if Translation Settings doctype exists, create if not
     if not frappe.db.exists("DocType", "Translation Settings"):
         create_translation_settings_doctype()
-    
+
     # Get or create the settings doc
     if not frappe.db.exists("Translation Settings", "Translation Settings"):
         doc = frappe.new_doc("Translation Settings")
         doc.name = "Translation Settings"
     else:
         doc = frappe.get_doc("Translation Settings", "Translation Settings")
-    
+
     # Update settings
     doc.default_model_provider = settings_data.get("default_model_provider", "openai")
     doc.default_model = settings_data.get("default_model", "gpt-4-1106-preview")
-    
+
     if "openai_api_key" in settings_data:
         doc.openai_api_key = settings_data.openai_api_key
-    
+
     if "anthropic_api_key" in settings_data:
         doc.anthropic_api_key = settings_data.anthropic_api_key
-    
+
     doc.batch_size = cint(settings_data.get("batch_size", 10))
     doc.temperature = float(settings_data.get("temperature", 0.3))
     doc.auto_save = cint(settings_data.get("auto_save", 0))
     doc.preserve_formatting = cint(settings_data.get("preserve_formatting", 1))
-    
+
     doc.save()
     frappe.db.commit()
-    
+
     return {"success": True}
+
 
 def create_translation_settings_doctype():
     """Create the Translation Settings DocType"""
     # from frappe.modules.import_file import import_doc_from_dict
-    
+
     # Create Translation Settings DocType
     translation_settings_doctype = {
         "doctype": "DocType",
@@ -74,13 +121,13 @@ def create_translation_settings_doctype():
                 "label": "Default Model Provider",
                 "fieldtype": "Select",
                 "options": "openai\nclaude",
-                "default": "openai"
+                "default": "openai",
             },
             {
                 "fieldname": "default_model",
                 "label": "Default Model",
                 "fieldtype": "Data",
-                "default": "gpt-4-1106-preview"
+                "default": "gpt-4-1106-preview",
             },
             {
                 "fieldname": "openai_api_key",
@@ -96,26 +143,26 @@ def create_translation_settings_doctype():
                 "fieldname": "batch_size",
                 "label": "Batch Size",
                 "fieldtype": "Int",
-                "default": "10"
+                "default": "10",
             },
             {
                 "fieldname": "temperature",
                 "label": "Temperature",
                 "fieldtype": "Float",
-                "default": "0.3"
+                "default": "0.3",
             },
             {
                 "fieldname": "auto_save",
                 "label": "Auto-save Translations",
                 "fieldtype": "Check",
-                "default": "0"
+                "default": "0",
             },
             {
                 "fieldname": "preserve_formatting",
                 "label": "Preserve Formatting",
                 "fieldtype": "Check",
-                "default": "1"
-            }
+                "default": "1",
+            },
         ],
         "permissions": [
             {
@@ -124,20 +171,21 @@ def create_translation_settings_doctype():
                 "write": 1,
                 "create": 1,
                 "delete": 1,
-                "permlevel": 0
+                "permlevel": 0,
             }
-        ]
+        ],
     }
-    
+
     try:
         doc = frappe.get_doc(translation_settings_doctype).insert()
     except Exception as e:
         frappe.log_error(f"Error creating Translation Settings DocType: {str(e)}")
         frappe.log_error(frappe.get_traceback())
-    
+
     # doc = import_doc_from_dict(translation_settings_doctype)
     # doc.save()
     # frappe.db.commit()
+
 
 @frappe.whitelist()
 def get_translation_settings_file():
@@ -192,6 +240,7 @@ def get_translation_settings_file():
             frappe.log_error(f"Error reading translation config: {str(e)}")
 
     return settings
+
 
 @frappe.whitelist()
 def save_translation_settings_file(
@@ -250,6 +299,7 @@ def save_translation_settings_file(
     except Exception as e:
         frappe.log_error(f"Error saving translation config: {str(e)}")
         return {"error": f"Failed to save settings: {str(e)}"}
+
 
 @frappe.whitelist()
 def save_api_key(api_key, model_provider="openai"):

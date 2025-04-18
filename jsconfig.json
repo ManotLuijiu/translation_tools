@@ -1,8 +1,0 @@
-{
-    "compilerOptions": {
-      "paths": {
-        "@/*": ["./translation_tools/public/js/translation_tools/*"]
-      }
-    }
-}
-  

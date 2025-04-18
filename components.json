@@ -8,7 +8,7 @@
     "prefix": "tw-"
   },
   "rsc": false,
-  "tsx": false,
+  "tsx": true,
   "aliases": {
     "utils": "@/lib/utils",
     "components": "@/components",

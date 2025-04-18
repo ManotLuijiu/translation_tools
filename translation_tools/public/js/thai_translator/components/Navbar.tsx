@@ -1,69 +1,83 @@
-import React from "react";
-import mooLogo from "../assets/moo_logo.svg";
-import { useFrappeAuth } from "frappe-react-sdk";
-import { RefreshCw } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { RefreshCw } from 'lucide-react';
+
+declare const frappe: {
+  session: { user: string };
+  call: Function;
+};
 
 interface NavbarProps {
   currentTab?: string;
 }
 
 const tabMap: Record<string, string> = {
-  files: "File Explorer",
-  editor: "Translation Editor",
-  glossary: "Glossary Manager",
-  settings: "Settings",
+  files: 'File Explorer',
+  editor: 'Translation Editor',
+  glossary: 'Glossary Manager',
+  settings: 'Settings',
 };
 
 const Navbar: React.FC<NavbarProps> = ({ currentTab }) => {
-  const { currentUser, isValidating, isLoading, error } = useFrappeAuth();
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (isLoading)
+  useEffect(() => {
+    frappe.call({
+      method: 'frappe.auth.get_logged_user',
+      callback: function (response: any) {
+        if (response.message) {
+          setCurrentUser(response.message);
+        } else {
+          setError('Unable to fetch user.');
+        }
+        setLoading(false);
+      },
+      error: function (err: any) {
+        setError(err.message || 'An error occurred.');
+        setLoading(false);
+      },
+    });
+  }, []);
+
+  if (loading) {
     return (
-      <div>
-        <RefreshCw className="h-4 w-4 animate-spin" />
-        loading...
+      <div className="tw-flex tw-items-center tw-gap-2 tw-p-2">
+        <RefreshCw className="tw-h-4 tw-w-4 tw-animate-spin" />
+        Loading...
       </div>
     );
-  if (isValidating)
-    return (
-      <div>
-        <RefreshCw className="h-4 w-4 animate-spin" />
-        validating...
-      </div>
-    );
-  if (error) return <div>{error.message}</div>;
-  if (!currentUser) return <div>not logged in</div>;
+  }
+
+  if (error) {
+    return <div className="tw-text-red-500">{error}</div>;
+  }
 
   return (
-    <nav className="bg-card">
-      <div className="container mx-auto py-3">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            <a
-              href="/app"
-              className="flex items-center gap-2 text-primary font-medium hover:text-primary/80 transition-colors"
-            >
-              <img src={mooLogo} alt="Moo Logo" className="h-8 w-auto" />
+    <nav className="">
+      <div className="">
+        <div className="">
+          <div className="">
+            <a href="/app" className="">
+              <img
+                src="/assets/translation_tools/images/logos/moo_logo.svg"
+                alt="Moo Logo"
+                className="tw-h-8 tw-w-auto"
+              />
               <span>Back to ERPNext</span>
             </a>
           </div>
 
-          <div className="text-muted-foreground flex items-center gap-4">
-            <h1 className="text-lg font-semibold">Translation Tools</h1>
-            <div className="flex items-center gap-4">
-              {currentUser && (
-                <div className="text-sm">
-                  Logged in as:{" "}
-                  <span className="font-medium">{currentUser}</span>
-                </div>
-              )}
+          <div className="">
+            <h1 className="">Translation Tools</h1>
+            <div className="">
+              Logged in as: <span className="">{currentUser}</span>
             </div>
           </div>
         </div>
 
-        {/* Simple breadcrumb for tab-based navigation */}
-        <div className="flex items-center py-2 text-sm">
-          <span className="text-primary">Home</span>
+        <div className="">
+          <span className="">Home</span>
           {currentTab && tabMap[currentTab] && (
             <>
               <svg
@@ -76,12 +90,11 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab }) => {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="mx-2 text-muted-foreground"
+                className="tw-mx-2 tw-text-muted-foreground"
               >
                 <polyline points="9 18 15 12 9 6" />
               </svg>
-              <span className="text-muted-foreground font-medium">
-                {/* {currentTab.charAt(0).toUpperCase() + currentTab.slice(1)} */}
+              <span className="tw-font-medium tw-text-muted-foreground">
                 {tabMap[currentTab]}
               </span>
             </>

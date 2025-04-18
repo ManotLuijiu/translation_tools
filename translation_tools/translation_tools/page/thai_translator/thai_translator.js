@@ -4,7 +4,7 @@ frappe.pages['thai_translator'].on_page_load = function (wrapper) {
   let page = frappe.ui.make_app_page({
     parent: wrapper,
     title: __('Thai Translator'),
-    single_column: false,
+    single_column: true,
   });
 
   console.log('page', page);

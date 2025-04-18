@@ -1,13 +1,16 @@
-import * as React from 'react';
+import React from 'react';
 import '../../css/tailwind.css';
-import { Button } from '@/components/ui/button';
-import Dashboard from './components/Dashboard';
+import { Toaster } from '@/components/ui/sonner';
+import Dashboard from '@/components/Dashboard';
 
 export function App() {
   return (
-    <main className="tw">
-      <div className="tw-flex tw-flex-col tw-items-center tw-justify-center">
-        <Button>Click me</Button>
+    <main className="tw tw-font-sarabun">
+      <div className="tw-min-h-screen tw-bg-background">
+        <div className="tw-mx-auto tw-px-4">
+          <Dashboard />
+        </div>
+        <Toaster />
       </div>
     </main>
   );

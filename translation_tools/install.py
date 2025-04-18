@@ -37,6 +37,32 @@ def after_install():
         run_setup_script(bench_dir)
         setup_frappe_components()
 
+        # Add custom fields
+        from translation_tools.setup.install_custom_fields import install_custom_fields
+
+        install_custom_fields()
+
+        print("✅ Custom PDF generator setup completed successfully")
+
+        # Set up custom print theme
+        from translation_tools.utils.custom_theme import (
+            create_sarabun_theme,
+        )
+
+        create_sarabun_theme()
+
+        # Override print CSS
+        from translation_tools.utils.override_print_css import override_print_css
+
+        override_print_css()
+
+        # Set up custom fonts
+        from translation_tools.setup.setup_fonts import setup_sarabun_font
+
+        setup_sarabun_font()
+
+        print("✅ Sarabun font setup completed successfully")
+
         # Attempt to add to workspaces
         try:
             # First try to set up the main workspace

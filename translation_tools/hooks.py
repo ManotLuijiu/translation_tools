@@ -84,6 +84,9 @@ app_include_js = [
     "/assets/translation_tools/js/translation_tools.client.js",
     "/assets/translation_tools/js/pdfmake.min.js",
     "/assets/translation_tools/js/vfs_fonts.js",
+    "/assets/translation_tools/js/utils/JsBarcode.all.min.js",
+    "/assets/translation_tools/js/utils/pdfmake.min.js",
+    "/assets/translation_tools/js/utils/vfs_fonts.js",
     "chat.bundle.js",
 ]
 
@@ -91,11 +94,33 @@ app_include_css = [
     "/assets/translation_tools/css/tailwind.css",
     "/assets/translation_tools/css/thai_fonts.css",
     "/assets/translation_tools/css/fonts.css",
+    "/assets/translation_tools/css/custom_fonts.css",
+    "/assets/translation_tools/css/custom_print.css",
     "chat.bundle.css",
 ]
 
-web_include_css = ["/assets/translation_tools/css/thai_fonts.css", "chat.bundle.css"]
+web_include_css = [
+    "/assets/translation_tools/css/thai_fonts.css",
+    "/assets/translation_tools/css/custom_fonts.css"
+    "/assets/translation_tools/css/custom_print.css"
+    "/assets/translation_tools/css/icons.css",
+    "chat.bundle.css",
+]
 web_include_js = ["chat.bundle.js"]
+
+# Override navbar template
+website_template_path = {
+    "includes/navbar/navbar.html": "templates/includes/navbar/navbar.html"
+}
+
+jenv = {
+    "methods": [
+        "get_pdf_generator_settings:translation_tools.translation_tools.utils.pdf_utils.get_pdf_generator_settings"
+    ]
+}
+
+# Add Sarabun to print format
+print_format_map = {"font": "Sarabun"}
 
 # Desk sidebar item
 get_desk_sidebar_items = [
@@ -154,7 +179,8 @@ sounds = [
 
 # Override doctype class
 override_doctype_class = {
-    "Sales Invoice": "translation_tools.translation_tools.override.custom_sales_invoice.CustomSalesInvoice"
+    "Sales Invoice": "translation_tools.translation_tools.override.custom_sales_invoice.CustomSalesInvoice",
+    "Print Format": "translation_tools.translation_tools.override_classes.CustomPrintFormat",
 }
 
 # Include JS file
