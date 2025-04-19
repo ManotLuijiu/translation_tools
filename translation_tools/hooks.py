@@ -90,6 +90,7 @@ app_include_js = [
     "/assets/translation_tools/js/utils/JsBarcode.all.min.js",
     "/assets/translation_tools/js/utils/pdfmake.min.js",
     "/assets/translation_tools/js/utils/vfs_fonts.js",
+    "/assets/translation_tools/js/font_override.js",
     "chat.bundle.js",
 ]
 
@@ -99,6 +100,7 @@ app_include_css = [
     "/assets/translation_tools/css/fonts.css",
     "/assets/translation_tools/css/custom_fonts.css",
     "/assets/translation_tools/css/custom_print.css",
+    "/assets/translation_tools/css/global_fonts.css",
     "chat.bundle.css",
 ]
 
@@ -110,6 +112,9 @@ web_include_css = [
     "chat.bundle.css",
 ]
 web_include_js = ["chat.bundle.js"]
+
+website_theme_scss = "translation_tools/public/scss/website"
+
 
 # build_config = {"esbuild": {"target": "es2018"}}
 
@@ -179,6 +184,12 @@ doc_events = {
 fixtures = [
     {"dt": "Workspace", "filters": [["name", "=", "Integrations"]]},
     {"dt": "Page", "filters": [["name", "=", "translation-tools"]]},
+    {
+        "dt": "Custom Field",
+        "filters": [
+            ["dt", "in", ["Print Settings", "Company"]]
+        ]
+    }
 ]
 
 sounds = [
@@ -202,7 +213,7 @@ sounds = [
 # Override doctype class
 override_doctype_class = {
     "Sales Invoice": "translation_tools.translation_tools.override.custom_sales_invoice.CustomSalesInvoice",
-    "Print Format": "translation_tools.translation_tools.override_classes.CustomPrintFormat",
+    "Print Format": "translation_tools.translation_tools.override.override_classes.CustomPrintFormat",
 }
 
 # Override the default PDF styles

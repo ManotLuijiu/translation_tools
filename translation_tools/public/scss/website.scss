@@ -1,0 +1,11 @@
+@import 'frappe/public/scss/website';
+
+// ✅ Your custom font styles
+:root {
+  --preferred-font: 'Sarabun', 'Inter', sans-serif;
+}
+
+body,
+html {
+  font-family: var(--preferred-font) !important;
+}

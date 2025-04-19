@@ -1,0 +1,18 @@
+@font-face {
+  font-family: 'Sarabun';
+  src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-Regular.ttf')
+    format('truetype');
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/assets/translation_tools/fonts/Inter/static/Inter_28pt-Regular.ttf')
+    format('truetype');
+}
+
+body,
+.form-control,
+.grid-row,
+.page-head,
+.modal-content {
+  font-family: var(--preferred-font, 'Sarabun'), sans-serif !important;
+}

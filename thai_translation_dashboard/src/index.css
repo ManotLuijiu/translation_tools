@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -142,7 +142,6 @@
     @apply bg-background text-foreground;
   }
 }
-
 
 /* Custom utility classes for Thai fonts */
 .kanit-thin {
@@ -543,6 +542,101 @@
   font-style: normal;
 }
 
+/* IBM Plex Sans */
+.ibm-plex-sans-thai-thin {
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.ibm-plex-sans-thai-extralight {
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.ibm-plex-sans-thai-light {
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.ibm-plex-sans-thai-regular {
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.ibm-plex-sans-thai-medium {
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.ibm-plex-sans-thai-semibold {
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.ibm-plex-sans-thai-bold {
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* IBM Plex Sans Looped */
+.ibm-plex-sans-thai-looped-thin {
+  font-family: 'IBM Plex Sans Thai Looped', sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.ibm-plex-sans-thai-looped-extralight {
+  font-family: 'IBM Plex Sans Thai Looped', sans-serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.ibm-plex-sans-thai-looped-light {
+  font-family: 'IBM Plex Sans Thai Looped', sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.ibm-plex-sans-thai-looped-regular {
+  font-family: 'IBM Plex Sans Thai Looped', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.ibm-plex-sans-thai-looped-medium {
+  font-family: 'IBM Plex Sans Thai Looped', sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.ibm-plex-sans-thai-looped-semibold {
+  font-family: 'IBM Plex Sans Thai Looped', sans-serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.ibm-plex-sans-thai-looped-bold {
+  font-family: 'IBM Plex Sans Thai Looped', sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* Inter */
+
+.inter-regular {
+  font-family: 'Inter', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
 /* Apply Thai fonts to specific elements based on language */
 html[lang='th'] body {
   font-family: 'Sarabun', sans-serif;
@@ -558,6 +652,6 @@ html[lang='th'] h6 {
 }
 
 [data-radix-popper-content-wrapper],
-[role="dialog"] {
+[role='dialog'] {
   font-family: var(--font-sarabun);
 }

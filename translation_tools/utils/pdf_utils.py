@@ -55,6 +55,11 @@ def get_sarabun_pdf_font_styles():
     """
 
 
-# def get_pdf_styles():
-#     """Override global PDF styles to include Sarabun"""
-#     return f"<style>{original_get_pdf_styles()}\n{get_custom_pdf_font_styles()}</style>"
+def get_pdf_styles():
+    """Override global PDF styles to include Sarabun"""
+    # return f"<style>{original_get_pdf_styles()}\n{get_custom_pdf_font_styles()}</style>"
+    return """
+        <style>
+            body { font-family: Inter, sans-serif; }
+        </style>
+    """
