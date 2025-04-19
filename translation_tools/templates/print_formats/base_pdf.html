@@ -1,0 +1,70 @@
+{% if font_family == "Sarabun" %}
+<style>
+  @font-face {
+    font-family: 'Sarabun';
+    src: url('file:///assets/translation_tools/fonts/Sarabun/Sarabun-Regular.ttf')
+      format('truetype');
+  }
+  body {
+    font-family: 'Sarabun', sans-serif;
+  }
+</style>
+{% elif font_family == "Noto Sans Thai" %}
+<style>
+  @font-face {
+    font-family: 'Noto Sans Thai';
+    src: url('file:///assets/translation_tools/fonts/Noto_Sans_Thai/static/NotoSansThai-Regular.ttf')
+      format('truetype');
+  }
+  body {
+    font-family: 'Noto Sans Thai', sans-serif;
+  }
+</style>
+{% elif font_family == "Kanit" %}
+<style>
+  @font-face {
+    font-family: 'Kanit';
+    src: url('file:///assets/translation_tools/fonts/Kanit/Kanit-Regular.ttf')
+      format('truetype');
+  }
+  body {
+    font-family: 'Kanit', sans-serif;
+  }
+</style>
+{% endif %}
+
+<style>
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  th,
+  td {
+    border: 1px solid #333;
+    padding: 4px;
+    text-align: left;
+  }
+
+  .text-right {
+    text-align: right;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .no-border {
+    border: none;
+  }
+
+  .signature {
+    margin-top: 50px;
+  }
+
+  h2,
+  h4 {
+    margin-bottom: 0;
+  }
+</style>

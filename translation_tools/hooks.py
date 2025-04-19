@@ -108,6 +108,8 @@ web_include_css = [
 ]
 web_include_js = ["chat.bundle.js"]
 
+# build_config = {"esbuild": {"target": "es2018"}}
+
 # Override navbar template
 website_template_path = {
     "includes/navbar/navbar.html": "templates/includes/navbar/navbar.html"
@@ -115,7 +117,8 @@ website_template_path = {
 
 jenv = {
     "methods": [
-        "get_pdf_generator_settings:translation_tools.translation_tools.utils.pdf_utils.get_pdf_generator_settings"
+        "get_pdf_generator_settings:translation_tools.translation_tools.utils.pdf_utils.get_pdf_generator_settings",
+        "get_sarabun_pdf_font_styles:translation_tools.translation_tools.utils.pdf_utils.get_sarabun_pdf_font_styles",
     ]
 }
 
@@ -181,6 +184,11 @@ sounds = [
 override_doctype_class = {
     "Sales Invoice": "translation_tools.translation_tools.override.custom_sales_invoice.CustomSalesInvoice",
     "Print Format": "translation_tools.translation_tools.override_classes.CustomPrintFormat",
+}
+
+# Override the default PDF styles
+override_whitelisted_methods = {
+    "frappe.utils.pdf.get_pdf_styles": "translation_tools.translation_tools.utils.pdf_utils.get_pdf_styles"
 }
 
 # Include JS file

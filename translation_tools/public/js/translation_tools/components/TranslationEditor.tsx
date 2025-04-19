@@ -401,9 +401,9 @@ export default function TranslationEditor({
                   <Button
                     variant="outline"
                     onClick={handleTranslate}
-                    disabled={translateEntry.isPending}
+                    disabled={translateEntry.isLoading}
                   >
-                    {translateEntry.isPending ? (
+                    {translateEntry.isLoading ? (
                       <>
                         <Loader2 className="tw-mr-2 tw-h-4 tw-w-4 tw-animate-spin" />
                         Translating...
@@ -417,9 +417,9 @@ export default function TranslationEditor({
                   </Button>
                   <Button
                     onClick={handleSave}
-                    disabled={saveTranslation.isPending}
+                    disabled={saveTranslation.isLoading}
                   >
-                    {saveTranslation.isPending ? (
+                    {saveTranslation.isLoading ? (
                       <>
                         <Loader2 className="tw-mr-2 tw-h-4 tw-w-4 tw-animate-spin" />
                         Saving...

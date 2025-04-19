@@ -399,8 +399,8 @@ export default function GlossaryManager() {
               >
                 Cancel
               </Button>
-              <Button onClick={handleAddTerm} disabled={addTerm.isPending}>
-                {addTerm.isPending ? (
+              <Button onClick={handleAddTerm} disabled={addTerm.isLoading}>
+                {addTerm.isLoading ? (
                   <>
                     <Loader2 className="tw-mr-2 tw-h-4 tw-w-4 tw-animate-spin" />
                     Adding...
@@ -626,8 +626,8 @@ export default function GlossaryManager() {
             >
               Cancel
             </Button>
-            <Button onClick={handleUpdateTerm} disabled={updateTerm.isPending}>
-              {updateTerm.isPending ? (
+            <Button onClick={handleUpdateTerm} disabled={updateTerm.isLoading}>
+              {updateTerm.isLoading ? (
                 <>
                   <Loader2 className="tw-mr-2 tw-h-4 tw-w-4 tw-animate-spin" />
                   Updating...
@@ -659,7 +659,7 @@ export default function GlossaryManager() {
               onClick={handleDeleteTerm}
               className="tw-bg-destructive tw-text-destructive-foreground hover:tw-bg-destructive/90"
             >
-              {deleteTerm.isPending ? (
+              {deleteTerm.isLoading ? (
                 <>
                   <Loader2 className="tw-mr-2 tw-h-4 tw-w-4 tw-animate-spin" />
                   Deleting...

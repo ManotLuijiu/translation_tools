@@ -1,0 +1,44 @@
+{% set font_family = "Sarabun" %} {% include
+"translation_tools/print_formats/base_pdf.html" with context %}
+
+<h2 class="text-center">ใบแจ้งหนี้ / Sales Invoice</h2>
+
+<p><strong>Customer:</strong> {{ doc.customer_name }}</p>
+<p><strong>Invoice No:</strong> {{ doc.name }}</p>
+<p><strong>Posting Date:</strong> {{ doc.posting_date }}</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Description</th>
+      <th class="text-right">Qty</th>
+      <th class="text-right">Rate</th>
+      <th class="text-right">Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in doc.items %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ item.item_name }}</td>
+      <td class="text-right">{{ item.qty }}</td>
+      <td class="text-right">{{ item.rate }}</td>
+      <td class="text-right">{{ item.amount }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p class="text-right"><strong>Net Total:</strong> {{ doc.net_total }}</p>
+<p class="text-right">
+  <strong>Tax:</strong> {{ doc.total_taxes_and_charges }}
+</p>
+<p class="text-right">
+  <strong>Grand Total:</strong> {{ doc.grand_total }} {{ doc.currency }}
+</p>
+
+<div class="signature">
+  <p>...............................................</p>
+  <p>Authorized Signature / ลายเซ็นผู้มีอำนาจ</p>
+</div>

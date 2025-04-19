@@ -52,7 +52,7 @@ export default function FileExplorer({
     try {
       const result = await scanFiles;
       console.log('Scan result', result);
-      if (result?.success) {
+      if (result?.isSuccess) {
         setIsMutating(true);
         await refetch();
       }

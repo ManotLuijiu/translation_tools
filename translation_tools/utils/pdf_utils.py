@@ -1,6 +1,8 @@
 import frappe
 import json
 
+# from frappe.utils.pdf import get_pdf_styles as original_get_pdf_styles
+
 
 def get_pdf_generator_settings():
     """Get PDF generator settings for use in Jinja templates"""
@@ -17,3 +19,42 @@ def get_pdf_generator_settings():
         or "Sarabun",
     }
     return json.dumps(settings)
+
+
+def get_sarabun_pdf_font_styles():
+    """Define Sarabun font styles"""
+    return """
+    @font-face {
+        font-family: "Sarabun";
+        src: url("file:///assets/translation_tools/fonts/Sarabun-Regular.ttf") format("truetype");
+        font-weight: normal;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: "Sarabun";
+        src: url("file:///assets/translation_tools/fonts/Sarabun-Bold.ttf") format("truetype");
+        font-weight: bold;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: "Sarabun";
+        src: url("file:///assets/translation_tools/fonts/Sarabun-Italic.ttf") format("truetype");
+        font-weight: normal;
+        font-style: italic;
+    }
+    @font-face {
+        font-family: "Sarabun";
+        src: url("file:///assets/translation_tools/fonts/Sarabun-BoldItalic.ttf") format("truetype");
+        font-weight: bold;
+        font-style: italic;
+    }
+
+    body, * {
+        font-family: "Sarabun", sans-serif !important;
+    }
+    """
+
+
+# def get_pdf_styles():
+#     """Override global PDF styles to include Sarabun"""
+#     return f"<style>{original_get_pdf_styles()}\n{get_custom_pdf_font_styles()}</style>"

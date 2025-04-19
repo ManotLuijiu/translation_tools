@@ -335,9 +335,9 @@ export default function SettingsPanel() {
         <CardFooter>
           <Button
             onClick={handleSaveSettings}
-            disabled={saveSettings.isPending}
+            disabled={saveSettings.isLoading}
           >
-            {saveSettings.isPending ? (
+            {saveSettings.isLoading ? (
               <>
                 <Loader2 className="tw-mr-2 tw-h-4 tw-w-4 tw-animate-spin" />
                 Saving...

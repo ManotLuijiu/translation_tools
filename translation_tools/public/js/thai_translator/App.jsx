@@ -1,9 +1,8 @@
 import React from 'react';
 import '../../css/tailwind.css';
-import { Toaster } from '@/components/ui/sonner';
+// import { Toaster } from '@/components/ui/sonner';
 import Dashboard from '@/components/Dashboard';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const queryClient = new QueryClient();
 
@@ -15,10 +14,10 @@ export function App() {
           <div className="tw-mx-auto tw-px-4">
             <Dashboard />
           </div>
-          <Toaster />
+          {/* <Toaster /> */}
         </div>
       </main>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   );
 }
