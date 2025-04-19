@@ -1,0 +1,11 @@
+[
+  {
+    "doctype": "Property Setter",
+    "doctype_or_field": "DocField",
+    "doc_type": "Print Format",
+    "field_name": "pdf_generator",
+    "property": "options",
+    "property_type": "Text",
+    "value": "\nWeasyPrint\nwkhtmltopdf"
+  }
+]

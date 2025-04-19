@@ -189,8 +189,21 @@ fixtures = [
         "filters": [
             ["dt", "in", ["Print Settings", "Company"]]
         ]
+    },
+    {
+        "doctype": "Property Setter",
+        "filters": [
+            ["doc_type", "=", "Print Format"],
+            ["field_name", "=", "pdf_generator"],
+            ["property", "=", "options"]
+        ]
     }
 ]
+
+doctype_js = {
+    #  "Print Format": "public/js/print_format.js"
+     "Print Format": "/assets/translation_tools/js/print_format.js"
+}
 
 sounds = [
     {
@@ -212,13 +225,13 @@ sounds = [
 
 # Override doctype class
 override_doctype_class = {
-    "Sales Invoice": "translation_tools.translation_tools.override.custom_sales_invoice.CustomSalesInvoice",
-    "Print Format": "translation_tools.translation_tools.override.override_classes.CustomPrintFormat",
+    "Sales Invoice": "translation_tools.override.custom_sales_invoice.CustomSalesInvoice",
+    "Print Format": "translation_tools.override.print_format.CustomPrintFormat",
 }
 
 # Override the default PDF styles
 override_whitelisted_methods = {
-    "frappe.utils.pdf.get_pdf_styles": "translation_tools.translation_tools.utils.pdf_utils.get_pdf_styles"
+    "frappe.utils.pdf.get_pdf_styles": "translation_tools.utils.pdf_utils.get_pdf_styles"
 }
 
 # Include JS file
