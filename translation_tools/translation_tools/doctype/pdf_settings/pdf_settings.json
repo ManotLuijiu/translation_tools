@@ -1,0 +1,58 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-04-19 16:43:09.409540",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "pdf_settings_section",
+    "default_font",
+    "signature_path"
+ ],
+ "fields": [
+    {
+        "fieldname": "pdf_settings_section",
+        "label": "PDF Settings",
+        "fieldtype": "Section Break"
+    },
+    {
+        "fieldname": "default_font",
+        "label": "Default Font",
+        "fieldtype": "Select",
+        "options": "Sarabun\nNoto Sans Thai\nIBM Plex Thai",
+        "default": "Sarabun"
+    },
+    {
+        "fieldname": "signature_path",
+        "label": "Signature Storage Path",
+        "fieldtype": "Data",
+        "description": "Path where signature files will be stored (relative to site public folder)",
+        "default": "files/signatures"
+    }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 0,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-04-19 16:49:21.714773",
+ "modified_by": "Administrator",
+ "module": "Translation Tools",
+ "name": "PDF Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

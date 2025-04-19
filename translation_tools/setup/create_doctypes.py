@@ -12,7 +12,6 @@ def create_glossary_doctypes():
             "doctype": "DocType",
             "name": "ERPNext Module",
             "module": "Translation Tools",
-            "custom": 1,
             "autoname": "field:module_name",
             "fields": [
                 {
@@ -58,7 +57,6 @@ def create_glossary_doctypes():
             "doctype": "DocType",
             "name": "Translation Glossary Term",
             "module": "Translation Tools",
-            "custom": 1,
             "autoname": "format:TERM-{source_term:.20}-{####}",
             "fields": [
                 {
@@ -135,7 +133,6 @@ def create_po_file_doctypes():
             "doctype": "DocType",
             "name": "PO File",
             "module": "Translation Tools",
-            "custom": 1,
             "autoname": "field:file_path",
             "fields": [
                 {
@@ -219,7 +216,6 @@ def create_signature_doctype():
             "doctype": "DocType",
             "name": "User Signature",
             "module": "Translation Tools",
-            "custom": 1,
             "autoname": "field:user",
             "fields": [
                 {
@@ -286,9 +282,8 @@ def create_settings_page():
     if not frappe.db.exists("DocType", "Translation Tools Settings"):
         settings_doctype = {
             "doctype": "DocType",
-            "name": "Translation Tools Settings",
+            "name": "PDF Settings",
             "module": "Translation Tools",
-            "custom": 1,
             "issingle": 1,
             "fields": [
                 {

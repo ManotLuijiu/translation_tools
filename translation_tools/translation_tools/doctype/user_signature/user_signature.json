@@ -1,0 +1,85 @@
+{
+  "actions": [],
+  "allow_rename": 1,
+  "creation": "2025-04-19 16:44:35.948636",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "autoname": "field:user",
+  "field_order": [
+    "user",
+    "user_full_name",
+    "signature_section",
+    "signature_image",
+    "signature_column",
+    "signature_preview",
+    "signature_url"
+  ],
+  "fields": [
+    {
+      "fieldname": "user",
+      "label": "User",
+      "fieldtype": "Link",
+      "options": "User",
+      "unique": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "user_full_name",
+      "label": "User Full Name",
+      "fieldtype": "Data",
+      "fetch_from": "user.full_name",
+      "read_only": 1
+    },
+    {
+      "fieldname": "signature_section",
+      "label": "Signature",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "signature_image",
+      "label": "Signature Image",
+      "fieldtype": "Attach Image",
+      "description": "Upload your signature image (PNG format recommended)"
+    },
+    { "fieldname": "signature_column", "fieldtype": "Column Break" },
+    {
+      "fieldname": "signature_preview",
+      "label": "Signature Preview",
+      "fieldtype": "HTML",
+      "options": "<img src=\"{{ doc.signature_image }}\" style=\"max-height: 100px;\">"
+    },
+    {
+      "fieldname": "signature_url",
+      "label": "Signature URL",
+      "fieldtype": "Data",
+      "read_only": 1,
+      "hidden": 1
+    }
+  ],
+  "grid_page_length": 50,
+  "index_web_pages_for_search": 0,
+  "links": [],
+  "modified": "2025-04-19 16:48:55.833576",
+  "modified_by": "Administrator",
+  "module": "Translation Tools",
+  "name": "User Signature",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "row_format": "Dynamic",
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": []
+}

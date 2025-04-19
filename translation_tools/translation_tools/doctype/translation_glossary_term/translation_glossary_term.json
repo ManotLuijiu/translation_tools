@@ -1,95 +1,96 @@
 {
- "actions": [],
- "allow_rename": 1,
- "creation": "2025-03-23 16:38:22.982890",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
- "field_order": [
-  "source_term",
-  "thai_translation",
-  "context",
-  "category",
-  "is_approved",
-  "module"
- ],
- "fields": [
-  {
-   "fieldname": "source_term",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Source Term",
-   "reqd": 1
-  },
-  {
-   "fieldname": "thai_translation",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Thai Translation",
-   "reqd": 1
-  },
-  {
-   "fieldname": "context",
-   "fieldtype": "Small Text",
-   "label": "Context"
-  },
-  {
-   "fieldname": "module",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Module",
-   "options": "ERPNext Module"
-  },
-  {
-   "fieldname": "category",
-   "fieldtype": "Select",
-   "in_standard_filter": 1,
-   "label": "Category",
-   "options": "Business\nTechnical\nUI\nDate/Time\nStatus"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_approved",
-   "fieldtype": "Check",
-   "in_list_view": 1,
-   "label": "Is Approved"
-  }
- ],
- "grid_page_length": 50,
- "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2025-03-23 16:39:16.847709",
- "modified_by": "Administrator",
- "module": "Translation Tools",
- "name": "Translation Glossary Term",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "All",
-   "share": 1,
-   "write": 1
-  }
- ],
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": []
+  "actions": [],
+  "allow_rename": 1,
+  "creation": "2025-03-23 16:38:22.982890",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "source_term",
+    "thai_translation",
+    "context",
+    "category",
+    "is_approved",
+    "module"
+  ],
+  "autoname": "format:TERM-{source_term:.20}-{####}",
+  "fields": [
+    {
+      "fieldname": "source_term",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Source Term",
+      "reqd": 1
+    },
+    {
+      "fieldname": "thai_translation",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Thai Translation",
+      "reqd": 1
+    },
+    {
+      "fieldname": "context",
+      "fieldtype": "Small Text",
+      "label": "Context"
+    },
+    {
+      "fieldname": "module",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Module",
+      "options": "ERPNext Module"
+    },
+    {
+      "fieldname": "category",
+      "fieldtype": "Select",
+      "in_standard_filter": 1,
+      "label": "Category",
+      "options": "Business\nTechnical\nUI\nDate/Time\nStatus"
+    },
+    {
+      "default": "0",
+      "fieldname": "is_approved",
+      "fieldtype": "Check",
+      "in_list_view": 1,
+      "label": "Is Approved"
+    }
+  ],
+  "grid_page_length": 50,
+  "index_web_pages_for_search": 0,
+  "links": [],
+  "modified": "2025-03-23 16:39:16.847709",
+  "modified_by": "Administrator",
+  "module": "Translation Tools",
+  "name": "Translation Glossary Term",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "All",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": []
 }
