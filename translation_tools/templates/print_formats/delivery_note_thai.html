@@ -1,0 +1,40 @@
+{% include "translation_tools/templates/print_format/thai_base.html" %}
+
+<div class="header">ใบส่งของ / DELIVERY NOTE</div>
+<!-- Show only items, no pricing if needed -->
+
+
+<p><strong>ชื่อลูกค้า:</strong> {{ doc.customer_name }}<br>
+<strong>ที่อยู่:</strong> {{ doc.customer_address_display or "" }}<br>
+<strong>เลขประจำตัวผู้เสียภาษี:</strong> {{ doc.tax_id or "-" }}</p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>รายการ</th>
+      <th>จำนวน</th>
+      <th>หน่วย</th>
+      <th>ราคา/หน่วย</th>
+      <th>รวม</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in doc.items %}
+    <tr>
+      <td>{{ item.item_name }}</td>
+      <td style="text-align:right">{{ item.qty }}</td>
+      <td>{{ item.uom }}</td>
+      <td style="text-align:right">{{ item.rate }}</td>
+      <td style="text-align:right">{{ item.amount }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p><strong>รวมทั้งสิ้น (Total):</strong> {{ doc.grand_total }} บาท</p>
+<p><strong>ตัวอักษร (in words):</strong> {{ doc.in_words }}</p>
+
+<div class="footer">
+  ลงชื่อ ...................................... ผู้รับสินค้า<br><br>
+  ลงชื่อ ...................................... ผู้มีอำนาจลงนาม
+</div>

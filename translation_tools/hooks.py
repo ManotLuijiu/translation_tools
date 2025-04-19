@@ -31,6 +31,9 @@ modules = {
 # Installation
 after_install = [
     "translation_tools.install.after_install",
+    "translation_tools.setup.install_custom_fields.install_custom_fields",
+    "translation_tools.setup.create_doctypes.create_signature_doctype",
+    "translation_tools.setup.create_doctypes.create_settings_page",
     "chat.patches.migrate_chat_data.execute",
 ]
 
@@ -155,6 +158,22 @@ desk_page = {
         "onboard": 0,
     }
 }
+
+doc_events = {
+    "Quotation": {
+        "validate": "translation_tools.utils.thai_in_words.set_in_words_thai"
+    },
+    "Sales Invoice": {
+        "validate": "translation_tools.utils.thai_in_words.set_in_words_thai"
+    },
+    "Purchase Invoice": {
+        "validate": "translation_tools.utils.thai_in_words.set_in_words_thai"
+    },
+    "Delivery Note": {
+        "validate": "translation_tools.utils.thai_in_words.set_in_words_thai"
+    }
+}
+
 
 # Fixtures: export workspace so your link stays after migration/restart
 fixtures = [
