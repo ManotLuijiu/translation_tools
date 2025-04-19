@@ -1,0 +1,86 @@
+{% set font_family = doc.print_font or "Sarabun" %} {% include
+"translation_tools/templates/print_formats/base_pdf.html" with context %}
+
+<h2 class="text-center">ใบสำคัญการลงบัญชี / ACCOUNTING VOUCHER</h2>
+
+<table class="no-border" style="width: 100%; margin-bottom: 20px">
+  <tr>
+    <td class="no-border">
+      <strong>{{ doc.company }}</strong><br />
+      {{ company_address }}<br />
+      <strong>เลขประจำตัวผู้เสียภาษี / Tax ID:</strong> {{ company_tax_id }}
+    </td>
+    <td class="no-border text-right">
+      <strong>Voucher No:</strong> {{ doc.name }}<br />
+      <strong>Date:</strong> {{ frappe.utils.formatdate(doc.posting_date,
+      "dd/MM/yyyy") }}<br />
+      <strong>Reference:</strong> {{ doc.reference_number or "-" }}
+    </td>
+  </tr>
+</table>
+
+<table class="no-border" style="width: 100%; margin-bottom: 20px">
+  <tr>
+    <td class="no-border">
+      <strong>ชื่อเรื่อง / Title:</strong> {{ doc.title or doc.user_remark or
+      "-" }}<br />
+      <strong>คำอธิบาย / Remark:</strong> {{ doc.remark or "-" }}
+    </td>
+  </tr>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th>ลำดับ<br />No.</th>
+      <th>บัญชี<br />Account</th>
+      <th>คำอธิบาย<br />Description</th>
+      <th class="text-right">เดบิต (บาท)<br />Debit (THB)</th>
+      <th class="text-right">เครดิต (บาท)<br />Credit (THB)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for account in doc.accounts %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>
+        {{ account.account }} {% if account.party_type and account.party %}({{
+        account.party_type }}: {{ account.party }}){% endif %}
+      </td>
+      <td>{{ account.user_remark or "-" }}</td>
+      <td class="text-right">{{ account.debit if account.debit else 0 }}</td>
+      <td class="text-right">{{ account.credit if account.credit else 0 }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr>
+      <th colspan="3" class="text-right">รวม / Total</th>
+      <th class="text-right">{{ doc.total_debit }}</th>
+      <th class="text-right">{{ doc.total_credit }}</th>
+    </tr>
+  </tfoot>
+</table>
+
+<p>
+  <strong>จำนวนเงินเป็นตัวอักษร / Amount in words:</strong> {{
+  doc.total_amount_in_words or frappe.utils.money_in_words(doc.total_debit,
+  doc.company_currency) }}
+</p>
+
+<div style="margin-top: 50px; display: flex; justify-content: space-between">
+  <div class="signature text-center" style="width: 30%">
+    <p>.............................................</p>
+    <p>ผู้จัดทำ / Prepared By</p>
+  </div>
+
+  <div class="signature text-center" style="width: 30%">
+    <p>.............................................</p>
+    <p>ผู้ตรวจสอบ / Checked By</p>
+  </div>
+
+  <div class="signature text-center" style="width: 30%">
+    <p>.............................................</p>
+    <p>ผู้อนุมัติ / Approved By</p>
+  </div>
+</div>

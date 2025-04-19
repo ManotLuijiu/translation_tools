@@ -1,0 +1,322 @@
+{% set font_family = doc.print_font or "Sarabun" %} {% include
+"translation_tools/templates/print_formats/base_pdf.html" with context %}
+
+<div class="voucher-container">
+  <!-- Header Section -->
+  <div class="company-header">
+    <h3 class="text-center">{{ doc.company }}</h3>
+  </div>
+
+  <div class="voucher-type-section">
+    <div class="checkbox-group">
+      <div class="checkbox-item">
+        <span class="checkbox"
+          >[ {% if doc.voucher_type == 'Payment Entry' %} ✓ {% else %} &nbsp; {%
+          endif %} ]</span
+        >
+        <span class="label">ใบสำคัญจ่าย</span>
+        <span class="label-en">Payment Voucher</span>
+      </div>
+      <div class="checkbox-item">
+        <span class="checkbox"
+          >[ {% if doc.voucher_type == 'Payment Entry' and doc.payment_type ==
+          'Receive' %} ✓ {% else %} &nbsp; {% endif %} ]</span
+        >
+        <span class="label">ใบสำคัญรับ</span>
+        <span class="label-en">Receipt Voucher</span>
+      </div>
+      <div class="checkbox-item">
+        <span class="checkbox"
+          >[ {% if doc.voucher_type == 'Journal Entry' %} ✓ {% else %} &nbsp; {%
+          endif %} ]</span
+        >
+        <span class="label">ใบสำคัญทั่วไป</span>
+        <span class="label-en">Journal Voucher</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Document Info Section -->
+  <div class="document-info">
+    <table class="info-table">
+      <tr>
+        <td width="15%">จ่ายให้แก่</td>
+        <td width="35%">(Payee) : {{ doc.party_name or '-' }}</td>
+        <td width="15%">เลขที่ใบสำคัญ</td>
+        <td width="35%">(Voucher No.) : {{ doc.name }}</td>
+      </tr>
+      <tr>
+        <td>เลขที่เอกสาร</td>
+        <td>
+          (Document No.) : {{ doc.bill_no or doc.reference_number or '-' }}
+        </td>
+        <td>วันที่เอกสาร</td>
+        <td>
+          (Date) : {{ frappe.utils.formatdate(doc.posting_date, "dd/MM/yyyy") }}
+        </td>
+      </tr>
+      <tr>
+        <td>เลขที่เอกสารเข้าบัญชี</td>
+        <td>(Ref. No.) : {{ doc.name }}</td>
+        <td>วันที่เอกสารเข้าบัญชี</td>
+        <td>
+          (Ref. Date) : {{ frappe.utils.formatdate(doc.posting_date,
+          "dd/MM/yyyy") }}
+        </td>
+      </tr>
+      <tr>
+        <td>รายละเอียด</td>
+        <td colspan="3">
+          (Description) : {{ doc.user_remark or doc.remark or '-' }}
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Accounting Entries -->
+  <div class="accounting-entries">
+    <table class="entries-table">
+      <thead>
+        <tr>
+          <th width="15%">เลขที่บัญชี</th>
+          <th width="30%">ชื่อบัญชี (Account Name)</th>
+          <th width="15%">หน้า</th>
+          <th width="20%">เดบิต</th>
+          <th width="20%">เครดิต</th>
+          <th width="10%">ใบสำคัญ</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for account in doc.accounts %}
+        <tr>
+          <td>{{ account.account.split(" - ")[0] }}</td>
+          <td>
+            {{ account.account.split(" - ")[1] if " - " in account.account else
+            account.account }}
+          </td>
+          <td></td>
+          <td class="text-right">
+            {{ '{:,.2f}'.format(account.debit) if account.debit else '' }}
+          </td>
+          <td class="text-right">
+            {{ '{:,.2f}'.format(account.credit) if account.credit else '' }}
+          </td>
+          <td class="text-center">{{ doc.name.split("-")[1] }}</td>
+        </tr>
+        {% endfor %}
+        <!-- Ensure minimum number of rows for formatting -->
+        {% for i in range(max(0, 5 - doc.accounts|length)) %}
+        <tr class="empty-row">
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2" class="text-right">รวมทั้งสิ้น (Total)</td>
+          <td></td>
+          <td class="text-right">{{ '{:,.2f}'.format(doc.total_debit) }}</td>
+          <td class="text-right">{{ '{:,.2f}'.format(doc.total_credit) }}</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Supplementary Info -->
+  <div class="supplementary-info">
+    <table class="info-table">
+      <tr>
+        <th width="10%">สมุดรายวันที่</th>
+        <th width="15%">เอกสาร</th>
+        <th width="25%">จำนวนเงิน</th>
+        <th width="25%">เลขที่เช็ค/เงินสด</th>
+        <th width="15%">เลขที่บัญชี</th>
+        <th width="10%">วันที่เช็ค</th>
+        <th width="10%">จำนวนเงิน</th>
+      </tr>
+      <tr>
+        <td>{{ doc.name.split("-")[1] }}</td>
+        <td>
+          {{ doc.payment_type or "PAY" if doc.doctype == "Payment Entry" else
+          "JV" }}
+        </td>
+        <td>{{ doc.remark or "" }}</td>
+        <td>{{ doc.reference_no or "" }}</td>
+        <td>
+          {{ doc.paid_from.split(" - ")[0] if hasattr(doc, 'paid_from') else ""
+          }}
+        </td>
+        <td>
+          {{ frappe.utils.formatdate(doc.reference_date, "dd/MM/yyyy") if
+          hasattr(doc, 'reference_date') and doc.reference_date else "" }}
+        </td>
+        <td class="text-right">{{ '{:,.2f}'.format(doc.total_debit) }}</td>
+      </tr>
+      <tr>
+        <td colspan="5" class="text-right">รวมเงิน (Total)</td>
+        <td colspan="2" class="text-right">
+          {{ '{:,.2f}'.format(doc.total_debit) }}
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Signatures Section -->
+  <div class="signatures-section">
+    <table class="signatures-table">
+      <tr>
+        <td width="20%" class="text-center">ผู้จัดทำ (Prepared by)</td>
+        <td width="20%" class="text-center">ผู้ตรวจ (Checked by)</td>
+        <td width="20%" class="text-center">ผู้อนุมัติ (Approved by)</td>
+        <td width="20%" class="text-center">ผู้รับเงิน (Posted by)</td>
+        <td width="20%" class="text-center">ผู้จ่ายเงิน / ผู้รับเงิน</td>
+      </tr>
+      <tr>
+        <td class="signature-line text-center">
+          <img
+            src="/assets/translation_tools/images/signature.png"
+            class="signature-img"
+          />
+        </td>
+        <td class="signature-line"></td>
+        <td class="signature-line"></td>
+        <td class="signature-line"></td>
+        <td class="signature-line"></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Footer Info -->
+  <div class="footer-info">
+    <p>เลขที่ Prepayment: {{ doc.name }}</p>
+    <p>
+      วันที่ Prepayment: {{ frappe.utils.formatdate(doc.posting_date,
+      "dd/MM/yyyy") }}
+    </p>
+  </div>
+</div>
+
+<style>
+  /* Custom styles specific to this voucher */
+  .voucher-container {
+    font-size: 12pt;
+    border: 1px solid #000;
+    padding: 0.5cm;
+    margin: 0;
+  }
+
+  .company-header {
+    margin-bottom: 0.5cm;
+  }
+
+  .voucher-type-section {
+    border-bottom: 1px solid #000;
+    padding-bottom: 0.3cm;
+    margin-bottom: 0.3cm;
+  }
+
+  .checkbox-group {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .checkbox-item {
+    margin-right: 2cm;
+  }
+
+  .checkbox {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #000;
+    text-align: center;
+    line-height: 18px;
+    margin-right: 5px;
+  }
+
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0.5cm;
+  }
+
+  .info-table td {
+    padding: 0.2cm;
+    border: none;
+  }
+
+  .entries-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0.5cm;
+  }
+
+  .entries-table th,
+  .entries-table td {
+    border: 1px solid #000;
+    padding: 0.2cm;
+  }
+
+  .entries-table th {
+    background-color: #f0f0f0;
+  }
+
+  .empty-row td {
+    height: 0.6cm;
+  }
+
+  .signatures-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1cm;
+  }
+
+  .signatures-table td {
+    padding: 0.2cm;
+    border: none;
+    vertical-align: bottom;
+  }
+
+  .signature-line {
+    border-bottom: 1px solid #000;
+    height: 1.5cm;
+  }
+
+  .signature-img {
+    max-height: 1.2cm;
+    margin-bottom: -0.6cm;
+  }
+
+  .footer-info {
+    margin-top: 0.5cm;
+    font-size: 10pt;
+  }
+
+  /* Ensure page breaks don't happen within the header or footer */
+  .voucher-container,
+  .company-header,
+  .voucher-type-section,
+  .document-info,
+  .signatures-section,
+  .footer-info {
+    page-break-inside: avoid;
+  }
+
+  /* Allow page breaks within the accounting entries section if needed */
+  .accounting-entries {
+    page-break-inside: auto;
+  }
+
+  /* New page for extra entries if needed */
+  @media print {
+    .page-break {
+      page-break-before: always;
+    }
+  }
+</style>

@@ -1,70 +1,208 @@
-{% if font_family == "Sarabun" %}
-<style>
-  @font-face {
-    font-family: 'Sarabun';
-    src: url('file:///assets/translation_tools/fonts/Sarabun/Sarabun-Regular.ttf')
-      format('truetype');
-  }
-  body {
-    font-family: 'Sarabun', sans-serif;
-  }
-</style>
-{% elif font_family == "Noto Sans Thai" %}
-<style>
-  @font-face {
-    font-family: 'Noto Sans Thai';
-    src: url('file:///assets/translation_tools/fonts/Noto_Sans_Thai/static/NotoSansThai-Regular.ttf')
-      format('truetype');
-  }
-  body {
-    font-family: 'Noto Sans Thai', sans-serif;
-  }
-</style>
-{% elif font_family == "Kanit" %}
-<style>
-  @font-face {
-    font-family: 'Kanit';
-    src: url('file:///assets/translation_tools/fonts/Kanit/Kanit-Regular.ttf')
-      format('truetype');
-  }
-  body {
-    font-family: 'Kanit', sans-serif;
-  }
-</style>
-{% endif %}
+<!doctype html>
+<html lang="th-TH">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{doc.name}}</title>
+    {% if font_family == "Sarabun" %}
+    <style>
+      @font-face {
+        font-family: 'Sarabun';
+        src: url('/assets/translation_tools/fonts/Sarabun/Sarabun-Regular.ttf')
+          format('truetype');
+      }
+      body {
+        font-family: 'Sarabun', sans-serif;
+      }
+    </style>
+    {% elif font_family == "Noto Sans Thai" %}
+    <style>
+      @font-face {
+        font-family: 'Noto Sans Thai';
+        src: url('/assets/translation_tools/fonts/Noto_Sans_Thai/static/NotoSansThai-Regular.ttf')
+          format('truetype');
+      }
+      body {
+        font-family: 'Noto Sans Thai', sans-serif;
+      }
+    </style>
+    {% elif font_family == "Kanit" %}
+    <style>
+      @font-face {
+        font-family: 'Kanit';
+        src: url('/assets/translation_tools/fonts/Kanit/Kanit-Regular.ttf')
+          format('truetype');
+      }
+      body {
+        font-family: 'Kanit', sans-serif;
+      }
+    </style>
+    {% endif %}
 
-<style>
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-  }
+    <style>
+      body {
+        line-height: 1.5;
+        color: #333;
+        font-size: 12pt;
+      }
 
-  th,
-  td {
-    border: 1px solid #333;
-    padding: 4px;
-    text-align: left;
-  }
+      footer {
+        position: running(footer);
+        text-align: center;
+        font-size: 10pt;
+        color: #666;
+        margin-top: 2cm;
+      }
 
-  .text-right {
-    text-align: right;
-  }
+      @page {
+        size: A4;
+        margin: 2cm;
+        @top-center {
+          content: 'Tax Invoice';
+        }
+        @bottom-center {
+          content: element(footer);
+        }
+        @bottom-right {
+          content: 'Printed on ' attr(data-print-date);
+          font-size: 9pt;
+          color: #666;
+        }
+      }
 
-  .text-center {
-    text-align: center;
-  }
+      /* Document header */
+      .document-header {
+        margin-bottom: 2em;
+      }
 
-  .no-border {
-    border: none;
-  }
+      /* Company logo */
+      .company-logo {
+        max-height: 5cm;
+        max-width: 8cm;
+      }
 
-  .signature {
-    margin-top: 50px;
-  }
+      /* Summary box for totals */
+      .summary-box {
+        border: 1px solid #ddd;
+        padding: 0.5em;
+        margin-top: 1em;
+        background-color: #f8f8f8;
+      }
 
-  h2,
-  h4 {
-    margin-bottom: 0;
-  }
-</style>
+      /* Custom column widths */
+      .col-item-code {
+        width: 15%;
+      }
+      .col-description {
+        width: 45%;
+      }
+      .col-qty {
+        width: 10%;
+      }
+      .col-rate {
+        width: 15%;
+      }
+      .col-amount {
+        width: 15%;
+      }
+
+      /* For watermarks */
+      .watermark {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        font-size: 6em;
+        color: rgba(0, 0, 0, 0.1);
+        z-index: -1;
+      }
+
+      .page-break {
+        page-break-after: always;
+      }
+      .avoid-break {
+        page-break-inside: avoid;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        page-break-inside: auto;
+        margin-bottom: 1em;
+      }
+
+      thead {
+        display: table-header-group;
+      }
+
+      th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+      }
+
+      th,
+      td {
+        border: 1px solid #333;
+        padding: 4px;
+        text-align: left;
+      }
+
+      /* Alternating row colors for better readability */
+      tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+      }
+
+      .text-right {
+        text-align: right;
+      }
+
+      .text-center {
+        text-align: center;
+      }
+
+      .no-border {
+        border: none;
+      }
+
+      .signature {
+        margin-top: 50px;
+      }
+
+      h2,
+      h4 {
+        margin-bottom: 0;
+      }
+
+      .pageNumber:before {
+        content: counter(page);
+      }
+      .totalPages:before {
+        content: counter(pages);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Main content -->
+    {{ content }}
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-content">
+        <p>
+          Page <span class="pageNumber"></span> of
+          <span class="totalPages"></span>
+        </p>
+        <p>Thank you for your business / ขอบคุณที่ใช้บริการ</p>
+        <p>
+          © {{ frappe.utils.now_datetime().year }} {{ doc.company or company }}
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

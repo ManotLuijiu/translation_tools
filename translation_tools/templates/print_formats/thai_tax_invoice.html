@@ -1,0 +1,75 @@
+{% set font_family = doc.print_font or "Sarabun" %} {% include
+"translation_tools/print_formats/base_pdf.html" with context %}
+
+<h2 class="text-center">ใบกำกับภาษี / TAX INVOICE</h2>
+
+<table class="no-border" style="width: 100%; margin-bottom: 20px">
+  <tr>
+    <td class="no-border">
+      <strong>{{ company }}</strong><br />
+      {{ doc.company_address_display or company_address }}<br />
+      <strong>เลขประจำตัวผู้เสียภาษี (Tax ID):</strong> {{ company_tax_id or
+      doc.company_tax_id }}
+    </td>
+    <td class="no-border text-right">
+      <strong>Invoice No:</strong> {{ doc.name }}<br />
+      <strong>Date:</strong> {{ frappe.utils.formatdate(doc.posting_date,
+      "dd/MM/yyyy") }}
+    </td>
+  </tr>
+</table>
+
+<table class="no-border" style="width: 100%; margin-bottom: 20px">
+  <tr>
+    <td class="no-border">
+      <strong>ชื่อลูกค้า / Customer:</strong> {{ doc.customer_name }}<br />
+      <strong>ที่อยู่ / Address:</strong> {{ doc.customer_address_display or
+      doc.customer_address or "-" }}<br />
+      <strong>เลขประจำตัวผู้เสียภาษี / Tax ID:</strong> {{ doc.tax_id or "-" }}
+    </td>
+  </tr>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Description</th>
+      <th class="text-right">Qty</th>
+      <th class="text-right">Rate</th>
+      <th class="text-right">Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in doc.items %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ item.item_name }}</td>
+      <td class="text-right">{{ item.qty }}</td>
+      <td class="text-right">{{ item.rate }}</td>
+      <td class="text-right">{{ item.amount }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p class="text-right">
+  <strong>Subtotal:</strong> {{ doc.net_total | format_currency(doc.currency) }}
+</p>
+<p class="text-right">
+  <strong>VAT ({{ doc.total_taxes_and_charges | float | round(2) }}):</strong>
+  {{ doc.total_taxes_and_charges | format_currency(doc.currency) }}
+</p>
+<p class="text-right">
+  <strong>Grand Total:</strong> {{ doc.grand_total |
+  format_currency(doc.currency) }}
+</p>
+<p>
+  <strong>Amount in words (TH):</strong> {{ doc.in_words or
+  frappe.utils.money_in_words(doc.grand_total, doc.currency) }}
+</p>
+
+<div class="signature text-center">
+  <p>.......................................................</p>
+  <p>Signature / ลายเซ็นผู้มีอำนาจ</p>
+</div>

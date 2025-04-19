@@ -35,6 +35,14 @@
       "options": "Inter\nSarabun\nHelvetica\nArial",
       "default": "Sarabun",
       "insert_after": "font_section"
+    },
+    {
+      "fieldname": "default_font",
+      "fieldtype": "Select",
+      "label": "Default Font",
+      "options": "Sarabun\nNoto Sans Thai\nIBM Plex Thai\nInter\nHelvetica\nArial",
+      "default": "Sarabun",
+      "insert_after": "font_section"
     }
   ]
 }
