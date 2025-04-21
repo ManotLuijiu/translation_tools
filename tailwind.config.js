@@ -4,7 +4,7 @@ module.exports = {
   corePlugins: {
     preflight: false,
   },
-  darkMode: ['class'],
+  darkMode: 'selector',
   prefix: 'tw-',
   content: [
     './translation_tools/public/js/translation_tools/**/*.{js,jsx,ts,tsx,html}',

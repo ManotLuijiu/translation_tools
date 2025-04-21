@@ -1,6 +1,8 @@
 import frappe
+
 # from frappe.modules.import_file import import_doc_from_dict
 from frappe.core.doctype.data_import.data_import import import_doc
+
 
 def create_po_file_doctype():
     """Create PO File DocType if it doesn't exist"""
@@ -17,55 +19,55 @@ def create_po_file_doctype():
                     "label": "File Path",
                     "fieldtype": "Data",
                     "reqd": 1,
-                    "unique": 1
+                    "unique": 1,
                 },
                 {
                     "fieldname": "app_name",
                     "label": "App Name",
                     "fieldtype": "Data",
-                    "reqd": 1
+                    "reqd": 1,
                 },
                 {
                     "fieldname": "filename",
                     "label": "Filename",
                     "fieldtype": "Data",
-                    "reqd": 1
+                    "reqd": 1,
                 },
                 {
                     "fieldname": "language",
                     "label": "Language",
                     "fieldtype": "Data",
-                    "reqd": 1
+                    "reqd": 1,
                 },
                 {
                     "fieldname": "total_entries",
                     "label": "Total Entries",
                     "fieldtype": "Int",
-                    "default": 0
+                    "default": 0,
                 },
                 {
                     "fieldname": "translated_entries",
                     "label": "Translated Entries",
                     "fieldtype": "Int",
-                    "default": 0
+                    "default": 0,
                 },
                 {
                     "fieldname": "translation_status",
                     "label": "Translation Status",
                     "fieldtype": "Percent",
                     "default": 0,
-                    "in_list_view": 1
+                    "in_list_view": 1,
                 },
                 {
                     "fieldname": "last_modified",
                     "label": "Last Modified",
-                    "fieldtype": "Datetime"
+                    "fieldtype": "Datetime",
                 },
                 {
                     "fieldname": "last_scanned",
                     "label": "Last Scanned",
-                    "fieldtype": "Datetime"
-                }
+                    "fieldtype": "Datetime",
+                },
             ],
             "permissions": [
                 {
@@ -73,33 +75,28 @@ def create_po_file_doctype():
                     "read": 1,
                     "write": 1,
                     "create": 1,
-                    "delete": 1
+                    "delete": 1,
                 },
-                {
-                    "role": "All",
-                    "read": 1,
-                    "write": 1,
-                    "create": 1,
-                    "delete": 0
-                }
-            ]
+                {"role": "All", "read": 1, "write": 1, "create": 1, "delete": 0},
+            ],
         }
-        
+
         try:
             frappe.get_doc(po_file_doctype).insert()
-        # doc = import_doc(po_file_doctype)
-        # doc.save()
+            # doc = import_doc(po_file_doctype)
+            # doc.save()
             frappe.db.commit()
             print("Created DocType: PO File")
         except Exception as e:
             frappe.log_error(f"Error creating PO File DocType: {str(e)}")
             frappe.log_error(frappe.get_traceback(), "Error creating PO File")
 
+
 def create_required_doctypes():
     """Create all required DocTypes for the Translation Tools app"""
     # Create PO File DocType
     create_po_file_doctype()
-    
+
     # Create or check for ERPNext Module DocType
     if not frappe.db.exists("DocType", "ERPNext Module"):
         module_doctype = {
@@ -148,10 +145,10 @@ def create_required_doctypes():
         except Exception as e:
             frappe.log_error(f"Error creating ERPNext Module DocType: {str(e)}")
             frappe.log_error(frappe.get_traceback())
-            
+
         # doc = import_doc(module_doctype)
         # doc.save()
-    
+
     # Create or check for Translation Glossary Term DocType
     if not frappe.db.exists("DocType", "Translation Glossary Term"):
         glossary_doctype = {
@@ -225,26 +222,34 @@ def create_required_doctypes():
             frappe.db.commit()  # Always commit after insert in setup scripts
             print("Created DocType: Translation Glossary Term")
         except Exception as e:
-            frappe.log_error(f"Error creating Translation Glossary Term DocType: {str(e)}")
+            frappe.log_error(
+                f"Error creating Translation Glossary Term DocType: {str(e)}"
+            )
             frappe.log_error(frappe.get_traceback())
-            
+
         # doc = import_doc(glossary_doctype)
         # doc.save()
-    
+
     # Create the Translation Settings DocType if it doesn't exist
     from .settings import create_translation_settings_doctype
+
     if not frappe.db.exists("DocType", "Translation Settings"):
         create_translation_settings_doctype()
         print("Created DocType: Translation Settings")
-    
+
     frappe.db.commit()
     print("All required DocTypes have been created successfully.")
 
+
 def setup_translation_tools():
-     """Initial setup for Translation Tools (safe to run during development)"""
+    """Initial setup for Translation Tools (safe to run during development)"""
     import logging
-    from translation_tools.translation_tools.setup.create_doctypes import create_required_doctypes
-    from translation_tools.translation_tools.setup.create_workspace import add_translation_tools_link_to_integrations
+    from translation_tools.translation_tools.setup.create_doctypes import (
+        create_required_doctypes,
+    )
+    from translation_tools.translation_tools.setup.create_workspace import (
+        add_translation_tools_link_to_integrations,
+    )
 
     logger = logging.getLogger("translation_tools_setup")
     logger.info("Setting up Translation Tools...")

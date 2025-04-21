@@ -1,21 +1,85 @@
 {
   "actions": [],
-  "allow_rename": 1,
+  "allow_rename": 0,
   "creation": "2025-04-21 17:26:00.926322",
   "doctype": "DocType",
+  "editable_grid": 1,
   "engine": "InnoDB",
   "field_order": [
+    "api_section",
+    "default_model_provider",
+    "default_model",
+    "openai_api_key",
+    "anthropic_api_key",
+    "translation_settings_section",
+    "batch_size",
+    "temperature",
+    "auto_save",
+    "preserve_formatting",
     "pdf_section",
     "pdf_generation_method",
     "weasyprint_path",
     "pdfmake_section",
-    "custom_fonts",
-    "api_section",
-    "openai_api_key",
-    "anthropic_api_key",
-    "default_model_provider"
+    "custom_fonts"
   ],
   "fields": [
+    {
+      "fieldname": "api_section",
+      "fieldtype": "Section Break",
+      "label": "API Settings"
+    },
+    {
+      "default": "openai",
+      "fieldname": "default_model_provider",
+      "fieldtype": "Select",
+      "label": "Default Model Provider",
+      "options": "openai\nanthropic"
+    },
+    {
+      "default": "gpt-4-1106-preview",
+      "fieldname": "default_model",
+      "fieldtype": "Data",
+      "label": "Default Model"
+    },
+    {
+      "fieldname": "openai_api_key",
+      "fieldtype": "Password",
+      "label": "OpenAI API Key"
+    },
+    {
+      "fieldname": "anthropic_api_key",
+      "fieldtype": "Password",
+      "label": "Anthropic API Key"
+    },
+    {
+      "fieldname": "translation_settings_section",
+      "fieldtype": "Section Break",
+      "label": "Translation Settings"
+    },
+    {
+      "default": "10",
+      "fieldname": "batch_size",
+      "fieldtype": "Int",
+      "label": "Batch Size"
+    },
+    {
+      "default": "0.3",
+      "fieldname": "temperature",
+      "fieldtype": "Float",
+      "label": "Temperature"
+    },
+    {
+      "default": "0",
+      "fieldname": "auto_save",
+      "fieldtype": "Check",
+      "label": "Auto Save"
+    },
+    {
+      "default": "1",
+      "fieldname": "preserve_formatting",
+      "fieldtype": "Check",
+      "label": "Preserve Formatting"
+    },
     {
       "fieldname": "pdf_section",
       "fieldtype": "Section Break",
@@ -45,28 +109,6 @@
       "fieldtype": "Table",
       "label": "Custom Fonts",
       "options": "Translation Settings Custom Font"
-    },
-    {
-      "fieldname": "api_section",
-      "fieldtype": "Section Break",
-      "label": "API Settings"
-    },
-    {
-      "fieldname": "openai_api_key",
-      "fieldtype": "Password",
-      "label": "OpenAI API Key"
-    },
-    {
-      "fieldname": "anthropic_api_key",
-      "fieldtype": "Password",
-      "label": "Anthropic API Key"
-    },
-    {
-      "default": "openai",
-      "fieldname": "default_model_provider",
-      "fieldtype": "Select",
-      "label": "Default Model Provider",
-      "options": "openai\nanthropic"
     }
   ],
   "grid_page_length": 50,

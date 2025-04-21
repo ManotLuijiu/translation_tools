@@ -78,17 +78,41 @@ export function useScanPOFiles(): UseMutationResult<
   void
 > {
   return useMutation({
-    mutationFn: () =>
-      frappe
+    mutationFn: () => {
+      console.log('Starting API call to scan PO files');
+      return frappe
         .call({
           method: 'translation_tools.api.po_files.scan_po_files',
           args: {},
         })
-        .then((r) => r.message.message),
+        .then((r) => {
+          console.log('Raw API response:', r);
+          console.log('Response message:', r.message);
+
+          if (r.message && r.message.message) {
+            console.log('Returning message.message:', r.message.message);
+            return r.message.message;
+          } else if (r.message) {
+            console.log('Returning message directly:', r.message);
+            return r.message;
+          } else {
+            console.error('Response has unexpected structure:', r);
+            return { success: false };
+          }
+        })
+        .catch((error) => {
+          console.error('Error during API call:', error);
+          throw error;
+        });
+    },
     mutationKey: ['scan-po-files'],
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Mutation success data:', data);
       // Invalidate the cached PO files to refresh the list
       queryClient.invalidateQueries({ queryKey: ['po-files'] });
+    },
+    onError: (error) => {
+      console.error('Mutation error:', error);
     },
   });
 }

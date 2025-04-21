@@ -1,6 +1,4 @@
 import frappe
-import logging
-from frappe import _
 
 # Import reorganized functions
 from translation_tools.api.installation import (
@@ -10,6 +8,7 @@ from translation_tools.api.installation import (
     check_dependencies,
     run_setup_script,
     handle_installation_error,
+    generate_po_file,
 )
 from translation_tools.api.components import (
     setup_frappe_components,
@@ -87,6 +86,9 @@ def after_install():
 
         # Final notification to users
         show_success_notification()
+
+        # Generate PO file
+        generate_po_file()
 
     except Exception as e:
         logger.error(f"Installation failed: {str(e)}")

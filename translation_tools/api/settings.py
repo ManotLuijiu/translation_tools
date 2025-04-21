@@ -2,25 +2,22 @@ import os
 import frappe
 import json
 from frappe import _
-from frappe.utils import cint
+from frappe.utils import cint, flt
 from .common import logger, CONFIG_FILE, get_bench_path
 import configparser
+
+
+def cast_to_float(value, default=0.0):
+    """Safely cast a value to float, with a default fallback."""
+    try:
+        return flt(value)
+    except (ValueError, TypeError):
+        return default
 
 
 @frappe.whitelist()
 def get_translation_settings():
     """Get translation settings"""
-    try:
-        temp_value = frappe.db.get_single_value("Translation Settings", "temperature")
-        print("temp_value", temp_value)
-        temperature = (
-            float(temp_value)
-            if isinstance(temp_value, (int, float, str)) and temp_value is not None
-            else 0.3
-        )
-    except (TypeError, ValueError):
-        temperature = 0.3  # Default value if conversion fails
-
     settings = frappe._dict(
         {
             "default_model_provider": "openai",
@@ -39,23 +36,21 @@ def get_translation_settings():
                     or 10
                 )
             ),
-            "temperature": temperature,
+            "temperature": cast_to_float(
+                frappe.db.get_single_value("Translation Settings", "temperature"),
+                default=0.3,
+            ),
             "auto_save": cint(
-                cint(
-                    str(
-                        frappe.db.get_single_value("Translation Settings", "auto_save")
-                        or 0
-                    )
+                str(
+                    frappe.db.get_single_value("Translation Settings", "auto_save") or 0
                 )
             ),
             "preserve_formatting": cint(
-                cint(
-                    str(
-                        frappe.db.get_single_value(
-                            "Translation Settings", "preserve_formatting"
-                        )
-                        or 1
+                str(
+                    frappe.db.get_single_value(
+                        "Translation Settings", "preserve_formatting"
                     )
+                    or 1
                 )
             ),
         }

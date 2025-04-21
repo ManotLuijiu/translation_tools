@@ -1,7 +1,6 @@
 import os
 import frappe
 import logging
-from frappe import _
 from frappe.utils import get_bench_path
 
 # Setup logger
@@ -15,9 +14,14 @@ PO_FILES_CACHE = None
 PO_FILES_CACHE_TIMESTAMP = 0
 CACHE_EXPIRY = 300  # 5 minutes
 
+
 def get_bench_path():
-    """Get the bench directory path"""
-    return os.path.abspath(os.path.join(get_bench_path()))
+    """Get the absolute path to the Frappe bench directory"""
+    # Use frappe's utility function instead of recursively calling this function
+    from frappe.utils import get_bench_path as frappe_get_bench_path
+
+    return frappe_get_bench_path()
+
 
 def _get_translation_config():
     """Get translation configuration from file"""

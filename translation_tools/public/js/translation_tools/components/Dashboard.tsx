@@ -1,4 +1,3 @@
-// @ts-ignore - frappe is a global variable in Frappe/ERPNext
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -49,13 +48,23 @@ export default function Dashboard() {
         });
         setSetupStatus(setupResponse.message);
 
+        console.log('setupResponse:', setupResponse);
+        console.log('setupResponse.message:', setupResponse.message);
+        console.log(
+          'setupResponse.message.complete:',
+          setupResponse.message.complete
+        );
+
         // Load settings if setup is complete
         if (setupResponse.message.complete) {
+          // biome-ignore lint/correctness/noUndeclaredVariables: <explanation>
           const settingsResponse = await frappe.call({
             method: 'translation_tools.api.settings.get_translation_settings',
             args: {},
           });
           setSettingsData(settingsResponse.message);
+          console.log('settingsResponse:', settingsResponse);
+          console.log('settingsResponse.message:', settingsResponse.message);
         }
       } catch (error) {
         console.error('Error checking setup status:', error);
