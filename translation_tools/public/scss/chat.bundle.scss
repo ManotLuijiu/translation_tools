@@ -48,9 +48,10 @@ $height: 582px;
 }
 
 .chat-element {
-  height: $height;
+  height: 100%;
   width: 100%;
   position: relative;
+  font-family: "Sarabun", sans-serif;
   box-shadow:
     0px 2px 6px rgba(17, 43, 66, 0.08),
     0px 1px 4px rgba(17, 43, 66, 0.1);
@@ -63,12 +64,13 @@ $height: 582px;
 .chat-container {
   padding: 0;
   margin: 0;
+  height: 100%;
 }
 
 .chat-bubble {
   cursor: pointer;
-  background: var(--primary-color);
-  color: var(--white);
+  background: var(--cyan-200);
+  color: #000000;
   border-radius: 100px;
   font-weight: bold;
   display: flex;
@@ -171,6 +173,10 @@ $height: 582px;
       }
 
       .chat-profile-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
         margin-left: var(--margin-md);
         margin-right: auto;
         .chat-name {
@@ -224,7 +230,7 @@ $height: 582px;
     }
     .chat-profile-status {
       font-size: $font-size-xs;
-      visibility: hidden;
+      // visibility: hidden;
     }
   }
   .online-circle {
@@ -239,6 +245,7 @@ $height: 582px;
 
 .chat-space {
   height: 100%;
+  font-weight: 200;
   .chat-space-container {
     padding: $padding-chat-lr;
     overflow-wrap: break-word;
@@ -263,6 +270,10 @@ $height: 582px;
         font-size: $font-size-sm;
         border-radius: 13px 13px 13px 0px;
         max-width: 78%;
+      }
+      a {
+        color: var(--white);
+        text-decoration: none;
       }
     }
     .recipient-message {
@@ -325,10 +336,15 @@ $height: 582px;
 }
 
 .chat-form {
+  height: 100%;
   .chat-form-container {
     .chat-query-heading {
       font-size: $font-size-sm;
       color: var(--gray-800);
+    }
+    form {
+      display: flex;
+      flex-direction: column;
     }
     button {
       font-size: $font-size-base;
@@ -345,39 +361,77 @@ $height: 582px;
 }
 
 .chat-welcome {
+  /* Add position: relative for proper child positioning */
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr 1fr; /* Two equal rows */
+  gap: 0.25rem; /* Optional spacing */
+  height: 100%; /* Ensure container has a defined height */
+
   .chat-welcome-header {
-    padding: var(--padding-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px var(--padding-md) 0px var(--padding-md);
     .hero-icon {
       height: 3rem;
-      width: 3rem;
+      width: 100%;
       border-radius: 50%;
-      background: var(--blue-500);
+      background: transparent;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: left;
+      img {
+        width: 3rem;
+        height: 3rem;
+      }
       svg {
         fill: var(--white);
       }
       margin-bottom: var(--margin-md);
     }
     h3 {
+      display: flex;
+      align-items: center;
+      justify-content: left;
       font-size: $font-size-4xl;
       font-weight: normal;
-      margin-bottom: var(--margin-md);
+      margin: 1rem 0 0.5rem 0;
+      padding: 0;
+      width: 100%;
     }
     p {
-      font-size: $font-size-lg;
+      font-size: 1rem;
+      line-height: normal;
+      /* Ensure paragraph is visible */
+      position: relative;
+      z-index: 2; /* Higher than footer */
     }
   }
+
+  .tax-consultant-title {
+    font-family: "Sarabun", sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #2c5282; /* Deep blue color */
+    margin-left: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: rgba(235, 248, 255, 0.8);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
   .chat-welcome-footer {
-    position: absolute;
-    padding: 190px var(--padding-md) 0px var(--padding-md);
-    bottom: 0;
-    width: 100%;
     display: flex;
+    padding: 20px var(--padding-md) 0px var(--padding-md);
+    width: 100%;
     flex-direction: column;
     align-items: center;
     background: var(--cyan-100);
+    z-index: 1; /* Lower than paragraph */
     .status-content {
       width: 100%;
       margin-bottom: 0;
@@ -443,5 +497,42 @@ $height: 582px;
     border-radius: 50%;
     font-size: 9px;
     border: 1px solid var(--red-avatar-color);
+  }
+}
+
+.typing-indicator {
+  .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--gray-600);
+    margin-right: 3px;
+    animation: typing 1.4s infinite ease-in-out both;
+
+    &:nth-child(1) {
+      animation-delay: 0s;
+    }
+    &:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    &:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+  }
+}
+
+@keyframes typing {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
   }
 }

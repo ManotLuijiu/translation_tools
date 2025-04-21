@@ -1,4 +1,5 @@
 import ChatForm from './chat_form';
+import ChatBot from './chat_bot';
 
 export default class ChatWelcome {
   constructor(opts) {
@@ -14,15 +15,14 @@ export default class ChatWelcome {
 
     const welcome_html = `
 			<div class='chat-welcome-header'>
-					<span class='hero-icon'>
-						<svg xmlns="http://www.w3.org/2000/svg" width="1.4rem" height="1.4rem" viewBox="0 0 24 24">
-						<path d="M12 1c-6.627 0-12 4.364-12 9.749 0 3.131 1.817 5.917 4.64 7.7.868 2.167-1.083 4.008-3.142 4.503 2.271.195 6.311-.121 9.374-2.498 7.095.538 13.128-3.997 13.128-9.705 0-5.385-5.373-9.749-12-9.749z"/>
-						</svg>
-					</span>
+					<div class='hero-icon'>
+            <img src="/assets/translation_tools/images/logos/Thai_Business_Suite_Logo.png" alt="MBOne">
+            <span class="tax-consultant-title">${__('Tax Consultant')}</span>
+					</div>
 					<h3>${__('Hi there ! 🙌🏼')}</h3>
 					<p>
-						${__('We make it simple to connect with us.')}
-						${__('Ask us anything, or share your feedback.')}
+						${__('I am AI Tax Consultant, your virtual assistant.')}
+						${__('Ask me anything about your tax and accounting needs.')}
 					</p>
 			</div>
 		`;
@@ -57,11 +57,19 @@ export default class ChatWelcome {
   setup_events() {
     const me = this;
     $('#start-conversation').on('click', function () {
-      me.chat_form = new ChatForm({
-        $wrapper: me.$wrapper,
-        profile: me.profile,
+      import('./chat_bot').then((module) => {
+        const ChatBot = module.default;
+        me.chat_bot = new ChatBot({
+          $wrapper: me.$wrapper,
+          profile: me.profile,
+        });
+        me.chat_bot.render();
       });
-      me.chat_form.render();
+      // me.chat_form = new ChatForm({
+      //   $wrapper: me.$wrapper,
+      //   profile: me.profile,
+      // });
+      // me.chat_form.render();
     });
   }
 

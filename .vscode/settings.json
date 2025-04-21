@@ -1,3 +1,96 @@
 {
-  "cSpell.words": ["polib", "tqdm"]
+  "cSpell.words": ["polib", "tqdm"],
+  "biome.enabled": true,
+  "editor.formatOnSave": true,
+  "editor.wordWrap": "on",
+  "files.autoSave": "onFocusChange",
+  "editor.fontFamily": "Consolas, 'MesloLGS Nerd Font', monospace",
+  "terminal.integrated.fontFamily": "'MesloLGS Nerd Font'",
+  "terminal.integrated.fontSize": 13,
+  "files.associations": {
+    "*.jsx": "javascriptreact",
+    "*.js": "javascript"
+  },
+  "[json]": {
+    "editor.quickSuggestions": {
+      "strings": true
+    },
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.extraPaths": [
+    "../../apps/frappe",
+    "../../apps/erpnext",
+    "../../apps/translation_tools"
+  ],
+  "python.analysis.autoSearchPaths": true,
+  "python.analysis.useLibraryCodeForTypes": true,
+  "python.envFile": "${workspaceFolder}/.env",
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true,
+    "**/.bench/**": true,
+    "**/sites/assets/**": true,
+    "**/sites/private/files/**": true,
+    "**/sites/*/public/**": true,
+    "**/sites/*/private/backups/**": true,
+    "**/sites/*/private/files/**": true,
+    "**/__pycache__/**": true,
+    "**/*.pyc": true,
+    "**/*.log": true,
+    "**/logs/**": true,
+    "**/dist/**": true,
+    ".venv": true,
+    "env": true,
+    "translation_tools/public/js/utils/JsBarcode.all.min.js": true,
+    "translation_tools/public/js/utils/pdfmake.min.js": true,
+    "translation_tools/public/js/utils/vfs_fonts.js": true
+  },
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/.DS_Store": true,
+    "**/.git": false,
+    "**/node_modules": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true,
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/sites/assets/**": true,
+    "translation_tools/public/js/utils/JsBarcode.all.min.js": true,
+    "translation_tools/public/js/utils/pdfmake.min.js": true,
+    "translation_tools/public/js/utils/vfs_fonts.js": true
+  },
+  "postman.settings.dotenv-detection-notification-visibility": false
 }

@@ -12,6 +12,7 @@ def get_translation_settings():
     """Get translation settings"""
     try:
         temp_value = frappe.db.get_single_value("Translation Settings", "temperature")
+        print("temp_value", temp_value)
         temperature = (
             float(temp_value)
             if isinstance(temp_value, (int, float, str)) and temp_value is not None

@@ -6,6 +6,7 @@
     "field_name": "pdf_generator",
     "property": "options",
     "property_type": "Text",
-    "value": "\nWeasyPrint\nwkhtmltopdf"
+    "value": "\nWeasyPrint\nwkhtmltopdf",
+    "name": "Print Format-pdf_generator-options"
   }
 ]

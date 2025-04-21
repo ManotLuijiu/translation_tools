@@ -1,3 +1,4 @@
+// @ts-ignore - frappe is a global variable in Frappe/ERPNext
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -21,7 +22,9 @@ export default function Dashboard() {
   const [settingsData, setSettingsData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // const { data: settingsData } = useGetTranslationSettings();
+  const { data: translationSettingsData } = useGetTranslationSettings();
+
+  console.log('Translation Settings Data:', translationSettingsData);
 
   // Check setup status
   // const { data: setupData, isLoading: isCheckingSetup } = useFrappeGetCall(
@@ -38,6 +41,7 @@ export default function Dashboard() {
     const checkSetup = async () => {
       try {
         // Check setup status
+        // biome-ignore lint/correctness/noUndeclaredVariables: <explanation>
         const setupResponse = await frappe.call({
           method:
             'translation_tools.translation_tools.page.thai_translation_dashboard.thai_translation_dashboard.check_setup_status',

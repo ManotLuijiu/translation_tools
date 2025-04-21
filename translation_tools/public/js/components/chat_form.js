@@ -59,12 +59,12 @@ export default class ChatForm {
 				</form>
 			</div>
 		`;
-    const footer_html = `
-      <a class='chat-footer' target='_blank' href='https://frappeframework.com/'>
-        ${__('⚡ Powered by Frappe')}
-      </a>
-    `;
-    this.$chat_form.append(form_html + footer_html);
+    // const footer_html = `
+    //   <a class='chat-footer' target='_blank' href='https://moo-ai.online/'>
+    //     ${__('⚡ Powered by MooCoding')}
+    //   </a>
+    // `;
+    this.$chat_form.append(form_html);
   }
 
   get_values() {

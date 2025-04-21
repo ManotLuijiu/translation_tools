@@ -30,6 +30,8 @@ modules = {
 
 # Installation
 after_install = [
+    "translation_tools.patches.default.fix_fixtures_import",
+    "translation_tools.patches.default.add_default_font_to_print_settings",
     "translation_tools.install.after_install",
     "translation_tools.setup.install_custom_fields.install_custom_fields",
     "translation_tools.setup.create_doctypes.create_signature_doctype",
@@ -85,10 +87,10 @@ app_include_js = [
     # "/assets/translation_tools/thai_translation_dashboard/index.js",
     "translation_tools.app.bundle.js",
     "/assets/translation_tools/js/translation_tools.client.js",
-    "/assets/translation_tools/js/pdfmake.min.js",
     "/assets/translation_tools/js/vfs_fonts.js",
     "/assets/translation_tools/js/utils/JsBarcode.all.min.js",
     "/assets/translation_tools/js/utils/pdfmake.min.js",
+    "/assets/translation_tools/js/utils/pdfmake.min.js.map",
     "/assets/translation_tools/js/utils/vfs_fonts.js",
     "/assets/translation_tools/js/font_override.js",
     "chat.bundle.js",
@@ -106,8 +108,8 @@ app_include_css = [
 
 web_include_css = [
     "/assets/translation_tools/css/thai_fonts.css",
-    "/assets/translation_tools/css/custom_fonts.css"
-    "/assets/translation_tools/css/custom_print.css"
+    "/assets/translation_tools/css/custom_fonts.css",
+    "/assets/translation_tools/css/custom_print.css",
     "/assets/translation_tools/css/icons.css",
     "chat.bundle.css",
 ]
@@ -176,7 +178,7 @@ doc_events = {
     },
     "Delivery Note": {
         "validate": "translation_tools.utils.thai_in_words.set_in_words_thai"
-    }
+    },
 }
 
 
@@ -184,25 +186,20 @@ doc_events = {
 fixtures = [
     {"dt": "Workspace", "filters": [["name", "=", "Integrations"]]},
     {"dt": "Page", "filters": [["name", "=", "translation-tools"]]},
-    {
-        "dt": "Custom Field",
-        "filters": [
-            ["dt", "in", ["Print Settings", "Company"]]
-        ]
-    },
+    {"dt": "Custom Field", "filters": [["dt", "in", ["Print Settings", "Company"]]]},
     {
         "doctype": "Property Setter",
         "filters": [
             ["doc_type", "=", "Print Format"],
             ["field_name", "=", "pdf_generator"],
-            ["property", "=", "options"]
-        ]
-    }
+            ["property", "=", "options"],
+        ],
+    },
 ]
 
 doctype_js = {
     #  "Print Format": "public/js/print_format.js"
-     "Print Format": "/assets/translation_tools/js/print_format.js"
+    "Print Format": "/assets/translation_tools/js/print_format.js"
 }
 
 sounds = [
