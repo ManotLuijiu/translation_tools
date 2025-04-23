@@ -109,6 +109,41 @@
       "fieldtype": "Table",
       "label": "Custom Fonts",
       "options": "Translation Settings Custom Font"
+    },
+    {
+      "fieldname": "github_section",
+      "fieldtype": "Section Break",
+      "label": "GitHub Integration"
+    },
+    {
+      "fieldname": "enable_github",
+      "fieldtype": "Check",
+      "label": "Enable GitHub Integration",
+      "default": 0
+    },
+    {
+      "fieldname": "repo_url",
+      "fieldtype": "Data",
+      "label": "Repository URL",
+      "default": "https://github.com/ManotLuijiu/erpnext-thai-translation.git",
+      "depends_on": "eval:doc.enable_github==1"
+    },
+    {
+      "fieldname": "github_token",
+      "fieldtype": "Password",
+      "label": "GitHub Personal Access Token (Classic)",
+      "description": "Create a token with 'repo' scope at https://github.com/settings/tokens",
+      "depends_on": "eval:doc.enable_github==1"
+    },
+    {
+      "fieldname": "help_section",
+      "fieldtype": "Section Break",
+      "label": "Help"
+    },
+    {
+      "fieldname": "help_html",
+      "fieldtype": "HTML",
+      "options": "<p>The GitHub integration allows translations to be automatically shared to a central repository.</p><p>To set up GitHub integration:</p><ol><li>Create a GitHub account if you don't have one</li><li>Create a Personal Access Token (Classic) at <a href='https://github.com/settings/tokens' target='_blank'>GitHub Settings</a></li><li>Give it the 'repo' permission</li><li>Copy the token and paste it above</li></ol>"
     }
   ],
   "grid_page_length": 50,

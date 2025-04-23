@@ -1,4 +1,5 @@
 import { useFrappeGetCall, useFrappePostCall } from 'frappe-react-sdk'
+// import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export type GlossaryTerm = {
   name: string
@@ -20,10 +21,9 @@ export type ERPNextModule = {
  * Update category for term
  */
 export function useUpdateGlossaryTermCategories() {
-  return useFrappePostCall<{
-    success: boolean
-    message: string
-  }>('translation_tools.api.glossary.update_glossary_term_categories')
+  return useFrappePostCall<{ success: boolean; message: string }>(
+    'translation_tools.api.glossary.update_glossary_term_categories',
+  )
 }
 
 /**
@@ -83,7 +83,7 @@ export function useDeleteGlossaryTerm() {
  * Get all ERPNext modules
  */
 export function useGetERPNextModules() {
-  return useFrappeGetCall<{ message: ERPNextModule[] }>(
+  return useFrappeGetCall(
     'translation_tools.api.glossary.get_erpnext_modules',
     {},
   )

@@ -8,32 +8,32 @@ msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
 "POT-Creation-Date: 2025-04-06 13:21+0642\n"
-"PO-Revision-Date: 2025-04-06 13:21+0642\n"
+"PO-Revision-Date: 2025-04-23 22:27\n"
 "Last-Translator: moocoding@gmail.com\n"
-"Language: th\n"
 "Language-Team: moocoding@gmail.com\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Language: th\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.13.1\n"
 
 #. Name of a role
 #: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "All"
-msgstr ""
+msgstr "ทั้งหมด"
 
 #. Option for the 'Category' (Select) field in DocType 'Translation Glossary
 #. Term'
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Business"
-msgstr ""
+msgstr "ธุรกิจ"
 
 #. Label of a Select field in DocType 'Translation Glossary Term'
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Category"
-msgstr ""
+msgstr "หมวดหมู่"
 
 #. Label of a Small Text field in DocType 'Translation Glossary Term'
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
@@ -134,4 +134,3 @@ msgstr ""
 #: translation_tools/translation_tools/page/thai_translation_das/thai_translation_das.js:4
 msgid "thai-translation-dashboard"
 msgstr ""
-

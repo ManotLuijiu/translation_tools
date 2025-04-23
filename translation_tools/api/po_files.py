@@ -5,6 +5,9 @@ import logging
 from frappe import _
 from datetime import datetime
 from functools import wraps
+import tempfile
+import subprocess
+import shutil
 
 import frappe.utils
 from .common import get_bench_path
@@ -88,7 +91,7 @@ def enhanced_error_handler(func):
                 "details": str(e),
             }
         except Exception as e:
-            logger.exception(f"Unexpected error in {func.__name__}")
+            logger.exception(f"Unexpected error in {func.__name__} {e}")
             return {
                 "success": False,
                 "error": "Internal server error",
@@ -358,7 +361,7 @@ def process_po_file(file_path, apps_path):
             "file_path": file_path,
         }
     except Exception as e:
-        logger.error(f"Error processing {file_path}", exc_info=True)
+        logger.error(f"Error processing {file_path} {e}", exc_info=True)
         return None
 
 
@@ -606,18 +609,44 @@ def get_po_file_contents(file_path, limit=100, offset=0):
 
 @frappe.whitelist()
 @enhanced_error_handler
-def save_translation(file_path, entry_id, translation):
-    """Save a single translation"""
-    validate_file_path(file_path)
+def save_translation(file_path, entry_id, translation, push_to_github=False):
+    """
+    Save a single translation to local file and optionally push to Github
+    Args:
+        file_path (str): Path to the PO file (standardized format)
+        entry_id (int): Index of the entry to translate
+        translation (str): The translated text
+        push_to_github (bool): Whether to also push to GitHub
+    """
 
-    if not os.path.exists(file_path):
-        logger.error(f"File not found: {file_path}")
-        frappe.throw(_("File not found: {0}").format(file_path))
+    loggerJson.info("Start save translation")
+    original_path = file_path
+    resolved_path = validate_file_path(file_path)
+
+    logger.info(f"resolved_path: {resolved_path}")
+    print(f"resolved_path {resolved_path}")
+    print(f"Original file path: {file_path}")
+    print(f"Resolved file path: {resolved_path}")
+
+    loggerJson.debug(validate_file_path)
+    logger.debug(f"validate_file_path {validate_file_path}")
+    logger.debug(f"translation {translation}")
+    logger.debug(f"entry_id {entry_id}")
+    logger.debug(f"validate_file_path {validate_file_path}")
+
+    print(f"file_path: {file_path}")
+    print(f"entry_id: {entry_id}")
+    print(f"translation: {translation}")
+    print(f"validate_file_path {validate_file_path}")
+
+    if not os.path.exists(resolved_path):
+        logger.error(f"File not found: {resolved_path}")
+        frappe.throw(_("File not found: {0}").format(resolved_path))
 
     try:
-        logger.info(f"Saving translation for entry {entry_id} in {file_path}")
+        logger.info(f"Saving translation for entry {entry_id} in {resolved_path}")
         # Load the PO file
-        po = polib.pofile(file_path)
+        po = polib.pofile(resolved_path)
 
         # Find the entry by ID (index)
         index = int(entry_id)
@@ -640,16 +669,25 @@ def save_translation(file_path, entry_id, translation):
         po.metadata["PO-Revision-Date"] = datetime.now().strftime("%Y-%m-%d %H:%M%z")
 
         # Save the file
-        po.save(file_path)
+        po.save(resolved_path)
+        logger.info(
+            f"Successfully saved translation for entry {entry_id} to local file"
+        )
 
         # Update database if needed
+        print(f"Access database {original_path}")
         if was_untranslated and translation:
-            if frappe.db.exists("PO File", {"file_path": file_path}):
+            if frappe.db.exists("PO File", {"original_path": original_path}):
                 file_name = frappe.get_value(
-                    "PO File", {"file_path": file_path}, "name"
+                    "PO File", {"original_path": original_path}, "name"
                 )
+
+                print(f"file_name in DB: {file_name}")
                 if file_name:
                     file_doc = frappe.get_doc("PO File", str(file_name))
+
+                    print(f"file_doc in DB: {file_doc}")
+                    print(f"file_doc.name in DB: {file_doc.name}")
                     translated_entries = (
                         frappe.db.get_value(
                             "PO File", file_doc.name, "translated_entries"
@@ -701,10 +739,17 @@ def save_translation(file_path, entry_id, translation):
                     frappe.db.set_value(
                         "PO File", file_doc.name, "last_modified", frappe.utils.now()
                     )
-                    logger.debug(f"Updated database record for {file_path}")
+                    logger.debug(f"Updated database record for {original_path}")
+
+        # Push to Github if requested
+        github_result = {"github_pushed": False}
+        if push_to_github:
+            github_result = push_translation_to_github(file_path, entry, translation)
 
         logger.info(f"Successfully saved translation for entry {entry_id}")
-        return {"success": True}
+        result = {"success": True, "github": github_result}
+        return result
+
     except Exception as e:
         logger.exception(
             f"Error saving translation for entry {entry_id}", exc_info=True
@@ -713,27 +758,250 @@ def save_translation(file_path, entry_id, translation):
         raise
 
 
+def push_translation_to_github(file_path, entry, translation):
+    """
+    Push a translation to GitHub
+
+    Args:
+        file_path (str): Path to the PO file (standardized format)
+        entry (polib.POEntry): The PO entry being translated
+        translation (str): The translated text
+    """
+    # GitHub repo details - get from settings or use default
+
+    settings = (
+        frappe.get_single("Translation Settings")
+        if frappe.db.exists("DocType", "Translation Settings")
+        else None
+    )
+    repo_url = (
+        settings.repo_url  # type: ignore
+        if settings
+        else "https://github.com/ManotLuijiu/erpnext-thai-translation.git"
+    )
+
+    try:
+        # Extract app name, language from file_path
+        parts = file_path.split("/")
+        app_name = parts[1] if len(parts) > 1 else "unknown"
+        language = os.path.basename(file_path).split(".")[0]
+
+        print(f"parts github: {parts}")
+        print(f"app_name github: {app_name}")
+        print(f"language github: {language}")
+
+        # Create a temporary directory for the repo
+        with tempfile.TemporaryDirectory() as temp_dir:
+            logger.info(f"Cloning GitHub repository: {repo_url}")
+
+            # Configure Git authentication
+            github_token = getattr(settings, "github_token", None) if settings else None
+            if github_token:
+                clone_url = f"https://{github_token}@github.com/ManotLuijiu/erpnext-thai-translation.git"
+            else:
+                clone_url = repo_url
+
+            # Clone the repo
+            try:
+                subprocess.run(
+                    ["git", "clone", clone_url, temp_dir],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+            except subprocess.CalledProcessError as e:
+                logger.error(f"Git clone failed: {e.stderr}")
+                return {
+                    "github_pushed": False,
+                    "error": f"Failed to clone repository: {e.stderr}",
+                }
+
+            # Construct path in the repo
+            repo_po_path = os.path.join(temp_dir, app_name, f"{language}.po")
+
+            # Create directories if they don't exist
+            os.makedirs(os.path.dirname(repo_po_path), exist_ok=True)
+
+            # Convert standardized path to absolute path
+            abs_file_path = os.path.join(frappe.get_site_path("../.."), file_path)
+
+            # Check if file exists in repo, if not copy from local
+            if not os.path.exists(repo_po_path):
+                logger.info(f"Creating new PO file in repository: {repo_po_path}")
+                # Copy the local file to the repo
+                if os.path.exists(abs_file_path):
+                    shutil.copy(abs_file_path, repo_po_path)
+                else:
+                    logger.error(f"Local file not found: {abs_file_path}")
+                    return {"github_pushed": False, "error": "Local file not found"}
+            else:
+                # Load existing repo file and update just the one entry
+                logger.info(f"Updating existing PO file in repository: {repo_po_path}")
+                repo_po = polib.pofile(repo_po_path)
+
+                # Find matching entry in repo file
+                found = False
+                for repo_entry in repo_po:
+                    if repo_entry.msgid == entry.msgid:
+                        repo_entry.msgstr = translation
+                        found = True
+                        break
+
+                if not found:
+                    # If entry doesn't exist in repo file, copy the whole file
+                    shutil.copy(abs_file_path, repo_po_path)
+                else:
+                    # Save the updated repo file
+                    repo_po.metadata["PO-Revision-Date"] = datetime.now().strftime(
+                        "%Y-%m-%d %H:%M%z"
+                    )
+                    repo_po.metadata["Last-Translator"] = (
+                        frappe.session.user or "Unknown"
+                    )
+                    repo_po.save(repo_po_path)
+
+            # Commit and push the changes
+            try:
+                # Configure Git user
+                subprocess.run(
+                    [
+                        "git",
+                        "config",
+                        "user.email",
+                        frappe.session.user or "unknown@example.com",
+                    ],
+                    cwd=temp_dir,
+                    check=True,
+                    capture_output=True,
+                )
+
+                user_name = (
+                    frappe.db.get_value("User", frappe.session.user, "full_name")
+                    or frappe.session.user
+                )
+                subprocess.run(
+                    ["git", "config", "user.name", str(user_name)],
+                    cwd=temp_dir,
+                    check=True,
+                    capture_output=True,
+                )
+
+                # Add, commit
+                subprocess.run(
+                    ["git", "add", repo_po_path],
+                    cwd=temp_dir,
+                    check=True,
+                    capture_output=True,
+                )
+
+                # Prepare commit message - truncate if needed
+                msg_id = (
+                    entry.msgid[:50] + "..." if len(entry.msgid) > 50 else entry.msgid
+                )
+                commit_message = (
+                    f"Update translation for {app_name}/{language}: {msg_id}"
+                )
+
+                subprocess.run(
+                    ["git", "commit", "-m", commit_message],
+                    cwd=temp_dir,
+                    check=True,
+                    capture_output=True,
+                )
+
+                # Push changes
+                if github_token:
+                    push_url = f"https://{github_token}@github.com/ManotLuijiu/erpnext-thai-translation.git"
+                    subprocess.run(
+                        ["git", "push", push_url],
+                        cwd=temp_dir,
+                        check=True,
+                        capture_output=True,
+                    )
+                else:
+                    subprocess.run(
+                        ["git", "push"], cwd=temp_dir, check=True, capture_output=True
+                    )
+
+                logger.info(f"Successfully pushed translation to GitHub {file_path}")
+                return {
+                    "github_pushed": True,
+                    "message": _("Translation pushed to GitHub successfully"),
+                }
+
+            except subprocess.CalledProcessError as e:
+                logger.error(f"Git error: {e.stderr}")
+                return {
+                    "github_pushed": False,
+                    "error": f"Git operation failed: {e.stderr}",
+                }
+
+    except Exception as e:
+        logger.exception(f"Error pushing to GitHub: {str(e)}")
+        return {"github_pushed": False, "error": str(e)}
+
+
+@frappe.whitelist()
+@enhanced_error_handler
+def save_github_token(token):
+    """Save GitHub token to Translation Settings"""
+    if not frappe.has_permission("Translation Settings", "write"):
+        frappe.throw(_("Not permitted"), frappe.PermissionError)
+
+    # Create the doctype if it doesn't exist
+    if not frappe.db.exists("DocType", "Translation Settings"):
+        # Create doctype first
+        frappe.throw(
+            _(
+                "Translation Settings doctype does not exist. Please contact administrator."
+            )
+        )
+
+    # Get or create the settings document
+    if not frappe.db.exists("Translation Settings", "Translation Settings"):
+        settings = frappe.new_doc("Translation Settings")
+        settings.repo_url = (  # type: ignore
+            "https://github.com/ManotLuijiu/erpnext-thai-translation.git"  # type: ignore
+        )
+        settings.enable_github = 1  # type: ignore
+    else:
+        settings = frappe.get_doc("Translation Settings", "Translation Settings")
+        settings.enable_github = 1  # type: ignore
+
+    # Update the token
+    settings.github_token = token  # type: ignore
+    settings.save()
+
+    return {"success": True}
+
+
 @frappe.whitelist()
 @enhanced_error_handler
 def save_translations(file_path, translations):
     """Save multiple translations at once"""
-    validate_file_path(file_path)
+    resolved_path = validate_file_path(file_path)
 
-    if not os.path.exists(file_path) or not file_path.endswith(".po"):
-        logger.error(f"Invalid PO file path: {file_path}")
+    logger.info(f"resolved_path: {resolved_path}")
+    print(f"resolved_path ${resolved_path}")
+
+    if not os.path.exists(resolved_path) or not file_path.endswith(".po"):
+        logger.error(f"Invalid PO file path: {resolved_path}")
         return {"error": "Invalid PO file path"}
 
     try:
-        logger.info(f"Saving translations to {file_path}")
+        logger.info(f"Saving translations to {resolved_path}")
 
         # Load the PO file
-        po = polib.pofile(file_path)
+        po = polib.pofile(resolved_path)
         updated_count = 0
 
         # Update entries
         for translation in translations:
             msgid = translation.get("msgid")
             msgstr = translation.get("msgstr")
+
+            print(f"msgid: {msgid}")
+            print(f"msgstr: {msgstr}")
 
             if not msgid or not msgstr:
                 continue
@@ -749,7 +1017,7 @@ def save_translations(file_path, translations):
         po.metadata["PO-Revision-Date"] = datetime.now().strftime("%Y-%m-%d %H:%M%z")
 
         # Save the file
-        po.save(file_path)
+        po.save(resolved_path)
 
         logger.info(f"Successfully saved {updated_count} translations")
         return {"success": True, "message": f"Updated {updated_count} translations"}

@@ -111,9 +111,22 @@ export function useGetPOFileContents(
  * Save a translation to a PO file
  */
 export function useSaveTranslation() {
-  return useFrappePostCall<{ success: boolean }>(
-    'translation_tools.api.po_files.save_translation',
-  )
+  return useFrappePostCall<{
+    success: boolean
+    message: string
+    error: string
+  }>('translation_tools.api.po_files.save_translation')
+}
+
+/**
+ * Save a github token
+ */
+export function useSaveGithubToken() {
+  return useFrappePostCall<{
+    success: boolean
+    message: string
+    error: string
+  }>('translation_tools.api.po_files.save_github_token')
 }
 
 /**
