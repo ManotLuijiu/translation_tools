@@ -1,0 +1,46 @@
+GLOSSARY = {
+    # Basic business terms
+    "Invoice": "ใบแจ้งหนี้",
+    "Sales Invoice": "ใบแจ้งหนี้ขาย",
+    "Purchase Invoice": "ใบแจ้งหนี้ซื้อ",
+    "Quotation": "ใบเสนอราคา",
+    "Customer": "ลูกค้า",
+    "Supplier": "ผู้จัดจำหน่าย",
+    "Item": "สินค้า",
+    "Account": "บัญชี",
+    "Journal Entry": "บันทึกทางบัญชี",
+    "Payment": "การชำระเงิน",
+    "Purchase Order": "ใบสั่งซื้อ",
+    "Sales Order": "ใบสั่งขาย",
+    "Delivery Note": "ใบส่งสินค้า",
+    "Receipt": "ใบเสร็จรับเงิน",
+    # Common ERPNext modules
+    "Accounting": "การบัญชี",
+    "Human Resources": "ทรัพยากรบุคคล",
+    "Manufacturing": "การผลิต",
+    "Buying": "การซื้อ",
+    "Selling": "การขาย",
+    "Stock": "คลังสินค้า",
+    "Assets": "สินทรัพย์",
+    "Projects": "โครงการ",
+    "CRM": "การบริหารลูกค้าสัมพันธ์",
+    # Tax-related terms
+    "VAT": "ภาษีมูลค่าเพิ่ม",
+    "Tax": "ภาษี",
+    "Withholding Tax": "ภาษีหัก ณ ที่จ่าย",
+    "Tax Invoice": "ใบกำกับภาษี",
+    # Date/Time terms
+    "Date": "วันที่",
+    "Time": "เวลา",
+    "Year": "ปี",
+    "Month": "เดือน",
+    "Day": "วัน",
+    # Status terms
+    "Pending": "รอดำเนินการ",
+    "Completed": "เสร็จสิ้น",
+    "Cancelled": "ยกเลิก",
+    "Draft": "ฉบับร่าง",
+    "Submitted": "ส่งแล้ว",
+    "Paid": "ชำระแล้ว",
+    # Add more terms as needed
+}

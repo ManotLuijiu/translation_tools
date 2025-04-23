@@ -8,17 +8,37 @@ from functools import wraps
 
 import frappe.utils
 from .common import get_bench_path
+from translation_tools.utils.json_logger import get_json_logger
 
 # Configure logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+LOG_DIR = os.path.join(get_bench_path(), "logs", "translation_tools")
+os.makedirs(LOG_DIR, exist_ok=True)
 
-# Create console handler with formatting
-ch = logging.StreamHandler()
-ch.setFormatter(
-    logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-)
-logger.addHandler(ch)
+LOG_FILE = os.path.join(LOG_DIR, "po_file_debug.log")
+
+logger = logging.getLogger("translation_tools.po_files")
+loggerJson = get_json_logger()
+
+# Avoid adding handlers multiple times
+if not logger.handlers:
+    logger.setLevel(logging.DEBUG)
+
+    # File handler
+    file_handler = logging.FileHandler(LOG_FILE)
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    )
+
+    logger.addHandler(file_handler)
+
+    # Create console handler with formatting
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    ch.setFormatter(
+        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    )
+    logger.addHandler(ch)
 
 # Global flag for recursion protection
 SCAN_IN_PROGRESS = False
@@ -29,9 +49,24 @@ BATCH_SIZE = 50  # Number of files to process before commit
 def validate_file_path(path):
     """Ensure path is within bench directory"""
     bench_path = get_bench_path()
-    if not os.path.abspath(path).startswith(os.path.abspath(bench_path)):
+    loggerJson.info(f"Starting validate_file_path({path})")
+
+    print(f"Bench path: {bench_path}")
+    print(f"Incoming path: {path}")
+    # Always join with bench_path, don't trust incoming `path`
+    full_path = os.path.abspath(os.path.join(bench_path, path))
+    loggerJson.info(f"Full Path: {full_path}")
+
+    print(f"Full path: {full_path}")
+
+    if not full_path.startswith(os.path.abspath(bench_path)):
+        loggerJson.info(f"os.path.abspath: {os.path.abspath(bench_path)}")
+        loggerJson.info(f"os.path: {os.path}")
         logger.warning(f"Attempt to access path outside bench: {path}")
         raise frappe.PermissionError("Access denied")
+
+    # return os.path.abspath(path)
+    return full_path
 
 
 def enhanced_error_handler(func):
@@ -445,12 +480,12 @@ def get_po_file_entries(file_path):
     print(f"Resolved file path: {resolved_path}")
 
     if not os.path.exists(resolved_path):
-        logger.error(f"File not found: {resolved_path}")
+        logger.error(f"File not found: {resolved_path} file_path {file_path}")
         frappe.throw(_("File not found: {0}").format(resolved_path))
 
     try:
-        logger.info(f"Reading PO file entries: {file_path}")
-        po = polib.pofile(file_path)
+        logger.info(f"Reading PO file entries: {resolved_path}")
+        po = polib.pofile(resolved_path)
 
         # Get file metadata
         metadata = {
@@ -495,7 +530,7 @@ def get_po_file_entries(file_path):
             },
         }
     except Exception as e:
-        logger.exception(f"Error parsing PO file: {file_path}", exc_info=True)
+        logger.exception(f"Error parsing PO file: {file_path} {str(e)}", exc_info=True)
         raise
 
 

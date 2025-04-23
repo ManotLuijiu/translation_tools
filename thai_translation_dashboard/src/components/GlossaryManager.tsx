@@ -1,19 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useState, useEffect } from 'react';
 import {
   useGetGlossaryTerms,
   useAddGlossaryTerm,
   useUpdateGlossaryTerm,
   useDeleteGlossaryTerm,
   useGetERPNextModules,
-  GlossaryTerm,
-} from "../api";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+  useCleanDuplicateGlossaryTerms,
+  useUpdateGlossaryTermCategories,
+} from '../api';
+import type { GlossaryTerm as GlossaryTermType } from '../api';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -21,14 +23,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -37,7 +39,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,7 +49,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 import {
   Loader2,
   Plus,
@@ -56,25 +58,28 @@ import {
   Trash,
   Pencil,
   AlertCircle,
-} from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+  TagIcon,
+} from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function GlossaryManager() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedTerm, setSelectedTerm] = useState<GlossaryTerm | null>(null);
-  const [formData, setFormData] = useState<Partial<GlossaryTerm>>({
-    source_term: "",
-    thai_translation: "",
-    context: "",
-    category: "",
-    module: "",
+  const [selectedTerm, setSelectedTerm] = useState<GlossaryTermType | null>(
+    null
+  );
+  const [formData, setFormData] = useState<Partial<GlossaryTermType>>({
+    source_term: '',
+    thai_translation: '',
+    context: '',
+    category: '',
+    module: '',
     is_approved: false,
   });
   const [statusMessage, setStatusMessage] = useState<{
-    type: "success" | "error";
+    type: 'success' | 'error';
     message: string;
   } | null>(null);
 
@@ -85,13 +90,24 @@ export default function GlossaryManager() {
     isLoading: isLoadingTerms,
     mutate: refreshTerms,
   } = useGetGlossaryTerms();
+
+  console.log('termsData', termsData);
+
   const { data: modulesData, isLoading: isLoadingModules } =
     useGetERPNextModules();
 
-  console.log("isLoadingModules", isLoadingModules);
+  console.log('isLoadingModules', isLoadingModules);
   const addTerm = useAddGlossaryTerm();
   const updateTerm = useUpdateGlossaryTerm();
   const deleteTerm = useDeleteGlossaryTerm();
+  const cleanDuplicates = useCleanDuplicateGlossaryTerms();
+  const updateCategories = useUpdateGlossaryTermCategories();
+
+  // Fetch glossary at component mount
+  useEffect(() => {
+    // Trigger a refresh of the glossary terms data when the component mounts
+    refreshTerms();
+  }, [refreshTerms]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -112,17 +128,17 @@ export default function GlossaryManager() {
 
   const resetForm = () => {
     setFormData({
-      source_term: "",
-      thai_translation: "",
-      context: "",
-      category: "",
-      module: "",
+      source_term: '',
+      thai_translation: '',
+      context: '',
+      category: '',
+      module: '',
       is_approved: false,
     });
     setSelectedTerm(null);
   };
 
-  const openEditDialog = (term: GlossaryTerm) => {
+  const openEditDialog = (term: GlossaryTermType) => {
     setSelectedTerm(term);
     setFormData({
       source_term: term.source_term,
@@ -135,7 +151,7 @@ export default function GlossaryManager() {
     setIsEditDialogOpen(true);
   };
 
-  const openDeleteDialog = (term: GlossaryTerm) => {
+  const openDeleteDialog = (term: GlossaryTermType) => {
     setSelectedTerm(term);
     setIsDeleteDialogOpen(true);
   };
@@ -144,8 +160,8 @@ export default function GlossaryManager() {
     try {
       if (!formData.source_term || !formData.thai_translation) {
         setStatusMessage({
-          type: "error",
-          message: "Source term and Thai translation are required",
+          type: 'error',
+          message: 'Source term and Thai translation are required',
         });
         return;
       }
@@ -154,22 +170,24 @@ export default function GlossaryManager() {
 
       if (result.success) {
         setStatusMessage({
-          type: "success",
-          message: "Term added successfully",
+          type: 'success',
+          message: 'Term added successfully',
         });
         resetForm();
         setIsAddDialogOpen(false);
         refreshTerms();
       } else {
         setStatusMessage({
-          type: "error",
-          message: "Failed to add term",
+          type: 'error',
+          message: 'Failed to add term',
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'An error occurred';
       setStatusMessage({
-        type: "error",
-        message: err.message || "An error occurred",
+        type: 'error',
+        message: errorMessage,
       });
     }
   };
@@ -182,8 +200,8 @@ export default function GlossaryManager() {
         !formData.thai_translation
       ) {
         setStatusMessage({
-          type: "error",
-          message: "Source term and Thai translation are required",
+          type: 'error',
+          message: 'Source term and Thai translation are required',
         });
         return;
       }
@@ -195,22 +213,24 @@ export default function GlossaryManager() {
 
       if (result.success) {
         setStatusMessage({
-          type: "success",
-          message: "Term updated successfully",
+          type: 'success',
+          message: 'Term updated successfully',
         });
         resetForm();
         setIsEditDialogOpen(false);
         refreshTerms();
       } else {
         setStatusMessage({
-          type: "error",
-          message: "Failed to update term",
+          type: 'error',
+          message: 'Failed to update term',
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'An error occurred';
       setStatusMessage({
-        type: "error",
-        message: err.message || "An error occurred",
+        type: 'error',
+        message: errorMessage,
       });
     }
   };
@@ -225,22 +245,69 @@ export default function GlossaryManager() {
 
       if (result.success) {
         setStatusMessage({
-          type: "success",
-          message: "Term deleted successfully",
+          type: 'success',
+          message: 'Term deleted successfully',
         });
         resetForm();
         setIsDeleteDialogOpen(false);
         refreshTerms();
       } else {
         setStatusMessage({
-          type: "error",
-          message: "Failed to delete term",
+          type: 'error',
+          message: 'Failed to delete term',
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'An error occurred';
       setStatusMessage({
-        type: "error",
-        message: err.message || "An error occurred",
+        type: 'error',
+        message: errorMessage,
+      });
+    }
+  };
+
+  const handleCleanupDuplicates = async () => {
+    try {
+      const result = await cleanDuplicates.call({});
+
+      if (result.message.success) {
+        // Show success message
+        setStatusMessage({
+          type: 'success',
+          message: result.message.message,
+        });
+
+        // Refresh the glossary terms
+        refreshTerms();
+      }
+    } catch {
+      setStatusMessage({
+        type: 'error',
+        message: 'Failed to clean up duplicates',
+      });
+    }
+  };
+
+  const handleUpdateCategories = async () => {
+    console.log('clicked');
+    try {
+      const result = await updateCategories.call({});
+
+      console.log('result', result);
+
+      if (result?.success) {
+        setStatusMessage({
+          type: 'success',
+          message: result.message,
+        });
+
+        refreshTerms();
+      }
+    } catch (err) {
+      setStatusMessage({
+        type: 'error',
+        message: `Failed to update categories ${err}`,
       });
     }
   };
@@ -257,167 +324,206 @@ export default function GlossaryManager() {
     }) || [];
 
   const categories = [
-    { value: "Business", label: "Business" },
-    { value: "Technical", label: "Technical" },
-    { value: "UI", label: "UI" },
-    { value: "Date/Time", label: "Date/Time" },
-    { value: "Status", label: "Status" },
+    { value: 'Business', label: 'Business' },
+    { value: 'Technical', label: 'Technical' },
+    { value: 'UI', label: 'UI' },
+    { value: 'Date/Time', label: 'Date/Time' },
+    { value: 'Status', label: 'Status' },
   ];
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Translation Glossary</h2>
 
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Term
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Glossary Term</DialogTitle>
-              <DialogDescription>
-                Add a new term to the translation glossary.
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="source_term">English Term *</Label>
-                  <Input
-                    id="source_term"
-                    name="source_term"
-                    value={formData.source_term || ""}
-                    onChange={handleInputChange}
-                    placeholder="Enter source term"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="thai_translation">Thai Translation *</Label>
-                  <Input
-                    id="thai_translation"
-                    name="thai_translation"
-                    value={formData.thai_translation || ""}
-                    onChange={handleInputChange}
-                    placeholder="Enter Thai translation"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="context">Context</Label>
-                <Textarea
-                  id="context"
-                  name="context"
-                  value={formData.context || ""}
-                  onChange={handleInputChange}
-                  placeholder="Provide context for this term (optional)"
-                  className="resize-none h-20"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
-                  <Select
-                    value={formData.category || ""}
-                    onValueChange={(value) =>
-                      handleSelectChange("category", value)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.value} value={category.value}>
-                          {category.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="module">Module</Label>
-                  <Select
-                    value={formData.module || ""}
-                    onValueChange={(value) =>
-                      handleSelectChange("module", value)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select module" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {modulesData?.message?.map((module) => (
-                        <SelectItem key={module.name} value={module.name}>
-                          {module.module_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={!!formData.is_approved}
-                  onCheckedChange={handleSwitchChange}
-                  id="is_approved"
-                />
-                <Label htmlFor="is_approved">Approved Term</Label>
-              </div>
-
-              {statusMessage && (
-                <Alert
-                  variant={
-                    statusMessage.type === "error" ? "destructive" : "default"
-                  }
-                >
-                  {statusMessage.type === "success" ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <AlertCircle className="h-4 w-4" />
-                  )}
-                  <AlertTitle>
-                    {statusMessage.type === "success" ? "Success" : "Error"}
-                  </AlertTitle>
-                  <AlertDescription>{statusMessage.message}</AlertDescription>
-                </Alert>
-              )}
-            </div>
-
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setIsAddDialogOpen(false)}
-              >
-                Cancel
+        <div className="flex justify-between space-x-2">
+          <Button
+            onClick={handleCleanupDuplicates}
+            disabled={cleanDuplicates.loading}
+          >
+            {cleanDuplicates.loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Cleaning...
+              </>
+            ) : (
+              <>
+                <Trash className="mr-2 h-4 w-4" />
+                Clean Duplicates
+              </>
+            )}
+          </Button>
+          <Button
+            onClick={handleUpdateCategories}
+            disabled={updateCategories.loading}
+          >
+            {updateCategories.loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Updating Categories...
+              </>
+            ) : (
+              <>
+                <TagIcon className="mr-2 h-4 w-4" />
+                Update Categories
+              </>
+            )}
+          </Button>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Term
               </Button>
-              <Button onClick={handleAddTerm} disabled={addTerm.loading}>
-                {addTerm.loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Adding...
-                  </>
-                ) : (
-                  "Save Term"
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Glossary Term</DialogTitle>
+                <DialogDescription>
+                  Add a new term to the translation glossary.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="source_term">
+                      English Term <span className="text-red-600">*</span>
+                    </Label>
+                    <Input
+                      id="source_term"
+                      name="source_term"
+                      value={formData.source_term || ''}
+                      onChange={handleInputChange}
+                      placeholder="Enter source term"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="thai_translation">Thai Translation *</Label>
+                    <Input
+                      id="thai_translation"
+                      name="thai_translation"
+                      value={formData.thai_translation || ''}
+                      onChange={handleInputChange}
+                      placeholder="Enter Thai translation"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="context">Context</Label>
+                  <Textarea
+                    id="context"
+                    name="context"
+                    value={formData.context || ''}
+                    onChange={handleInputChange}
+                    placeholder="Provide context for this term (optional)"
+                    className="h-20 resize-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="category">Category</Label>
+                    <Select
+                      value={formData.category || ''}
+                      onValueChange={(value) =>
+                        handleSelectChange('category', value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((category) => (
+                          <SelectItem
+                            key={category.value}
+                            value={category.value}
+                          >
+                            {category.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="module">Module</Label>
+                    <Select
+                      value={formData.module || ''}
+                      onValueChange={(value) =>
+                        handleSelectChange('module', value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select module" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {modulesData?.message?.map((module) => (
+                          <SelectItem key={module.name} value={module.name}>
+                            {module.module_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={!!formData.is_approved}
+                    onCheckedChange={handleSwitchChange}
+                    id="is_approved"
+                  />
+                  <Label htmlFor="is_approved">Approved Term</Label>
+                </div>
+
+                {statusMessage && (
+                  <Alert
+                    variant={
+                      statusMessage.type === 'error' ? 'destructive' : 'default'
+                    }
+                  >
+                    {statusMessage.type === 'success' ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <AlertCircle className="h-4 w-4" />
+                    )}
+                    <AlertTitle>
+                      {statusMessage.type === 'success' ? 'Success' : 'Error'}
+                    </AlertTitle>
+                    <AlertDescription>{statusMessage.message}</AlertDescription>
+                  </Alert>
                 )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              </div>
+
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsAddDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleAddTerm} disabled={addTerm.loading}>
+                  {addTerm.loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    'Save Term'
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="relative">
-        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
         <Input
           placeholder="Search terms..."
           className="pl-8"
@@ -428,20 +534,20 @@ export default function GlossaryManager() {
 
       {isLoadingTerms ? (
         <div className="flex justify-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Loader2 className="text-primary h-8 w-8 animate-spin" />
         </div>
       ) : termsError ? (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
-            {termsError.message || "Failed to load glossary terms"}
+            {termsError.message || 'Failed to load glossary terms'}
           </AlertDescription>
         </Alert>
       ) : filteredTerms.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">
+        <div className="text-muted-foreground py-8 text-center">
           {searchTerm
-            ? "No terms match your search"
+            ? 'No terms match your search'
             : 'No glossary terms found. Click "Add Term" to create one.'}
         </div>
       ) : (
@@ -464,8 +570,8 @@ export default function GlossaryManager() {
                     {term.source_term}
                   </TableCell>
                   <TableCell>{term.thai_translation}</TableCell>
-                  <TableCell>{term.category || "-"}</TableCell>
-                  <TableCell>{term.module || "-"}</TableCell>
+                  <TableCell>{term.category || '-'}</TableCell>
+                  <TableCell>{term.module || '-'}</TableCell>
                   <TableCell>
                     {term.is_approved ? (
                       <Badge variant="default" className="bg-green-500">
@@ -518,7 +624,7 @@ export default function GlossaryManager() {
                 <Input
                   id="edit_source_term"
                   name="source_term"
-                  value={formData.source_term || ""}
+                  value={formData.source_term || ''}
                   onChange={handleInputChange}
                   placeholder="Enter source term"
                   required
@@ -531,7 +637,7 @@ export default function GlossaryManager() {
                 <Input
                   id="edit_thai_translation"
                   name="thai_translation"
-                  value={formData.thai_translation || ""}
+                  value={formData.thai_translation || ''}
                   onChange={handleInputChange}
                   placeholder="Enter Thai translation"
                   required
@@ -544,10 +650,10 @@ export default function GlossaryManager() {
               <Textarea
                 id="edit_context"
                 name="context"
-                value={formData.context || ""}
+                value={formData.context || ''}
                 onChange={handleInputChange}
                 placeholder="Provide context for this term (optional)"
-                className="resize-none h-20"
+                className="h-20 resize-none"
               />
             </div>
 
@@ -555,9 +661,9 @@ export default function GlossaryManager() {
               <div className="space-y-2">
                 <Label htmlFor="edit_category">Category</Label>
                 <Select
-                  value={formData.category || ""}
+                  value={formData.category || ''}
                   onValueChange={(value) =>
-                    handleSelectChange("category", value)
+                    handleSelectChange('category', value)
                   }
                 >
                   <SelectTrigger>
@@ -576,8 +682,8 @@ export default function GlossaryManager() {
               <div className="space-y-2">
                 <Label htmlFor="edit_module">Module</Label>
                 <Select
-                  value={formData.module || ""}
-                  onValueChange={(value) => handleSelectChange("module", value)}
+                  value={formData.module || ''}
+                  onValueChange={(value) => handleSelectChange('module', value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select module" />
@@ -605,16 +711,16 @@ export default function GlossaryManager() {
             {statusMessage && (
               <Alert
                 variant={
-                  statusMessage.type === "error" ? "destructive" : "default"
+                  statusMessage.type === 'error' ? 'destructive' : 'default'
                 }
               >
-                {statusMessage.type === "success" ? (
+                {statusMessage.type === 'success' ? (
                   <Check className="h-4 w-4" />
                 ) : (
                   <AlertCircle className="h-4 w-4" />
                 )}
                 <AlertTitle>
-                  {statusMessage.type === "success" ? "Success" : "Error"}
+                  {statusMessage.type === 'success' ? 'Success' : 'Error'}
                 </AlertTitle>
                 <AlertDescription>{statusMessage.message}</AlertDescription>
               </Alert>
@@ -635,7 +741,7 @@ export default function GlossaryManager() {
                   Updating...
                 </>
               ) : (
-                "Update Term"
+                'Update Term'
               )}
             </Button>
           </DialogFooter>
@@ -667,7 +773,7 @@ export default function GlossaryManager() {
                   Deleting...
                 </>
               ) : (
-                "Delete"
+                'Delete'
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

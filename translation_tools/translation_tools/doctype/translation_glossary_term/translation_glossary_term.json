@@ -46,7 +46,7 @@
       "fieldtype": "Select",
       "in_standard_filter": 1,
       "label": "Category",
-      "options": "Business\nTechnical\nUI\nDate/Time\nStatus"
+      "options": "Business\nTechnical\nUI\nDate/Time\nStatus\nAuto-imported"
     },
     {
       "default": "0",

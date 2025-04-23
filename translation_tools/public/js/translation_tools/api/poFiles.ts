@@ -53,10 +53,11 @@ export function useGetCachedPOFiles(): UseQueryResult<POFile[], Error> {
     queryFn: () =>
       frappe
         .call<{ message: POFile[] }>({
-          method: 'translation_tools.api.po_files.get_cached_po_files',
+          // method: 'translation_tools.api.po_files.get_cached_po_files',
+          method: 'translation_tools.api.po_files.get_po_files',
           args: {},
         })
-        .then((r) => r.message.message),
+        .then((r) => r.message),
   });
 }
 

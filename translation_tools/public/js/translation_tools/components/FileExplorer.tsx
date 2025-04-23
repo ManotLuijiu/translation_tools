@@ -89,9 +89,9 @@ export default function FileExplorer({
     );
 
     return (
-        <div className="space-y-4">
-            <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">PO Files</h2>
+        <div className="tw-space-y-4">
+            <div className="tw-flex tw-items-center tw-justify-between">
+                <h2 className="tw-text-2xl tw-font-bold">PO Files</h2>
                 <Button
                     onClick={handleScan}
                     disabled={isScanning}
@@ -99,44 +99,44 @@ export default function FileExplorer({
                 >
                     {isScanning ? (
                         <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <Loader2 className="tw-mr-2 tw-h-4 tw-w-4 tw-animate-spin" />
                             Scanning...
                         </>
                     ) : (
                         <>
-                            <RefreshCw className="mr-2 h-4 w-4" />
+                            <RefreshCw className="tw-mr-2 tw-h-4 tw-w-4" />
                             Scan Files
                         </>
                     )}
                 </Button>
             </div>
 
-            <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <div className="tw-relative">
+                <Search className="tw-absolute tw-left-2 tw-top-2.5 tw-h-4 tw-w-4 tw-text-muted-foreground" />
                 <Input
-                    placeholder="Search files..."
-                    className="pl-8"
+                    placeholder="Search app name..."
+                    className="tw-pl-8"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
             </div>
 
             {isLoading ? (
-                <div className="flex justify-center py-8">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <div className="tw-flex tw-justify-center tw-py-8">
+                    <Loader2 className="tw-h-8 tw-w-8 tw-animate-spin tw-text-primary" />
                 </div>
             ) : error ? (
-                <div className="p-4 text-center text-destructive">
+                <div className="tw-p-4 tw-text-center tw-text-destructive">
                     Error loading files: {error.message || 'Unknown error'}
                 </div>
             ) : sortedFiles.length === 0 ? (
-                <div className="p-8 text-center text-muted-foreground">
+                <div className="tw-p-8 tw-text-center tw-text-muted-foreground">
                     {searchTerm
                         ? 'No files matching your search'
                         : 'No PO files found. Click "Scan Files" to discover translation files.'}
                 </div>
             ) : (
-                <div className="rounded-md border">
+                <div className="tw-rounded-md tw-border">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -144,7 +144,7 @@ export default function FileExplorer({
                                 <TableHead>Filename</TableHead>
                                 <TableHead>Progress</TableHead>
                                 <TableHead>Last Modified</TableHead>
-                                <TableHead className="w-[100px]">
+                                <TableHead className="tw-w-[100px]">
                                     Action
                                 </TableHead>
                             </TableRow>
@@ -155,42 +155,42 @@ export default function FileExplorer({
                                     key={file.file_path}
                                     className={
                                         selectedFilePath === file.file_path
-                                            ? 'bg-muted/50'
+                                            ? 'tw-bg-muted/50'
                                             : ''
                                     }
                                 >
                                     <TableCell>{file.app}</TableCell>
                                     <TableCell>
-                                        <div className="flex items-center">
-                                            <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
+                                        <div className="tw-flex tw-items-center">
+                                            <FileText className="tw-mr-2 tw-h-4 tw-w-4 tw-text-muted-foreground" />
                                             {file.filename}
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-2 w-28 rounded-full bg-muted">
+                                        <div className="tw-flex tw-items-center tw-gap-2">
+                                            <div className="tw-h-2 tw-w-28 tw-rounded-full tw-bg-muted">
                                                 <div
-                                                    className="h-full rounded-full bg-primary"
+                                                    className="tw-h-full tw-rounded-full tw-bg-primary"
                                                     style={{
                                                         width: `${Math.min(100, Math.max(0, file.translated_percentage || 0))}%`,
                                                     }}
                                                 />
                                             </div>
-                                            <span className="text-xs text-muted-foreground">
+                                            <span className="tw-text-xs tw-text-muted-foreground">
                                                 {formatPercentage(
                                                     file.translated_percentage
                                                 )}
                                             </span>
                                             <Badge
                                                 variant="outline"
-                                                className="text-xs"
+                                                className="tw-text-xs"
                                             >
                                                 {file.translated_entries}/
                                                 {file.total_entries}
                                             </Badge>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-muted-foreground text-sm">
+                                    <TableCell className="tw-text-muted-foreground tw-text-sm">
                                         {formatDate(file.last_modified)}
                                     </TableCell>
                                     <TableCell>

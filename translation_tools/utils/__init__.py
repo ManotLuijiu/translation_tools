@@ -1,7 +1,7 @@
 import frappe
 from frappe import _
-from frappe.utils import has_common
-import datetime
+# from frappe.utils import has_common
+# import datetime
 
 
 def time_in_range(start, end, current):
@@ -182,8 +182,11 @@ def get_room_detail(room):
     Returns:
         dict: Room's details
     """
-    room_detail = frappe.db.get_value(
-        "Chat Room", room, ["members", "type", "guest"], as_dict=True  # type: ignore
+    room_detail = frappe.db.get_values(
+        "Chat Room",
+        filters={"name": room},
+        fieldname="members, type, guest",
+        as_dict=True,  # type: ignore
     )
     return room_detail
 

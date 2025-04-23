@@ -1,173 +1,174 @@
-import React, { useState, useEffect } from "react";
-import { useFrappeGetCall } from "frappe-react-sdk";
-import { Button } from "./ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import React, { useState, useEffect } from 'react'
+import { useFrappeGetCall } from 'frappe-react-sdk'
+import { Button } from './ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
-} from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { Download, AlertCircle, RefreshCw } from "lucide-react";
+} from './ui/card'
+import { Badge } from './ui/badge'
+import { Alert, AlertDescription, AlertTitle } from './ui/alert'
+import { Download, AlertCircle, RefreshCw } from 'lucide-react'
 
 interface LogViewerProps {
-  logFilePath: string | null;
+  logFilePath: string | null
 }
 
 interface LogData {
-  success: boolean;
-  logs: string;
+  success: boolean
+  logs: string
   analysis: {
-    api_calls: number;
-    api_responses: number;
-    errors: string[];
-  };
+    api_calls: number
+    api_responses: number
+    errors: string[]
+  }
 }
 
 const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
-  const [activeTab, setActiveTab] = useState<"analysis" | "raw">("analysis");
+  const [activeTab, setActiveTab] = useState<'analysis' | 'raw'>('analysis')
 
   const { data, error, isLoading, mutate } = useFrappeGetCall<{
-    message: LogData;
-  }>("translation_tools.api.get_translation_logs", {
+    message: LogData
+  }>('translation_tools.api.get_translation_logs', {
     log_file: logFilePath,
-  });
+  })
 
   // Extract API call issues from logs
   const apiCalls = React.useMemo(() => {
-    if (!data?.message?.logs) return [];
+    if (!data?.message?.logs) return []
 
-    const apiCallRegex = /API call.*?(?=API call|$)/gs;
-    const matches = data.message.logs.match(apiCallRegex) || [];
+    const apiCallRegex = /API call.*?(?=API call|$)/gs
+    const matches = data.message.logs.match(apiCallRegex) || []
 
     return matches.map((match) => {
-      const hasError = match.includes("Error") || match.includes("error");
+      const hasError = match.includes('Error') || match.includes('error')
       return {
         content: match.trim(),
         hasError,
-      };
-    });
-  }, [data?.message?.logs]);
+      }
+    })
+  }, [data?.message?.logs])
 
-  console.log("apiCalls", apiCalls);
+  console.log('apiCalls', apiCalls)
 
   // Extract model response patterns
   const responsePatterns = React.useMemo(() => {
-    if (!data?.message?.logs) return [];
+    if (!data?.message?.logs) return []
 
-    const responseRegex = /Raw response: (.*?)(?=Raw response:|$)/gs;
-    const matches = data.message.logs.match(responseRegex) || [];
+    const responseRegex = /Raw response: (.*?)(?=Raw response:|$)/gs
+    const matches = data.message.logs.match(responseRegex) || []
 
     return matches.map((match) => {
-      const content = match.trim();
-      const hasJson = content.includes("{") && content.includes("}");
-      const isArray = content.includes("[") && content.includes("]");
-      const hasError = content.includes("error") || content.includes("Error");
+      const content = match.trim()
+      const hasJson = content.includes('{') && content.includes('}')
+      const isArray = content.includes('[') && content.includes(']')
+      const hasError = content.includes('error') || content.includes('Error')
 
       return {
         content,
-        format: hasJson ? "JSON" : isArray ? "Array" : "Unknown",
+        format: hasJson ? 'JSON' : isArray ? 'Array' : 'Unknown',
         hasError,
-      };
-    });
-  }, [data?.message?.logs]);
+      }
+    })
+  }, [data?.message?.logs])
 
   // Parse JSON parsing issues
   const jsonParsingIssues = React.useMemo(() => {
-    if (!data?.message?.logs) return [];
+    if (!data?.message?.logs) return []
 
-    const regex = /JSON parsing error: (.*?)(?=\n|$)/g;
-    const matches = [];
-    let match;
+    const regex = /JSON parsing error: (.*?)(?=\n|$)/g
+    const matches = []
+    let match: RegExpExecArray | null = regex.exec(data.message.logs)
 
-    while ((match = regex.exec(data.message.logs)) !== null) {
-      matches.push(match[1]);
+    while (match !== null) {
+      matches.push(match[1])
+      match = regex.exec(data.message.logs)
     }
 
-    return matches;
-  }, [data?.message?.logs]);
+    return matches
+  }, [data?.message?.logs])
 
   // Analyze common pattern issues
   const commonIssues = React.useMemo(() => {
-    if (!data?.message?.logs) return [];
+    if (!data?.message?.logs) return []
 
-    const issues = [];
+    const issues = []
 
     // Check for rate limiting
-    if (data.message.logs.includes("Rate limit")) {
+    if (data.message.logs.includes('Rate limit')) {
       issues.push({
-        type: "Rate Limiting",
-        description: "API rate limits were reached during translation",
-        severity: "warning",
-      });
+        type: 'Rate Limiting',
+        description: 'API rate limits were reached during translation',
+        severity: 'warning',
+      })
     }
 
     // Check for token limit issues
-    if (data.message.logs.includes("maximum context length")) {
+    if (data.message.logs.includes('maximum context length')) {
       issues.push({
-        type: "Token Limit",
+        type: 'Token Limit',
         description: "The request exceeded the model's maximum token limit",
-        severity: "error",
-      });
+        severity: 'error',
+      })
     }
 
     // Check for JSON format issues
     if (jsonParsingIssues.length > 0) {
       issues.push({
-        type: "JSON Parsing",
+        type: 'JSON Parsing',
         description:
           "The model returned responses that couldn't be parsed as JSON",
-        severity: "error",
-      });
+        severity: 'error',
+      })
     }
 
     // Check for API timeouts
-    if (data.message.logs.includes("timeout")) {
+    if (data.message.logs.includes('timeout')) {
       issues.push({
-        type: "API Timeout",
-        description: "API requests timed out during translation",
-        severity: "error",
-      });
+        type: 'API Timeout',
+        description: 'API requests timed out during translation',
+        severity: 'error',
+      })
     }
 
     // Check for connection issues
     if (
-      data.message.logs.includes("connection") &&
-      data.message.logs.includes("fail")
+      data.message.logs.includes('connection') &&
+      data.message.logs.includes('fail')
     ) {
       issues.push({
-        type: "Connection",
-        description: "Network connection issues occurred during translation",
-        severity: "error",
-      });
+        type: 'Connection',
+        description: 'Network connection issues occurred during translation',
+        severity: 'error',
+      })
     }
 
-    return issues;
-  }, [data?.message?.logs, jsonParsingIssues]);
+    return issues
+  }, [data?.message?.logs, jsonParsingIssues])
 
   // Download logs as a file
   const handleDownloadLogs = () => {
-    if (!data?.message?.logs) return;
+    if (!data?.message?.logs) return
 
-    const blob = new Blob([data.message.logs], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "translation_logs.txt";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+    const blob = new Blob([data.message.logs], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'translation_logs.txt'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
 
   useEffect(() => {
     if (logFilePath) {
-      mutate();
+      mutate()
     }
-  }, [logFilePath, mutate]);
+  }, [logFilePath, mutate])
 
   if (!logFilePath) {
     return (
@@ -179,15 +180,15 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
           process.
         </p>
       </div>
-    );
+    )
   }
 
   if (isLoading) {
     return (
       <div className="flex justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -197,7 +198,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
         <AlertTitle>Error loading logs</AlertTitle>
         <AlertDescription>
           {error.message ||
-            "An unknown error occurred while loading the log file."}
+            'An unknown error occurred while loading the log file.'}
           <div className="mt-2">
             <Button variant="outline" size="sm" onClick={() => mutate()}>
               <RefreshCw className="h-4 w-4 mr-2" />
@@ -206,7 +207,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
           </div>
         </AlertDescription>
       </Alert>
-    );
+    )
   }
 
   if (!data?.message?.logs) {
@@ -219,14 +220,13 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
           issue with the translation process.
         </AlertDescription>
       </Alert>
-    );
+    )
   }
 
   const logContentTruncated =
     data.message.logs.length > 10000
-      ? data.message.logs.substring(0, 10000) +
-        "... [log truncated, download for full content]"
-      : data.message.logs;
+      ? `${data.message.logs.substring(0, 10000)}... [log truncated, download for full content]`
+      : data.message.logs
 
   return (
     <div>
@@ -249,6 +249,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
       <Tabs
         value={activeTab}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         onValueChange={(value) => setActiveTab(value as any)}
       >
         <TabsList className="mb-4">
@@ -301,14 +302,14 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
               <CardContent>
                 {commonIssues.length > 0 ? (
                   <ul className="space-y-2">
-                    {commonIssues.map((issue, index) => (
-                      <li key={index} className="flex items-start gap-2">
+                    {commonIssues.map((issue) => (
+                      <li key={issue.type} className="flex items-start gap-2">
                         <Badge
                           variant="outline"
                           className={
-                            issue.severity === "error"
-                              ? "bg-red-100 text-red-800 hover:bg-red-100"
-                              : "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
+                            issue.severity === 'error'
+                              ? 'bg-red-100 text-red-800 hover:bg-red-100'
+                              : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
                           }
                         >
                           {issue.type}
@@ -336,9 +337,9 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {jsonParsingIssues.map((issue, index) => (
+                  {jsonParsingIssues.map((issue) => (
                     <li
-                      key={index}
+                      key={issue}
                       className="text-sm bg-gray-50 p-2 rounded font-mono"
                     >
                       {issue}
@@ -359,8 +360,11 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
             <CardContent>
               {responsePatterns.length > 0 ? (
                 <div className="space-y-2">
-                  {responsePatterns.slice(0, 5).map((pattern, index) => (
-                    <div key={index} className="p-2 bg-gray-50 rounded">
+                  {responsePatterns.slice(0, 5).map((pattern) => (
+                    <div
+                      key={pattern.content}
+                      className="p-2 bg-gray-50 rounded"
+                    >
                       <div className="flex justify-between items-center mb-1">
                         <div className="flex gap-2">
                           <Badge variant="outline">
@@ -378,7 +382,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
                       </div>
                       <div className="text-xs font-mono whitespace-pre-wrap overflow-auto max-h-24">
                         {pattern.content.length > 300
-                          ? pattern.content.substring(0, 300) + "..."
+                          ? `${pattern.content.substring(0, 300)}...`
                           : pattern.content}
                       </div>
                     </div>
@@ -416,7 +420,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
         </TabsContent>
       </Tabs>
     </div>
-  );
-};
+  )
+}
 
-export default LogViewer;
+export default LogViewer

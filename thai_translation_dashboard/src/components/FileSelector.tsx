@@ -1,33 +1,34 @@
-import React, { useState } from "react";
-import { useFrappeGetCall } from "frappe-react-sdk";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Search } from "lucide-react";
+// biome-ignore lint/style/useImportType: <explanation>
+import React, { useState } from 'react'
+import { useFrappeGetCall } from 'frappe-react-sdk'
+import { Button } from './ui/button'
+import { Input } from './ui/input'
+import { Search } from 'lucide-react'
 
 type PoFile = {
-  path: string;
-  app: string;
-  filename: string;
-};
+  path: string
+  app: string
+  filename: string
+}
 
 type Props = {
-  onFileSelect: (filePath: string) => void;
-  selectedFile: string | null;
-};
+  onFileSelect: (filePath: string) => void
+  selectedFile: string | null
+}
 
 const FileSelector: React.FC<Props> = ({ onFileSelect, selectedFile }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('')
 
   const { data, error, isLoading, mutate } = useFrappeGetCall<{
-    message: PoFile[];
-  }>("translation_tools.api.get_po_files", {});
+    message: PoFile[]
+  }>('translation_tools.api.get_po_files', {})
 
   const filteredFiles =
     data?.message?.filter(
       (file) =>
         file.app.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        file.filename.toLowerCase().includes(searchTerm.toLowerCase())
-    ) || [];
+        file.filename.toLowerCase().includes(searchTerm.toLowerCase()),
+    ) || []
 
   return (
     <div className="space-y-4">
@@ -56,11 +57,11 @@ const FileSelector: React.FC<Props> = ({ onFileSelect, selectedFile }) => {
 
       {isLoading ? (
         <div className="h-60 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-moo-blue"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-moo-blue" />
         </div>
       ) : error ? (
         <div className="p-4 border border-red-200 bg-red-50 text-red-700 rounded">
-          <p>{error.message || "Failed to load files"}</p>
+          <p>{error.message || 'Failed to load files'}</p>
           <Button
             onClick={() => mutate()}
             variant="destructive"
@@ -73,7 +74,7 @@ const FileSelector: React.FC<Props> = ({ onFileSelect, selectedFile }) => {
       ) : (
         <>
           <div className="text-sm text-muted-foreground">
-            {filteredFiles.length} file{filteredFiles.length !== 1 ? "s" : ""}{" "}
+            {filteredFiles.length} file{filteredFiles.length !== 1 ? 's' : ''}{' '}
             found
           </div>
 
@@ -99,8 +100,8 @@ const FileSelector: React.FC<Props> = ({ onFileSelect, selectedFile }) => {
                       key={file.path}
                       className={`${
                         selectedFile === file.path
-                          ? "bg-blue-50"
-                          : "hover:bg-gray-50"
+                          ? 'bg-blue-50'
+                          : 'hover:bg-gray-50'
                       } transition-colors`}
                     >
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -113,12 +114,12 @@ const FileSelector: React.FC<Props> = ({ onFileSelect, selectedFile }) => {
                         <Button
                           onClick={() => onFileSelect(file.path)}
                           variant={
-                            selectedFile === file.path ? "secondary" : "outline"
+                            selectedFile === file.path ? 'secondary' : 'outline'
                           }
                           size="sm"
                           className="cursor-pointer"
                         >
-                          {selectedFile === file.path ? "Selected" : "Select"}
+                          {selectedFile === file.path ? 'Selected' : 'Select'}
                         </Button>
                       </td>
                     </tr>
@@ -130,7 +131,7 @@ const FileSelector: React.FC<Props> = ({ onFileSelect, selectedFile }) => {
                       className="px-4 py-8 text-center text-sm text-gray-500"
                     >
                       No PO files found
-                      {searchTerm ? " matching your search" : ""}
+                      {searchTerm ? ' matching your search' : ''}
                     </td>
                   </tr>
                 )}
@@ -140,7 +141,7 @@ const FileSelector: React.FC<Props> = ({ onFileSelect, selectedFile }) => {
         </>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default FileSelector;
+export default FileSelector
