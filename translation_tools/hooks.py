@@ -57,7 +57,13 @@ website_route_rules = [
         "from_route": "/thai_translation_dashboard/<path:app_path>",
         "to_route": "thai_translation_dashboard",
     },
+    {"from_route": "/app/thai_translator", "to_route": "/thai_translation_dashboard"},
+    # {
+    #     "from_route": "/app/thai_translation_dashboard/<path:app_path>",
+    #     "to_route": "thai_translation_dashboard",
+    # },
     {"from_route": "/tax_consultant", "to_route": "tax_consultant"},
+    {"from_route": "/frontend/<path:app_path>", "to_route": "frontend"},
 ]
 
 workspace_route_rules = [
@@ -84,7 +90,7 @@ website_context = {
 }
 
 app_include_js = [
-    # "/assets/translation_tools/thai_translation_dashboard/index.js",
+    # "/assets/translation_tools/thai_translation_dashboard/assets/index.js",
     "translation_tools.app.bundle.js",
     "/assets/translation_tools/js/translation_tools.client.js",
     "/assets/translation_tools/js/vfs_fonts.js",

@@ -75,15 +75,17 @@ export function useScanPOFiles() {
  */
 export function useGetPOFileEntries(filePath: string | null) {
   //   const enabled = !!filePath
-  if (!filePath) {
-    throw new Error('filePath cannot be null or undefined')
-  }
+  const shouldFetch = !!filePath
+  // if (!filePath) {
+  //   throw new Error('filePath cannot be null or undefined')
+  // }
 
   console.log('filePath', filePath)
 
   return useFrappeGetCall<{ message: POFileContents }>(
     'translation_tools.api.po_files.get_po_file_entries',
-    { file_path: filePath },
+    // { file_path: filePath },
+    shouldFetch ? { file_path: filePath } : undefined,
   )
 }
 
@@ -115,6 +117,7 @@ export function useSaveTranslation() {
     success: boolean
     message: string
     error: string
+    github_pushed: boolean
   }>('translation_tools.api.po_files.save_translation')
 }
 

@@ -43,6 +43,9 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Save, RefreshCw, Check, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import TranslationStats from './TranslationStats';
+import { StatusToast } from '@/components/StatusToast';
+import { useStatusMessage } from '@/hooks/useStatusMessage';
+import { useTranslation } from '@/context/TranslationContext';
 
 interface TranslationEditorProps {
   selectedFile: POFile | null;
@@ -59,13 +62,20 @@ export default function TranslationEditor({
   >('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [editedTranslation, setEditedTranslation] = useState('');
-  const [statusMessage, setStatusMessage] = useState<{
-    type: 'success' | 'error' | 'info';
-    message: string;
-  } | null>(null);
+  // const [statusMessage, setStatusMessage] = useState<{
+  //   type: 'success' | 'error' | 'info';
+  //   message: string;
+  // } | null>(null);
   const [pushToGithub, setPushToGithub] = useState(false);
   const [githubToken, setGithubToken] = useState('');
   const [showTokenDialog, setShowTokenDialog] = useState(false);
+  const [previousFile, setPreviousFile] = useState(selectedFile);
+  const { statusMessage, showMessage, clearMessage } = useStatusMessage();
+  const [showPassword, setShowPassword] = useState(false);
+  const { translate: __, isReady } = useTranslation();
+
+  console.log('previousFile', previousFile);
+  console.log('showTokenDialog', showTokenDialog);
 
   //   const [translation, setTranslation] = useState('');
   //   const [isSaving, setIsSaving] = useState(false);
@@ -78,15 +88,17 @@ export default function TranslationEditor({
   console.log('Push to Github', pushToGithub);
 
   const translateEntry = useTranslateSingleEntry();
-  const saveTranslation = useSaveTranslation();
+  const saveTranslation = useSaveTranslation.call({});
   const saveGithubToken = useSaveGithubToken();
 
   // Reset selected entry when file changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     setSelectedEntryId(null);
     setEditedTranslation('');
-    setStatusMessage(null);
-  }, []);
+    // setStatusMessage(null);
+    clearMessage();
+  }, [selectedFile]);
 
   // Update edited translation when selected entry changes
   useEffect(() => {
@@ -103,18 +115,18 @@ export default function TranslationEditor({
       <div className="flex h-[calc(100vh-200px)] items-center justify-center">
         <div className="space-y-4 text-center">
           <p className="text-muted-foreground">
-            Please select a PO file to start translation
+            {__('Please select a PO file to start translation')}
           </p>
         </div>
       </div>
     );
   }
 
-  if (isLoading) {
+  if (isLoading || !isReady) {
     return (
       <div className="flex h-[calc(100vh-200px)] items-center justify-center">
         <Loader2 className="text-primary h-8 w-8 animate-spin" />
-        <span className="ml-2">Loading file contents...</span>
+        <span className="ml-2">{__('Loading file contents...')}</span>
       </div>
     );
   }
@@ -125,7 +137,7 @@ export default function TranslationEditor({
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Error</AlertTitle>
         <AlertDescription>
-          Failed to load file: {error.message || 'Unknown error'}
+          {__('Failed to load file:')} {error.message || 'Unknown error'}
         </AlertDescription>
       </Alert>
     );
@@ -135,7 +147,7 @@ export default function TranslationEditor({
   if (!fileData) {
     return (
       <div className="p-8 text-center">
-        <p>No data available for this file</p>
+        <p>{__('No data available for this file')}</p>
       </div>
     );
   }
@@ -168,7 +180,8 @@ export default function TranslationEditor({
   const handleTranslate = async () => {
     if (!selectedEntry || !selectedFile.file_path) return;
 
-    setStatusMessage({ type: 'info', message: 'Translating...' });
+    // setStatusMessage({ type: 'info', message: 'Translating...' });
+    showMessage('Translating...', 'info');
 
     try {
       const result = await translateEntry.call({
@@ -180,42 +193,43 @@ export default function TranslationEditor({
 
       if (result.success && result.translation) {
         setEditedTranslation(result.translation);
-        setStatusMessage({
-          type: 'success',
-          message: 'Translation completed',
-        });
+        // setStatusMessage({
+        //   type: 'success',
+        //   message: 'Translation completed',
+        // });
+        showMessage('Translation completed', 'success');
 
         // If auto-save is enabled, also save the translation
         if (settings?.auto_save) {
           await handleSave();
         }
       } else {
-        setStatusMessage({
-          type: 'error',
-          message: result.error || 'Translation failed',
-        });
+        console.error(result.error);
+        // setStatusMessage({
+        //   type: 'error',
+        //   message: result.error || 'Translation failed',
+        // });
+        showMessage('Translation Failed', 'error');
       }
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error
           ? err.message
           : 'An error occurred during translation';
-      setStatusMessage({
-        type: 'error',
-        message: errorMessage,
-      });
+      // setStatusMessage({
+      //   type: 'error',
+      //   message: errorMessage,
+      // });
+      showMessage(errorMessage, 'error');
     }
   };
 
   const handleTokenSubmit = async () => {
     if (!githubToken.trim()) {
-      window.frappe.show_alert(
-        {
-          message: 'Please enter a valid GitHub token',
-          indicator: 'red',
-        },
-        5
-      );
+      // toast('Please enter a valid GitHub token', {
+      //   description: 'Github token',
+      // });
+      <StatusToast type="info" message="Please enter a valid Github token" />;
       return;
     }
 
@@ -235,32 +249,60 @@ export default function TranslationEditor({
 
       if (response?.success) {
         setShowTokenDialog(false);
-        window.frappe.show_alert(
-          {
-            message: 'Translation saved and pushed to GitHub successfully!',
-            indicator: 'green',
-          },
-          5
-        );
+        // toast('Translation saved and pushed to GitHub successfully!');
+        <StatusToast
+          type="info"
+          message="Translation saved and pushed to GitHub successfully!"
+        />;
       } else {
-        window.frappe.show_alert(
-          {
-            message: `GitHub push failed: ${response.error || 'Unknown error'}`,
-            indicator: 'red',
-          },
-          5
+        // toast(`GitHub push failed: ${response.error || 'Unknown error'}`);
+        <StatusToast type="error" message="GitHub push failed" />;
+
+        console.error(
+          `GitHub push failed: ${response.error || 'Unknown error'}`
         );
       }
     } catch (err) {
       console.error('Token save error:', err);
-      window.frappe.show_alert(
-        {
-          message: `Error saving token: ${err}`,
-          indicator: 'red',
-        },
-        5
-      );
+      // toast(`Error saving token: ${err}`);
+
+      <StatusToast type="error" message="Error saving token" />;
     }
+  };
+
+  const handleDialogCancel = () => {
+    setPreviousFile(selectedFile);
+
+    setGithubToken('');
+    setShowTokenDialog(false);
+    // setStatusMessage(null);
+    clearMessage();
+
+    console.log('Selected file before cancel:', selectedFile?.file_path);
+    setEntryFilter('all');
+    console.log('Selected file after cancel:', selectedFile?.file_path);
+
+    // setSelectedEntryId(null);
+    setEditedTranslation('');
+
+    mutate(undefined, { revalidate: true })
+      .then((newData) => console.log('Got new data:', newData))
+      .catch((err) => console.error('Mutate error:', err));
+
+    // if (selectedFile?.file_path) {
+    //   console.log('after setEntryFilter');
+    //   // Refetch the file data
+    //   mutate();
+    // }
+    // setStatusMessage({
+    //   type: 'info',
+    //   message: 'GitHub sharing was cancelled. Translation saved locally only.',
+    // });
+
+    showMessage(
+      'GitHub sharing was cancelled. Translation saved locally only.',
+      'info'
+    );
   };
 
   const handleSave = async () => {
@@ -268,7 +310,8 @@ export default function TranslationEditor({
 
     if (!selectedEntry || !selectedFile.file_path) return;
 
-    setStatusMessage({ type: 'info', message: 'Saving...' });
+    // setStatusMessage({ type: 'info', message: 'Saving...' });
+    showMessage('Saving...', 'info');
 
     try {
       const result = await saveTranslation.call({
@@ -280,39 +323,59 @@ export default function TranslationEditor({
 
       console.log('result', result);
 
-      if (result.success) {
-        // let msg = 'Translation saved successfully';
+      const message =
+        typeof result.message === 'string'
+          ? JSON.parse(result.message)
+          : result.message;
+      if (message?.success) {
+        let msg = 'Translation saved successfully';
         if (pushToGithub) {
           console.log('pushToGithub');
+          const githubResult = message.github;
+
+          //   Check for missing token
+          if (githubResult?.error === 'missing_token') {
+            console.log('Github token is missing, showing dialog');
+            setShowTokenDialog(true);
+            console.log('selectedEntryId', selectedEntry.id);
+            return;
+          }
+
+          //   Check if push was successful
+          if (githubResult?.github_pushed) {
+            msg += ' and shared on GitHub!';
+          } else {
+            msg += `. However, Github sharing failed: ${githubResult.error || 'Unknown error'}`;
+          }
         }
-        window.frappe.show_alert(
-          {
-            message: 'Translation saved successfully',
-            indicator: 'green',
-          },
-          5
-        );
-        setStatusMessage({
-          type: 'success',
-          message: 'Translation saved',
-        });
+        // toast(msg);
+
+        // setStatusMessage({
+        //   type: 'success',
+        //   message: msg,
+        // });
+
+        showMessage(msg, 'success');
 
         // Refresh file data to update translation stats
         mutate();
       } else {
         console.error('Save error');
-        setStatusMessage({
-          type: 'error',
-          message: 'Failed to save translation',
-        });
+        // setStatusMessage({
+        //   type: 'error',
+        //   message: result.message || 'Failed to save translation',
+        // });
+        showMessage(result.message, 'error');
       }
     } catch (err: unknown) {
+      console.error('Save error:', err);
       const errorMessage =
         err instanceof Error ? err.message : 'An error occurred while saving';
-      setStatusMessage({
-        type: 'error',
-        message: errorMessage,
-      });
+      // setStatusMessage({
+      //   type: 'error',
+      //   message: errorMessage,
+      // });
+      showMessage(errorMessage, 'error');
     }
   };
 
@@ -352,7 +415,7 @@ export default function TranslationEditor({
             </div>
 
             <Input
-              placeholder="Search in entries..."
+              placeholder={__('Search in entries...')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="mb-2"
@@ -378,6 +441,7 @@ export default function TranslationEditor({
                       <div className="mb-1 flex items-center justify-between">
                         <Badge
                           variant={entry.is_translated ? 'default' : 'outline'}
+                          className={entry.is_translated ? 'bg-green-500' : ''}
                         >
                           {entry.is_translated ? 'Translated' : 'Untranslated'}
                         </Badge>
@@ -480,7 +544,13 @@ export default function TranslationEditor({
                       {statusMessage.type === 'info' && (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       )}
-                      <AlertTitle>
+                      <AlertTitle
+                        className={
+                          statusMessage.type === 'success'
+                            ? 'text-green-600'
+                            : 'text-red-600'
+                        }
+                      >
                         {statusMessage.type === 'success'
                           ? 'Success'
                           : statusMessage.type === 'error'
@@ -500,11 +570,13 @@ export default function TranslationEditor({
                     type="button"
                     variant="secondary"
                     onClick={() => {
+                      setSelectedEntryId(selectedEntryId);
                       const entry = entries.find(
                         (e) => e.id === selectedEntryId
                       );
                       if (entry) setEditedTranslation(entry.msgstr);
-                      setStatusMessage(null);
+                      // setStatusMessage(null);
+                      clearMessage();
                     }}
                   >
                     Reset
@@ -565,9 +637,14 @@ export default function TranslationEditor({
                 {/* GitHub Token Dialog */}
                 <Dialog
                   open={showTokenDialog}
-                  onOpenChange={setShowTokenDialog}
+                  onOpenChange={(open) => {
+                    if (!open) {
+                      handleDialogCancel();
+                    }
+                    setShowTokenDialog(open);
+                  }}
                 >
-                  <DialogContent className="tw-max-w-md">
+                  <DialogContent className="max-w-md">
                     <DialogHeader>
                       <DialogTitle>
                         GitHub Personal Access Token Required
@@ -579,47 +656,84 @@ export default function TranslationEditor({
                       </DialogDescription>
                     </DialogHeader>
 
-                    <div className="tw-py-4">
+                    <div className="py-4">
                       <Label
                         htmlFor="github-token"
-                        className="tw-text-sm tw-font-medium"
+                        className="text-sm font-medium"
                       >
-                        GitHub Token
+                        GitHub Token (github_pat_xxxxxxxxxxxxxxxx)
                       </Label>
-                      <Input
-                        id="github-token"
-                        type="password"
-                        className="tw-mt-1"
-                        value={githubToken}
-                        onChange={(e) => setGithubToken(e.target.value)}
-                        placeholder="ghp_xxxxxxxxxxxxxxxx"
-                      />
-                      <p className="tw-mt-2 tw-text-xs tw-text-gray-500">
-                        You can create a token at{' '}
+                      <div className="relative mt-2">
+                        <Input
+                          id="github-token"
+                          type={showPassword ? 'text' : 'password'}
+                          className="mt-2 pr-10 py-2"
+                          value={githubToken}
+                          onChange={(e) => setGithubToken(e.target.value)}
+                          placeholder="github_pat_xxxxxxxxxxxxxxxx"
+                        />
+                        <button
+                          type="button"
+                          className="absolute right-2 top-0 transform translate-y-1/2"
+                          onClick={() => setShowPassword(!showPassword)}
+                          aria-label={
+                            showPassword ? 'Hide password' : 'Show password'
+                          }
+                        >
+                          {showPassword ? (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5 text-gray-500"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                                clipRule="evenodd"
+                              />
+                              <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                            </svg>
+                          ) : (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5 text-gray-500"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                              <path
+                                fillRule="evenodd"
+                                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                      <p className="mt-2 text-xs text-gray-500">
+                        {__('You can create a token at')}{' '}
                         <a
                           href="https://github.com/settings/tokens"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="tw-text-blue-500 hover:tw-underline"
+                          className="text-blue-500 hover:underline"
                         >
-                          GitHub Settings
+                          {__('GitHub Settings')}
                         </a>{' '}
-                        with 'repo' access.
+                        {__("with 'repo' access.")}
                       </p>
                     </div>
 
                     <DialogFooter>
-                      <Button
-                        variant="outline"
-                        onClick={() => setShowTokenDialog(false)}
-                      >
+                      <Button variant="outline" onClick={handleDialogCancel}>
                         Cancel
                       </Button>
                       <Button
-                        className="tw-bg-blue-500 tw-text-white"
+                        className="bg-blue-500 text-white"
                         onClick={handleTokenSubmit}
                       >
-                        Save & Push
+                        {__('Save & Push')}
                       </Button>
                     </DialogFooter>
                   </DialogContent>
@@ -629,7 +743,7 @@ export default function TranslationEditor({
           ) : (
             <div className="flex h-full items-center justify-center rounded-lg border p-8">
               <p className="text-muted-foreground">
-                Select an entry to start translating
+                {__('Select an entry to start translating')}
               </p>
             </div>
           )}

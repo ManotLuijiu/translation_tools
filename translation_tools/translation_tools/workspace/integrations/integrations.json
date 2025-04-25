@@ -19,7 +19,7 @@
     {
       "dependencies": null,
       "label": "Translation Tools",
-      "link_to": "thai-translation-dashboard",
+      "link_to": "thai_translator",
       "link_type": "Page",
       "onboard": 0,
       "type": "Link"

@@ -3,8 +3,9 @@ import React from 'react';
 import tbsLogo from '../assets/tbs_logo.png';
 import { useFrappeAuth } from 'frappe-react-sdk';
 import { RefreshCw } from 'lucide-react';
-import { useFrappeTranslation } from '@/hooks/useTranslation';
 import { ModeToggle } from './ModeToggle';
+import LanguageToggle from './LanguageToggle';
+import { useTranslation } from '@/context/TranslationContext';
 
 interface NavbarProps {
   currentTab?: string;
@@ -19,9 +20,9 @@ const tabMap: Record<string, string> = {
 
 const Navbar: React.FC<NavbarProps> = ({ currentTab }) => {
   const { currentUser, isValidating, isLoading, error } = useFrappeAuth();
-  const { __ } = useFrappeTranslation();
+  const { translate: __, isReady } = useTranslation();
 
-  if (isLoading)
+  if (isLoading || !isReady)
     return (
       <div>
         <RefreshCw className="h-4 w-4 animate-spin" />
@@ -36,7 +37,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab }) => {
       </div>
     );
   if (error) return <div>{error.message}</div>;
-  if (!currentUser) return <div>not logged in</div>;
+  if (!currentUser) return <div>{__('not logged in')}</div>;
 
   return (
     <nav className="bg-gray-50 dark:bg-gray-900">
@@ -52,19 +53,20 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab }) => {
                 alt="Thai Business Suite Logo"
                 className="h-8 w-auto"
               />
-              <span>Back to ERPNext</span>
+              <span>{__('Back to ERPNext')}</span>
             </a>
           </div>
 
           <div className="text-muted-foreground flex items-center gap-4">
-            <h1 className="text-lg font-semibold">Translation Tools</h1>
+            <h1 className="text-lg font-semibold">{__('Translation Tools')}</h1>
             <div className="flex items-center gap-4">
               {currentUser && (
                 <div className="text-sm">
-                  Logged in as:{' '}
+                  {__('Logged in as:')}{' '}
                   <span className="font-medium">{currentUser}</span>
                 </div>
               )}
+              <LanguageToggle />
               <ModeToggle />
             </div>
           </div>

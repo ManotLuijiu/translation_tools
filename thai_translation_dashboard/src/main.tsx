@@ -4,6 +4,7 @@ import './assets/fonts/fonts.css';
 import './index.css';
 import App from './App.tsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { TranslationProvider } from './context/TranslationContext.tsx';
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ if (import.meta.env.DEV) {
       if (!window.frappe) {
         window.frappe = {
           __: (text: string) => text, // Provide a default implementation for the __ function
+          show_alert: (message: string) => alert(message), // Provide a default implementation for show_alert
         };
       }
       window.frappe.boot = v;
@@ -32,7 +34,9 @@ if (rootElement) {
   createRoot(rootElement).render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <App />
+        <TranslationProvider>
+          <App />
+        </TranslationProvider>
       </QueryClientProvider>
     </StrictMode>
   );

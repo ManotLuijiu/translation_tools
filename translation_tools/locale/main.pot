@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
-"POT-Creation-Date: 2025-04-22 00:42+0642\n"
-"PO-Revision-Date: 2025-04-22 00:42+0642\n"
+"POT-Creation-Date: 2025-04-24 21:12+0642\n"
+"PO-Revision-Date: 2025-04-24 21:12+0642\n"
 "Last-Translator: moocoding@gmail.com\n"
 "Language-Team: moocoding@gmail.com\n"
 "MIME-Version: 1.0\n"
@@ -39,6 +39,11 @@ msgstr ""
 #. Content of the 'Signature Preview' (HTML) field in DocType 'User Signature'
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
 msgid "<img src=\"{{ doc.signature_image }}\" style=\"max-height: 100px;\">"
+msgstr ""
+
+#. Content of the 'help_html' (HTML) field in DocType 'Translation Settings'
+#: translation_tools/translation_tools/doctype/translation_settings/translation_settings.json
+msgid "<p>The GitHub integration allows translations to be automatically shared to a central repository.</p><p>To set up GitHub integration:</p><ol><li>Create a GitHub account if you don't have one</li><li>Create a Personal Access Token (Classic) at <a href='https://github.com/settings/tokens' target='_blank'>GitHub Settings</a></li><li>Give it the 'repo' permission</li><li>Copy the token and paste it above</li></ol>"
 msgstr ""
 
 #. Header text in the Integrations Workspace
@@ -77,13 +82,12 @@ msgstr ""
 msgid "API key configuration file not found. Translation features may not work."
 msgstr ""
 
-#: translation_tools/api.py:220 translation_tools/api.py:660
 #: translation_tools/api/translation.py:198
 #: translation_tools/api/translation.py:301
 msgid "API key not configured for {0}"
 msgstr ""
 
-#: translation_tools/api.py:1098 translation_tools/api/translation.py:389
+#: translation_tools/api/translation.py:389
 msgid "API key not found in configuration. Please set it up first."
 msgstr ""
 
@@ -130,6 +134,12 @@ msgstr ""
 #. Label of a Check field in DocType 'Translation Settings'
 #: translation_tools/translation_tools/doctype/translation_settings/translation_settings.json
 msgid "Auto Save"
+msgstr ""
+
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
+#. Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Auto-imported"
 msgstr ""
 
 #. Label of a Int field in DocType 'Translation Settings'
@@ -231,6 +241,12 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
+#. Description of the 'GitHub Personal Access Token (Classic)' (Password) field
+#. in DocType 'Translation Settings'
+#: translation_tools/translation_tools/doctype/translation_settings/translation_settings.json
+msgid "Create a token with 'repo' scope at https://github.com/settings/tokens"
+msgstr ""
+
 #. Label of a Table field in DocType 'Translation Settings'
 #: translation_tools/translation_tools/doctype/translation_settings/translation_settings.json
 msgid "Custom Fonts"
@@ -321,6 +337,11 @@ msgstr ""
 msgid "Enable Chat Features"
 msgstr ""
 
+#. Label of a Check field in DocType 'Translation Settings'
+#: translation_tools/translation_tools/doctype/translation_settings/translation_settings.json
+msgid "Enable GitHub Integration"
+msgstr ""
+
 #. Label of a Check field in DocType 'Chat User Settings'
 #. Label of a Check field in DocType 'Translation User Settings'
 #: translation_tools/public/dist/js/chat.bundle.OAHEVCLF.js:4865
@@ -366,18 +387,6 @@ msgstr ""
 msgid "Error loading fonts ครับ: {0}"
 msgstr ""
 
-#: translation_tools/api.py:335
-msgid "Error parsing PO file: {0}"
-msgstr ""
-
-#: translation_tools/api.py:390
-msgid "Error processing PO file: {0}"
-msgstr ""
-
-#: translation_tools/api.py:1081
-msgid "Error saving translation: {0}"
-msgstr ""
-
 #: translation_tools/public/dist/js/translation_tools.app.bundle.CC6IJVFD.js:51
 #: translation_tools/public/js/app.js:74
 msgid "Error: "
@@ -396,10 +405,8 @@ msgstr ""
 msgid "File Path"
 msgstr ""
 
-#: translation_tools/api.py:181 translation_tools/api.py:294
-#: translation_tools/api.py:341 translation_tools/api.py:612
-#: translation_tools/api.py:1044 translation_tools/api/po_files.py:264
-#: translation_tools/api/po_files.py:326 translation_tools/api/po_files.py:395
+#: translation_tools/api/po_files.py:487 translation_tools/api/po_files.py:549
+#: translation_tools/api/po_files.py:644
 #: translation_tools/api/translation.py:147
 #: translation_tools/api/translation.py:259
 msgid "File not found: {0}"
@@ -463,6 +470,16 @@ msgstr ""
 msgid "Generating PDF..."
 msgstr ""
 
+#. Label of a Section Break field in DocType 'Translation Settings'
+#: translation_tools/translation_tools/doctype/translation_settings/translation_settings.json
+msgid "GitHub Integration"
+msgstr ""
+
+#. Label of a Password field in DocType 'Translation Settings'
+#: translation_tools/translation_tools/doctype/translation_settings/translation_settings.json
+msgid "GitHub Personal Access Token (Classic)"
+msgstr ""
+
 #. Option for the 'Type' (Select) field in DocType 'Chat Room'
 #: translation_tools/translation_tools/doctype/chat_room/chat_room.json
 msgid "Group"
@@ -479,7 +496,9 @@ msgstr ""
 msgid "Guest Name"
 msgstr ""
 
-#: translation_tools/public/dist/thai_translator.bundle.USSQY4PE.js:33548
+#. Label of a Section Break field in DocType 'Translation Settings'
+#: translation_tools/public/dist/thai_translator.bundle.X7E5SW57.js:34159
+#: translation_tools/translation_tools/doctype/translation_settings/translation_settings.json
 msgid "Help"
 msgstr ""
 
@@ -520,7 +539,7 @@ msgstr ""
 #: translation_tools/api/components.py:51
 #: translation_tools/api/components.py:82
 #: translation_tools/api/components.py:103
-#: translation_tools/api/installation.py:146
+#: translation_tools/api/installation.py:221
 #: translation_tools/api/notifications.py:14
 msgid "Installing Translation Tools"
 msgstr ""
@@ -535,8 +554,7 @@ msgstr ""
 msgid "Internal Server Error"
 msgstr ""
 
-#: translation_tools/api.py:631 translation_tools/api.py:1053
-#: translation_tools/api/po_files.py:408
+#: translation_tools/api/po_files.py:657
 #: translation_tools/api/translation.py:169
 msgid "Invalid entry ID"
 msgstr ""
@@ -656,6 +674,10 @@ msgstr ""
 msgid "Normal"
 msgstr ""
 
+#: translation_tools/api/po_files.py:955
+msgid "Not permitted"
+msgstr ""
+
 #: translation_tools/api/pdfmake_generator.py:13
 msgid "Not permitted to read this document"
 msgstr ""
@@ -751,7 +773,7 @@ msgstr ""
 msgid "PO Translation Files"
 msgstr ""
 
-#: translation_tools/api.py:1092 translation_tools/api/translation.py:383
+#: translation_tools/api/translation.py:383
 msgid "PO file not found: {0}"
 msgstr ""
 
@@ -777,7 +799,7 @@ msgstr ""
 msgid "Please select a document to print"
 msgstr ""
 
-#: translation_tools/public/dist/thai_translator.bundle.USSQY4PE.js:33582
+#: translation_tools/public/dist/thai_translator.bundle.X7E5SW57.js:34193
 msgid "Please select a file to translate"
 msgstr ""
 
@@ -820,6 +842,11 @@ msgstr ""
 msgid "Refresh"
 msgstr ""
 
+#. Label of a Data field in DocType 'Translation Settings'
+#: translation_tools/translation_tools/doctype/translation_settings/translation_settings.json
+msgid "Repository URL"
+msgstr ""
+
 #. Label of a Link field in DocType 'Chat Message'
 #: translation_tools/translation_tools/doctype/chat_message/chat_message.json
 msgid "Room"
@@ -837,7 +864,7 @@ msgstr ""
 msgid "Room Type"
 msgstr ""
 
-#: translation_tools/api/installation.py:147
+#: translation_tools/api/installation.py:222
 msgid "Running setup script..."
 msgstr ""
 
@@ -872,7 +899,7 @@ msgstr ""
 
 #: translation_tools/public/dist/pdf_generator.bundle.H7TIRT3V.js:19701
 #: translation_tools/public/dist/tax_consultant.bundle.ZB2YVIMO.js:19994
-#: translation_tools/public/dist/thai_translator.bundle.USSQY4PE.js:33534
+#: translation_tools/public/dist/thai_translator.bundle.X7E5SW57.js:34145
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:68
 msgid "Settings"
 msgstr ""
@@ -889,7 +916,7 @@ msgstr ""
 msgid "Settings updated successfully."
 msgstr ""
 
-#: translation_tools/api/installation.py:210
+#: translation_tools/api/installation.py:288
 msgid "Setup Error"
 msgstr ""
 
@@ -939,7 +966,7 @@ msgstr ""
 msgid "Signature URL"
 msgstr ""
 
-#: translation_tools/api/installation.py:123
+#: translation_tools/api/installation.py:195
 msgid "Some dependencies are missing. The setup script will attempt to install them."
 msgstr ""
 
@@ -1097,7 +1124,7 @@ msgstr ""
 msgid "This PDF generator uses pdfmake on the client side and WeasyPrint on the server side."
 msgstr ""
 
-#: translation_tools/www/thai_translation_dashboard.py:48
+#: translation_tools/www/thai_translation_dashboard.py:60
 msgid "This method is only meant for developer mode"
 msgstr ""
 
@@ -1115,8 +1142,8 @@ msgstr ""
 msgid "Total Entries"
 msgstr ""
 
-#: translation_tools/public/dist/thai_translator.bundle.USSQY4PE.js:33522
-#: translation_tools/public/dist/thai_translator.bundle.USSQY4PE.js:33527
+#: translation_tools/public/dist/thai_translator.bundle.X7E5SW57.js:34133
+#: translation_tools/public/dist/thai_translator.bundle.X7E5SW57.js:34138
 msgid "Translate File"
 msgstr ""
 
@@ -1171,6 +1198,10 @@ msgstr ""
 msgid "Translation Settings Custom Font"
 msgstr ""
 
+#: translation_tools/api/po_files.py:961
+msgid "Translation Settings doctype does not exist. Please contact administrator."
+msgstr ""
+
 #. Label of a Percent field in DocType 'PO File'
 #: translation_tools/translation_tools/doctype/po_file/po_file.json
 msgid "Translation Status"
@@ -1213,6 +1244,10 @@ msgstr ""
 msgid "Translation User Settings"
 msgstr ""
 
+#: translation_tools/api/po_files.py:935
+msgid "Translation pushed to GitHub successfully"
+msgstr ""
+
 #: translation_tools/api/request_trial.py:64
 msgid "Trial request submitted successfully."
 msgstr ""
@@ -1243,7 +1278,7 @@ msgstr ""
 msgid "UI"
 msgstr ""
 
-#: translation_tools/api.py:788 translation_tools/api/translation.py:802
+#: translation_tools/api/translation.py:802
 msgid "Unsupported model provider: {0}"
 msgstr ""
 
@@ -1288,7 +1323,7 @@ msgstr ""
 msgid "Users"
 msgstr ""
 
-#: translation_tools/public/dist/thai_translator.bundle.USSQY4PE.js:33541
+#: translation_tools/public/dist/thai_translator.bundle.X7E5SW57.js:34152
 msgid "View Glossary"
 msgstr ""
 
@@ -1321,11 +1356,11 @@ msgstr ""
 msgid "Would you like to try Thai Business Suite for 3 months free?"
 msgstr ""
 
-#: translation_tools/api.py:1262 translation_tools/api/settings.py:304
+#: translation_tools/api/settings.py:304
 msgid "You do not have permission to save API keys"
 msgstr ""
 
-#: translation_tools/api.py:1089 translation_tools/api/translation.py:380
+#: translation_tools/api/translation.py:380
 msgid "You do not have permission to use the translation tools"
 msgstr ""
 

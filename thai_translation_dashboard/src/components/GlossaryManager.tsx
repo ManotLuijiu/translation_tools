@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useMemo } from 'react';
-import useGetFrappeAuth, { useGetFrappeUser } from '@/hooks/useFrappeAuth';
+import React, { useState, useEffect, useMemo } from 'react';
+// import useGetFrappeAuth, { useGetFrappeUser } from '@/hooks/useFrappeAuth';
 import {
   useGetGlossaryTerms,
   useAddGlossaryTerm,
@@ -71,6 +71,7 @@ import {
   TagIcon,
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useTranslation } from '@/context/TranslationContext';
 
 export default function GlossaryManager() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -119,9 +120,8 @@ export default function GlossaryManager() {
   const deleteTerm = useDeleteGlossaryTerm();
   const cleanDuplicates = useCleanDuplicateGlossaryTerms();
   const updateCategories = useUpdateGlossaryTermCategories();
-  const frappeAuth = useGetFrappeAuth();
-  const frappeAll = useGetFrappeUser(frappeAuth.currentUser || 'Administrator');
-  const mooCoding = frappeAll.data.message.email;
+  const { translate: __, isReady } = useTranslation();
+
   // Fetch glossary at component mount
   useEffect(() => {
     // Trigger a refresh of the glossary terms data when the component mounts
@@ -440,9 +440,9 @@ export default function GlossaryManager() {
     );
   }, [categorizedTerms]);
 
-  console.log('frappeAuth', frappeAuth);
-  console.log('frappeAll', frappeAll.data.message.email);
-  console.log('mooCoding', mooCoding);
+  // console.log('frappeAuth', frappeAuth);
+  // console.log('frappeAll', frappeAll.data.message.email);
+  // console.log('mooCoding', mooCoding);
 
   // Render glossary table
   const renderGlossaryTable = (category: string) => {
@@ -654,63 +654,73 @@ export default function GlossaryManager() {
     );
   };
 
+  if (!isReady) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin" />
+          <p>{!isReady ? 'Loading translation...' : 'Accessing...'}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Translation Glossary</h2>
+        <h2 className="text-2xl font-bold">{__('Translation Glossary')}</h2>
 
         <div className="flex justify-between space-x-2">
-          {mooCoding === 'moocoding@gmail.com' && (
-            <div>
-              <Button
-                onClick={handleCleanupDuplicates}
-                variant={'outline'}
-                disabled={cleanDuplicates.loading}
-              >
-                {cleanDuplicates.loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Cleaning...
-                  </>
-                ) : (
-                  <>
-                    <Trash className="mr-2 h-4 w-4" />
-                    Clean Duplicates
-                  </>
-                )}
-              </Button>
+          <div className="justify-between space-x-2 hidden">
+            <Button
+              onClick={handleCleanupDuplicates}
+              variant={'outline'}
+              disabled={cleanDuplicates.loading}
+            >
+              {cleanDuplicates.loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {__('Cleaning...')}
+                </>
+              ) : (
+                <>
+                  <Trash className="mr-2 h-4 w-4" />
+                  {__('Clean Duplicates')}
+                </>
+              )}
+            </Button>
 
-              <Button
-                onClick={handleUpdateCategories}
-                variant={'outline'}
-                disabled={updateCategories.loading}
-              >
-                {updateCategories.loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Updating Categories...
-                  </>
-                ) : (
-                  <>
-                    <TagIcon className="mr-2 h-4 w-4" />
-                    Update Categories
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
+            <Button
+              onClick={handleUpdateCategories}
+              variant={'outline'}
+              disabled={updateCategories.loading}
+            >
+              {updateCategories.loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {__('Updating Categories...')}
+                </>
+              ) : (
+                <>
+                  <TagIcon className="mr-2 h-4 w-4" />
+                  {__('Update Categories')}
+                </>
+              )}
+            </Button>
+          </div>
+
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
-                Add Term
+                {__('Add Term')}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Add New Glossary Term</DialogTitle>
+                <DialogTitle>{__('Add New Glossary Term')}</DialogTitle>
                 <DialogDescription>
-                  Add a new term to the translation glossary.
+                  {__('Add a new term to the translation glossary.')}
                 </DialogDescription>
               </DialogHeader>
 
@@ -718,7 +728,8 @@ export default function GlossaryManager() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="source_term">
-                      English Term <span className="text-red-600">*</span>
+                      {__('English Term')}{' '}
+                      <span className="text-red-600">*</span>
                     </Label>
                     <Input
                       id="source_term"
@@ -731,34 +742,35 @@ export default function GlossaryManager() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="thai_translation">
-                      Thai Translation <span className="text-red-600">*</span>
+                      {__('Thai Translation')}{' '}
+                      <span className="text-red-600">*</span>
                     </Label>
                     <Input
                       id="thai_translation"
                       name="thai_translation"
                       value={formData.thai_translation || ''}
                       onChange={handleInputChange}
-                      placeholder="Enter Thai translation"
+                      placeholder={__('Enter Thai translation')}
                       required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="context">Context</Label>
+                  <Label htmlFor="context">{__('Context')}</Label>
                   <Textarea
                     id="context"
                     name="context"
                     value={formData.context || ''}
                     onChange={handleInputChange}
-                    placeholder="Provide context for this term (optional)"
+                    placeholder={__('Provide context for this term (optional)')}
                     className="h-20 resize-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
+                    <Label htmlFor="category">{__('Category')}</Label>
                     <Select
                       value={formData.category || ''}
                       onValueChange={(value) =>
@@ -811,7 +823,7 @@ export default function GlossaryManager() {
                     onCheckedChange={handleSwitchChange}
                     id="is_approved"
                   />
-                  <Label htmlFor="is_approved">Approved Term</Label>
+                  <Label htmlFor="is_approved">{__('Approved Term')}</Label>
                 </div>
 
                 {statusMessage && (
@@ -844,10 +856,10 @@ export default function GlossaryManager() {
                   {addTerm.loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Adding...
+                      __{'Adding...'}
                     </>
                   ) : (
-                    'Save Term'
+                    __('Save Term')
                   )}
                 </Button>
               </DialogFooter>
@@ -859,7 +871,7 @@ export default function GlossaryManager() {
       <div className="relative">
         <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
         <Input
-          placeholder="Search terms..."
+          placeholder={__('Search terms...')}
           className="pl-8"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -875,7 +887,7 @@ export default function GlossaryManager() {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
-            {termsError.message || 'Failed to load glossary terms'}
+            {termsError.message || __('Failed to load glossary terms')}
           </AlertDescription>
         </Alert>
       ) : (
@@ -998,9 +1010,9 @@ export default function GlossaryManager() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Glossary Term</DialogTitle>
+            <DialogTitle>{__('Edit Glossary Term')}</DialogTitle>
             <DialogDescription>
-              Update the translation glossary term.
+              {__('Update the translation glossary term.')}
             </DialogDescription>
           </DialogHeader>
 
@@ -1016,40 +1028,41 @@ export default function GlossaryManager() {
                   name="source_term"
                   value={formData.source_term || ''}
                   onChange={handleInputChange}
-                  placeholder="Enter source term"
+                  placeholder={__('Enter source term')}
                   required
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="edit_thai_translation">
-                  Thai Translation <span className="text-red-600">*</span>
+                  {__('Thai Translation')}{' '}
+                  <span className="text-red-600">*</span>
                 </Label>
                 <Input
                   id="edit_thai_translation"
                   name="thai_translation"
                   value={formData.thai_translation || ''}
                   onChange={handleInputChange}
-                  placeholder="Enter Thai translation"
+                  placeholder={__('Enter Thai translation')}
                   required
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit_context">Context</Label>
+              <Label htmlFor="edit_context">{__('Context')}</Label>
               <Textarea
                 id="edit_context"
                 name="context"
                 value={formData.context || ''}
                 onChange={handleInputChange}
-                placeholder="Provide context for this term (optional)"
+                placeholder={__('Provide context for this term (optional)')}
                 className="h-20 resize-none"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="edit_category">Category</Label>
+                <Label htmlFor="edit_category">{__('Category')}</Label>
                 <Select
                   value={formData.category || ''}
                   onValueChange={(value) =>
@@ -1057,7 +1070,7 @@ export default function GlossaryManager() {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder={__('Select category')} />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
@@ -1097,7 +1110,7 @@ export default function GlossaryManager() {
                 onCheckedChange={handleSwitchChange}
                 id="edit_is_approved"
               />
-              <Label htmlFor="edit_is_approved">Approved Term</Label>
+              <Label htmlFor="edit_is_approved">{__('Approved Term')}</Label>
             </div>
 
             {statusMessage && (
@@ -1130,10 +1143,10 @@ export default function GlossaryManager() {
               {updateTerm.loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
+                  {__('Updating...')}
                 </>
               ) : (
-                'Update Term'
+                __('Update Term')
               )}
             </Button>
           </DialogFooter>
@@ -1162,10 +1175,10 @@ export default function GlossaryManager() {
               {deleteTerm.loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
+                  {__('Deleting...')}
                 </>
               ) : (
-                'Delete'
+                __('Delete')
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

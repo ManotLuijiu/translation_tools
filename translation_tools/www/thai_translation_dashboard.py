@@ -24,6 +24,9 @@ def get_context(context):
         except Exception as e:
             raise frappe.SessionBootFailed from e
 
+    frappe.local.response["type"] = "redirect"
+    frappe.local.response["location"] = "/thai_translation_dashboard"
+
     boot_json = frappe.as_json(boot, indent=None, separators=(",", ":"))  # type: ignore
     boot_json = SCRIPT_TAG_PATTERN.sub("", boot_json)
 

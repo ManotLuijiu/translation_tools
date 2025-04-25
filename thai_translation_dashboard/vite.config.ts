@@ -1,9 +1,8 @@
-// biome-ignore lint/style/useNodejsImportProtocol: <explanation>
-import path from 'path'
-import tailwindcss from '@tailwindcss/vite'
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import proxyOptions from './proxyOptions'
+import path from 'path';
+import tailwindcss from '@tailwindcss/vite';
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import proxyOptions from './proxyOptions';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -24,5 +23,6 @@ export default defineConfig({
     outDir: '../translation_tools/public/thai_translation_dashboard',
     emptyOutDir: true,
     target: 'es2015',
+    sourcemap: true,
   },
-})
+});

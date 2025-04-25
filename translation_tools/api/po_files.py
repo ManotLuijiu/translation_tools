@@ -579,9 +579,7 @@ def get_po_file_contents(file_path, limit=100, offset=0):
                     "entry_type": (
                         "fuzzy"
                         if "fuzzy" in entry.flags
-                        else "translated"
-                        if entry.msgstr
-                        else "untranslated"
+                        else "translated" if entry.msgstr else "untranslated"
                     ),
                 }
             )
@@ -767,18 +765,24 @@ def push_translation_to_github(file_path, entry, translation):
         entry (polib.POEntry): The PO entry being translated
         translation (str): The translated text
     """
-    # GitHub repo details - get from settings or use default
+    # Default GitHub repo details
+    repo_url = "https://github.com/ManotLuijiu/erpnext-thai-translation.git"
+    github_token = None
 
-    settings = (
-        frappe.get_single("Translation Settings")
-        if frappe.db.exists("DocType", "Translation Settings")
-        else None
-    )
-    repo_url = (
-        settings.repo_url  # type: ignore
-        if settings
-        else "https://github.com/ManotLuijiu/erpnext-thai-translation.git"
-    )
+    # Safely try to get settings
+    try:
+        if frappe.db.exists("DocType", "Translation Settings"):
+            settings = frappe.get_single("Translation Settings")
+            if settings.get("repo_url"):
+                repo_url = settings.repo_url  # type: ignore
+            github_token = settings.get("github_token")
+    except Exception as e:
+        logger.warning(f"Could not fetch Translation Settings: {e}")
+
+    # Check if token is missing
+    if not github_token:
+        logger.info("Github token is missing, requesting from user")
+        return {"github_pushed": False, "error": "missing_token"}
 
     try:
         # Extract app name, language from file_path
@@ -945,34 +949,35 @@ def push_translation_to_github(file_path, entry, translation):
 @enhanced_error_handler
 def save_github_token(token):
     """Save GitHub token to Translation Settings"""
-    if not frappe.has_permission("Translation Settings", "write"):
-        frappe.throw(_("Not permitted"), frappe.PermissionError)
+    try:
+        if not frappe.has_permission("Translation Settings", "write"):
+            frappe.throw(_("Not permitted"), frappe.PermissionError)
 
-    # Create the doctype if it doesn't exist
-    if not frappe.db.exists("DocType", "Translation Settings"):
-        # Create doctype first
-        frappe.throw(
-            _(
-                "Translation Settings doctype does not exist. Please contact administrator."
+        # Create the doctype if it doesn't exist
+        if not frappe.db.exists("DocType", "Translation Settings"):
+            # Create doctype first
+            frappe.throw(
+                _(
+                    "Translation Settings doctype does not exist. Please contact administrator."
+                )
             )
-        )
 
-    # Get or create the settings document
-    if not frappe.db.exists("Translation Settings", "Translation Settings"):
-        settings = frappe.new_doc("Translation Settings")
+        # Get or create the settings document
+        settings = frappe.get_single("Translation Settings")
+        row = settings.append("custom_fonts", {})
+        row.font_name = "Sarabun"
+        row.font_path = "/assets/translation_tools/fonts/Sarabun/Sarabun-Regular.ttf"
+        settings.enable_github = 1  # type: ignore
         settings.repo_url = (  # type: ignore
             "https://github.com/ManotLuijiu/erpnext-thai-translation.git"  # type: ignore
         )
-        settings.enable_github = 1  # type: ignore
-    else:
-        settings = frappe.get_doc("Translation Settings", "Translation Settings")
-        settings.enable_github = 1  # type: ignore
+        settings.github_token = token  # type: ignore
+        settings.save(ignore_permissions=True)
 
-    # Update the token
-    settings.github_token = token  # type: ignore
-    settings.save()
-
-    return {"success": True}
+        return {"success": True}
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "Failed to save Github token")
+        return {"success": False, "error": str(e), "traceback": frappe.get_traceback()}
 
 
 @frappe.whitelist()

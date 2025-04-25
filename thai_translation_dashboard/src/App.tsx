@@ -1,4 +1,3 @@
-// biome-ignore lint/style/useImportType: <explanation>
 import React from 'react';
 import { FrappeProvider } from 'frappe-react-sdk';
 
@@ -8,6 +7,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { useTheme } from './hooks/useTheme';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { CrossIcon, InfoIcon } from 'lucide-react';
 
 const App: React.FC = () => {
   const theme = useTheme();
@@ -24,7 +24,14 @@ const App: React.FC = () => {
               <main className="container mx-auto px-4 dark:bg-gray-900">
                 <Dashboard />
               </main>
-              <Toaster />
+              <Toaster
+                richColors
+                position="bottom-right"
+                icons={{
+                  success: <InfoIcon />,
+                  error: <CrossIcon />,
+                }}
+              />
             </div>
           </AppProvider>
         </ThemeProvider>

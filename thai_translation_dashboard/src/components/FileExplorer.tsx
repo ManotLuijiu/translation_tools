@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useGetCachedPOFiles, useScanPOFiles } from '../api';
-// biome-ignore lint/style/useImportType: <explanation>
 import { POFile } from '../types';
 import { formatPercentage, formatDate } from '../utils/helpers';
 import { Button } from '@/components/ui/button';
@@ -22,8 +21,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Loader2, RefreshCw, Search, FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useFrappeTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/context/TranslationContext';
 
 interface FileExplorerProps {
   onFileSelect: (file: POFile) => void;
@@ -38,6 +37,7 @@ export default function FileExplorer({
   const { data, error, isLoading } = useGetCachedPOFiles();
   const scanFiles = useScanPOFiles();
   const [isScanning, setIsScanning] = useState(false);
+  const { translate: __, isReady } = useTranslation();
 
   console.log('selectedFilePath', selectedFilePath);
 
@@ -78,7 +78,16 @@ export default function FileExplorer({
 
   console.log('sortedFiles', sortedFiles);
 
-  const { __ } = useFrappeTranslation();
+  if (!isReady) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin" />
+          <p>{!isReady ? 'Loading translation...' : 'Accessing...'}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -88,12 +97,12 @@ export default function FileExplorer({
           {isScanning ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Scanning...
+              {__('Scanning...')}
             </>
           ) : (
             <>
               <RefreshCw className="mr-2 h-4 w-4" />
-              Scan Files
+              {__('Scan Files')}
             </>
           )}
         </Button>
@@ -115,7 +124,9 @@ export default function FileExplorer({
         </div>
       ) : error ? (
         <div className="text-destructive p-4 text-center">
-          Error loading files: {error.message || 'Unknown error'}
+          {__('Error loading files:, {error}', {
+            error: error.message || 'Unknown error',
+          })}
         </div>
       ) : sortedFiles.length === 0 ? (
         <div className="text-muted-foreground p-8 text-center">
@@ -128,7 +139,7 @@ export default function FileExplorer({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>App</TableHead>
+                <TableHead>{__('App')}</TableHead>
                 <TableHead>Filename</TableHead>
                 <TableHead>Progress</TableHead>
                 <TableHead>Last Modified</TableHead>

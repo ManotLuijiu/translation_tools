@@ -902,6 +902,11 @@ body{
   background-color: hsl(var(--tw-primary));
 }
 
+.tw-bg-red-100{
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 226 226 / var(--tw-bg-opacity, 1));
+}
+
 .tw-bg-secondary{
   background-color: hsl(var(--tw-secondary));
 }

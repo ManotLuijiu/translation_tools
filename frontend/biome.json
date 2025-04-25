@@ -1,0 +1,11 @@
+{
+  "extends": ["../biome.json"],
+  "linter": {
+    "enabled": false,
+    "rules": {
+      "correctness": {
+        "noUnusedVariables": "off"
+      }
+    }
+  }
+}

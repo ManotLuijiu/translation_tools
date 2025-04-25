@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import '../../css/tailwind.css';
+// import '../../css/tailwind.css';
 // import { Toaster } from '@/components/ui/sonner';
 import Dashboard from '@/components/Dashboard';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
