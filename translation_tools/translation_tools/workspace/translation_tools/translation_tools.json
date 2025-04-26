@@ -2,18 +2,18 @@
   "app": "translation_tools",
   "charts": [
     {
-      "chart": "Translation Status",
-      "width": "Full"
+      "chart_name": "Translation Status",
+      "label": "Translation Status"
     }
   ],
-  "content": "[{\"id\":\"pu9Ft3mUeT\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Your Shortcuts</b></span>\",\"col\":12}},{\"id\":\"-xxN9AyGlK\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"PDF Generator\",\"col\":3}},{\"id\":\"mYg4h6H7aX\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Translator\",\"col\":3}},{\"id\":\"OBOPP0dnjY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Translation Status\",\"col\":3}},{\"id\":\"zyVHu4rF3u\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"HSmKHOvqMN\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Tools</b></span>\",\"col\":12}},{\"id\":\"lKeffKf1va\",\"type\":\"card\",\"data\":{\"card_name\":\"PDF Tools\",\"col\":4}},{\"id\":\"UnVtsnxLo_\",\"type\":\"card\",\"data\":{\"card_name\":\"Translation\",\"col\":4}},{\"id\":\"YXISc0V2sT\",\"type\":\"card\",\"data\":{\"card_name\":\"Configuration\",\"col\":4}}]",
+  "content": "[{\"id\":\"thai-banner\",\"type\":\"header\",\"data\":{\"text\":\"<div style='background-color:#f9f9f9; padding:15px; border-radius:5px; margin-bottom:15px; border-left:5px solid #4c8bca;'><img src='/assets/translation_tools/images/thai_business_suite_banner.png' alt='Thai Business Suite' style='max-width:100%; height:auto;'><p style='margin-top:10px; font-size:14px;'>AI-powered translation tools for Thai business</p></div>\",\"col\":12}},{\"id\":\"number-cards\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Approved Translations\",\"col\":3}},{\"id\":\"number-cards-2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Pending Translations\",\"col\":3}},{\"id\":\"number-cards-3\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Glossary Terms\",\"col\":3}},{\"id\":\"number-cards-4\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Translation Progress\",\"col\":3}},{\"id\":\"chart-section\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Translation Status\",\"col\":12}},{\"id\":\"pu9Ft3mUeT\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Your Shortcuts</b></span>\",\"col\":12}},{\"id\":\"-xxN9AyGlK\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"PDF Generator\",\"col\":3}},{\"id\":\"mYg4h6H7aX\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Translator\",\"col\":3}},{\"id\":\"OBOPP0dnjY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Translation Status\",\"col\":3}},{\"id\":\"zyVHu4rF3u\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"HSmKHOvqMN\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Tools</b></span>\",\"col\":12}},{\"id\":\"lKeffKf1va\",\"type\":\"card\",\"data\":{\"card_name\":\"PDF Tools\",\"col\":4}},{\"id\":\"UnVtsnxLo_\",\"type\":\"card\",\"data\":{\"card_name\":\"Translation\",\"col\":4}},{\"id\":\"YXISc0V2sT\",\"type\":\"card\",\"data\":{\"card_name\":\"Configuration\",\"col\":4}}]",
   "creation": "2025-04-26 12:00:00.000000",
   "custom_blocks": [],
   "docstatus": 0,
   "doctype": "Workspace",
   "for_user": "",
   "hide_custom": 0,
-  "icon": "translate",
+  "icon": "tool",
   "idx": 0,
   "is_hidden": 0,
   "label": "Translation Tools",
@@ -85,16 +85,6 @@
     {
       "hidden": 0,
       "is_query_report": 0,
-      "label": "ERPNext Module",
-      "link_count": 0,
-      "link_to": "ERPNext Module",
-      "link_type": "DocType",
-      "onboard": 0,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
       "label": "Translation Glossary Term",
       "link_count": 0,
       "link_to": "Translation Glossary Term",
@@ -107,14 +97,27 @@
   "modified_by": "Administrator",
   "module": "Translation Tools",
   "name": "Translation Tools",
-  "number_cards": [],
+  "number_cards": [
+    {
+      "card_name": "Approved Translations"
+    },
+    {
+      "card_name": "Pending Translations"
+    },
+    {
+      "card_name": "Total Glossary Terms"
+    },
+    {
+      "card_name": "Translation Progress"
+    }
+  ],
   "owner": "Administrator",
   "parent_page": "",
   "public": 1,
   "quick_lists": [],
   "restrict_to_domain": "",
   "roles": [],
-  "sequence_id": 1.0,
+  "sequence_id": 99.0,
   "shortcuts": [
     {
       "color": "Green",

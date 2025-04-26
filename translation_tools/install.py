@@ -25,8 +25,15 @@ from translation_tools.api.setup_workspace import (
 def after_install():
     """Run setup operations after app installation"""
     logger = setup_logging()
+    arrange_workspaces()
 
     try:
+        if frappe.db.exists("Workspace", "Translation Tools"):
+            doc = frappe.get_doc("Workspace", "Translation Tools")
+            doc.sequence_id = 99  # type: ignore
+            doc.save(ignore_permissions=True)
+            frappe.db.commit()
+
         # Check version for upgrades
         handle_version_upgrade()
 
@@ -93,6 +100,36 @@ def after_install():
     except Exception as e:
         logger.error(f"Installation failed: {str(e)}")
         handle_installation_error(e)
+
+
+def arrange_workspaces():
+    """Arrange workspaces based on installed apps"""
+    try:
+        # Check if Thai Business Suite is installed
+        has_thai_business = "thai_business_suite" in frappe.get_installed_apps()
+
+        if frappe.db.exists("Workspace", "Translation Tools"):
+            # Define the values to update
+            values = {
+                "chart_name": "Translation Status"  # Set this to a non-empty value
+            }
+
+            # Set parent_page and sequence_id based on Thai Business Suite presence
+            if has_thai_business and frappe.db.exists(
+                "Workspace", "Thai Business Suite"
+            ):
+                values["parent_page"] = "Thai Business Suite"
+                values["sequence_id"] = 1
+            else:
+                values["parent_page"] = ""
+                values["sequence_id"] = 99
+
+            # Update the workspace directly
+            frappe.db.set_value("Workspace", "Translation Tools", values)
+            frappe.db.commit()
+
+    except Exception as e:
+        frappe.log_error(f"Failed to arrange Translation Tools workspace: {e}")
 
 
 # git fsck --lost-found

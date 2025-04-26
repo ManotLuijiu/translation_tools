@@ -5,3 +5,5 @@
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated
 translation_tools.patches.default.add_default_font_to_print_settings
+# translation_tools.patches.set_workspace_sequence
+# translation_tools.patches.arrange_workspaces

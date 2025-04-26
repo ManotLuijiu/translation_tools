@@ -23,11 +23,11 @@ class Thai_Translator {
     this.page.set_primary_action(
       __('React Version'),
       () => this.redirectToSPA(),
-      'react-logo'
+      // 'icon-react-logo'
       // 'fa fa-react'
       // '<i class="fa fa-react" aria-hidden="true"></i>'
       // 'refresh'
-      // 'branch'
+      'branch'
       // 'globe'
     );
 

@@ -1,0 +1,25 @@
+{
+ "cards": [],
+ "charts": [
+  {
+   "chart": "Translation Status",
+   "width": "Half"
+  },
+  {
+   "chart": "Translation Status",
+   "width": "Half"
+  }
+ ],
+ "creation": "2025-04-26 22:24:41.673724",
+ "dashboard_name": "Translation Status",
+ "docstatus": 0,
+ "doctype": "Dashboard",
+ "idx": 0,
+ "is_default": 0,
+ "is_standard": 1,
+ "modified": "2025-04-26 22:26:42.481188",
+ "modified_by": "Administrator",
+ "module": "Translation Tools",
+ "name": "Translation Status",
+ "owner": "Administrator"
+}
