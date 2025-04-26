@@ -103,11 +103,12 @@ app_include_js = [
     "/assets/translation_tools/js/utils/pdfmake.min.js.map",
     "/assets/translation_tools/js/utils/vfs_fonts.js",
     "/assets/translation_tools/js/font_override.js",
+    "/assets/translation_tools/js/print_designer/thai_fonts_patch.js",
     "chat.bundle.js",
 ]
 
 app_include_css = [
-    # "/assets/translation_tools/css/thai_fonts.css",
+    "/assets/translation_tools/css/thai_fonts.css",
     "/assets/translation_tools/css/fonts.css",
     # "/assets/translation_tools/css/custom_fonts.css",
     "/assets/translation_tools/css/custom_print.css",
@@ -116,7 +117,7 @@ app_include_css = [
 ]
 
 web_include_css = [
-    # "/assets/translation_tools/css/thai_fonts.css",
+    "/assets/translation_tools/css/thai_fonts.css",
     # "/assets/translation_tools/css/custom_fonts.css",
     "/assets/translation_tools/css/custom_print.css",
     # "/assets/translation_tools/css/icons.css",
@@ -124,6 +125,16 @@ web_include_css = [
 ]
 web_include_js = ["chat.bundle.js"]
 
+# To specifically target the print designer page
+# page_js = {
+#     "print_designer": "/assets/translation_tools/js/print_designer/thai_fonts_patch.js"
+# }
+
+# Specifically target print formats
+print_format_builder_include_css = ["/assets/translation_tools/css/thai_fonts.css"]
+print_style = ["/assets/translation_tools/css/thai_fonts.css"]
+
+# This hook may impact to Web app font all pages
 # website_theme_scss = "translation_tools/public/scss/website"
 
 
@@ -176,6 +187,7 @@ desk_page = {
 }
 
 doc_events = {
+    "Print Format": {"before_save": "translation_tools.print_format.before_save"},
     "Quotation": {
         "validate": "translation_tools.utils.thai_in_words.set_in_words_thai"
     },
@@ -238,7 +250,8 @@ override_doctype_class = {
 
 # Override the default PDF styles
 override_whitelisted_methods = {
-    "frappe.utils.pdf.get_pdf_styles": "translation_tools.utils.pdf_utils.get_pdf_styles"
+    "frappe.utils.pdf.get_pdf_styles": "translation_tools.utils.pdf_utils.get_pdf_styles",
+    "frappe.utils.pdf.get_pdf": "translation_tools.utils.pdf.get_pdf_with_thai_fonts",
 }
 
 # Include JS file
