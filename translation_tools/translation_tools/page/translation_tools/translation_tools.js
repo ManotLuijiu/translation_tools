@@ -1,15 +1,15 @@
 frappe.pages['translation-tools'].on_page_load = function (wrapper) {
   // Inject Tailwind CDN
-  const link = document.createElement('link');
-  link.href =
-    'https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css';
-  link.rel = 'stylesheet';
-  document.head.appendChild(link);
+  // const link = document.createElement('link');
+  // link.href =
+  //   'https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css';
+  // link.rel = 'stylesheet';
+  // document.head.appendChild(link);
 
   frappe.ui.make_app_page({
     parent: wrapper,
     title: __('translation-tools'),
-    single_column: true,
+    single_column: false,
   });
 };
 

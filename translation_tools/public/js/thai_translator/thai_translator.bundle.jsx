@@ -21,10 +21,13 @@ class Thai_Translator {
   setup_page_actions() {
     this.cleanupMenuItems();
     this.page.set_primary_action(
-      __('Translate File'),
-      () => this.translateFile()
-      // '<i class="fa fa-language" aria-hidden="true"></i>'
+      __('React Version'),
+      () => this.redirectToSPA(),
+      'react-logo'
+      // 'fa fa-react'
+      // '<i class="fa fa-react" aria-hidden="true"></i>'
       // 'refresh'
+      // 'branch'
       // 'globe'
     );
 
@@ -124,6 +127,10 @@ class Thai_Translator {
 
   translateFile() {
     frappe.msgprint(__('Please select a file to translate'));
+  }
+
+  redirectToSPA() {
+    window.location.href = '/thai_translation_dashboard';
   }
 
   showSettings() {

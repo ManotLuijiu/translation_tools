@@ -1,29 +1,29 @@
 frappe.pages['thai_translator'].on_page_load = function (wrapper) {
-	console.log('wrapper', wrapper)
+  console.log('wrapper', wrapper);
 
-	const page = frappe.ui.make_app_page({
-		parent: wrapper,
-		title: __('Thai Translator'),
-		single_column: true,
-	})
+  const page = frappe.ui.make_app_page({
+    parent: wrapper,
+    title: __('Thai Translator'),
+    single_column: true,
+  });
 
-	console.log('page', page)
+  console.log('page', page);
 
-	page.set_indicator('อังกฤษ -> ไทย', 'green')
-}
+  page.set_indicator('อังกฤษ -> ไทย', 'green');
+};
 
 frappe.pages['thai_translator'].on_page_show = function (wrapper) {
-	load_desk_page(wrapper)
-}
+  load_desk_page(wrapper);
+};
 
 function load_desk_page(wrapper) {
-	const $parent = $(wrapper).find('.layout-main-section')
-	$parent.empty()
+  const $parent = $(wrapper).find('.layout-main-section');
+  $parent.empty();
 
-	frappe.require('thai_translator.bundle.jsx').then(() => {
-		frappe.thai_translator = new frappe.ui.Thai_Translator({
-			wrapper: $parent,
-			page: wrapper.page,
-		})
-	})
+  frappe.require('thai_translator.bundle.jsx').then(() => {
+    frappe.thai_translator = new frappe.ui.Thai_Translator({
+      wrapper: $parent,
+      page: wrapper.page,
+    });
+  });
 }

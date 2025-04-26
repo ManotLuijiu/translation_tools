@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./translation_tools/public/js/translation_tools/*"]
-    },
-    "jsx": "react"
-  }
-}

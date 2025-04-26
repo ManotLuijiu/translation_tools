@@ -1,5 +1,4 @@
 import * as React from 'react';
-import '../../css/tailwind.css';
 // import { useState, useEffect } from 'react';
 // import PdfViewer from './components/PdfViewer';
 

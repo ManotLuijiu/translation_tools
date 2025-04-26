@@ -57,7 +57,7 @@ website_route_rules = [
         "from_route": "/thai_translation_dashboard/<path:app_path>",
         "to_route": "thai_translation_dashboard",
     },
-    {"from_route": "/app/thai_translator", "to_route": "/thai_translation_dashboard"},
+    # {"from_route": "/app/thai_translator", "to_route": "/thai_translation_dashboard"},
     # {
     #     "from_route": "/app/thai_translation_dashboard/<path:app_path>",
     #     "to_route": "thai_translation_dashboard",
@@ -80,6 +80,8 @@ app_include_head = [
     "<link href='https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Mitr:wght@200;300;400;500;600;700&family=Noto+Sans+Thai:wght@100..900&family=Pattaya&family=Pridi:wght@200;300;400;500;600;700&family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap' rel='stylesheet'>",
 ]
 
+app_include_icons = ["images/icons/react-logo.svg"]
+
 # For web pages
 website_context = {
     "head_html": """
@@ -99,11 +101,12 @@ app_include_js = [
     "/assets/translation_tools/js/utils/pdfmake.min.js.map",
     "/assets/translation_tools/js/utils/vfs_fonts.js",
     "/assets/translation_tools/js/font_override.js",
+    # "/assets/translation_tools/js/custom_icons.js",
     "chat.bundle.js",
 ]
 
 app_include_css = [
-    "/assets/translation_tools/css/tailwind.css",
+    # "/assets/translation_tools/css/tailwind.css",
     "/assets/translation_tools/css/thai_fonts.css",
     "/assets/translation_tools/css/fonts.css",
     "/assets/translation_tools/css/custom_fonts.css",
