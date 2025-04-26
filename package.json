@@ -35,6 +35,7 @@
     "@radix-ui/react-tooltip": "^1.2.0",
     "@tanstack/react-query": "4.29.19",
     "buffer": "^6.0.3",
+    "chart.js": "^4.4.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "frappe-ui": "^0.1.134",

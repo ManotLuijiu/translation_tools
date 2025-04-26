@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title }}</title>
+    <style>
+      @page {
+        margin: 20mm;
+        @bottom-center {
+          content: 'Page ' counter(page) ' of ' counter(pages);
+          font-size: 10px;
+        }
+      }
+
+      body {
+        font-family: sans-serif;
+        line-height: 1.5;
+        color: #333;
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #4287f5;
+      }
+
+      .report-header {
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .company-name {
+        font-size: 1.5em;
+        font-weight: bold;
+      }
+
+      .report-meta {
+        margin-top: 10px;
+        font-size: 0.9em;
+        color: #666;
+      }
+
+      .filters-summary {
+        margin: 20px 0;
+        padding: 10px;
+        background-color: #f5f5f5;
+        border-radius: 5px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+
+      table,
+      th,
+      td {
+        border: 1px solid #ddd;
+      }
+
+      th,
+      td {
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      .progress-bar {
+        height: 10px;
+        background-color: #e0e0e0;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+
+      .progress-bar-fill {
+        height: 100%;
+        background-color: #4caf50;
+      }
+
+      .summary-stats {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      .stat-card {
+        flex: 1;
+        padding: 15px;
+        background-color: #f2f2f2;
+        border-radius: 5px;
+        margin: 0 5px;
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        font-size: 0.8em;
+        color: #666;
+      }
+
+      .footer {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 0.8em;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="report-header">
+      <div class="company-name">
+        {{ frappe.defaults.get_global_default("company") or "Translation Tools"
+        }}
+      </div>
+      <h1>{{ title }}</h1>
+      <div class="report-meta">
+        Generated on: {{ frappe.utils.get_datetime_str(frappe.utils.now()) }}<br />
+        User: {{ frappe.session.user }}
+      </div>
+    </div>
+
+    {% if filters %}
+    <div class="filters-summary">
+      <strong>Filters:</strong>
+      {% for key, value in filters.items() %} {% if value %} {{ key }}: {{ value
+      }}{% if not loop.last %}, {% endif %} {% endif %} {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Summary Statistics -->
+    <div class="summary-stats">
+      {% set total_apps = data|length %} {% set total_strings = 0 %} {% set
+      total_translated = 0 %} {% for row in data %} {% set total_strings =
+      total_strings + row.total_strings %} {% set total_translated =
+      total_translated + row.translated %} {% endfor %} {% set avg_percentage =
+      (total_translated / total_strings * 100) if total_strings > 0 else 0 %}
+
+      <div class="stat-card">
+        <div class="stat-value">{{ total_apps }}</div>
+        <div class="stat-label">Applications</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-value">{{ total_strings }}</div>
+        <div class="stat-label">Total Strings</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-value">{{ total_translated }}</div>
+        <div class="stat-label">Translated</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-value">{{ "%.1f"|format(avg_percentage) }}%</div>
+        <div class="stat-label">Completion</div>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <table>
+      <thead>
+        <tr>
+          {% for col in columns %}
+          <th>{{ col.label }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in data %}
+        <tr>
+          <td>{{ row.app }}</td>
+          <td>{{ row.file_path }}</td>
+          <td>{{ row.total_strings }}</td>
+          <td>{{ row.translated }}</td>
+          <td>{{ row.untranslated }}</td>
+          <td>
+            <div class="progress-bar">
+              <div
+                class="progress-bar-fill"
+                style="width: {{ row.percentage }}%;"
+              ></div>
+            </div>
+            {{ "%.1f"|format(row.percentage) }}%
+          </td>
+          <td>{{ row.last_updated }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <p>
+        This report was generated using Translation Tools. It provides an
+        overview of the Thai translation status across all apps.
+      </p>
+    </div>
+  </body>
+</html>

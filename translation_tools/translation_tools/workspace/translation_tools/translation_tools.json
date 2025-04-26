@@ -1,0 +1,143 @@
+{
+  "app": "translation_tools",
+  "charts": [
+    {
+      "chart": "Translation Status",
+      "width": "Full"
+    }
+  ],
+  "content": "[{\"id\":\"pu9Ft3mUeT\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Your Shortcuts</b></span>\",\"col\":12}},{\"id\":\"-xxN9AyGlK\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"PDF Generator\",\"col\":3}},{\"id\":\"mYg4h6H7aX\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Translator\",\"col\":3}},{\"id\":\"OBOPP0dnjY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Translation Status\",\"col\":3}},{\"id\":\"zyVHu4rF3u\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"HSmKHOvqMN\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Tools</b></span>\",\"col\":12}},{\"id\":\"lKeffKf1va\",\"type\":\"card\",\"data\":{\"card_name\":\"PDF Tools\",\"col\":4}},{\"id\":\"UnVtsnxLo_\",\"type\":\"card\",\"data\":{\"card_name\":\"Translation\",\"col\":4}},{\"id\":\"YXISc0V2sT\",\"type\":\"card\",\"data\":{\"card_name\":\"Configuration\",\"col\":4}}]",
+  "creation": "2025-04-26 12:00:00.000000",
+  "custom_blocks": [],
+  "docstatus": 0,
+  "doctype": "Workspace",
+  "for_user": "",
+  "hide_custom": 0,
+  "icon": "translate",
+  "idx": 0,
+  "is_hidden": 0,
+  "label": "Translation Tools",
+  "links": [
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "PDF Tools",
+      "link_count": 1,
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "PDF Generator",
+      "link_count": 0,
+      "link_to": "pdf-generator",
+      "link_type": "Page",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Translation",
+      "link_count": 3,
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "AI Translator",
+      "link_count": 0,
+      "link_to": "ai-translator",
+      "link_type": "Page",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Translation Status",
+      "link_count": 0,
+      "link_to": "translation-status",
+      "link_type": "Page",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 1,
+      "label": "Translation Status Report",
+      "link_count": 0,
+      "link_to": "Translation Status Report",
+      "link_type": "Report",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Configuration",
+      "link_count": 2,
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "ERPNext Module",
+      "link_count": 0,
+      "link_to": "ERPNext Module",
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Translation Glossary Term",
+      "link_count": 0,
+      "link_to": "Translation Glossary Term",
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Link"
+    }
+  ],
+  "modified": "2025-04-27 12:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Translation Tools",
+  "name": "Translation Tools",
+  "number_cards": [],
+  "owner": "Administrator",
+  "parent_page": "",
+  "public": 1,
+  "quick_lists": [],
+  "restrict_to_domain": "",
+  "roles": [],
+  "sequence_id": 1.0,
+  "shortcuts": [
+    {
+      "color": "Green",
+      "doc_view": "List",
+      "label": "PDF Generator",
+      "link_to": "pdf-generator",
+      "type": "Page"
+    },
+    {
+      "color": "Blue",
+      "doc_view": "List",
+      "label": "AI Translator",
+      "link_to": "ai-translator",
+      "type": "Page"
+    },
+    {
+      "color": "Grey",
+      "doc_view": "List",
+      "label": "Translation Status",
+      "link_to": "translation-status",
+      "type": "Page"
+    }
+  ],
+  "title": "Translation Tools",
+  "type": "Workspace"
+}

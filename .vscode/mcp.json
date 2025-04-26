@@ -1,0 +1,19 @@
+{
+  "servers": {
+    "fetch": {
+      "command": "uvx",
+      "args": ["mcp-server-fetch"]
+    },
+    "config": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    },
+    "redis": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-redis"],
+      "env": {
+        "REDIS_URL": "redis://loalhost:6379"
+      }
+    }
+  }
+}
