@@ -1,17 +1,59 @@
 import frappe
 from frappe import _
 import json
+from translation_tools.utils.helper import get_translation_settings
+
+# from frappe.model.document import Document
+# from typing import cast
+
+
+# class TranslationToolsSettings(Document):
+#     enable_translation: int
+#     default_source_language: str
+#     default_target_language: str
+#     openai_api_key: str
+#     openai_model: str
+#     anthropic_api_key: str
+#     anthropic_model: str
+
+
+# def get_translation_settings() -> TranslationToolsSettings:
+#     """Return cached Translation Tools Settings."""
+#     try:
+#         settings = frappe.get_cached_doc("Translation Tools Settings")
+#         return cast(TranslationToolsSettings, settings)
+#     except Exception:
+#         settings = frappe.get_single("Translation Tools Settings")
+#         return cast(TranslationToolsSettings, settings)
+
+
+def safe_get_session_user():
+    try:
+        if frappe.session and frappe.session.user:
+            return frappe.session.user
+    except frappe.SessionStopped:
+        pass
+    return "Guest"
+
+
+def safe_is_admin(user):
+    try:
+        return user == "Administrator" or "System Manager" in frappe.get_roles(user)
+    except Exception:
+        return False
 
 
 @frappe.whitelist(allow_guest=True)
 def settings(token=None):
     """Fetch and return the settings for a translation chat session."""
 
+    user = safe_get_session_user()
+    is_admin = safe_is_admin(user)
+
     config = {
         "socketio_port": frappe.conf.socketio_port,
-        "user_email": frappe.session.user,
-        "is_admin": frappe.session.user == "Administrator"
-        or "System Manager" in frappe.get_roles(),
+        "user_email": user,
+        "is_admin": is_admin,
         "guest_title": "".join(
             frappe.get_hooks("guest_title") or ["Translation Assistant"]
         ),
@@ -19,41 +61,21 @@ def settings(token=None):
 
     # Add translation settings
     try:
-        # Get general settings
-        config["enable_translation"] = (
-            frappe.db.get_single_value(
-                "Translation Tools Settings", "enable_translation"
-            )
-            or 1
-        )
-        config["default_source_language"] = (
-            frappe.db.get_single_value(
-                "Translation Tools Settings", "default_source_language"
-            )
-            or "en"
-        )
-        config["default_target_language"] = (
-            frappe.db.get_single_value(
-                "Translation Tools Settings", "default_target_language"
-            )
-            or "th"
-        )
+        settings = get_translation_settings()
 
-        # Get provider settings (without exposing API keys)
-        config["has_openai"] = bool(
-            frappe.db.get_single_value("Translation Tools Settings", "openai_api_key")
-        )
-        config["has_anthropic"] = bool(
-            frappe.db.get_single_value(
-                "Translation Tools Settings", "anthropic_api_key"
-            )
-        )
+        config["enable_translation"] = settings.enable_translation or 1
+        config["default_source_language"] = settings.default_source_language or "en"
+        config["default_target_language"] = settings.default_target_language or "th"
+        config["has_openai"] = bool(settings.openai_api_key)
+        config["has_anthropic"] = bool(settings.anthropic_api_key)
         config["openai_model"] = (
-            frappe.db.get_single_value("Translation Tools Settings", "openai_model")
+            settings.openai_model
+            or frappe.conf.default_openai_model
             or "gpt-4-1106-preview"
         )
         config["anthropic_model"] = (
-            frappe.db.get_single_value("Translation Tools Settings", "anthropic_model")
+            settings.anthropic_model
+            or frappe.conf.default_anthropic_model
             or "claude-3-haiku-20240307"
         )
     except Exception as e:
@@ -63,29 +85,22 @@ def settings(token=None):
         config["error"] = str(e)
 
     # For authenticated users - add name and user settings
-    if not frappe.session.user or frappe.session.user == "Guest":
+    if user == "Guest":
         config["user"] = "Guest"
         if token:
-            # Handle token validation if needed
-            # This is where you'd use validate_token if implemented
-            pass
+            pass  # Handle token validation if needed
     else:
-        # Get user name
-        user_doc = frappe.get_doc("User", frappe.session.user)
-        config["user"] = user_doc.full_name or frappe.session.user  # type: ignore
+        user_doc = frappe.get_doc("User", user)
+        config["user"] = user_doc.full_name or user  # type: ignore
 
-        # Get user settings if they exist
-        if frappe.db.exists("Translation User Settings", frappe.session.user):
-            user_settings = frappe.get_doc(
-                "Translation User Settings", frappe.session.user
-            )
+        if frappe.db.exists("Translation User Settings", user):
+            user_settings = frappe.get_doc("Translation User Settings", user)
             config["user_settings"] = {
                 "enable_notifications": user_settings.enable_notifications,  # type: ignore
                 "enable_message_tone": user_settings.enable_message_tone,  # type: ignore
                 "preferred_language": user_settings.preferred_language,  # type: ignore
             }
         else:
-            # Default user settings
             config["user_settings"] = {
                 "enable_notifications": 1,
                 "enable_message_tone": 1,
