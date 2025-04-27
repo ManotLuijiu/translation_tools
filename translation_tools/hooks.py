@@ -245,13 +245,13 @@ sounds = [
 # Override doctype class
 override_doctype_class = {
     "Sales Invoice": "translation_tools.override.custom_sales_invoice.CustomSalesInvoice",
-    "Print Format": "translation_tools.override.print_format.CustomPrintFormat",
+    # "Print Format": "translation_tools.override.print_format.CustomPrintFormat",
 }
 
 # Override the default PDF styles
 override_whitelisted_methods = {
     "frappe.utils.pdf.get_pdf_styles": "translation_tools.utils.pdf_utils.get_pdf_styles",
-    "frappe.utils.pdf.get_pdf": "translation_tools.utils.pdf.get_pdf_with_thai_fonts",
+    # "frappe.utils.pdf.get_pdf": "translation_tools.utils.pdf.get_pdf_with_thai_fonts",
 }
 
 # Include JS file
