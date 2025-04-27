@@ -245,7 +245,7 @@ sounds = [
 # Override doctype class
 override_doctype_class = {
     "Sales Invoice": "translation_tools.override.custom_sales_invoice.CustomSalesInvoice",
-    # "Print Format": "translation_tools.override.print_format.CustomPrintFormat",
+    "Print Format": "translation_tools.override.print_format.CustomPrintFormat",
 }
 
 # Override the default PDF styles
