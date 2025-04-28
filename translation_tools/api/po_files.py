@@ -19,7 +19,7 @@ os.makedirs(LOG_DIR, exist_ok=True)
 
 LOG_FILE = os.path.join(LOG_DIR, "po_file_debug.log")
 
-logger = logging.getLogger("translation_tools.po_files")
+logger = logging.getLogger("translation_tools.api.po_files")
 loggerJson = get_json_logger()
 
 # Avoid adding handlers multiple times
@@ -771,11 +771,12 @@ def push_translation_to_github(file_path, entry, translation):
 
     # Safely try to get settings
     try:
-        if frappe.db.exists("DocType", "Translation Settings"):
-            settings = frappe.get_single("Translation Settings")
+        if frappe.db.exists("DocType", "Translation Tools Settings"):
+            settings = frappe.get_single("Translation Tools Settings")
             if settings.get("repo_url"):
                 repo_url = settings.repo_url  # type: ignore
             github_token = settings.get("github_token")
+            print(f"github_token {github_token}")
     except Exception as e:
         logger.warning(f"Could not fetch Translation Settings: {e}")
 
@@ -802,6 +803,8 @@ def push_translation_to_github(file_path, entry, translation):
             github_token = getattr(settings, "github_token", None) if settings else None
             if github_token:
                 clone_url = f"https://{github_token}@github.com/ManotLuijiu/erpnext-thai-translation.git"
+
+                print(f"clone_url: {clone_url}")
             else:
                 clone_url = repo_url
 
@@ -898,6 +901,8 @@ def push_translation_to_github(file_path, entry, translation):
                     capture_output=True,
                 )
 
+                print(f"now run git add {temp_dir}")
+
                 # Prepare commit message - truncate if needed
                 msg_id = (
                     entry.msgid[:50] + "..." if len(entry.msgid) > 50 else entry.msgid
@@ -913,6 +918,8 @@ def push_translation_to_github(file_path, entry, translation):
                     capture_output=True,
                 )
 
+                print(f"now run git commit {temp_dir}")
+
                 # Push changes
                 if github_token:
                     push_url = f"https://{github_token}@github.com/ManotLuijiu/erpnext-thai-translation.git"
@@ -922,6 +929,8 @@ def push_translation_to_github(file_path, entry, translation):
                         check=True,
                         capture_output=True,
                     )
+
+                    print(f"now run git push: {temp_dir}")
                 else:
                     subprocess.run(
                         ["git", "push"], cwd=temp_dir, check=True, capture_output=True
@@ -948,31 +957,29 @@ def push_translation_to_github(file_path, entry, translation):
 @frappe.whitelist()
 @enhanced_error_handler
 def save_github_token(token):
-    """Save GitHub token to Translation Settings"""
+    """Save GitHub token to Translation Tools Settings"""
     try:
-        if not frappe.has_permission("Translation Settings", "write"):
+        if not frappe.has_permission("Translation Tools Settings", "write"):
             frappe.throw(_("Not permitted"), frappe.PermissionError)
 
         # Create the doctype if it doesn't exist
-        if not frappe.db.exists("DocType", "Translation Settings"):
+        if not frappe.db.exists("DocType", "Translation Tools Settings"):
             # Create doctype first
             frappe.throw(
                 _(
-                    "Translation Settings doctype does not exist. Please contact administrator."
+                    "Translation Tools Settings doctype does not exist. Please contact administrator."
                 )
             )
 
         # Get or create the settings document
-        settings = frappe.get_single("Translation Settings")
-        row = settings.append("custom_fonts", {})
-        row.font_name = "Sarabun"
-        row.font_path = "/assets/translation_tools/fonts/Sarabun/Sarabun-Regular.ttf"
+        settings = frappe.get_single("Translation Tools Settings")
         settings.enable_github = 1  # type: ignore
         settings.repo_url = (  # type: ignore
             "https://github.com/ManotLuijiu/erpnext-thai-translation.git"  # type: ignore
         )
         settings.github_token = token  # type: ignore
         settings.save(ignore_permissions=True)
+        frappe.db.commit()
 
         return {"success": True}
     except Exception as e:

@@ -250,8 +250,12 @@ override_doctype_class = {
 
 # Override the default PDF styles
 override_whitelisted_methods = {
-    "frappe.utils.pdf.get_pdf_styles": "translation_tools.utils.pdf_utils.get_pdf_styles",
+    # "frappe.utils.pdf.get_pdf_styles": "translation_tools.utils.pdf_utils.get_pdf_styles",
+    # "frappe.www.printview.get_print_style": "translation_tools.utils.pdf_utils.get_print_style_with_thai",
     # "frappe.utils.pdf.get_pdf": "translation_tools.utils.pdf.get_pdf_with_thai_fonts",
+    # "frappe.www.printview.get_html_and_style": "translation_tools.utils.print_view.get_html_and_style_with_thai_support",
+    # "frappe.utils.print_format.download_pdf": "translation_tools.utils.print_format.download_pdf_with_options",
+    # "frappe.client.validate_link": "translation_tools.override.client.validate_link_optimized",
 }
 
 # Include JS file

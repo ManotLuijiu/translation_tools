@@ -11,6 +11,9 @@
     "chat_enable",
     "default_source_language",
     "default_target_language",
+    "api_section",
+    "default_model_provider",
+    "default_model",
     "section_break_5",
     "openai_section",
     "openai_api_key",
@@ -19,6 +22,15 @@
     "anthropic_section",
     "anthropic_api_key",
     "anthropic_model",
+    "translation_settings_section",
+    "batch_size",
+    "temperature",
+    "auto_save",
+    "preserve_formatting",
+    "github_section",
+    "enable_github",
+    "repo_url",
+    "github_token",
     "api_keys_section",
     "tax_consultant_license_key"
   ],
@@ -51,6 +63,24 @@
       "fieldname": "default_target_language",
       "fieldtype": "Data",
       "label": "Default Target Language"
+    },
+    {
+      "fieldname": "api_section",
+      "fieldtype": "Section Break",
+      "label": "API Settings"
+    },
+    {
+      "default": "openai",
+      "fieldname": "default_model_provider",
+      "fieldtype": "Select",
+      "label": "Default Model Provider",
+      "options": "openai\nanthropic"
+    },
+    {
+      "default": "gpt-4-1106-preview",
+      "fieldname": "default_model",
+      "fieldtype": "Data",
+      "label": "Default Model"
     },
     {
       "fieldname": "section_break_5",
@@ -93,6 +123,60 @@
       "fieldtype": "Select",
       "label": "Anthropic Model",
       "options": "claude-3-haiku-20240307\nclaude-3-opus-20240229\nclaude-3-sonnet-20240229"
+    },
+    {
+      "fieldname": "translation_settings_section",
+      "fieldtype": "Section Break",
+      "label": "Translation Settings"
+    },
+    {
+      "default": "10",
+      "fieldname": "batch_size",
+      "fieldtype": "Int",
+      "label": "Batch Size"
+    },
+    {
+      "default": "0.3",
+      "fieldname": "temperature",
+      "fieldtype": "Float",
+      "label": "Temperature"
+    },
+    {
+      "default": "0",
+      "fieldname": "auto_save",
+      "fieldtype": "Check",
+      "label": "Auto Save"
+    },
+    {
+      "default": "1",
+      "fieldname": "preserve_formatting",
+      "fieldtype": "Check",
+      "label": "Preserve Formatting"
+    },
+    {
+      "fieldname": "github_section",
+      "fieldtype": "Section Break",
+      "label": "GitHub Integration"
+    },
+    {
+      "fieldname": "enable_github",
+      "fieldtype": "Check",
+      "label": "Enable GitHub Integration",
+      "default": 0
+    },
+    {
+      "fieldname": "repo_url",
+      "fieldtype": "Data",
+      "label": "Repository URL",
+      "default": "https://github.com/ManotLuijiu/erpnext-thai-translation.git",
+      "depends_on": "eval:doc.enable_github==1"
+    },
+    {
+      "fieldname": "github_token",
+      "fieldtype": "Password",
+      "label": "GitHub Personal Access Token (Classic)",
+      "description": "Create a token with 'repo' scope at https://github.com/settings/tokens",
+      "depends_on": "eval:doc.enable_github==1"
     },
     {
       "fieldname": "api_keys_section",

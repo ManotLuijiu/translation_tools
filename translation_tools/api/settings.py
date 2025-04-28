@@ -17,17 +17,17 @@ def cast_to_float(value, default=0.0):
 
 @frappe.whitelist()
 def get_translation_settings():
-    """Get translation settings"""
+    """Get translation tools settings"""
     settings = frappe._dict(
         {
             "default_model_provider": "openai",
             "default_model": "gpt-4-1106-preview",
             "openai_api_key": frappe.db.get_single_value(
-                "Translation Settings", "openai_api_key"
+                "Translation Tools Settings", "openai_api_key"
             )
             or "",
             "anthropic_api_key": frappe.db.get_single_value(
-                "Translation Settings", "anthropic_api_key"
+                "Translation Tools Settings", "anthropic_api_key"
             )
             or "",
             "batch_size": cint(

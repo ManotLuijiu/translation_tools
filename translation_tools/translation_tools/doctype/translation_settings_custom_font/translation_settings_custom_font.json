@@ -8,11 +8,6 @@
   "field_order": ["font_name", "normal", "bold", "italics", "bolditalics"],
   "fields": [
     {
-      "fieldname": "parent",
-      "fieldtype": "Link",
-      "options": "Translation Settings"
-    },
-    {
       "fieldname": "font_name",
       "fieldtype": "Data",
       "in_list_view": 1,

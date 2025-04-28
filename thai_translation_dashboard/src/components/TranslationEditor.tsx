@@ -43,7 +43,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Save, RefreshCw, Check, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import TranslationStats from './TranslationStats';
-import { StatusToast } from '@/components/StatusToast';
+// import { StatusToast } from '@/components/StatusToast';
 import { useStatusMessage } from '@/hooks/useStatusMessage';
 import { useTranslation } from '@/context/TranslationContext';
 
@@ -92,7 +92,6 @@ export default function TranslationEditor({
   const saveGithubToken = useSaveGithubToken();
 
   // Reset selected entry when file changes
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     setSelectedEntryId(null);
     setEditedTranslation('');
@@ -226,47 +225,131 @@ export default function TranslationEditor({
 
   const handleTokenSubmit = async () => {
     if (!githubToken.trim()) {
-      // toast('Please enter a valid GitHub token', {
-      //   description: 'Github token',
-      // });
-      <StatusToast type="info" message="Please enter a valid Github token" />;
+      console.log('save github clicked: ', githubToken);
+
+      showMessage('Please enter a valid Github token', 'info');
       return;
     }
 
     try {
       // Save the token to settings
-      await saveGithubToken.call({ token: githubToken });
-
-      if (!selectedEntry || !selectedFile.file_path) return;
-
-      // Try saving and pushing again
-      const response = await saveTranslation.call({
-        file_path: selectedFile.file_path,
-        entry_id: selectedEntry.id,
-        translation: editedTranslation,
-        push_to_github: true,
+      const { success, message, error } = await saveGithubToken.call({
+        token: githubToken,
       });
 
-      if (response?.success) {
-        setShowTokenDialog(false);
-        // toast('Translation saved and pushed to GitHub successfully!');
-        <StatusToast
-          type="info"
-          message="Translation saved and pushed to GitHub successfully!"
-        />;
-      } else {
-        // toast(`GitHub push failed: ${response.error || 'Unknown error'}`);
-        <StatusToast type="error" message="GitHub push failed" />;
-
-        console.error(
-          `GitHub push failed: ${response.error || 'Unknown error'}`
-        );
+      if (error) {
+        showMessage(error, 'error');
+        return;
       }
-    } catch (err) {
+
+      console.log('success', message);
+      console.log('success', success);
+
+      showMessage('Github token saved successfully', 'success');
+      setShowTokenDialog(false);
+
+      // Only attempt to save and push translation if we have a file and entry selected
+      if (selectedEntry && selectedFile?.file_path) {
+        setTimeout(() => {
+          tryPushTranslation();
+        }, 1000);
+      }
+
+      // if (!selectedEntry || !selectedFile.file_path) return;
+
+      // Try saving and pushing again
+      // const response = await saveTranslation.call({
+      //   file_path: selectedFile.file_path,
+      //   entry_id: selectedEntry.id,
+      //   translation: editedTranslation,
+      //   push_to_github: true,
+      // });
+
+      // if (response?.success) {
+      //   setShowTokenDialog(false);
+      //   // toast('Translation saved and pushed to GitHub successfully!');
+      //   <StatusToast
+      //     type="info"
+      //     message="Translation saved and pushed to GitHub successfully!"
+      //   />;
+      // } else {
+      //   // toast(`GitHub push failed: ${response.error || 'Unknown error'}`);
+      //   <StatusToast type="error" message="GitHub push failed" />;
+
+      //   console.error(
+      //     `GitHub push failed: ${response.error || 'Unknown error'}`
+      //   );
+      // }
+    } catch (err: any) {
       console.error('Token save error:', err);
       // toast(`Error saving token: ${err}`);
 
-      <StatusToast type="error" message="Error saving token" />;
+      showMessage(
+        `Error saving token: ${err.message || 'Unknown error'}`,
+        'error'
+      );
+    }
+  };
+
+  const tryPushTranslation = async () => {
+    try {
+      const response = await saveTranslation.call({
+        file_path: selectedFile.file_path,
+        entry_id: selectedEntry?.id,
+        translation: editedTranslation,
+        push_to_github: true,
+        github_token: githubToken,
+      });
+
+      if (response?.success) {
+        showMessage(
+          'Translation saved and pushed to GitHub successfully!',
+          'success'
+        );
+      } else {
+        const errorMsg = response?.error || 'Unknown error';
+        console.error(`GitHub push failed: ${errorMsg}`);
+        // showMessage(`GitHub push failed: ${errorMsg}`, 'error');
+
+        // If the error is related to authentication, show the token dialog again
+        if (
+          errorMsg.includes('authentication') ||
+          errorMsg.includes('token') ||
+          errorMsg.includes('unauthorized') ||
+          errorMsg.includes('auth')
+        ) {
+          showMessage(
+            'GitHub token issue. Please provide a valid token.',
+            'error'
+          );
+          setShowTokenDialog(true);
+        } else {
+          showMessage(`GitHub push failed: ${errorMsg}`, 'error');
+        }
+      }
+    } catch (err: any) {
+      console.error('Translation push error:', err);
+      // showMessage(
+      //   `Error pushing translation: ${err.message || 'Unknown error'}`,
+      //   'error'
+      // );
+
+      // Check if the error is related to authentication
+      const errorMsg = err.message || 'Unknown error';
+      if (
+        errorMsg.includes('authentication') ||
+        errorMsg.includes('token') ||
+        errorMsg.includes('unauthorized') ||
+        errorMsg.includes('auth')
+      ) {
+        showMessage(
+          'GitHub authentication failed. Please provide a valid token.',
+          'error'
+        );
+        setShowTokenDialog(true);
+      } else {
+        showMessage(`Error pushing translation: ${errorMsg}`, 'error');
+      }
     }
   };
 
@@ -647,12 +730,12 @@ export default function TranslationEditor({
                   <DialogContent className="max-w-md">
                     <DialogHeader>
                       <DialogTitle>
-                        GitHub Personal Access Token Required
+                        {__('GitHub Personal Access Token Required')}
                       </DialogTitle>
                       <DialogDescription>
-                        To share translations on GitHub, you need to provide a
-                        GitHub Personal Access Token with repository
-                        permissions.
+                        {__(
+                          'To share translations on GitHub, you need to provide a GitHub Personal Access Token with repository permissions.'
+                        )}
                       </DialogDescription>
                     </DialogHeader>
 
@@ -727,7 +810,7 @@ export default function TranslationEditor({
 
                     <DialogFooter>
                       <Button variant="outline" onClick={handleDialogCancel}>
-                        Cancel
+                        {__('Cancel')}
                       </Button>
                       <Button
                         className="bg-blue-500 text-white"

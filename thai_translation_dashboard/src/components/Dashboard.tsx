@@ -11,6 +11,7 @@ import TranslationEditor from './TranslationEditor';
 import GlossaryManager from './GlossaryManager';
 import SettingsPanel from './SettingsPanel';
 import Navbar from './Navbar';
+import Footer from './Footer';
 import { useTranslation } from '@/context/TranslationContext';
 
 export default function Dashboard() {
@@ -131,6 +132,9 @@ export default function Dashboard() {
               {__('Manage translations for Frappe/ERPNext ecosystem')}
             </p>
           </div>
+          <div>
+            <a href="/app/thai_translator">Desk Version</a>
+          </div>
         </div>
 
         <Tabs
@@ -184,6 +188,7 @@ export default function Dashboard() {
           </TabsContent>
         </Tabs>
       </div>
+      <Footer />
     </>
   );
 }
