@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class TranslationSettings(Document):
-	pass
+class TranslationPDFSettings(Document):
+    pass

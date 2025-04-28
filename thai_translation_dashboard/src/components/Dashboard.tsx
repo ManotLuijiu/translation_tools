@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2, GitCompareArrows } from 'lucide-react';
 import { useFrappeGetCall, useFrappePostCall } from 'frappe-react-sdk';
 import { useGetTranslationSettings } from '../api';
 import { TabType, POFile } from '../types';
@@ -133,7 +133,10 @@ export default function Dashboard() {
             </p>
           </div>
           <div>
-            <a href="/app/thai_translator">Desk Version</a>
+            <div className="flex space-x-2 justify-center items-center">
+              <GitCompareArrows className="w-4 h-4" />
+              <a href="/app/thai_translator">Desk Version</a>
+            </div>
           </div>
         </div>
 

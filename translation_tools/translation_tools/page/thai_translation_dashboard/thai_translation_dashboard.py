@@ -29,9 +29,9 @@ def check_setup_status():
     # Check if required doctypes exist
     doctypes = [
         "PO File",
-        "ERPNext Module",
+        # "ERPNext Module",
         "Translation Glossary Term",
-        "Translation Settings",
+        "Translation Tools Settings",
     ]
 
     setup_status = {"complete": True, "missing_doctypes": []}

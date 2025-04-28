@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useGetTranslationSettings, useSaveTranslationSettings } from '../api';
-import { TranslationSettings, TranslationToolsSettings } from '../types';
+import {
+  useGetTranslationSettings,
+  useSaveTranslationSettings,
+  useTestGithubConnection,
+} from '../api';
+import { TranslationPDFSettings, TranslationToolsSettings } from '../types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -28,32 +32,40 @@ import { useTranslation } from '@/context/TranslationContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function SettingsPanel() {
-  const [settings, setSettings] = useState<Partial<TranslationSettings>>({
+  const [settings, setSettings] = useState<Partial<TranslationToolsSettings>>({
     default_model_provider: 'openai',
-    default_model: 'gpt-4-1106-preview',
+    default_model: 'gpt-4.1-2025-04-14',
     openai_api_key: '',
     anthropic_api_key: '',
     batch_size: 10,
     temperature: 0.3,
     auto_save: false,
     preserve_formatting: true,
-  });
-
-  const [githubSettings, setGithubSettings] = useState<
-    Partial<TranslationToolsSettings>
-  >({
     github_enable: false,
-    github_url: '',
+    github_repo: '',
     github_token: '',
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showOpenAi, setShowOpenAi] = useState(false);
+  const [showClaudeAi, setShowClaudeAi] = useState(false);
+
+  // const [githubSettings, setGithubSettings] = useState<
+  //   Partial<TranslationToolsSettings>
+  // >({
+  //   github_enable: false,
+  //   github_repo: '',
+  //   github_token: '',
+  // });
+
   const [statusMessage, setStatusMessage] = useState<{
-    type: 'success' | 'error' | 'info';
+    type: 'success' | 'error' | 'info' | 'warning';
     message: string;
   } | null>(null);
 
   const { data, error, isLoading } = useGetTranslationSettings();
   const saveSettings = useSaveTranslationSettings();
+  const testGithub = useTestGithubConnection();
   const { translate: __, isReady } = useTranslation();
 
   console.log('useGetTranslationSettings data: ', data);
@@ -66,48 +78,116 @@ export default function SettingsPanel() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setSettings((prev) => ({
+    setSettings((prev: any) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
-  const handleGithubInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setGithubSettings((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
+  // const handleGithubInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { name, value, type, checked } = e.target;
+  //   setGithubSettings((prev) => ({
+  //     ...prev,
+  //     [name]: type === 'checkbox' ? checked : value,
+  //   }));
+  // };
 
-  const handleGithubSwitchChange = (name: string, checked: boolean) => {
-    setGithubSettings((prev) => ({ ...prev, [name]: checked }));
-  };
+  // const handleGithubSwitchChange = (name: string, checked: boolean) => {
+  //   setGithubSettings((prev) => ({ ...prev, [name]: checked }));
+  // };
 
   const handleSelectChange = (name: string, value: string) => {
     console.log('handleSelectChange clicked');
-    setSettings((prev) => ({ ...prev, [name]: value }));
+    if (name === 'default_model_provider') {
+      // When changing provider, also update the model to a valid default for that provider
+      const newModelValue =
+        value === 'openai'
+          ? modelOptions.openai[0].value
+          : modelOptions.claude[0].value;
+
+      setSettings((prev: any) => ({
+        ...prev,
+        [name]: value,
+        default_model: newModelValue,
+      }));
+    } else {
+      setSettings((prev: any) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSwitchChange = (name: string, checked: boolean) => {
-    setSettings((prev) => ({ ...prev, [name]: checked }));
+    setSettings((prev: any) => ({ ...prev, [name]: checked }));
   };
 
   const handleSliderChange = (name: string, value: number[]) => {
-    setSettings((prev) => ({ ...prev, [name]: value[0] }));
+    setSettings((prev: any) => ({ ...prev, [name]: value[0] }));
+  };
+
+  const handleTestGitHubConnection = async (
+    github_repo: string,
+    github_token: string
+  ) => {
+    setStatusMessage({ type: 'info', message: 'Testing GitHub connection...' });
+
+    try {
+      // Make an API call to test the GitHub connection
+      const { message } = await testGithub.call({
+        github_repo,
+        github_token,
+      });
+
+      console.log('message from github testing', message);
+
+      if (message?.success) {
+        setStatusMessage({
+          type: 'success',
+          message: 'Successfully connected to GitHub!',
+        });
+      } else {
+        setStatusMessage({
+          type: 'error',
+          message: message?.error || 'Failed to connect to GitHub',
+        });
+      }
+    } catch (err: any) {
+      setStatusMessage({
+        type: 'error',
+        message:
+          err.message || 'An error occurred while testing the connection',
+      });
+    }
   };
 
   const handleSaveSettings = async () => {
     setStatusMessage({ type: 'info', message: 'Saving settings...' });
 
     try {
-      const result = await saveSettings.call({ settings });
+      const result: {
+        success: boolean;
+        warnings?: string[];
+        _server_messages?: [];
+        message?: {
+          success: boolean;
+          message: string;
+          warnings: [];
+        };
+      } = await saveSettings.call({ settings });
 
-      if (result.success) {
-        setStatusMessage({
-          type: 'success',
-          message: 'Settings saved successfully',
-        });
+      console.log('result SettingsPanel.tsx', result);
+
+      if (result.message?.success) {
+        // Check if there are any warnings
+        if (result.message?.warnings && result.message?.warnings.length > 0) {
+          setStatusMessage({
+            type: 'warning',
+            message: result.message.warnings.join(' '),
+          });
+        } else {
+          setStatusMessage({
+            type: 'success',
+            message: result.message.message || 'Settings saved successfully',
+          });
+        }
       } else {
         setStatusMessage({
           type: 'error',
@@ -115,9 +195,11 @@ export default function SettingsPanel() {
         });
       }
     } catch (err: any) {
+      const errorMessage =
+        err.message || 'An error occurred while saving settings';
       setStatusMessage({
         type: 'error',
-        message: err.message || 'An error occurred while saving settings',
+        message: errorMessage,
       });
     }
   };
@@ -144,11 +226,15 @@ export default function SettingsPanel() {
 
   const modelOptions = {
     openai: [
-      { value: 'gpt-4-1106-preview', label: 'GPT-4 Turbo (1106)' },
-      { value: 'gpt-4', label: 'GPT-4' },
-      { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' },
+      { value: 'gpt-4.1-2025-04-14', label: 'GPT-4.1' },
+      { value: 'chatgpt-4o-latest', label: 'ChatGPT-4o' },
+      { value: 'gpt-4o-mini-2024-07-18', label: 'GPT-4o mini' },
+      { value: 'o4-mini-2025-04-16', label: 'o4-mini' },
     ],
     claude: [
+      { value: 'claude-3-7-sonnet-20250219', label: 'Claude 3.7 Sonnet' },
+      { value: 'claude-3-5-haiku-20241022', label: 'Claude 3.5 Haiku' },
+      { value: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet v2' },
       { value: 'claude-3-opus-20240229', label: 'Claude 3 Opus' },
       { value: 'claude-3-sonnet-20240229', label: 'Claude 3 Sonnet' },
       { value: 'claude-3-haiku-20240307', label: 'Claude 3 Haiku' },
@@ -161,11 +247,13 @@ export default function SettingsPanel() {
 
       <Tabs defaultValue="ai-models" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="ai-models">{__('AI Models')}</TabsTrigger>
-          <TabsTrigger value="translation-options">
+          <TabsTrigger className="cursor-pointer" value="ai-models">
+            {__('AI Models')}
+          </TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="translation-options">
             {__('Translation Options')}
           </TabsTrigger>
-          <TabsTrigger value="github-integration">
+          <TabsTrigger className="cursor-pointer" value="github-integration">
             {__('GitHub Integration')}
           </TabsTrigger>
         </TabsList>
@@ -248,18 +336,59 @@ export default function SettingsPanel() {
 
                 <div className="space-y-2">
                   <Label htmlFor="openai_api_key">{__('OpenAI API Key')}</Label>
-                  <Input
-                    id="openai_api_key"
-                    name="openai_api_key"
-                    type="password"
-                    value={settings.openai_api_key || ''}
-                    onChange={handleInputChange}
-                    placeholder={
-                      settings.openai_api_key
-                        ? '********'
-                        : __('Enter OpenAI API key')
-                    }
-                  />
+                  <div className="relative">
+                    <Input
+                      id="openai_api_key"
+                      name="openai_api_key"
+                      type={showOpenAi ? 'text' : 'password'}
+                      value={settings.openai_api_key || ''}
+                      onChange={handleInputChange}
+                      placeholder={
+                        settings.openai_api_key
+                          ? '********'
+                          : __('Enter OpenAI API key')
+                      }
+                    />
+
+                    <button
+                      type="button"
+                      className="absolute right-2 top-0 transform translate-y-1/2"
+                      onClick={() => setShowOpenAi(!showOpenAi)}
+                      aria-label={
+                        showOpenAi ? 'Hide password' : 'Show password'
+                      }
+                    >
+                      {showOpenAi ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 text-gray-500"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                            clipRule="evenodd"
+                          />
+                          <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                        </svg>
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 text-gray-500"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                          <path
+                            fillRule="evenodd"
+                            d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                   <p className="text-sm text-muted-foreground">
                     {__('Your OpenAI API key for GPT models')}
                   </p>
@@ -269,18 +398,59 @@ export default function SettingsPanel() {
                   <Label htmlFor="anthropic_api_key">
                     {__('Anthropic API Key')}
                   </Label>
-                  <Input
-                    id="anthropic_api_key"
-                    name="anthropic_api_key"
-                    type="password"
-                    value={settings.anthropic_api_key || ''}
-                    onChange={handleInputChange}
-                    placeholder={
-                      settings.anthropic_api_key
-                        ? '********'
-                        : __('Enter Anthropic API key')
-                    }
-                  />
+                  <div className="relative">
+                    <Input
+                      id="anthropic_api_key"
+                      name="anthropic_api_key"
+                      type={showClaudeAi ? 'text' : 'password'}
+                      value={settings.anthropic_api_key || ''}
+                      onChange={handleInputChange}
+                      placeholder={
+                        settings.anthropic_api_key
+                          ? '********'
+                          : __('Enter Anthropic API key')
+                      }
+                    />
+
+                    <button
+                      type="button"
+                      className="absolute right-2 top-0 transform translate-y-1/2"
+                      onClick={() => setShowClaudeAi(!showClaudeAi)}
+                      aria-label={
+                        showClaudeAi ? 'Hide password' : 'Show password'
+                      }
+                    >
+                      {showClaudeAi ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 text-gray-500"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                            clipRule="evenodd"
+                          />
+                          <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                        </svg>
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 text-gray-500"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                          <path
+                            fillRule="evenodd"
+                            d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                   <p className="text-sm text-muted-foreground">
                     {__('Your Anthropic API key for Claude models')}
                   </p>
@@ -492,9 +662,9 @@ export default function SettingsPanel() {
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="github_enable"
-                    checked={!!githubSettings.github_enable}
+                    checked={!!settings.github_enable}
                     onCheckedChange={(checked) =>
-                      handleGithubSwitchChange('github_enable', checked)
+                      handleSwitchChange('github_enable', checked)
                     }
                   />
                   <Label htmlFor="github_enable">
@@ -508,13 +678,14 @@ export default function SettingsPanel() {
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="github_url">{__('Github Repo URL')}</Label>
+                  <Label htmlFor="github_repo">{__('Github Repo URL')}</Label>
                   <Input
-                    id="github_url"
-                    name="github_url"
+                    id="github_repo"
+                    name="github_repo"
                     type="text"
-                    value={githubSettings.github_url || ''}
-                    onChange={handleGithubInputChange}
+                    value={settings.github_repo || ''}
+                    disabled={!settings.github_enable}
+                    onChange={handleInputChange}
                     placeholder={__('Enter Github repo URL for th.po files')}
                   />
                   <p className="text-sm text-muted-foreground">
@@ -523,39 +694,105 @@ export default function SettingsPanel() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="github_token">{__('Github Token')}</Label>
-                  <Input
-                    id="github_token"
-                    name="github_token"
-                    type="password"
-                    value={githubSettings.github_token || ''}
-                    onChange={handleGithubInputChange}
-                    placeholder={
-                      githubSettings.github_token
-                        ? '********'
-                        : __('Enter Github Token')
-                    }
-                  />
+                  <Label htmlFor="github_token">
+                    {__('Github Token')}{' '}
+                    <span className="text-xs text-muted-foreground">
+                      ghp_xxxxxxxxxxxxxxxx
+                    </span>
+                  </Label>
+                  <div className="relative mt-2">
+                    <Input
+                      id="github_token"
+                      name="github_token"
+                      type={showPassword ? 'text' : 'password'}
+                      value={settings.github_token || ''}
+                      onChange={handleInputChange}
+                      disabled={!settings.github_enable}
+                      placeholder={
+                        settings.github_token
+                          ? '********'
+                          : __('Enter Github Token')
+                      }
+                    />
+
+                    <button
+                      type="button"
+                      className="absolute right-2 top-0 transform translate-y-1/2"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label={
+                        showPassword ? 'Hide password' : 'Show password'
+                      }
+                    >
+                      {showPassword ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 text-gray-500"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                            clipRule="evenodd"
+                          />
+                          <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                        </svg>
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 text-gray-500"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                          <path
+                            fillRule="evenodd"
+                            d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                   <p className="text-sm text-muted-foreground">
                     {__('Your Github Personal Access Token')}
                   </p>
                 </div>
               </div>
             </CardContent>
-            <CardFooter>
-              <Button
-                onClick={handleSaveSettings}
-                disabled={saveSettings.loading}
-              >
-                {saveSettings.loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {__('Saving...')}
-                  </>
-                ) : (
-                  __('Save All Settings')
-                )}
-              </Button>
+            <CardFooter className="flex justify-between">
+              <div className="flex space-x-2">
+                <Button
+                  onClick={handleSaveSettings}
+                  disabled={saveSettings.loading}
+                >
+                  {saveSettings.loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {__('Saving...')}
+                    </>
+                  ) : (
+                    __('Save All Settings')
+                  )}
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    handleTestGitHubConnection(
+                      settings.github_repo || '',
+                      settings.github_token || ''
+                    )
+                  }
+                  disabled={
+                    !settings.github_enable ||
+                    !settings.github_repo ||
+                    !settings.github_token
+                  }
+                >
+                  {__('Test Connect')}
+                </Button>
+              </div>
 
               {statusMessage && (
                 <Alert
@@ -565,20 +802,20 @@ export default function SettingsPanel() {
                   className="ml-4"
                 >
                   {statusMessage.type === 'success' && (
-                    <Check className="h-4 w-4" />
+                    <Check className="h-4 w-4 text-green-500" />
                   )}
                   {statusMessage.type === 'error' && (
-                    <AlertCircle className="h-4 w-4" />
+                    <AlertCircle className="h-4 w-4 text-red-500" />
                   )}
                   {statusMessage.type === 'info' && (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   )}
                   <AlertTitle>
                     {statusMessage.type === 'success'
-                      ? 'Success'
+                      ? __('Success')
                       : statusMessage.type === 'error'
-                        ? 'Error'
-                        : 'Info'}
+                        ? __('Error')
+                        : __('Info')}
                   </AlertTitle>
                   <AlertDescription>{statusMessage.message}</AlertDescription>
                 </Alert>

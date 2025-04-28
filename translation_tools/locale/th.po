@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
 "POT-Creation-Date: 2025-04-24 21:12+0642\n"
-"PO-Revision-Date: 2025-04-28 08:06\n"
+"PO-Revision-Date: 2025-04-28 18:05\n"
 "Last-Translator: moocoding@gmail.com\n"
 "Language-Team: moocoding@gmail.com\n"
 "Language: th\n"
@@ -66,7 +66,7 @@ msgstr "AI ที่ปรึกษาภาษี"
 
 #: translation_tools/translation_tools/page/tax_consultant/tax_consultant.js:4
 msgid "AI Thai Tax Consultant"
-msgstr ""
+msgstr "AI ที่ปรึกษาภาษีไทย"
 
 #: translation_tools/setup/create_workspace.py:68
 msgid "AI-powered Translation Dashboard"
@@ -94,7 +94,7 @@ msgstr ""
 #: translation_tools/api/translation.py:198
 #: translation_tools/api/translation.py:301
 msgid "API key not configured for {0}"
-msgstr ""
+msgstr "ยังไม่ได้ตั้งค่า API สำหรับ {0}"
 
 #: translation_tools/api/translation.py:389
 msgid "API key not found in configuration. Please set it up first."

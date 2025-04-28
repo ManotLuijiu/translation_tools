@@ -7,7 +7,7 @@ import {
   useSaveTranslation,
   useSaveGithubToken,
 } from '../api';
-import type { POFile, TranslationSettings } from '../types';
+import type { POFile, TranslationToolsSettings } from '../types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -49,7 +49,7 @@ import { useTranslation } from '@/context/TranslationContext';
 
 interface TranslationEditorProps {
   selectedFile: POFile | null;
-  settings: TranslationSettings | null;
+  settings: TranslationToolsSettings | null;
 }
 
 export default function TranslationEditor({
@@ -753,7 +753,7 @@ export default function TranslationEditor({
                           className="mt-2 pr-10 py-2"
                           value={githubToken}
                           onChange={(e) => setGithubToken(e.target.value)}
-                          placeholder="github_pat_xxxxxxxxxxxxxxxx"
+                          placeholder="ghp_xxxxxxxxxxxxxxxx"
                         />
                         <button
                           type="button"

@@ -1,6 +1,6 @@
 import { useFrappeGetCall, useFrappePostCall } from 'frappe-react-sdk';
 
-export type TranslationSettings = {
+export type TranslationPDFSettings = {
   default_model_provider: 'openai' | 'claude';
   default_model: string;
   openai_api_key: string;
@@ -11,9 +11,23 @@ export type TranslationSettings = {
   preserve_formatting: boolean;
 };
 
+export type TestGithubConnection = {
+  success: boolean;
+  messages: string;
+  error: string;
+};
+
 export type TranslationToolsSettings = {
+  default_model_provider: 'openai' | 'claude';
+  default_model: string;
+  openai_api_key: string;
+  anthropic_api_key: string;
+  batch_size: number;
+  temperature: number;
+  auto_save: boolean;
+  preserve_formatting: boolean;
   github_enable: boolean;
-  github_url: string;
+  github_repo: string;
   github_token: string;
 };
 
@@ -22,9 +36,20 @@ export type TranslationToolsSettings = {
  */
 export function useGetTranslationSettings() {
   console.log('Fetching translation settings...');
-  return useFrappeGetCall<{ message: TranslationSettings }>(
+  return useFrappeGetCall<{ message: TranslationToolsSettings }>(
     'translation_tools.api.settings.get_translation_settings',
     {}
+  );
+}
+
+/**
+ * Test Github Connection
+ */
+export function useTestGithubConnection() {
+  console.log('Testing Github Connection...');
+  return useFrappePostCall<{ message: TestGithubConnection }>(
+    'translation_tools.api.settings.test_github_connection'
+    // {}
   );
 }
 

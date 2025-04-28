@@ -28,8 +28,8 @@
     "auto_save",
     "preserve_formatting",
     "github_section",
-    "enable_github",
-    "repo_url",
+    "github_enable",
+    "github_repo",
     "github_token",
     "api_keys_section",
     "tax_consultant_license_key"
@@ -159,13 +159,13 @@
       "label": "GitHub Integration"
     },
     {
-      "fieldname": "enable_github",
+      "fieldname": "github_enable",
       "fieldtype": "Check",
       "label": "Enable GitHub Integration",
       "default": 0
     },
     {
-      "fieldname": "repo_url",
+      "fieldname": "github_repo",
       "fieldtype": "Data",
       "label": "Repository URL",
       "default": "https://github.com/ManotLuijiu/erpnext-thai-translation.git",
