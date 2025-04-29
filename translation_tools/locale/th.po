@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
 "POT-Creation-Date: 2025-04-24 21:12+0642\n"
-"PO-Revision-Date: 2025-04-30 01:03\n"
+"PO-Revision-Date: 2025-04-30 01:11\n"
 "Last-Translator: moocoding@gmail.com\n"
 "Language-Team: moocoding@gmail.com\n"
 "Language: th\n"
@@ -185,7 +185,7 @@ msgstr "บทสนทนา"
 #. Label of a Table MultiSelect field in DocType 'Chat Settings'
 #: translation_tools/translation_tools/doctype/chat_settings/chat_settings.json
 msgid "Chat Operators"
-msgstr ""
+msgstr "หน่วยติดต่อระบบ Chat"
 
 #. Name of a DocType
 #: translation_tools/translation_tools/doctype/chat_profile/chat_profile.json

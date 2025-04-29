@@ -1117,7 +1117,7 @@ def save_translation(file_path, entry_id, translation, push_to_github=False):
 
 def push_translation_to_github(file_path, entry, translation):
     """
-    Push a translation to GitHub for a new repository
+    Push a translation to GitHub without accidentally committing credentials
 
     Args:
         file_path (str): Path to the PO file (standardized format)
@@ -1161,22 +1161,9 @@ def push_translation_to_github(file_path, entry, translation):
         with tempfile.TemporaryDirectory() as temp_dir:
             logger.info(f"Working in temporary directory: {temp_dir}")
 
-            # Setup git credentials
-            git_credentials_file = os.path.join(temp_dir, ".git-credentials")
-            with open(git_credentials_file, "w") as f:
-                f.write(f"https://{github_token}:x-oauth-basic@github.com\n")
-
-            # Configure git globally for this operation
-            subprocess.run(
-                [
-                    "git",
-                    "config",
-                    "--global",
-                    "credential.helper",
-                    f"store --file={git_credentials_file}",
-                ],
-                check=True,
-            )
+            # Initialize new git repository
+            subprocess.run(["git", "init"], cwd=temp_dir, check=True)
+            logger.info("Initialized new git repository")
 
             # Set user info
             user_email = frappe.session.user or "translation-tools@example.com"
@@ -1186,15 +1173,11 @@ def push_translation_to_github(file_path, entry, translation):
             )
 
             subprocess.run(
-                ["git", "config", "--global", "user.email", user_email], check=True
+                ["git", "config", "user.email", user_email], cwd=temp_dir, check=True
             )
             subprocess.run(
-                ["git", "config", "--global", "user.name", str(user_name)], check=True
+                ["git", "config", "user.name", str(user_name)], cwd=temp_dir, check=True
             )
-
-            # Initialize new git repository
-            subprocess.run(["git", "init"], cwd=temp_dir, check=True)
-            logger.info("Initialized new git repository")
 
             # Create README file
             readme_path = os.path.join(temp_dir, "README.md")
@@ -1267,8 +1250,19 @@ def push_translation_to_github(file_path, entry, translation):
                     "error": f"Source file not found: {file_path}",
                 }
 
-            # Stage all files
-            subprocess.run(["git", "add", "."], cwd=temp_dir, check=True)
+            # Add .gitignore to prevent credentials from being committed
+            with open(os.path.join(temp_dir, ".gitignore"), "w") as f:
+                f.write(".git-credentials\n")
+                f.write("*.pyc\n")
+                f.write("__pycache__/\n")
+                f.write(".DS_Store\n")
+
+            # Stage files (specifically, not using "git add ." to avoid potential credential files)
+            subprocess.run(
+                ["git", "add", "README.md", ".gitignore", app_dir],
+                cwd=temp_dir,
+                check=True,
+            )
             logger.info("Added files to git staging")
 
             # Commit changes
@@ -1292,15 +1286,33 @@ def push_translation_to_github(file_path, entry, translation):
             )
             logger.info(f"Added remote: {repo_url}")
 
+            # Setup credentials file AFTER committing (so it's not included in the commit)
+            # Using the local .git/config credential store instead of global
+            credentials_config = '[credential "https://github.com"]\n\thelper = store\n'
+            git_config_path = os.path.join(temp_dir, ".git", "config")
+            with open(git_config_path, "a") as f:
+                f.write(credentials_config)
+
+            # Now create the credentials file (which won't be committed due to .gitignore)
+            git_credentials_path = os.path.join(temp_dir, ".git", "credentials")
+            with open(git_credentials_path, "w") as f:
+                f.write(f"https://{github_token}:x-oauth-basic@github.com\n")
+
             # Push with -u to set upstream
             try:
-                # Use capture_output=True to get error messages
+                # Use environment variable for the token instead of credentials file
+                env = os.environ.copy()
+                env["GIT_ASKPASS"] = "echo"
+                env["GIT_USERNAME"] = github_token if github_token else ""
+                env["GIT_PASSWORD"] = ""
+
                 result = subprocess.run(
                     ["git", "push", "-u", "origin", "main"],
                     cwd=temp_dir,
                     check=True,
                     capture_output=True,
                     text=True,
+                    env=env,
                 )
                 logger.info(f"Push output: {result.stdout}")
                 logger.info("Successfully pushed to GitHub")
@@ -1322,6 +1334,12 @@ def push_translation_to_github(file_path, entry, translation):
                         "github_pushed": False,
                         "error": "GitHub authentication failed. Please check your token.",
                     }
+                elif "push protection" in error_msg or "secret" in error_msg:
+                    # If still hitting push protection
+                    return {
+                        "github_pushed": False,
+                        "error": "GitHub security blocked the push. Please manually create the repository first.",
+                    }
                 else:
                     return {
                         "github_pushed": False,
@@ -1336,23 +1354,6 @@ def push_translation_to_github(file_path, entry, translation):
             "error": str(e),
             "traceback": traceback.format_exc(),
         }
-    finally:
-        # Clean up global git config
-        try:
-            subprocess.run(
-                ["git", "config", "--global", "--unset", "credential.helper"],
-                capture_output=True,
-            )
-            subprocess.run(
-                ["git", "config", "--global", "--unset", "user.email"],
-                capture_output=True,
-            )
-            subprocess.run(
-                ["git", "config", "--global", "--unset", "user.name"],
-                capture_output=True,
-            )
-        except:
-            pass
 
 
 @frappe.whitelist()
