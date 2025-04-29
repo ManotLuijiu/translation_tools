@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import {
-  useGetPOFileEntries,
+  // useGetPOFileEntries,
+  useGetPOFileEntriesPaginated,
   useTranslateSingleEntry,
   useSaveTranslation,
   useSaveGithubToken,
@@ -40,12 +41,23 @@ import {
 
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Save, RefreshCw, Check, AlertCircle } from 'lucide-react';
+import {
+  Loader2,
+  Save,
+  RefreshCw,
+  Check,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import TranslationStats from './TranslationStats';
 // import { StatusToast } from '@/components/StatusToast';
 import { useStatusMessage } from '@/hooks/useStatusMessage';
 import { useTranslation } from '@/context/TranslationContext';
+
+// Pagination settings
+const ENTRIES_PER_PAGE = 20;
 
 interface TranslationEditorProps {
   selectedFile: POFile | null;
@@ -72,7 +84,19 @@ export default function TranslationEditor({
   const [previousFile, setPreviousFile] = useState(selectedFile);
   const { statusMessage, showMessage, clearMessage } = useStatusMessage();
   const [showPassword, setShowPassword] = useState(false);
+
+  interface PendingPushEntry {
+    file_path: string;
+    entry_id: string;
+    translation: string;
+  }
+
+  const [pendingPushEntry, setPendingPushEntry] =
+    useState<PendingPushEntry | null>(null);
   const { translate: __, isReady } = useTranslation();
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
 
   console.log('previousFile', previousFile);
   console.log('showTokenDialog', showTokenDialog);
@@ -80,10 +104,31 @@ export default function TranslationEditor({
   //   const [translation, setTranslation] = useState('');
   //   const [isSaving, setIsSaving] = useState(false);
 
-  const { data, error, isLoading, mutate } = useGetPOFileEntries(
-    selectedFile?.file_path || null
+  // const { data, error, isLoading, mutate } = useGetPOFileEntries(
+  //   selectedFile?.file_path || null
+  // );
+
+  // Use the paginated API hook
+  const {
+    data,
+    error,
+    isLoading,
+    mutate,
+    entries = [],
+    stats,
+    metadata = {},
+    totalPages = 0,
+    totalEntries = 0,
+  } = useGetPOFileEntriesPaginated(
+    selectedFile?.file_path || null,
+    currentPage,
+    ENTRIES_PER_PAGE,
+    entryFilter,
+    searchTerm
   );
 
+  console.log('data paginated', data);
+  console.log('stats paginated', stats);
   console.log('selectedFile_translationEditor', selectedFile);
   console.log('Push to Github', pushToGithub);
 
@@ -96,18 +141,41 @@ export default function TranslationEditor({
     setSelectedEntryId(null);
     setEditedTranslation('');
     // setStatusMessage(null);
+    setCurrentPage(1);
     clearMessage();
-  }, [selectedFile]);
+
+    // Also trigger a data refetch when filter or search term changes
+    if (selectedFile?.file_path) {
+      mutate();
+    }
+  }, [selectedFile, entryFilter, searchTerm, mutate]);
 
   // Update edited translation when selected entry changes
-  useEffect(() => {
-    if (!data?.message?.entries || !selectedEntryId) return;
+  // useEffect(() => {
+  //   if (!data?.message?.entries || !selectedEntryId) return;
 
-    const entry = data.message.entries.find((e) => e.id === selectedEntryId);
+  //   const entry = data.message.entries.find((e) => e.id === selectedEntryId);
+  //   if (entry) {
+  //     setEditedTranslation(entry.msgstr || '');
+  //   }
+  // }, [selectedEntryId, data]);
+
+  useEffect(() => {
+    if (!entries || !selectedEntryId) return;
+
+    const entry = entries.find((e) => e.id === selectedEntryId);
     if (entry) {
       setEditedTranslation(entry.msgstr || '');
     }
-  }, [selectedEntryId, data]);
+  }, [selectedEntryId, entries]);
+
+  // Effect to fetch data when page changes
+  useEffect(() => {
+    if (selectedFile?.file_path) {
+      // This will trigger a new API call with the updated page
+      mutate();
+    }
+  }, [currentPage, mutate, selectedFile]);
 
   if (!selectedFile) {
     return (
@@ -121,7 +189,7 @@ export default function TranslationEditor({
     );
   }
 
-  if (isLoading || !isReady) {
+  if ((isLoading && !entries.length) || !isReady) {
     return (
       <div className="flex h-[calc(100vh-200px)] items-center justify-center">
         <Loader2 className="text-primary h-8 w-8 animate-spin" />
@@ -142,38 +210,57 @@ export default function TranslationEditor({
     );
   }
 
-  const fileData = data?.message;
-  if (!fileData) {
+  if (!entries) {
     return (
       <div className="p-8 text-center">
-        <p>{__('No data available for this file')}</p>
+        <p>{__('No entries available for this file')}</p>
       </div>
     );
   }
 
-  const { entries, stats, metadata } = fileData;
+  // const fileData = data?.message;
+  // if (!fileData) {
+  //   return (
+  //     <div className="p-8 text-center">
+  //       <p>{__('No data available for this file')}</p>
+  //     </div>
+  //   );
+  // }
+
+  // const { entries, stats, metadata } = fileData;
   console.log('metadata', metadata);
 
   // Filter entries based on user selection
-  const filteredEntries = entries.filter((entry) => {
-    // First filter by translation status
-    if (entryFilter === 'untranslated' && entry.is_translated) return false;
-    if (entryFilter === 'translated' && !entry.is_translated) return false;
+  // const filteredEntries = entries.filter((entry) => {
+  //   // First filter by translation status
+  //   if (entryFilter === 'untranslated' && entry.is_translated) return false;
+  //   if (entryFilter === 'translated' && !entry.is_translated) return false;
 
-    // Then filter by search term
-    if (!searchTerm) return true;
+  //   // Then filter by search term
+  //   if (!searchTerm) return true;
 
-    const term = searchTerm.toLowerCase();
-    return (
-      entry.msgid.toLowerCase().includes(term) ||
-      entry.msgstr.toLowerCase().includes(term)
-    );
-  });
+  //   const term = searchTerm.toLowerCase();
+  //   return (
+  //     entry.msgid.toLowerCase().includes(term) ||
+  //     entry.msgstr.toLowerCase().includes(term)
+  //   );
+  // });
+
+  // Calculate pagination values
+  // const totalPages = Math.ceil(filteredEntries.length / ENTRIES_PER_PAGE);
+  // const pageStartIndex = (currentPage - 1) * ENTRIES_PER_PAGE;
+  // const pageEndIndex = pageStartIndex + ENTRIES_PER_PAGE;
+
+  // Get entries for current page
+  // const paginatedEntries = filteredEntries.slice(pageStartIndex, pageEndIndex);
+
+  // console.log('paginatedEntries', paginatedEntries);
 
   const selectedEntry = selectedEntryId
     ? entries.find((e) => e.id === selectedEntryId)
     : null;
 
+  console.log('selectedEntryId', selectedEntryId);
   console.log('selectedEntry', selectedEntry);
 
   const handleTranslate = async () => {
@@ -224,134 +311,137 @@ export default function TranslationEditor({
   };
 
   const handleTokenSubmit = async () => {
-    if (!githubToken.trim()) {
-      console.log('save github clicked: ', githubToken);
-
-      showMessage('Please enter a valid Github token', 'info');
+    if (!githubToken) {
+      showMessage('Please enter a valid GitHub token', 'error');
       return;
     }
 
-    try {
-      // Save the token to settings
-      const { success, message, error } = await saveGithubToken.call({
-        token: githubToken,
-      });
+    showMessage('Saving token...', 'info');
 
-      if (error) {
-        showMessage(error, 'error');
+    try {
+      // Save the token first
+      const tokenResult = await saveGithubToken.call({ token: githubToken });
+
+      if (!tokenResult.success) {
+        showMessage(
+          `Failed to save token: ${tokenResult.error || 'Unknown error'}`,
+          'error'
+        );
         return;
       }
 
-      console.log('success', message);
-      console.log('success', success);
+      // If we have a pending push, execute it now
+      if (pendingPushEntry) {
+        showMessage('Pushing translation to GitHub...', 'info');
 
-      showMessage('Github token saved successfully', 'success');
-      setShowTokenDialog(false);
+        const pushResult = await saveTranslation.call({
+          file_path: pendingPushEntry.file_path,
+          entry_id: pendingPushEntry.entry_id,
+          translation: pendingPushEntry.translation,
+          push_to_github: true,
+        });
 
-      // Only attempt to save and push translation if we have a file and entry selected
-      if (selectedEntry && selectedFile?.file_path) {
-        setTimeout(() => {
-          tryPushTranslation();
-        }, 1000);
+        console.log('Push result after token save:', pushResult);
+
+        const message =
+          typeof pushResult.message === 'string'
+            ? JSON.parse(pushResult.message)
+            : pushResult.message;
+
+        if (message?.success && message.github?.github_pushed) {
+          showMessage(
+            'Token saved and translation successfully pushed to GitHub!',
+            'success'
+          );
+        } else {
+          showMessage(
+            `Token saved but GitHub push failed: ${message.github?.error || 'Unknown error'}`,
+            'warning'
+          );
+        }
+
+        // Clear the pending push
+        setPendingPushEntry(null);
+      } else {
+        showMessage('GitHub token saved successfully', 'success');
       }
 
-      // if (!selectedEntry || !selectedFile.file_path) return;
+      // Close the dialog
+      setShowTokenDialog(false);
+      setGithubToken('');
 
-      // Try saving and pushing again
-      // const response = await saveTranslation.call({
-      //   file_path: selectedFile.file_path,
-      //   entry_id: selectedEntry.id,
-      //   translation: editedTranslation,
-      //   push_to_github: true,
-      // });
-
-      // if (response?.success) {
-      //   setShowTokenDialog(false);
-      //   // toast('Translation saved and pushed to GitHub successfully!');
-      //   <StatusToast
-      //     type="info"
-      //     message="Translation saved and pushed to GitHub successfully!"
-      //   />;
-      // } else {
-      //   // toast(`GitHub push failed: ${response.error || 'Unknown error'}`);
-      //   <StatusToast type="error" message="GitHub push failed" />;
-
-      //   console.error(
-      //     `GitHub push failed: ${response.error || 'Unknown error'}`
-      //   );
-      // }
-    } catch (err: any) {
+      // Refresh data
+      mutate();
+    } catch (err) {
       console.error('Token save error:', err);
-      // toast(`Error saving token: ${err}`);
-
       showMessage(
-        `Error saving token: ${err.message || 'Unknown error'}`,
+        err instanceof Error ? err.message : 'Failed to save GitHub token',
         'error'
       );
     }
   };
 
-  const tryPushTranslation = async () => {
-    try {
-      const response = await saveTranslation.call({
-        file_path: selectedFile.file_path,
-        entry_id: selectedEntry?.id,
-        translation: editedTranslation,
-        push_to_github: true,
-        github_token: githubToken,
-      });
+  // const tryPushTranslation = async () => {
+  //   try {
+  //     const response = await saveTranslation.call({
+  //       file_path: selectedFile.file_path,
+  //       entry_id: selectedEntry?.id,
+  //       translation: editedTranslation,
+  //       push_to_github: true,
+  //       github_token: githubToken,
+  //     });
 
-      if (response?.success) {
-        showMessage(
-          'Translation saved and pushed to GitHub successfully!',
-          'success'
-        );
-      } else {
-        const errorMsg = response?.error || 'Unknown error';
-        console.error(`GitHub push failed: ${errorMsg}`);
-        // showMessage(`GitHub push failed: ${errorMsg}`, 'error');
+  //     if (response?.success) {
+  //       showMessage(
+  //         'Translation saved and pushed to GitHub successfully!',
+  //         'success'
+  //       );
+  //     } else {
+  //       const errorMsg = response?.error || 'Unknown error';
+  //       console.error(`GitHub push failed: ${errorMsg}`);
+  //       // showMessage(`GitHub push failed: ${errorMsg}`, 'error');
 
-        // If the error is related to authentication, show the token dialog again
-        if (
-          errorMsg.includes('authentication') ||
-          errorMsg.includes('token') ||
-          errorMsg.includes('unauthorized') ||
-          errorMsg.includes('auth')
-        ) {
-          showMessage(
-            'GitHub token issue. Please provide a valid token.',
-            'error'
-          );
-          setShowTokenDialog(true);
-        } else {
-          showMessage(`GitHub push failed: ${errorMsg}`, 'error');
-        }
-      }
-    } catch (err: any) {
-      console.error('Translation push error:', err);
-      // showMessage(
-      //   `Error pushing translation: ${err.message || 'Unknown error'}`,
-      //   'error'
-      // );
+  //       // If the error is related to authentication, show the token dialog again
+  //       if (
+  //         errorMsg.includes('authentication') ||
+  //         errorMsg.includes('token') ||
+  //         errorMsg.includes('unauthorized') ||
+  //         errorMsg.includes('auth')
+  //       ) {
+  //         showMessage(
+  //           'GitHub token issue. Please provide a valid token.',
+  //           'error'
+  //         );
+  //         setShowTokenDialog(true);
+  //       } else {
+  //         showMessage(`GitHub push failed: ${errorMsg}`, 'error');
+  //       }
+  //     }
+  //   } catch (err: any) {
+  //     console.error('Translation push error:', err);
+  //     // showMessage(
+  //     //   `Error pushing translation: ${err.message || 'Unknown error'}`,
+  //     //   'error'
+  //     // );
 
-      // Check if the error is related to authentication
-      const errorMsg = err.message || 'Unknown error';
-      if (
-        errorMsg.includes('authentication') ||
-        errorMsg.includes('token') ||
-        errorMsg.includes('unauthorized') ||
-        errorMsg.includes('auth')
-      ) {
-        showMessage(
-          'GitHub authentication failed. Please provide a valid token.',
-          'error'
-        );
-        setShowTokenDialog(true);
-      } else {
-        showMessage(`Error pushing translation: ${errorMsg}`, 'error');
-      }
-    }
-  };
+  //     // Check if the error is related to authentication
+  //     const errorMsg = err.message || 'Unknown error';
+  //     if (
+  //       errorMsg.includes('authentication') ||
+  //       errorMsg.includes('token') ||
+  //       errorMsg.includes('unauthorized') ||
+  //       errorMsg.includes('auth')
+  //     ) {
+  //       showMessage(
+  //         'GitHub authentication failed. Please provide a valid token.',
+  //         'error'
+  //       );
+  //       setShowTokenDialog(true);
+  //     } else {
+  //       showMessage(`Error pushing translation: ${errorMsg}`, 'error');
+  //     }
+  //   }
+  // };
 
   const handleDialogCancel = () => {
     setPreviousFile(selectedFile);
@@ -361,16 +451,16 @@ export default function TranslationEditor({
     // setStatusMessage(null);
     clearMessage();
 
-    console.log('Selected file before cancel:', selectedFile?.file_path);
-    setEntryFilter('all');
-    console.log('Selected file after cancel:', selectedFile?.file_path);
+    // console.log('Selected file before cancel:', selectedFile?.file_path);
+    // setEntryFilter('all');
+    // console.log('Selected file after cancel:', selectedFile?.file_path);
 
     // setSelectedEntryId(null);
-    setEditedTranslation('');
+    // setEditedTranslation('');
 
-    mutate(undefined, { revalidate: true })
-      .then((newData) => console.log('Got new data:', newData))
-      .catch((err) => console.error('Mutate error:', err));
+    // mutate(undefined, { revalidate: true })
+    //   .then((newData) => console.log('Got new data:', newData))
+    //   .catch((err) => console.error('Mutate error:', err));
 
     // if (selectedFile?.file_path) {
     //   console.log('after setEntryFilter');
@@ -389,11 +479,8 @@ export default function TranslationEditor({
   };
 
   const handleSave = async () => {
-    // setIsSaving(true);
-
     if (!selectedEntry || !selectedFile.file_path) return;
 
-    // setStatusMessage({ type: 'info', message: 'Saving...' });
     showMessage('Saving...', 'info');
 
     try {
@@ -404,61 +491,213 @@ export default function TranslationEditor({
         push_to_github: pushToGithub,
       });
 
-      console.log('result', result);
+      console.log('Save result:', result);
 
+      // Parse message if it's a string
       const message =
         typeof result.message === 'string'
           ? JSON.parse(result.message)
           : result.message;
+
+      // Check if the basic save operation was successful
       if (message?.success) {
         let msg = 'Translation saved successfully';
+
+        // Handle GitHub pushing if enabled
         if (pushToGithub) {
-          console.log('pushToGithub');
+          console.log('GitHub push enabled');
           const githubResult = message.github;
 
-          //   Check for missing token
+          // Token missing cases - show dialog
           if (githubResult?.error === 'missing_token') {
-            console.log('Github token is missing, showing dialog');
+            console.log('GitHub token missing, showing dialog');
+
+            // Show success message for the save
+            showMessage(
+              'Translation saved successfully. Please provide a GitHub token to push changes.',
+              'info'
+            );
+
+            // Open token dialog
             setShowTokenDialog(true);
-            console.log('selectedEntryId', selectedEntry.id);
+
+            // Store current entry info for when token is provided
+            setPendingPushEntry({
+              file_path: selectedFile.file_path,
+              entry_id: selectedEntry.id,
+              translation: editedTranslation,
+            });
+
             return;
           }
-
-          //   Check if push was successful
-          if (githubResult?.github_pushed) {
+          // GitHub push succeeded
+          else if (githubResult?.github_pushed) {
             msg += ' and shared on GitHub!';
-          } else {
-            msg += `. However, Github sharing failed: ${githubResult.error || 'Unknown error'}`;
+          }
+          // Other GitHub errors
+          else if (githubResult) {
+            const errorMsg = githubResult.error || 'Unknown error';
+            msg += `. However, GitHub sharing failed: ${errorMsg}`;
           }
         }
-        // toast(msg);
-
-        // setStatusMessage({
-        //   type: 'success',
-        //   message: msg,
-        // });
 
         showMessage(msg, 'success');
 
         // Refresh file data to update translation stats
         mutate();
       } else {
-        console.error('Save error');
-        // setStatusMessage({
-        //   type: 'error',
-        //   message: result.message || 'Failed to save translation',
-        // });
-        showMessage(result.message, 'error');
+        // Basic save operation failed
+        console.error('Save operation failed');
+        showMessage(message.error || 'Failed to save translation', 'error');
       }
     } catch (err: unknown) {
-      console.error('Save error:', err);
-      const errorMessage =
-        err instanceof Error ? err.message : 'An error occurred while saving';
-      // setStatusMessage({
-      //   type: 'error',
-      //   message: errorMessage,
-      // });
+      // Handle exceptions
+      const errorObj = err as any;
+      console.error('Save error:', errorObj);
+
+      // Check for server messages that might contain error details
+      let errorMessage = 'An error occurred while saving';
+      let serverMessages = [];
+
+      // Try to extract server messages if they exist
+      if (errorObj._server_messages) {
+        try {
+          serverMessages = JSON.parse(errorObj._server_messages);
+        } catch (parseErr) {
+          console.error('Error parsing server messages:', parseErr);
+        }
+      }
+
+      // Check for token errors in server messages or the main error
+      const isTokenError =
+        // Check server messages for token errors
+        (serverMessages.length > 0 &&
+          serverMessages.some((msg: any) => {
+            try {
+              const parsedMsg = JSON.parse(msg);
+              return (
+                parsedMsg.message &&
+                (parsedMsg.message.includes('Password not found') ||
+                  parsedMsg.message.includes('GitHub token'))
+              );
+            } catch {
+              return false;
+            }
+          })) ||
+        // Check the error message itself
+        (errorObj.message &&
+          (errorObj.message.includes('Password not found') ||
+            errorObj.message.includes('GitHub token') ||
+            errorObj.message.includes('missing_token')));
+
+      if (isTokenError) {
+        console.log('Token error detected, showing token dialog');
+
+        // Show message
+        showMessage(
+          'Translation saved, but GitHub token is required for pushing.',
+          'info'
+        );
+
+        // Open token dialog
+        setShowTokenDialog(true);
+
+        // Store current entry info for when token is provided
+        setPendingPushEntry({
+          file_path: selectedFile.file_path,
+          entry_id: selectedEntry.id,
+          translation: editedTranslation,
+        });
+
+        return;
+      }
+
+      // For other errors, try to extract a useful message
+      if (serverMessages.length > 0) {
+        try {
+          // Try to get the first message
+          const firstMsg = JSON.parse(serverMessages[0]);
+          if (firstMsg.message) {
+            errorMessage = firstMsg.message;
+          }
+        } catch {
+          // If parsing fails, fallback to standard error message
+        }
+      } else if (errorObj.message) {
+        errorMessage = errorObj.message;
+      }
+
       showMessage(errorMessage, 'error');
+    }
+  };
+
+  // Pagination functions
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+      // The useEffect hook will handle refetching
+      // Explicitly refetch data with the new page
+      // mutate({
+      //   file_path: selectedFile?.file_path,
+      //   page: newPage,
+      //   page_sized: ENTRIES_PER_PAGE,
+      //   filter_type: entryFilter,
+      //   search_term: searchTerm,
+      // });
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+      // The useEffect hook will handle refetching
+    }
+  };
+
+  // Find next untranslated entry
+  const goToNextUntranslated = async () => {
+    // First check if there's an untranslated entry in the current page
+    const currentPageUntranslated = entries.find(
+      (e, index) =>
+        !e.is_translated && entries.indexOf(selectedEntry as any) < index
+    );
+
+    if (currentPageUntranslated) {
+      setSelectedEntryId(currentPageUntranslated.id);
+      return;
+    }
+
+    // If not in current page, need to look in next pages
+    if (currentPage < totalPages) {
+      showMessage('Searching for untranslated entries...', 'info');
+
+      // Use API to find the next untranslated entry
+      try {
+        const response = await fetch(
+          `/api/method/translation_tools.api.find_next_untranslated_entry?file_path=${
+            selectedFile.file_path
+          }&current_page=${currentPage}&page_size=${ENTRIES_PER_PAGE}`
+        );
+
+        const result = await response.json();
+
+        if (result.message) {
+          const { page, entry_id } = result.message;
+          setCurrentPage(page);
+          // Wait for the page to load
+          setTimeout(() => {
+            setSelectedEntryId(entry_id);
+          }, 100);
+        } else {
+          showMessage('No more untranslated entries found', 'info');
+        }
+      } catch (error) {
+        console.error('Error finding next untranslated entry:', error);
+        showMessage('Error finding next untranslated entry', 'error');
+      }
+    } else {
+      showMessage('No more untranslated entries found', 'info');
     }
   };
 
@@ -470,7 +709,46 @@ export default function TranslationEditor({
           <p className="text-muted-foreground">app: {selectedFile.app}</p>
         </div>
 
-        <TranslationStats stats={stats} />
+        <div>
+          {/* Pagination Controls */}
+          <div className="p-3 flex items-center justify-between space-x-2">
+            <div className="text-sm text-muted-foreground">
+              {totalEntries > 0 ? (
+                <span>
+                  {(currentPage - 1) * ENTRIES_PER_PAGE + 1}-
+                  {Math.min(currentPage * ENTRIES_PER_PAGE, totalEntries)}{' '}
+                  {__('of')} {totalEntries}
+                </span>
+              ) : (
+                <span>{__('0 entries')}</span>
+              )}
+            </div>
+            <div className="flex space-x-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToPreviousPage}
+                disabled={currentPage === 1 || isLoading}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToNextPage}
+                disabled={currentPage === totalPages || isLoading}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <TranslationStats
+          stats={
+            stats || { total: 0, translated: 0, untranslated: 0, percentage: 0 }
+          }
+        />
       </div>
 
       <div className="flex space-x-4">
@@ -480,19 +758,24 @@ export default function TranslationEditor({
               <h3 className="font-medium">Entries</h3>
               <Select
                 value={entryFilter}
-                onValueChange={(value: 'all' | 'untranslated' | 'translated') =>
-                  setEntryFilter(value)
-                }
+                onValueChange={(
+                  value: 'all' | 'untranslated' | 'translated'
+                ) => {
+                  setEntryFilter(value);
+                  setCurrentPage(1); // Reset to first page when filter changes
+                }}
               >
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Filter entries" />
+                  <SelectValue placeholder={__('Filter entries')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All entries</SelectItem>
+                  <SelectItem value="all">{__('All entries')}</SelectItem>
                   <SelectItem value="untranslated">
-                    Untranslated only
+                    {__('Untranslated only')}
                   </SelectItem>
-                  <SelectItem value="translated">Translated only</SelectItem>
+                  <SelectItem value="translated">
+                    {__('Translated only')}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -500,20 +783,27 @@ export default function TranslationEditor({
             <Input
               placeholder={__('Search in entries...')}
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // Reset to first page when search term changes
+              }}
               className="mb-2"
             />
           </div>
 
           <div className="h-[calc(100vh-400px)] overflow-y-auto">
-            {filteredEntries.length === 0 ? (
+            {isLoading ? (
+              <div className="flex h-32 items-center justify-center">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : entries.length === 0 ? (
               <div className="text-muted-foreground p-4 text-center">
-                No entries match your filter
+                {__('No entries match your filter')}
               </div>
             ) : (
               <ul className="divide-y">
-                {filteredEntries.map((entry) => (
-                  <li key={entry.id}>
+                {entries.map((entry, index) => (
+                  <li key={`entry-${entry.id}-${index}`}>
                     <button
                       type="button"
                       className={`hover:bg-muted/50 w-full p-3 text-left transition-colors ${
@@ -543,7 +833,7 @@ export default function TranslationEditor({
             <Card>
               <CardHeader>
                 <div className="flex justify-between">
-                  <CardTitle>Translation</CardTitle>
+                  <CardTitle>{__('Translation')}</CardTitle>
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="push-to-github"
@@ -557,22 +847,20 @@ export default function TranslationEditor({
                         pushToGithub ? 'text-green-600' : ''
                       )}
                     >
-                      Push to Github
+                      {__('Push to Github')}
                     </Label>
                   </div>
                 </div>
                 <CardDescription>
                   {selectedEntry.context && (
                     <Badge variant="outline" className="mb-1">
-                      Context: {selectedEntry.context}
+                      {__('Context:')} {selectedEntry.context}
                     </Badge>
                   )}
                   {selectedEntry.comments &&
                     selectedEntry.comments.length > 0 && (
                       <div className="text-muted-foreground mt-2 text-xs">
-                        {selectedEntry.comments.map((comment) => (
-                          <p key={comment}>{comment}</p>
-                        ))}
+                        <p>{selectedEntry.comments}</p>
                       </div>
                     )}
                 </CardDescription>
@@ -584,7 +872,7 @@ export default function TranslationEditor({
                       htmlFor="source-english"
                       className="mb-1 block text-sm font-medium"
                     >
-                      Source (English)
+                      {__('Source (English)')}
                     </label>
                     <div
                       id="source-english"
@@ -598,7 +886,7 @@ export default function TranslationEditor({
                       htmlFor="translation-thai"
                       className="mb-1 block text-sm font-medium"
                     >
-                      Translation (Thai)
+                      {__('Translation (Thai)')}
                     </label>
                     <Textarea
                       id="translation-thai"
@@ -631,7 +919,9 @@ export default function TranslationEditor({
                         className={
                           statusMessage.type === 'success'
                             ? 'text-green-600'
-                            : 'text-red-600'
+                            : statusMessage.type === 'info'
+                              ? 'text-blue-600'
+                              : 'text-red-600'
                         }
                       >
                         {statusMessage.type === 'success'
@@ -657,27 +947,34 @@ export default function TranslationEditor({
                       const entry = entries.find(
                         (e) => e.id === selectedEntryId
                       );
+
+                      console.log('entry reset button', entry);
                       if (entry) setEditedTranslation(entry.msgstr);
                       // setStatusMessage(null);
                       clearMessage();
                     }}
                   >
-                    Reset
+                    {__('Reset')}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => {
-                      // Find next untranslated entry
-                      const untranslatedEntries = entries.filter(
-                        (e) => !e.is_translated
-                      );
-                      if (untranslatedEntries.length > 0) {
-                        setSelectedEntryId(untranslatedEntries[0].id);
-                      }
-                    }}
+                    onClick={goToNextUntranslated}
+                    disabled={isLoading}
+                    // onClick={() => {
+                    //   // Find next untranslated entry
+                    //   const untranslatedEntries = entries.filter(
+                    //     (e) => !e.is_translated
+                    //   );
+                    //   if (untranslatedEntries.length > 0) {
+                    //     setSelectedEntryId(untranslatedEntries[0].id);
+                    //   }
+                    // }}
                   >
-                    Next Untranslated
+                    {isLoading ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : null}
+                    {__('Next Untranslated')}
                   </Button>
                 </div>
                 <div className="flex space-x-2">
@@ -690,12 +987,12 @@ export default function TranslationEditor({
                     {translateEntry.loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Translating...
+                        {__('Translating...')}
                       </>
                     ) : (
                       <>
                         <RefreshCw className="mr-2 h-4 w-4" />
-                        Translate
+                        {__('Translate')}
                       </>
                     )}
                   </Button>
@@ -706,12 +1003,12 @@ export default function TranslationEditor({
                     {saveTranslation.loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
+                        {__('Saving...')}
                       </>
                     ) : (
                       <>
                         <Save className="mr-2 h-4 w-4" />
-                        Save
+                        {__('Save')}
                       </>
                     )}
                   </Button>
@@ -744,7 +1041,7 @@ export default function TranslationEditor({
                         htmlFor="github-token"
                         className="text-sm font-medium"
                       >
-                        GitHub Token (github_pat_xxxxxxxxxxxxxxxx)
+                        {__('GitHub Token (ghp_xxxxxxxxxxxxxxxx)')}
                       </Label>
                       <div className="relative mt-2">
                         <Input

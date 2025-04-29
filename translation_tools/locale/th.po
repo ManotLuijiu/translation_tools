@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
 "POT-Creation-Date: 2025-04-24 21:12+0642\n"
-"PO-Revision-Date: 2025-04-28 18:05\n"
+"PO-Revision-Date: 2025-04-29 21:12\n"
 "Last-Translator: moocoding@gmail.com\n"
 "Language-Team: moocoding@gmail.com\n"
 "Language: th\n"
@@ -70,11 +70,11 @@ msgstr "AI ที่ปรึกษาภาษีไทย"
 
 #: translation_tools/setup/create_workspace.py:68
 msgid "AI-powered Translation Dashboard"
-msgstr ""
+msgstr "กระดานข้อมูล แสดงการใช้ AI ช่วยในการแปลภาษา"
 
 #: translation_tools/config/desktop.py:11
 msgid "AI-powered tools for translating English to Thai"
-msgstr ""
+msgstr "เครื่องมือแปลภาษาอังกฤษเป็นภาษาไทยโดยใช้ AI"
 
 #. Label of a Section Break field in DocType 'Translation Tools Settings'
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
@@ -89,7 +89,7 @@ msgstr "ตั้งค่า API"
 #: translation_tools/api/components.py:146
 msgid ""
 "API key configuration file not found. Translation features may not work."
-msgstr ""
+msgstr "ไม่พบการตั้งค่า API Key ส่งผลให้เครื่องมือแปลภาษาด้วย AI ไม่ทำงาน"
 
 #: translation_tools/api/translation.py:198
 #: translation_tools/api/translation.py:301
@@ -98,7 +98,7 @@ msgstr "ยังไม่ได้ตั้งค่า API สำหรับ 
 
 #: translation_tools/api/translation.py:389
 msgid "API key not found in configuration. Please set it up first."
-msgstr ""
+msgstr "ไม่พบการตั้งค่า API key กรุณาตั้งค่าก่อนค่ะ"
 
 #. Name of a role
 #: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
@@ -111,7 +111,7 @@ msgstr "ทั้งหมด"
 #. Label of a Table field in DocType 'Chat Settings'
 #: translation_tools/translation_tools/doctype/chat_settings/chat_settings.json
 msgid "Allowed Roles"
-msgstr ""
+msgstr "บทบาทที่ได้รับอนุญาต"
 
 #. Label of a Password field in DocType 'Translation Settings'
 #. Label of a Password field in DocType 'Translation Tools Settings'
@@ -123,12 +123,12 @@ msgstr "Anthropic API Key"
 #. Label of a Section Break field in DocType 'Translation Tools Settings'
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Anthropic Configuration"
-msgstr ""
+msgstr "การตั้งค่าของ Anthropic"
 
 #. Label of a Select field in DocType 'Translation Tools Settings'
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Anthropic Model"
-msgstr ""
+msgstr "Anthropic โมเดล"
 
 #. Label of a Data field in DocType 'PO File'
 #: translation_tools/translation_tools/doctype/po_file/po_file.json
@@ -215,7 +215,7 @@ msgstr ""
 #: translation_tools/public/dist/js/chat.bundle.OAHEVCLF.js:4913
 #: translation_tools/public/js/components/chat_list.js:25
 msgid "Chats"
-msgstr ""
+msgstr "สนทนา"
 
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:75
 msgid "Claude API connection failed: {0}"

@@ -226,6 +226,7 @@ export default function SettingsPanel() {
 
   const modelOptions = {
     openai: [
+      { value: 'gpt-4.1-mini-2025-04-14', label: 'GPT-4.1 mini' },
       { value: 'gpt-4.1-2025-04-14', label: 'GPT-4.1' },
       { value: 'chatgpt-4o-latest', label: 'ChatGPT-4o' },
       { value: 'gpt-4o-mini-2024-07-18', label: 'GPT-4o mini' },

@@ -15,6 +15,8 @@ interface TranslationStatsProps {
 export default function TranslationStats({ stats }: TranslationStatsProps) {
   const { translate: __, isReady } = useTranslation();
 
+  console.log('stats', stats);
+
   if (!isReady) {
     return (
       <div className="flex h-[calc(100vh-200px)] items-center justify-center">
