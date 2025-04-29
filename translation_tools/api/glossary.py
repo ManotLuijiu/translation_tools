@@ -3,6 +3,7 @@ import json
 from frappe import _
 from frappe.utils import cint
 from .common import logger
+
 # from translation_tools.utils.json_logger import get_json_logger
 
 # logger = get_json_logger(console=True)
@@ -288,6 +289,23 @@ def add_glossary_term(term):
         frappe._dict(term) if isinstance(term, dict) else frappe._dict(json.loads(term))
     )
 
+    # Check if a term with the same source and target already exists
+    existing_term = frappe.db.exists(
+        "Translation Glossary Term",
+        {
+            "source_term": term_data.source_term,
+            "thai_translation": term_data.thai_translation,
+        },
+    )
+
+    if existing_term:
+        return {
+            "success": False,
+            "message": f"Term already exists with ID: {existing_term}",
+            "name": existing_term,
+        }
+
+    # If no duplicate found, create a new term
     doc = frappe.new_doc("Translation Glossary Term")
     doc.source_term = term_data.source_term  # type: ignore
     doc.thai_translation = term_data.thai_translation  # type: ignore

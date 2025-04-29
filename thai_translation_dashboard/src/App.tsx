@@ -24,14 +24,7 @@ const App: React.FC = () => {
               <main className="container mx-auto px-4 dark:bg-gray-900">
                 <Dashboard />
               </main>
-              <Toaster
-                richColors
-                position="bottom-right"
-                icons={{
-                  success: <InfoIcon />,
-                  error: <CrossIcon />,
-                }}
-              />
+              <Toaster richColors position="bottom-right" />
             </div>
           </AppProvider>
         </ThemeProvider>

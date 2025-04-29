@@ -71,6 +71,8 @@ import {
   TagIcon,
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { toast } from 'sonner';
+
 import { useTranslation } from '@/context/TranslationContext';
 
 export default function GlossaryManager() {
@@ -186,15 +188,26 @@ export default function GlossaryManager() {
       }
 
       const result = await addTerm.call({ term: formData });
+      const { message } = result;
+
+      console.log('result GlossaryManager', result);
+      console.log('message GlossaryManager', message);
 
       if (result.success) {
         setStatusMessage({
           type: 'success',
           message: 'Term added successfully',
         });
+        toast('Term added successfully');
         resetForm();
         setIsAddDialogOpen(false);
         refreshTerms();
+      } else if (message.success === false) {
+        setStatusMessage({
+          type: 'error',
+          message: message.message,
+        });
+        toast.error(message.message);
       } else {
         setStatusMessage({
           type: 'error',
