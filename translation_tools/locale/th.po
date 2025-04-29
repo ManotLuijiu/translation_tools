@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
 "POT-Creation-Date: 2025-04-24 21:12+0642\n"
-"PO-Revision-Date: 2025-04-30 00:49\n"
+"PO-Revision-Date: 2025-04-30 00:57\n"
 "Last-Translator: moocoding@gmail.com\n"
 "Language-Team: moocoding@gmail.com\n"
 "Language: th\n"
@@ -195,7 +195,7 @@ msgstr ""
 #. Name of a DocType
 #: translation_tools/translation_tools/doctype/chat_room/chat_room.json
 msgid "Chat Room"
-msgstr ""
+msgstr "ห้องคุย"
 
 #. Name of a DocType
 #: translation_tools/translation_tools/doctype/chat_room_user/chat_room_user.json
