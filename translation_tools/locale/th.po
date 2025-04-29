@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
 "POT-Creation-Date: 2025-04-24 21:12+0642\n"
-"PO-Revision-Date: 2025-04-29 21:12\n"
+"PO-Revision-Date: 2025-04-30 00:49\n"
 "Last-Translator: moocoding@gmail.com\n"
 "Language-Team: moocoding@gmail.com\n"
 "Language: th\n"
@@ -143,13 +143,13 @@ msgstr ""
 #. Label of a Check field in DocType 'Translation Settings'
 #: translation_tools/translation_tools/doctype/translation_settings/translation_settings.json
 msgid "Auto Save"
-msgstr ""
+msgstr "บันทึกอัตโนมัติ"
 
 #. Option for the 'Category' (Select) field in DocType 'Translation Glossary
 #. Term'
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Auto-imported"
-msgstr ""
+msgstr "นำเข้าแบบอัตโนมัติ"
 
 #. Label of a Int field in DocType 'Translation Settings'
 #: translation_tools/translation_tools/doctype/translation_settings/translation_settings.json
@@ -159,12 +159,12 @@ msgstr "ขนาดของ Batch"
 #. Label of a Attach field in DocType 'Translation Settings Custom Font'
 #: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
 msgid "Bold"
-msgstr ""
+msgstr "ตัวหนา"
 
 #. Label of a Attach field in DocType 'Translation Settings Custom Font'
 #: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
 msgid "Bold Italics"
-msgstr ""
+msgstr "ตัวหนา และเอียง"
 
 #. Option for the 'Category' (Select) field in DocType 'Translation Glossary
 #. Term'
@@ -210,7 +210,7 @@ msgstr ""
 #. Name of a DocType
 #: translation_tools/translation_tools/doctype/chat_user_settings/chat_user_settings.json
 msgid "Chat User Settings"
-msgstr ""
+msgstr "ตั้งค่าผู้ใช้งานบน Chat"
 
 #: translation_tools/public/dist/js/chat.bundle.OAHEVCLF.js:4913
 #: translation_tools/public/js/components/chat_list.js:25

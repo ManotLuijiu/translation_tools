@@ -34,7 +34,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 export default function SettingsPanel() {
   const [settings, setSettings] = useState<Partial<TranslationToolsSettings>>({
     default_model_provider: 'openai',
-    default_model: 'gpt-4.1-2025-04-14',
+    default_model: 'gpt-4.1-mini-2025-04-14',
     openai_api_key: '',
     anthropic_api_key: '',
     batch_size: 10,

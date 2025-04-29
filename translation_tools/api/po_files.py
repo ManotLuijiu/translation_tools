@@ -1117,64 +1117,40 @@ def save_translation(file_path, entry_id, translation, push_to_github=False):
 
 def push_translation_to_github(file_path, entry, translation):
     """
-    Push a translation to GitHub
+    Push a translation to GitHub with improved authentication handling
 
     Args:
         file_path (str): Path to the PO file (standardized format)
         entry (polib.POEntry): The PO entry being translated
         translation (str): The translated text
     """
-
-    # Get the token securely
+    # Get the token result
     token_result = get_github_token()
 
+    # Check if token was retrieved successfully
     if not token_result.get("success"):
-        # Return a user-friendly error based on the failure reason
-        error_type = token_result.get("error", "unknown_error")
-
-        if error_type == "missing_token":
-            return {"github_pushed": False, "error": "missing_token"}
-        elif error_type == "github_disabled":
-            return {"github_pushed": False, "error": "GitHub integration is disabled"}
-        else:
-            return {
-                "github_pushed": False,
-                "error": token_result.get("details", "Failed to get GitHub token"),
-            }
-
-    # Default GitHub repo details
-    github_repo = "https://github.com/ManotLuijiu/erpnext-thai-translation.git"
+        return {
+            "github_pushed": False,
+            "error": token_result.get("error", "token_error"),
+        }
 
     # Extract the token from successful result
-    github_token = token_result.get("github_token")
-    customer_name = None
-    create_pr = False
-    default_branch = "main"
+    github_token = token_result.get("token")
 
-    # Safely try to get settings
+    # Default GitHub repo details
     try:
-        if frappe.db.exists("DocType", "Translation Tools Settings"):
-            settings = frappe.get_single("Translation Tools Settings")
-            if settings.get("github_repo"):
-                github_repo = settings.github_repo  # type: ignore
-            github_token = settings.get("github_token")
-            customer_name = settings.get("customer_name")
-            create_pr = settings.get("create_pull_requests") or False
-            default_branch = settings.get("default_branch") or "main"
-            logger.info(f"Found Github settings for customer: {customer_name}")
-            print(f"github_token push_translation_to_github {github_token}")
+        repo_url = frappe.db.get_single_value(
+            "Translation Tools Settings", "github_repo"
+        )
+        if not repo_url:
+            repo_url = "https://github.com/ManotLuijiu/erpnext-thai-translation.git"
     except Exception as e:
-        logger.warning(f"Could not fetch Translation Settings: {e}")
-
-    # Check if token is missing
-    if not github_token:
-        logger.info("Github token is missing, requesting from user")
-        return {"github_pushed": False, "error": "missing_token"}
+        frappe.log_error(str(e), "Failed to get GitHub repo URL")
+        repo_url = "https://github.com/ManotLuijiu/erpnext-thai-translation.git"
 
     try:
         # Extract app name, language from file_path
         parts = file_path.split("/")
-        # app_name = parts[1] if len(parts) > 1 else "unknown"
 
         # Extract app name more accurately
         if "apps" in parts:
@@ -1189,126 +1165,200 @@ def push_translation_to_github(file_path, entry, translation):
         # Get language code from filename
         language = os.path.basename(file_path).split(".")[0]
 
-        print(f"parts github: {parts}")
-        print(f"app_name github: {app_name}")
-        print(f"language github: {language}")
-
-        # Create a sanitized branch name for the customer
-        customer_branch = None
-        if customer_name:
-            # Create a valid git branch name from customer name
-            customer_branch = (
-                f"customer-{re.sub(r'[^a-zA-Z0-9_-]', '-', str(customer_name).lower())}"
-            )
-            logger.info(f"Using customer branch: {customer_branch}")
-
         # Create a temporary directory for the repo
         with tempfile.TemporaryDirectory() as temp_dir:
-            logger.info(f"Cloning GitHub repository: {github_repo}")
+            logger.info(f"Working in temporary directory: {temp_dir}")
 
-            # Configure Git authentication
-            if github_token:
-                clone_url = github_repo.replace("https://", f"https://{github_token}@")
-            else:
-                clone_url = github_repo
+            # Create Git credential helper file to store credentials securely
+            credential_helper_path = os.path.join(temp_dir, "git-credentials")
+            with open(credential_helper_path, "w") as f:
+                f.write(f"https://{github_token}:x-oauth-basic@github.com\n")
+            os.chmod(credential_helper_path, 0o600)  # Secure permissions
 
-            # Clone the repo
+            # Set up Git global config for this operation
+            subprocess.run(
+                [
+                    "git",
+                    "config",
+                    "--global",
+                    "credential.helper",
+                    f"store --file={credential_helper_path}",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            # Configure Git user
+            user_email = frappe.session.user or "translation-tools@example.com"
+            user_name = (
+                frappe.db.get_value("User", frappe.session.user, "full_name")
+                or "Translation Tools"
+            )
+
+            subprocess.run(
+                ["git", "config", "--global", "user.email", user_email],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            subprocess.run(
+                ["git", "config", "--global", "user.name", str(user_name)],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            # Test repository existence by trying a shallow clone
+            repo_exists = False
             try:
-                subprocess.run(
-                    ["git", "clone", clone_url, temp_dir],
+                # Try to do a shallow clone first to test if repo exists and is accessible
+                test_result = subprocess.run(
+                    ["git", "ls-remote", "--heads", str(repo_url)],
                     check=True,
                     capture_output=True,
                     text=True,
                 )
+                # If we get output, the repo exists
+                if test_result.stdout.strip():
+                    repo_exists = True
+                    logger.info(
+                        f"Repository exists and is accessible. Found branches: {test_result.stdout}"
+                    )
+                else:
+                    # Empty output means repo exists but has no branches (new repo)
+                    repo_exists = True
+                    logger.info(
+                        "Repository exists but has no branches (empty repository)"
+                    )
             except subprocess.CalledProcessError as e:
-                logger.error(f"Git clone failed: {e.stderr}")
-                return {
-                    "github_pushed": False,
-                    "error": f"Failed to clone repository: {e.stderr}",
-                }
+                logger.info(f"Repository not accessible or doesn't exist: {e.stderr}")
 
-            # Configure git user
-            user_email = frappe.session.user or "translation-tools@example.com"
-            subprocess.run(
-                ["git", "config", "user.email", user_email],
-                cwd=temp_dir,
-                check=True,
-                capture_output=True,
-            )
+                if "Authentication failed" in e.stderr:
+                    return {
+                        "github_pushed": False,
+                        "error": "GitHub authentication failed. Please check your token.",
+                    }
+                else:
+                    logger.info(
+                        "Repository not found or inaccessible, will create a new one"
+                    )
+                    repo_exists = False
 
-            user_name = (
-                frappe.db.get_value("User", frappe.session.user, "full_name")
-                or frappe.session.user
-                or "Translation Tools"
-            )
-            subprocess.run(
-                ["git", "config", "user.name", str(user_name)],
-                cwd=temp_dir,
-                check=True,
-                capture_output=True,
-            )
-
-            # Handle customer-specific branches
-            if customer_branch:
-                # Check if branch exists
-                branch_exists = (
+            # Initialize repository
+            if repo_exists:
+                # Clone existing repository into a subdirectory then move contents up
+                repo_clone_dir = os.path.join(temp_dir, "repo_clone")
+                try:
                     subprocess.run(
-                        [
-                            "git",
-                            "show-ref",
-                            "--verify",
-                            f"refs/heads/{customer_branch}",
-                        ],
-                        cwd=temp_dir,
+                        ["git", "clone", str(repo_url), str(repo_clone_dir)],
+                        check=True,
                         capture_output=True,
-                    ).returncode
-                    == 0
+                        text=True,
+                    )
+                    logger.info("Repository cloned successfully")
+
+                    # Copy .git directory up to the temp_dir
+                    shutil.copytree(
+                        os.path.join(repo_clone_dir, ".git"),
+                        os.path.join(temp_dir, ".git"),
+                    )
+
+                    # Copy all other files
+                    for item in os.listdir(repo_clone_dir):
+                        if item != ".git":
+                            src = os.path.join(repo_clone_dir, item)
+                            dst = os.path.join(temp_dir, item)
+                            if os.path.isdir(src):
+                                shutil.copytree(src, dst)
+                            else:
+                                shutil.copy2(src, dst)
+
+                    # Remove the clone directory
+                    shutil.rmtree(repo_clone_dir)
+
+                    # Make sure we're on main branch
+                    subprocess.run(
+                        ["git", "checkout", "main"],
+                        cwd=temp_dir,
+                        check=True,
+                        capture_output=True,
+                        text=True,
+                    )
+                except subprocess.CalledProcessError as e:
+                    logger.error(f"Failed to clone repository: {e.stderr}")
+                    return {
+                        "github_pushed": False,
+                        "error": f"Failed to clone repository: {e.stderr}",
+                    }
+            else:
+                # Initialize new repository
+                logger.info("Initializing new repository")
+
+                # Initialize git repo
+                subprocess.run(
+                    ["git", "init"],
+                    cwd=temp_dir,
+                    check=True,
+                    capture_output=True,
+                    text=True,
                 )
 
-                if branch_exists:
-                    # Checkout existing branch
-                    subprocess.run(
-                        ["git", "checkout", customer_branch],
-                        cwd=temp_dir,
-                        check=True,
-                        capture_output=True,
-                    )
-                    logger.info(f"Checked out existing branch: {customer_branch}")
-                else:
-                    # Create new branch from default branch
-                    subprocess.run(
-                        [
-                            "git",
-                            "checkout",
-                            "-b",
-                            str(customer_branch),
-                            str(default_branch),
-                        ],
-                        cwd=temp_dir,
-                        check=True,
-                        capture_output=True,
-                    )
-                    logger.info(
-                        f"Created new branch: {customer_branch} from {default_branch}"
-                    )
+                # Create README.md
+                readme_path = os.path.join(temp_dir, "README.md")
+                with open(readme_path, "w") as f:
+                    f.write("# ERPNext Thai Translation\n\n")
+                    f.write("Automatic translations for ERPNext in Thai language.\n\n")
+                    f.write("Generated by Translation Tools App.")
+
+                # Add README and make initial commit
+                subprocess.run(
+                    ["git", "add", "README.md"],
+                    cwd=temp_dir,
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+
+                subprocess.run(
+                    ["git", "commit", "-m", "Initial commit"],
+                    cwd=temp_dir,
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+
+                # Rename branch to main
+                subprocess.run(
+                    ["git", "branch", "-M", "main"],
+                    cwd=temp_dir,
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+
+                # Add remote
+                subprocess.run(
+                    ["git", "remote", "add", "origin", str(repo_url)],
+                    cwd=temp_dir,
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
 
             # Construct path in the repo - organizing by app name
             app_dir = os.path.join(temp_dir, app_name)
             repo_po_path = os.path.join(app_dir, f"{language}.po")
-            # Construct path in the repo
-            # repo_po_path = os.path.join(temp_dir, app_name, f"{language}.po")
 
-            # Create directories if they don't exist
-            # os.makedirs(os.path.dirname(repo_po_path), exist_ok=True)
+            # Create app directory if it doesn't exist
             os.makedirs(app_dir, exist_ok=True)
 
             # Convert standardized path to absolute path
             abs_file_path = os.path.join(frappe.get_site_path("../.."), file_path)
 
-            # Check if file exists in repo, if not copy from local
+            # Update the PO file
             if not os.path.exists(repo_po_path):
                 logger.info(f"Creating new PO file in repository: {repo_po_path}")
-                # Copy the local file to the repo
                 if os.path.exists(abs_file_path):
                     shutil.copy(abs_file_path, repo_po_path)
                 else:
@@ -1340,69 +1390,43 @@ def push_translation_to_github(file_path, entry, translation):
                     )
                     repo_po.save(repo_po_path)
 
-            # Check if there are changes to commit
-            status = subprocess.run(
-                ["git", "status", "--porcelain"],
-                cwd=temp_dir,
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-
-            if not status.stdout.strip():
-                logger.info("No changes to commit")
-                return {
-                    "github_pushed": True,
-                    "message": _("No changes to push - translation already up to date"),
-                    "status": "no_changes",
-                }
-
-            # Commit changes
+            # Commit and push the changes
             try:
-                # Configure Git user
-                # subprocess.run(
-                #     [
-                #         "git",
-                #         "config",
-                #         "user.email",
-                #         frappe.session.user or "unknown@example.com",
-                #     ],
-                #     cwd=temp_dir,
-                #     check=True,
-                #     capture_output=True,
-                # )
-
-                # user_name = (
-                #     frappe.db.get_value("User", frappe.session.user, "full_name")
-                #     or frappe.session.user
-                # )
-                # subprocess.run(
-                #     ["git", "config", "user.name", str(user_name)],
-                #     cwd=temp_dir,
-                #     check=True,
-                #     capture_output=True,
-                # )
-
                 # Add file to staging
-                repo_po_rel_path = os.path.relpath(repo_po_path, temp_dir)
-                logger.info(f"Adding file to git: {repo_po_rel_path}")
                 subprocess.run(
                     ["git", "add", repo_po_path],
                     cwd=temp_dir,
                     check=True,
                     capture_output=True,
+                    text=True,
+                )
+                logger.info(f"Added {os.path.relpath(repo_po_path, temp_dir)} to git")
+
+                # Check if there are changes to commit
+                status_result = subprocess.run(
+                    ["git", "status", "--porcelain"],
+                    cwd=temp_dir,
+                    check=True,
+                    capture_output=True,
+                    text=True,
                 )
 
-                print(f"now run git add {os.path.relpath(repo_po_path, temp_dir)}")
+                if not status_result.stdout.strip():
+                    logger.info("No changes to commit")
+                    return {
+                        "github_pushed": True,
+                        "message": _(
+                            "No changes needed, translation is already up to date"
+                        ),
+                    }
 
-                # Prepare commit message - truncate if needed
+                # Prepare commit message
                 msg_id = (
                     entry.msgid[:50] + "..." if len(entry.msgid) > 50 else entry.msgid
                 )
                 commit_message = (
                     f"Update translation for {app_name}/{language}: {msg_id}"
                 )
-                logger.info(f"Committing changes with message: '{commit_message}'")
 
                 # Commit changes
                 subprocess.run(
@@ -1410,112 +1434,55 @@ def push_translation_to_github(file_path, entry, translation):
                     cwd=temp_dir,
                     check=True,
                     capture_output=True,
+                    text=True,
                 )
-
-                logger.info(f"Committed changes: {commit_message}")
-
-                print(f"now run git commit with message: {commit_message}")
+                logger.info(f"Committed changes with message: {commit_message}")
 
                 # Push changes
-                # if github_token:
-                #     push_url = f"https://{github_token}@github.com/ManotLuijiu/erpnext-thai-translation.git"
-                #     subprocess.run(
-                #         ["git", "push", push_url],
-                #         cwd=temp_dir,
-                #         check=True,
-                #         capture_output=True,
-                #     )
+                if repo_exists:
+                    # Regular push for existing repos
+                    push_command = ["git", "push", "origin", "main"]
+                else:
+                    # Initial push with upstream tracking
+                    push_command = ["git", "push", "-u", "origin", "main"]
 
-                #     print(f"now run git push: {temp_dir}")
-                # else:
-                #     subprocess.run(
-                #         ["git", "push"], cwd=temp_dir, check=True, capture_output=True
-                #     )
+                try:
+                    push_result = subprocess.run(
+                        push_command,
+                        cwd=temp_dir,
+                        check=True,
+                        capture_output=True,
+                        text=True,
+                        timeout=30,  # Add timeout to prevent hanging
+                    )
+                    logger.info(f"Push successful: {push_result.stdout}")
+                except subprocess.CalledProcessError as e:
+                    # Handle specific push errors
+                    if (
+                        "HTTP Basic: Access denied" in e.stderr
+                        or "Invalid username or password" in e.stderr
+                    ):
+                        logger.error(f"Authentication failed: {e.stderr}")
+                        return {
+                            "github_pushed": False,
+                            "error": "GitHub authentication failed. Please check your token.",
+                        }
+                    else:
+                        logger.error(f"Push failed: {e.stderr}")
+                        return {
+                            "github_pushed": False,
+                            "error": f"Push failed: {e.stderr}",
+                        }
 
-                logger.info(f"Pushing changes to GitHub repository for {app_name}")
-
-                push_url = github_repo.replace("https://", f"https://{github_token}@")
-
-                print(f"Pushing to GitHub repository {push_url}")
-
-                subprocess.run(
-                    ["git", "push", push_url],
-                    cwd=temp_dir,
-                    check=True,
-                    capture_output=True,
-                )
-
-                result = {
+                return {
                     "github_pushed": True,
                     "message": _("Translation pushed to GitHub successfully"),
                     "app": app_name,
                     "language": language,
                 }
 
-                # logger.info(f"Successfully pushed translation to GitHub {file_path}")
-                # return {
-                #     "github_pushed": True,
-                #     "message": _("Translation pushed to GitHub successfully"),
-                # }
-
-                # Create pull request if configured
-                if create_pr and customer_branch and github_token:
-                    try:
-                        # Create a pull request using GitHub API
-                        github_api_url = "https://api.github.com"
-                        repo_parts = github_repo.split("/")
-                        repo_owner = repo_parts[-2]
-                        repo_name = repo_parts[-1].replace(".git", "")
-
-                        pr_url = (
-                            f"{github_api_url}/repos/{repo_owner}/{repo_name}/pulls"
-                        )
-
-                        pr_data = {
-                            "title": f"Translation updates for {customer_name}",
-                            "body": f"Translation updates for {app_name} from {customer_name}\n\nAutomatically created by Translation Tools.",
-                            "head": customer_branch,
-                            "base": default_branch,
-                        }
-
-                        headers = {
-                            "Authorization": f"token {github_token}",
-                            "Accept": "application/vnd.github.v3+json",
-                        }
-
-                        import requests
-
-                        response = requests.post(pr_url, json=pr_data, headers=headers)
-
-                        if response.status_code in (
-                            201,
-                            422,
-                        ):  # Created or already exists
-                            if response.status_code == 201:
-                                pr_info = response.json()
-                                result["pr_url"] = pr_info.get("html_url")
-                                result["message"] += _(" and Pull Request created")
-                                logger.info(
-                                    f"Created pull request: {pr_info.get('html_url')}"
-                                )
-                            else:
-                                logger.info(
-                                    "Pull request already exists or couldn't be created"
-                                )
-                        else:
-                            logger.error(
-                                f"Failed to create PR: {response.status_code} - {response.text}"
-                            )
-
-                    except Exception as e:
-                        logger.error(f"Error creating pull request: {str(e)}")
-                        # Don't fail the whole operation if PR creation fails
-                        result["pr_error"] = str(e)
-
-                return result
-
             except subprocess.CalledProcessError as e:
-                logger.error(f"Git error: {e.stderr}")
+                logger.error(f"Git operation failed: {e.stderr}")
                 return {
                     "github_pushed": False,
                     "error": f"Git operation failed: {e.stderr}",
@@ -1524,6 +1491,12 @@ def push_translation_to_github(file_path, entry, translation):
     except Exception as e:
         logger.exception(f"Error pushing to GitHub: {str(e)}")
         return {"github_pushed": False, "error": str(e)}
+    finally:
+        # Clean up global git config to avoid affecting other operations
+        subprocess.run(
+            ["git", "config", "--global", "--unset", "credential.helper"],
+            capture_output=True,
+        )
 
 
 @frappe.whitelist()
@@ -1603,22 +1576,23 @@ def get_github_token():
         if not frappe.db.exists("DocType", "Translation Tools Settings"):
             return {"success": False, "error": "missing_settings"}
 
-        # Check if any settings document exists
-        if not frappe.db.get_single_value(
-            "Translation Tools Settings", "name", cache=True
-        ):
-            # No settings document exists yet
-            return {"success": False, "error": "missing_token"}
+        # Check if GitHub integration is enabled
+        github_enabled = frappe.db.get_single_value(
+            "Translation Tools Settings", "github_enable"
+        )
+        if not github_enabled:
+            return {"success": False, "error": "github_disabled"}
 
+        # Check if token exists
         try:
             # Try to get the settings document
-            settings = frappe.get_cached_doc("Translation Tools Settings")
+            # settings = frappe.get_cached_doc("Translation Tools Settings")
 
-            if not settings.github_enable:  # type: ignore
-                return {"success": False, "error": "github_disabled"}
+            # if not settings.github_enable:  # type: ignore
+            #     return {"success": False, "error": "github_disabled"}
 
-            if not settings.github_token:  # type: ignore
-                return {"success": False, "error": "missing_token"}
+            # if not settings.github_token:  # type: ignore
+            #     return {"success": False, "error": "missing_token"}
 
             # Get the decrypted token
             token = get_decrypted_password(

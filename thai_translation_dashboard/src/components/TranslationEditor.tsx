@@ -7,6 +7,7 @@ import {
   useTranslateSingleEntry,
   useSaveTranslation,
   useSaveGithubToken,
+  useTestGithubConnection,
 } from '../api';
 import type { POFile, TranslationToolsSettings } from '../types';
 import { Button } from '@/components/ui/button';
@@ -61,7 +62,7 @@ const ENTRIES_PER_PAGE = 20;
 
 interface TranslationEditorProps {
   selectedFile: POFile | null;
-  settings: TranslationToolsSettings | null;
+  settings: TranslationToolsSettings;
 }
 
 export default function TranslationEditor({
@@ -84,6 +85,12 @@ export default function TranslationEditor({
   const [previousFile, setPreviousFile] = useState(selectedFile);
   const { statusMessage, showMessage, clearMessage } = useStatusMessage();
   const [showPassword, setShowPassword] = useState(false);
+  const testGithub = useTestGithubConnection();
+
+  console.log('settings TranslationEditor', settings);
+  const { github_token } = settings;
+
+  console.log('github_token', github_token);
 
   interface PendingPushEntry {
     file_path: string;
@@ -135,6 +142,7 @@ export default function TranslationEditor({
   const translateEntry = useTranslateSingleEntry();
   const saveTranslation = useSaveTranslation.call({});
   const saveGithubToken = useSaveGithubToken();
+  // const { data, error, isLoading } = useGetTranslationSettings();
 
   // Reset selected entry when file changes
   useEffect(() => {
@@ -176,6 +184,21 @@ export default function TranslationEditor({
       mutate();
     }
   }, [currentPage, mutate, selectedFile]);
+
+  // Use the settings to pre-fill the GitHub token
+  useEffect(() => {
+    // Pre-fill GitHub token from settings when available
+    if (github_token) {
+      setGithubToken(github_token);
+    }
+  }, [github_token]);
+
+  // Reset token input when dialog opens
+  useEffect(() => {
+    if (showTokenDialog && settings?.github_token) {
+      setGithubToken(settings.github_token);
+    }
+  }, [showTokenDialog, settings]);
 
   if (!selectedFile) {
     return (
@@ -262,6 +285,31 @@ export default function TranslationEditor({
 
   console.log('selectedEntryId', selectedEntryId);
   console.log('selectedEntry', selectedEntry);
+
+  const handleTestGitHubConnection = async (
+    github_repo: string,
+    github_token: string
+  ) => {
+    console.log('testing github', github_token);
+
+    try {
+      // Make an API call to test the GitHub connection
+      const { message } = await testGithub.call({
+        github_repo,
+        github_token,
+      });
+
+      console.log('message from github testing', message);
+
+      if (message?.success) {
+        console.log('github_test_success', message?.success);
+      } else {
+        console.log('else_github_test');
+      }
+    } catch (err: any) {
+      console.log('github_test_err', err);
+    }
+  };
 
   const handleTranslate = async () => {
     if (!selectedEntry || !selectedFile.file_path) return;
@@ -448,6 +496,7 @@ export default function TranslationEditor({
 
     setGithubToken('');
     setShowTokenDialog(false);
+    setGithubToken(settings?.github_token || '');
     // setStatusMessage(null);
     clearMessage();
 
@@ -832,23 +881,53 @@ export default function TranslationEditor({
           {selectedEntry ? (
             <Card>
               <CardHeader>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <CardTitle>{__('Translation')}</CardTitle>
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="push-to-github"
-                      checked={pushToGithub}
-                      onCheckedChange={setPushToGithub}
-                    />
-                    <Label
-                      htmlFor="push-to-github"
-                      className={cn(
-                        'cursor-pointer',
-                        pushToGithub ? 'text-green-600' : ''
-                      )}
-                    >
-                      {__('Push to Github')}
-                    </Label>
+                  <div className="flex space-x-2">
+                    {pushToGithub ? (
+                      <Button
+                        variant="outline"
+                        onClick={() =>
+                          handleTestGitHubConnection(
+                            settings.github_repo || '',
+                            settings.github_token || ''
+                          )
+                        }
+                        disabled={
+                          !settings.github_enable ||
+                          !settings.github_repo ||
+                          !settings.github_token
+                        }
+                      >
+                        {__('Test Connect')}
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant={'outline'}
+                        onClick={() => setShowTokenDialog(true)}
+                      >
+                        <div className="flex justify-center items-center">
+                          {__('Github Token')}
+                        </div>
+                      </Button>
+                    )}
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="push-to-github"
+                        checked={pushToGithub}
+                        onCheckedChange={setPushToGithub}
+                      />
+                      <Label
+                        htmlFor="push-to-github"
+                        className={cn(
+                          'cursor-pointer',
+                          pushToGithub ? 'text-green-600' : ''
+                        )}
+                      >
+                        {__('Push to Github')}
+                      </Label>
+                    </div>
                   </div>
                 </div>
                 <CardDescription>
