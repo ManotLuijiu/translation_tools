@@ -1221,7 +1221,17 @@ def push_translation_to_github(file_path, entry, translation):
                     repo_po = polib.pofile(repo_po_path)
                 else:
                     repo_po = polib.POFile()
-                    repo_po.metadata = source_po.metadata.copy()
+                    # Copy metadata safely, handling None values
+                    if hasattr(source_po, "metadata") and source_po.metadata:
+                        repo_po.metadata = source_po.metadata.copy()
+                    else:
+                        # Initialize empty metadata if source has none
+                        repo_po.metadata = {}
+
+                # Make sure entry has necessary attributes before using them
+                # Create safe copies of attributes
+                entry_occurrences = getattr(entry, "occurrences", []) or []
+                entry_comment = getattr(entry, "comment", "") or ""
 
                 # Update the translation for the specific entry
                 found = False
@@ -1236,8 +1246,8 @@ def push_translation_to_github(file_path, entry, translation):
                     new_entry = polib.POEntry(
                         msgid=entry.msgid,
                         msgstr=translation,
-                        occurrences=entry.occurrences,
-                        comment=entry.comment,
+                        occurrences=entry_occurrences,
+                        comment=entry_comment,
                     )
                     repo_po.append(new_entry)
 
@@ -1284,9 +1294,15 @@ def push_translation_to_github(file_path, entry, translation):
 
             # Push with -u to set upstream
             try:
-                subprocess.run(
-                    ["git", "push", "-u", "origin", "main"], cwd=temp_dir, check=True
+                # Use capture_output=True to get error messages
+                result = subprocess.run(
+                    ["git", "push", "-u", "origin", "main"],
+                    cwd=temp_dir,
+                    check=True,
+                    capture_output=True,
+                    text=True,
                 )
+                logger.info(f"Push output: {result.stdout}")
                 logger.info("Successfully pushed to GitHub")
 
                 return {
@@ -1312,8 +1328,14 @@ def push_translation_to_github(file_path, entry, translation):
                         "error": f"Failed to push to GitHub: {error_msg}",
                     }
     except Exception as e:
+        import traceback
+
         logger.exception(f"Error pushing to GitHub: {str(e)}")
-        return {"github_pushed": False, "error": str(e)}
+        return {
+            "github_pushed": False,
+            "error": str(e),
+            "traceback": traceback.format_exc(),
+        }
     finally:
         # Clean up global git config
         try:
