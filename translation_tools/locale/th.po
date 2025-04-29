@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Translation Tools VERSION 0.1.0\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
 "POT-Creation-Date: 2025-04-24 21:12+0642\n"
-"PO-Revision-Date: 2025-04-30 01:11\n"
+"PO-Revision-Date: 2025-04-30 02:07\n"
 "Last-Translator: moocoding@gmail.com\n"
 "Language-Team: moocoding@gmail.com\n"
 "Language: th\n"
@@ -205,7 +205,7 @@ msgstr ""
 #. Name of a DocType
 #: translation_tools/translation_tools/doctype/chat_settings/chat_settings.json
 msgid "Chat Settings"
-msgstr ""
+msgstr "ตั้งค่าการสนทนา"
 
 #. Name of a DocType
 #: translation_tools/translation_tools/doctype/chat_user_settings/chat_user_settings.json
