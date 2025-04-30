@@ -13,13 +13,15 @@ __pycache__
 *.local.yaml
 # /translation_tools/pubilc/css/styles.css
 /translation_tools/public/dist/
-
+"/translation_tools/public/thai_translation_dashboard/assets/index-*"
+"/translation_tools/public/thai_translation_dashboard/assets/*.map"
+"/translation_tools/public/thai_translation_dashboard/assets/tbs_logo-*.png"
+/apps/translation_tools/public/thai_translation_dashboard/assets/*
 # Node.js
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-
 
 # React/Vite specific
 .cache/

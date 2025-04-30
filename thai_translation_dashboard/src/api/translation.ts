@@ -1,4 +1,4 @@
-import { useFrappePostCall } from "frappe-react-sdk";
+import { useFrappePostCall } from 'frappe-react-sdk';
 
 export type TranslationResult = {
   success: boolean;
@@ -25,7 +25,7 @@ export type LogAnalysis = {
  */
 export function useTranslateSingleEntry() {
   return useFrappePostCall<TranslationResult>(
-    "translation_tools.api.translation.translate_single_entry"
+    'translation_tools.api.translation.translate_entry'
   );
 }
 
@@ -34,7 +34,7 @@ export function useTranslateSingleEntry() {
  */
 export function useTranslatePOFile() {
   return useFrappePostCall<TranslationResult>(
-    "translation_tools.api.translation.translate_po_file"
+    'translation_tools.api.translation.translate_po_file'
   );
 }
 
@@ -43,7 +43,7 @@ export function useTranslatePOFile() {
  */
 export function useTranslateBatch() {
   return useFrappePostCall<BatchTranslationResult>(
-    "translation_tools.api.translation.translate_batch"
+    'translation_tools.api.translation.translate_batch'
   );
 }
 
@@ -56,7 +56,7 @@ export function useGetTranslationLogs() {
     logs?: string;
     analysis?: LogAnalysis;
     error?: string;
-  }>("translation_tools.api.translation.get_translation_logs");
+  }>('translation_tools.api.translation.get_translation_logs');
 }
 
 /**
@@ -66,5 +66,5 @@ export function useStartTranslation() {
   return useFrappePostCall<{
     message: string;
     status: string;
-  }>("translation_tools.api.translation.start_translation");
+  }>('translation_tools.api.translation.start_translation');
 }
