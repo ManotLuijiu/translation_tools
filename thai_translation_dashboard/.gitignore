@@ -24,4 +24,6 @@ dist-ssr
 *.sln
 *.sw?
 
-translation_tools/public/thai_translation_dashboard/assets/*
+/translation_tools/public/thai_translation_dashboard/assets/index-*
+/translation_tools/public/thai_translation_dashboard/assets/*.map
+/translation_tools/public/thai_translation_dashboard/assets/tbs_logo-*.png
