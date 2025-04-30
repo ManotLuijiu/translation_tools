@@ -1,223 +1,225 @@
 {
- "actions": [],
- "creation": "2025-04-15 23:27:25.446695",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
- "field_order": [
-  "general_section",
-  "enable_translation",
-  "default_source_language",
-  "default_target_language",
-  "api_section",
-  "default_model_provider",
-  "default_model",
-  "openai_section",
-  "openai_api_key",
-  "openai_model",
-  "anthropic_section",
-  "anthropic_api_key",
-  "anthropic_model",
-  "translation_settings_section",
-  "batch_size",
-  "temperature",
-  "auto_save",
-  "preserve_formatting",
-  "github_section",
-  "customer_name",
-  "default_branch",
-  "create_pull_requests",
-  "github_enable",
-  "github_repo",
-  "github_token",
-  "api_keys_section",
-  "tax_consultant_license_key",
-  "chat_enabled"
- ],
- "fields": [
-  {
-   "fieldname": "general_section",
-   "fieldtype": "Section Break",
-   "label": "General Settings"
-  },
-  {
-   "default": "1",
-   "fieldname": "enable_translation",
-   "fieldtype": "Check",
-   "label": "Enable Translation Service"
-  },
-  {
-   "default": "1",
-   "fieldname": "chat_enabled",
-   "fieldtype": "Check",
-   "label": "Enable Chat Features"
-  },
-  {
-   "default": "en",
-   "fieldname": "default_source_language",
-   "fieldtype": "Data",
-   "label": "Default Source Language"
-  },
-  {
-   "default": "th",
-   "fieldname": "default_target_language",
-   "fieldtype": "Data",
-   "label": "Default Target Language"
-  },
-  {
-   "fieldname": "api_section",
-   "fieldtype": "Section Break",
-   "label": "API Settings"
-  },
-  {
-   "default": "openai",
-   "fieldname": "default_model_provider",
-   "fieldtype": "Select",
-   "label": "Default Model Provider",
-   "options": "openai\nanthropic"
-  },
-  {
-   "default": "gpt-4-1106-preview",
-   "fieldname": "default_model",
-   "fieldtype": "Data",
-   "label": "Default Model"
-  },
-  {
-   "fieldname": "openai_section",
-   "fieldtype": "Section Break",
-   "label": "OpenAI Configuration"
-  },
-  {
-   "fieldname": "openai_api_key",
-   "fieldtype": "Password",
-   "label": "OpenAI API Key"
-  },
-  {
-   "default": "gpt-4.1-mini-2025-04-14",
-   "fieldname": "openai_model",
-   "fieldtype": "Select",
-   "label": "OpenAI Model",
-   "options": "gpt-4.1-mini-2025-04-14\ngpt-4.1-2025-04-14\nchatgpt-4o-latest\ngpt-4o-mini-2024-07-18\no4-mini-2025-04-16"
-  },
-  {
-   "fieldname": "anthropic_section",
-   "fieldtype": "Section Break",
-   "label": "Anthropic Configuration"
-  },
-  {
-   "fieldname": "anthropic_api_key",
-   "fieldtype": "Password",
-   "label": "Anthropic API Key"
-  },
-  {
-   "default": "claude-3-7-sonnet-20250219",
-   "fieldname": "anthropic_model",
-   "fieldtype": "Select",
-   "label": "Anthropic Model",
-   "options": "claude-3-7-sonnet-20250219\nclaude-3-5-haiku-20241022\nclaude-3-5-sonnet-20241022\nclaude-3-opus-20240229\nclaude-3-sonnet-20240229\nclaude-3-haiku-20240307"
-  },
-  {
-   "fieldname": "translation_settings_section",
-   "fieldtype": "Section Break",
-   "label": "Translation Settings"
-  },
-  {
-   "default": "10",
-   "fieldname": "batch_size",
-   "fieldtype": "Int",
-   "label": "Batch Size"
-  },
-  {
-   "default": "0.3",
-   "fieldname": "temperature",
-   "fieldtype": "Float",
-   "label": "Temperature"
-  },
-  {
-   "default": "0",
-   "fieldname": "auto_save",
-   "fieldtype": "Check",
-   "label": "Auto Save"
-  },
-  {
-   "default": "1",
-   "fieldname": "preserve_formatting",
-   "fieldtype": "Check",
-   "label": "Preserve Formatting"
-  },
-  {
-   "fieldname": "github_section",
-   "fieldtype": "Section Break",
-   "label": "GitHub Integration"
-  },
-  {
-   "default": "main",
-   "fieldname": "default_branch",
-   "fieldtype": "Data",
-   "label": "Github Branch"
-  },
-  {
-   "default": "0",
-   "fieldname": "create_pull_requests",
-   "fieldtype": "Check",
-   "label": "Pull Request"
-  },
-  {
-   "default": "0",
-   "fieldname": "github_enable",
-   "fieldtype": "Check",
-   "label": "Enable GitHub Integration"
-  },
-  {
-   "default": "https://github.com/ManotLuijiu/erpnext-thai-translation.git",
-   "fieldname": "github_repo",
-   "fieldtype": "Data",
-   "label": "Repository URL"
-  },
-  {
-   "description": "Create a token with 'repo' scope at https://github.com/settings/tokens",
-   "fieldname": "github_token",
-   "fieldtype": "Password",
-   "label": "GitHub Personal Access Token (Classic)"
-  },
-  {
-   "fieldname": "api_keys_section",
-   "fieldtype": "Section Break",
-   "label": "API Keys"
-  },
-  {
-   "fieldname": "tax_consultant_license_key",
-   "fieldtype": "Password",
-   "label": "Thai Tax Consultant License Key"
-  },
-  {
-   "fieldname": "customer_name",
-   "fieldtype": "Data",
-   "label": "Customer Name"
-  }
- ],
- "grid_page_length": 50,
- "issingle": 1,
- "links": [],
- "modified": "2025-04-29 23:52:17.141854",
- "modified_by": "Administrator",
- "module": "Translation Tools",
- "name": "Translation Tools Settings",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "print": 1,
-   "read": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
- "row_format": "Dynamic",
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": []
+  "actions": [],
+  "creation": "2025-04-15 23:27:25.446695",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "general_section",
+    "enable_translation",
+    "default_source_language",
+    "default_target_language",
+    "api_section",
+    "default_model_provider",
+    "default_model",
+    "openai_section",
+    "openai_api_key",
+    "openai_model",
+    "anthropic_section",
+    "anthropic_api_key",
+    "anthropic_model",
+    "translation_settings_section",
+    "batch_size",
+    "temperature",
+    "auto_save",
+    "preserve_formatting",
+    "github_section",
+    "customer_name",
+    "default_branch",
+    "create_pull_requests",
+    "github_enable",
+    "github_repo",
+    "github_token",
+    "api_keys_section",
+    "tax_consultant_license_key",
+    "chat_enabled"
+  ],
+  "fields": [
+    {
+      "fieldname": "general_section",
+      "fieldtype": "Section Break",
+      "label": "General Settings"
+    },
+    {
+      "default": "1",
+      "fieldname": "enable_translation",
+      "fieldtype": "Check",
+      "label": "Enable Translation Service"
+    },
+    {
+      "default": "1",
+      "fieldname": "chat_enabled",
+      "fieldtype": "Check",
+      "label": "Enable Chat Features"
+    },
+    {
+      "default": "en",
+      "fieldname": "default_source_language",
+      "fieldtype": "Data",
+      "label": "Default Source Language"
+    },
+    {
+      "default": "th",
+      "fieldname": "default_target_language",
+      "fieldtype": "Data",
+      "label": "Default Target Language"
+    },
+    {
+      "fieldname": "api_section",
+      "fieldtype": "Section Break",
+      "label": "API Settings"
+    },
+    {
+      "default": "openai",
+      "fieldname": "default_model_provider",
+      "fieldtype": "Select",
+      "label": "Default Model Provider",
+      "options": "openai\nanthropic"
+    },
+    {
+      "default": "gpt-4.1-mini-2025-04-14",
+      "fieldname": "default_model",
+      "fieldtype": "Data",
+      "label": "Default Model"
+    },
+    {
+      "fieldname": "openai_section",
+      "fieldtype": "Section Break",
+      "label": "OpenAI Configuration"
+    },
+    {
+      "fieldname": "openai_api_key",
+      "fieldtype": "Password",
+      "label": "OpenAI API Key"
+    },
+    {
+      "fieldname": "openai_model",
+      "fieldtype": "Data",
+      "label": "OpenAI Model",
+      "depends_on": "eval:doc.model_provider=='openai'",
+      "mandatory_depends_on": "eval:doc.model_provider=='openai'",
+      "description": "The OpenAI model to use for translations"
+    },
+    {
+      "fieldname": "anthropic_section",
+      "fieldtype": "Section Break",
+      "label": "Anthropic Configuration"
+    },
+    {
+      "fieldname": "anthropic_api_key",
+      "fieldtype": "Password",
+      "label": "Anthropic API Key"
+    },
+    {
+      "fieldname": "anthropic_model",
+      "fieldtype": "Data",
+      "label": "Anthropic Model",
+      "depends_on": "eval:doc.model_provider=='claude'",
+      "mandatory_depends_on": "eval:doc.model_provider=='claude'",
+      "description": "The Anthropic Claude model to use for translations"
+    },
+    {
+      "fieldname": "translation_settings_section",
+      "fieldtype": "Section Break",
+      "label": "Translation Settings"
+    },
+    {
+      "default": "10",
+      "fieldname": "batch_size",
+      "fieldtype": "Int",
+      "label": "Batch Size"
+    },
+    {
+      "default": "0.3",
+      "fieldname": "temperature",
+      "fieldtype": "Float",
+      "label": "Temperature"
+    },
+    {
+      "default": "0",
+      "fieldname": "auto_save",
+      "fieldtype": "Check",
+      "label": "Auto Save"
+    },
+    {
+      "default": "1",
+      "fieldname": "preserve_formatting",
+      "fieldtype": "Check",
+      "label": "Preserve Formatting"
+    },
+    {
+      "fieldname": "github_section",
+      "fieldtype": "Section Break",
+      "label": "GitHub Integration"
+    },
+    {
+      "default": "main",
+      "fieldname": "default_branch",
+      "fieldtype": "Data",
+      "label": "Github Branch"
+    },
+    {
+      "default": "0",
+      "fieldname": "create_pull_requests",
+      "fieldtype": "Check",
+      "label": "Pull Request"
+    },
+    {
+      "default": "0",
+      "fieldname": "github_enable",
+      "fieldtype": "Check",
+      "label": "Enable GitHub Integration"
+    },
+    {
+      "default": "https://github.com/ManotLuijiu/erpnext-thai-translation.git",
+      "fieldname": "github_repo",
+      "fieldtype": "Data",
+      "label": "Repository URL"
+    },
+    {
+      "description": "Create a token with 'repo' scope at https://github.com/settings/tokens",
+      "fieldname": "github_token",
+      "fieldtype": "Password",
+      "label": "GitHub Personal Access Token (Classic)"
+    },
+    {
+      "fieldname": "api_keys_section",
+      "fieldtype": "Section Break",
+      "label": "API Keys"
+    },
+    {
+      "fieldname": "tax_consultant_license_key",
+      "fieldtype": "Password",
+      "label": "Thai Tax Consultant License Key"
+    },
+    {
+      "fieldname": "customer_name",
+      "fieldtype": "Data",
+      "label": "Customer Name"
+    }
+  ],
+  "grid_page_length": 50,
+  "issingle": 1,
+  "links": [],
+  "modified": "2025-04-29 23:52:17.141854",
+  "modified_by": "Administrator",
+  "module": "Translation Tools",
+  "name": "Translation Tools Settings",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "print": 1,
+      "read": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "row_format": "Dynamic",
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": []
 }

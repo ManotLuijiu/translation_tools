@@ -27,7 +27,7 @@ def _get_translation_config():
     """Get translation configuration from file"""
     api_key = None
     model_provider = "openai"
-    model = "gpt-4-1106-preview"
+    model = "gpt-4.1-mini-2025-04-14"
 
     if os.path.exists(CONFIG_FILE):
         try:

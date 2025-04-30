@@ -9,7 +9,7 @@ def get_data():
             "items": [
                 {
                     "type": "doctype",
-                    "name": "Translation Settings",
+                    "name": "Translation Tools Settings",
                     "label": _("Settings"),
                     "description": _("Settings AI API Key"),
                     "onboard": 1,

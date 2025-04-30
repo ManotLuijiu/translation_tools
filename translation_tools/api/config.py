@@ -59,7 +59,7 @@ def settings(token=None):
         ),
     }
 
-    # Add translation settings
+    # Add Translation Tools Settings
     try:
         settings = get_translation_settings()
 
@@ -69,18 +69,15 @@ def settings(token=None):
         config["has_openai"] = bool(settings.openai_api_key)
         config["has_anthropic"] = bool(settings.anthropic_api_key)
         config["openai_model"] = (
-            settings.openai_model
-            or frappe.conf.default_openai_model
-            or "gpt-4-1106-preview"
+            settings.openai_model or frappe.conf.default_openai_model
         )
         config["anthropic_model"] = (
-            settings.anthropic_model
-            or frappe.conf.default_anthropic_model
-            or "claude-3-haiku-20240307"
+            settings.anthropic_model or frappe.conf.default_anthropic_model
         )
     except Exception as e:
         frappe.log_error(
-            f"Error fetching translation settings: {e}", "Translation Config Error"
+            f"Error fetching Translation Tools Settings: {e}",
+            "Translation Config Error",
         )
         config["error"] = str(e)
 
@@ -154,6 +151,6 @@ def user_settings(settings):
 
     except Exception as e:
         frappe.log_error(
-            f"Error updating user settings: {e}", "Translation Settings Error"
+            f"Error updating user settings: {e}", "Translation Tools Settings Error"
         )
         return {"success": False, "message": str(e)}

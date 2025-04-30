@@ -183,7 +183,7 @@ def translate_single_entry(file_path, entry_id, model_provider="openai", model=N
         # Use the specified model or default based on provider
         if not model:
             if provider == "openai":
-                model = settings.get("default_model", "gpt-4-1106-preview")
+                model = settings.get("default_model", "gpt-4.1-mini-2025-04-14")
             else:
                 model = settings.get("default_model", "claude-3-haiku")
 
@@ -286,7 +286,7 @@ def translate_po_file(file_path, model_provider="openai", model=None):
         # Use the specified model or default based on provider
         if not model:
             if provider == "openai":
-                model = settings.get("default_model", "gpt-4-1106-preview")
+                model = settings.get("default_model", "gpt-4.1-mini-2025-04-14")
             else:
                 model = settings.get("default_model", "claude-3-haiku")
 
@@ -345,14 +345,47 @@ def translate_po_file(file_path, model_provider="openai", model=None):
 
         # Update PO File record in database
         if frappe.db.exists("PO File", {"file_path": file_path}):
-            file_doc = frappe.get_doc("PO File", {"file_path": file_path})
-            file_doc.translated_entries = len(po.translated_entries())
-            file_doc.translation_status = (
-                int((file_doc.translated_entries / file_doc.total_entries) * 100)
-                if file_doc.total_entries > 0
-                else 0
-            )
-            file_doc.last_modified = frappe.utils.now()
+            file_name = frappe.db.get_value("PO File", {"file_path": file_path}, "name")
+            if not file_name:
+                frappe.throw(_("PO File not found for the given file path"))
+            if isinstance(file_name, str):
+                file_doc = frappe.get_doc("PO File", file_name)
+            else:
+                frappe.throw(_("Invalid file name: {0}").format(file_name))
+            if hasattr(file_doc, "translated_entries"):
+                if hasattr(file_doc, "translated_entries"):
+                    if hasattr(file_doc, "translated_entries"):
+                        file_doc.translated_entries = len([entry for entry in po if entry.msgstr])  # type: ignore
+                    else:
+                        logger.warning(
+                            "The 'translated_entries' attribute does not exist in the 'PO File' doctype."
+                        )
+                else:
+                    logger.warning(
+                        "The 'translated_entries' attribute does not exist in the 'PO File' doctype."
+                    )
+            else:
+                logger.warning(
+                    "The 'translated_entries' attribute does not exist in the 'PO File' doctype."
+                )
+            if hasattr(file_doc, "translation_status"):
+                file_doc.translation_status = (  # type: ignore
+                    int(
+                        (
+                            getattr(file_doc, "translated_entries", 0)
+                            / getattr(file_doc, "total_entries", 1)
+                        )
+                        * 100
+                    )
+                    if hasattr(file_doc, "total_entries")
+                    and getattr(file_doc, "total_entries", 0) > 0
+                    else 0
+                )
+            else:
+                logger.warning(
+                    "The 'translation_status' attribute does not exist in the 'PO File' doctype."
+                )
+            file_doc.modified = now()
             file_doc.save()
 
         logger.info(f"Translation completed. Translated {translated_count} entries.")
@@ -373,7 +406,10 @@ def translate_po_file(file_path, model_provider="openai", model=None):
 
 @frappe.whitelist()
 def start_translation(
-    po_file_path, batch_size=10, model_provider="openai", model="gpt-4-1106-preview"
+    po_file_path,
+    batch_size=10,
+    model_provider="openai",
+    model="gpt-4.1-mini-2025-04-14",
 ):
     """Start the translation process for a PO file."""
     if not frappe.has_permission("Translation Tools", "write"):
@@ -408,12 +444,12 @@ def translate_po_file_background(
     api_key,
     batch_size=10,
     model_provider="openai",
-    model="gpt-4-1106-preview",
+    model="gpt-4.1-mini-2025-04-14",
 ):
     """Background job to translate a PO file."""
     try:
         output_path = translate_po_file(
-            po_file_path=po_file_path, model_provider=model_provider, model=model
+            file_path=po_file_path, model_provider=model_provider, model=model
         )
 
         # Log the output

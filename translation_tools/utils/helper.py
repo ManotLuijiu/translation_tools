@@ -26,9 +26,9 @@ def get_translation_settings() -> TranslationToolsSettings:
             default_source_language="en",
             default_target_language="th",
             openai_api_key="",
-            openai_model="gpt-4-1106-preview",
+            openai_model="gpt-4.1-mini-2025-04-14",
             anthropic_api_key="",
-            anthropic_model="claude-3-haiku-20240307",
+            anthropic_model="claude-3-7-sonnet-20250219",
         )
     except Exception as e:
         frappe.log_error(

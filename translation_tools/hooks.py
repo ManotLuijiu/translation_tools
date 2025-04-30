@@ -273,3 +273,9 @@ app_include_fonts = [
 workspace_order = {
     "Translation Tools": 99  # Use a very high number to ensure it's at the bottom
 }
+
+scheduler_events = {
+    "daily": [
+        "translation_tools.translation_tools.api.ai_models.get_available_ai_models"
+    ]
+}

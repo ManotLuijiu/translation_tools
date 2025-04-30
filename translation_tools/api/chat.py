@@ -22,7 +22,7 @@ def process_message(message, room=None):
         if not msg_text:
             return {"error": "No message content provided"}
 
-        # Get user settings and translation settings
+        # Get user settings and translation tools settings
         target_lang = get_user_preferred_language()
         source_lang = "en"  # Default source language
 

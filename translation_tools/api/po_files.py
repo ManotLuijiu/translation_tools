@@ -1389,7 +1389,9 @@ def save_github_token(token, github_repo=None):
         if not frappe.has_permission("Translation Tools Settings", "write"):
             return {
                 "success": False,
-                "error": _("You don't have permission to modify translation settings"),
+                "error": _(
+                    "You don't have permission to modify Translation Tools Settings"
+                ),
             }
 
         # Check if doctype exists

@@ -48,7 +48,7 @@ def get_translation_settings():
         return frappe._dict(
             {
                 "default_model_provider": "openai",
-                "default_model": "gpt-4-1106-preview",
+                "default_model": "gpt-4.1-mini-2025-04-14",
                 "openai_api_key": "",
                 "anthropic_api_key": "",
                 "batch_size": 10,
@@ -61,13 +61,6 @@ def get_translation_settings():
             }
         )
 
-    # Get all values from the database
-    # doc_values = {
-    #     field: frappe.db.get_single_value(settings_doctype, field) for field in fields
-    # }
-    # doc_values = doc_values if doc_values else {}
-
-    # Get regular fields directly
     doc = frappe.get_single(settings_doctype)
 
     # Properly decrypt the password fields
@@ -109,54 +102,10 @@ def get_translation_settings():
         anthropic_api_key = ""
         github_token = ""
 
-    # Handle password fields separately - decrypt them properly
-    # try:
-    #     # Only decrypt if there's a value to decrypt
-    #     if frappe.db.exists(settings_doctype):
-    #         openai_api_key = (
-    #             get_decrypted_password(
-    #                 settings_doctype,
-    #                 settings_doctype,
-    #                 "openai_api_key",
-    #                 raise_exception=False,
-    #             )
-    #             or ""
-    #         )
-
-    #         anthropic_api_key = (
-    #             get_decrypted_password(
-    #                 settings_doctype,
-    #                 settings_doctype,
-    #                 "anthropic_api_key",
-    #                 raise_exception=False,
-    #             )
-    #             or ""
-    #         )
-
-    #         github_token = (
-    #             get_decrypted_password(
-    #                 settings_doctype,
-    #                 settings_doctype,
-    #                 "github_token",
-    #                 raise_exception=False,
-    #             )
-    #             or ""
-    #         )
-    #     else:
-    #         openai_api_key = ""
-    #         anthropic_api_key = ""
-    #         github_token = ""
-    # except Exception as e:
-    #     frappe.log_error(f"Error decrypting password fields: {str(e)}")
-    #     openai_api_key = ""
-    #     anthropic_api_key = ""
-    #     github_token = ""
-
-    # Create settings dictionary with defaults
     settings = frappe._dict(
         {
             "default_model_provider": doc.default_model_provider or "openai",  # type: ignore
-            "default_model": doc.default_model or "gpt-4-1106-preview",  # type: ignore
+            "default_model": doc.default_model or "gpt-4.1-mini-2025-04-14",  # type: ignore
             "openai_api_key": openai_api_key,
             "anthropic_api_key": anthropic_api_key,
             "batch_size": cint(doc.batch_size or 10),  # type: ignore
@@ -276,7 +225,7 @@ def test_github_connection(github_repo=None, github_token=None):
 
 @frappe.whitelist()
 def save_translation_settings(settings):
-    """Save translation settings"""
+    """Save Translation Tools Settings"""
     settings_data = (
         frappe._dict(settings)
         if isinstance(settings, dict)
@@ -285,7 +234,7 @@ def save_translation_settings(settings):
 
     print(f"settings_data: {settings_data}")
 
-    # Check if Translation Settings doctype exists, create if not
+    # Check if Translation Tools Settings doctype exists, create if not
     if not frappe.db.exists("DocType", "Translation Tools Settings"):
         print("To Create Translation Tools Settings")
         create_translation_tools_settings_doctype()
@@ -299,7 +248,7 @@ def save_translation_settings(settings):
 
     # Update settings
     doc.default_model_provider = settings_data.get("default_model_provider", "openai")  # type: ignore
-    doc.default_model = settings_data.get("default_model", "gpt-4-1106-preview")  # type: ignore
+    doc.default_model = settings_data.get("default_model", "gpt-4.1-mini-2025-04-14")  # type: ignore
 
     if "openai_api_key" in settings_data:
         doc.openai_api_key = settings_data.openai_api_key  # type: ignore
@@ -351,13 +300,12 @@ def save_translation_settings(settings):
 
 
 def create_translation_tools_settings_doctype():
-    """Create the Translation Settings DocType"""
+    """Create the Translation Tools Settings DocType"""
     # from frappe.modules.import_file import import_doc_from_dict
 
-    # Create Translation Settings DocType
+    # Create Translation Tools Settings DocType
     translation_tools_settings_doctype = {
         "actions": [],
-        "allow_rename": 0,
         "creation": "2025-04-15 23:27:25.446695",
         "doctype": "DocType",
         "editable_grid": 1,
@@ -365,17 +313,14 @@ def create_translation_tools_settings_doctype():
         "field_order": [
             "general_section",
             "enable_translation",
-            "chat_enable",
             "default_source_language",
             "default_target_language",
             "api_section",
             "default_model_provider",
             "default_model",
-            "section_break_5",
             "openai_section",
             "openai_api_key",
             "openai_model",
-            "section_break_9",
             "anthropic_section",
             "anthropic_api_key",
             "anthropic_model",
@@ -385,11 +330,15 @@ def create_translation_tools_settings_doctype():
             "auto_save",
             "preserve_formatting",
             "github_section",
-            "enable_github",
-            "repo_url",
+            "customer_name",
+            "default_branch",
+            "create_pull_requests",
+            "github_enable",
+            "github_repo",
             "github_token",
             "api_keys_section",
             "tax_consultant_license_key",
+            "chat_enabled",
         ],
         "fields": [
             {
@@ -434,12 +383,11 @@ def create_translation_tools_settings_doctype():
                 "options": "openai\nanthropic",
             },
             {
-                "default": "gpt-4-1106-preview",
+                "default": "gpt-4.1-mini-2025-04-14",
                 "fieldname": "default_model",
                 "fieldtype": "Data",
                 "label": "Default Model",
             },
-            {"fieldname": "section_break_5", "fieldtype": "Section Break"},
             {
                 "fieldname": "openai_section",
                 "fieldtype": "Section Break",
@@ -451,13 +399,12 @@ def create_translation_tools_settings_doctype():
                 "label": "OpenAI API Key",
             },
             {
-                "default": "gpt-4-1106-preview",
+                "default": "gpt-4.1-mini-2025-04-14",
                 "fieldname": "openai_model",
                 "fieldtype": "Select",
                 "label": "OpenAI Model",
-                "options": "gpt-4-1106-preview\ngpt-4\ngpt-3.5-turbo",
+                "options": "gpt-4.1-mini-2025-04-14\ngpt-4.1-2025-04-14\nchatgpt-4o-latest\ngpt-4o-mini-2024-07-18\no4-mini-2025-04-16",
             },
-            {"fieldname": "section_break_9", "fieldtype": "Section Break"},
             {
                 "fieldname": "anthropic_section",
                 "fieldtype": "Section Break",
@@ -469,11 +416,11 @@ def create_translation_tools_settings_doctype():
                 "label": "Anthropic API Key",
             },
             {
-                "default": "claude-3-haiku-20240307",
+                "default": "claude-3-7-sonnet-20250219",
                 "fieldname": "anthropic_model",
                 "fieldtype": "Select",
                 "label": "Anthropic Model",
-                "options": "claude-3-haiku-20240307\nclaude-3-opus-20240229\nclaude-3-sonnet-20240229",
+                "options": "claude-3-7-sonnet-20250219\nclaude-3-5-haiku-20241022\nclaude-3-5-sonnet-20241022\nclaude-3-opus-20240229\nclaude-3-sonnet-20240229\nclaude-3-haiku-20240307",
             },
             {
                 "fieldname": "translation_settings_section",
@@ -510,24 +457,34 @@ def create_translation_tools_settings_doctype():
                 "label": "GitHub Integration",
             },
             {
-                "fieldname": "enable_github",
+                "default": "main",
+                "fieldname": "default_branch",
+                "fieldtype": "Data",
+                "label": "Github Branch",
+            },
+            {
+                "default": "0",
+                "fieldname": "create_pull_requests",
+                "fieldtype": "Check",
+                "label": "Pull Request",
+            },
+            {
+                "default": "0",
+                "fieldname": "github_enable",
                 "fieldtype": "Check",
                 "label": "Enable GitHub Integration",
-                "default": 0,
             },
             {
-                "fieldname": "repo_url",
+                "default": "https://github.com/ManotLuijiu/erpnext-thai-translation.git",
+                "fieldname": "github_repo",
                 "fieldtype": "Data",
                 "label": "Repository URL",
-                "default": "https://github.com/ManotLuijiu/erpnext-thai-translation.git",
-                "depends_on": "eval:doc.enable_github==1",
             },
             {
+                "description": "Create a token with 'repo' scope at https://github.com/settings/tokens",
                 "fieldname": "github_token",
                 "fieldtype": "Password",
                 "label": "GitHub Personal Access Token (Classic)",
-                "description": "Create a token with 'repo' scope at https://github.com/settings/tokens",
-                "depends_on": "eval:doc.enable_github==1",
             },
             {
                 "fieldname": "api_keys_section",
@@ -539,12 +496,16 @@ def create_translation_tools_settings_doctype():
                 "fieldtype": "Password",
                 "label": "Thai Tax Consultant License Key",
             },
+            {
+                "fieldname": "customer_name",
+                "fieldtype": "Data",
+                "label": "Customer Name",
+            },
         ],
         "grid_page_length": 50,
-        "index_web_pages_for_search": 0,
         "issingle": 1,
         "links": [],
-        "modified": "2025-04-15 23:27:25.446695",
+        "modified": "2025-04-29 23:52:17.141854",
         "modified_by": "Administrator",
         "module": "Translation Tools",
         "name": "Translation Tools Settings",
@@ -570,7 +531,7 @@ def create_translation_tools_settings_doctype():
     try:
         doc = frappe.get_doc(translation_tools_settings_doctype).insert()
     except Exception as e:
-        frappe.log_error(f"Error creating Translation Settings DocType: {str(e)}")
+        frappe.log_error(f"Error creating Translation Tools Settings DocType: {str(e)}")
         frappe.log_error(frappe.get_traceback())
 
     # doc = import_doc_from_dict(translation_settings_doctype)
@@ -579,12 +540,12 @@ def create_translation_tools_settings_doctype():
 
 
 @frappe.whitelist()
-def get_translation_settings_file():
-    """Get translation settings from config file"""
+def get_translation_tools_settings_file():
+    """Get Translation Tools Settings from config file"""
     settings = {
         "api_key": "",
         "model_provider": "openai",
-        "model": "gpt-4-1106-preview",
+        "model": "gpt-4.1-mini-2025-04-14",
         "batch_size": 10,
         "temperature": 0.3,
         "max_tokens": 512,
@@ -634,7 +595,7 @@ def get_translation_settings_file():
 
 
 @frappe.whitelist()
-def save_translation_settings_file(
+def save_translation_tools_settings_file(
     api_key=None,
     model_provider=None,
     model=None,
@@ -642,7 +603,7 @@ def save_translation_settings_file(
     temperature=None,
     max_tokens=None,
 ):
-    """Save translation settings to file"""
+    """Save Translation Tools Settings to file"""
     # Only system manager can change settings
     if not frappe.has_permission("System Manager", "write"):
         frappe.throw("You don't have permission to change settings")

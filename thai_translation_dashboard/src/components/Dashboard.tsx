@@ -178,7 +178,7 @@ export default function Dashboard() {
           <TabsContent value="editor" className="rounded-lg border p-4">
             <TranslationEditor
               selectedFile={selectedFile}
-              settings={settingsData?.message || null}
+              settings={settingsData?.message! || null}
             />
           </TabsContent>
 

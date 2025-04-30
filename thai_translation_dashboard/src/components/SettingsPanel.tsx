@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+// import ModelSettings from './ModelSettings';
 import {
   Card,
   CardContent,
@@ -31,10 +32,29 @@ import { AlertCircle, Check, Loader2 } from 'lucide-react';
 import { useTranslation } from '@/context/TranslationContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+const modelOptions = {
+  openai: [
+    { value: 'gpt-4.1-mini-2025-04-14', label: 'GPT-4.1 mini' },
+    { value: 'gpt-4.1-2025-04-14', label: 'GPT-4.1' },
+    { value: 'chatgpt-4o-latest', label: 'ChatGPT-4o' },
+    { value: 'gpt-4o-mini-2024-07-18', label: 'GPT-4o mini' },
+    { value: 'o4-mini-2025-04-16', label: 'o4-mini' },
+  ],
+  claude: [
+    { value: 'claude-3-7-sonnet-20250219', label: 'Claude 3.7 Sonnet' },
+    { value: 'claude-3-5-haiku-20241022', label: 'Claude 3.5 Haiku' },
+    { value: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet v2' },
+    { value: 'claude-3-opus-20240229', label: 'Claude 3 Opus' },
+    { value: 'claude-3-sonnet-20240229', label: 'Claude 3 Sonnet' },
+    { value: 'claude-3-haiku-20240307', label: 'Claude 3 Haiku' },
+  ],
+};
+
 export default function SettingsPanel() {
   const [settings, setSettings] = useState<Partial<TranslationToolsSettings>>({
     default_model_provider: 'openai',
     default_model: 'gpt-4.1-mini-2025-04-14',
+    // default_model: '',
     openai_api_key: '',
     anthropic_api_key: '',
     batch_size: 10,
@@ -70,9 +90,23 @@ export default function SettingsPanel() {
 
   console.log('useGetTranslationSettings data: ', data);
 
+  // useEffect(() => {
+  //   if (data?.message) {
+  //     setSettings(data.message);
+  //   }
+  // }, [data]);
+
   useEffect(() => {
     if (data?.message) {
-      setSettings(data.message);
+      setSettings((prev) => ({
+        ...prev,
+        ...data.message,
+        default_model:
+          data.message.default_model ||
+          (data.message.default_model_provider === 'openai'
+            ? modelOptions.openai[0].value
+            : modelOptions.claude[0].value),
+      }));
     }
   }, [data]);
 
@@ -102,8 +136,8 @@ export default function SettingsPanel() {
       // When changing provider, also update the model to a valid default for that provider
       const newModelValue =
         value === 'openai'
-          ? modelOptions.openai[0].value
-          : modelOptions.claude[0].value;
+          ? modelOptions.openai[0].value || ''
+          : modelOptions.claude[0].value || '';
 
       setSettings((prev: any) => ({
         ...prev,
@@ -224,24 +258,6 @@ export default function SettingsPanel() {
     );
   }
 
-  const modelOptions = {
-    openai: [
-      { value: 'gpt-4.1-mini-2025-04-14', label: 'GPT-4.1 mini' },
-      { value: 'gpt-4.1-2025-04-14', label: 'GPT-4.1' },
-      { value: 'chatgpt-4o-latest', label: 'ChatGPT-4o' },
-      { value: 'gpt-4o-mini-2024-07-18', label: 'GPT-4o mini' },
-      { value: 'o4-mini-2025-04-16', label: 'o4-mini' },
-    ],
-    claude: [
-      { value: 'claude-3-7-sonnet-20250219', label: 'Claude 3.7 Sonnet' },
-      { value: 'claude-3-5-haiku-20241022', label: 'Claude 3.5 Haiku' },
-      { value: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet v2' },
-      { value: 'claude-3-opus-20240229', label: 'Claude 3 Opus' },
-      { value: 'claude-3-sonnet-20240229', label: 'Claude 3 Sonnet' },
-      { value: 'claude-3-haiku-20240307', label: 'Claude 3 Haiku' },
-    ],
-  };
-
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">{__('Translation Settings')}</h2>
@@ -285,7 +301,7 @@ export default function SettingsPanel() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="openai">{__('OpenAI')}</SelectItem>
-                      <SelectItem value="claude">
+                      <SelectItem value="anthropic">
                         {__('Anthropic Claude')}
                       </SelectItem>
                     </SelectContent>
@@ -304,9 +320,14 @@ export default function SettingsPanel() {
                     onValueChange={(value) =>
                       handleSelectChange('default_model', value)
                     }
+                    disabled={!settings.default_model}
                   >
                     <SelectTrigger id="default_model">
-                      <SelectValue placeholder={__('Select model')} />
+                      <SelectValue
+                        placeholder={
+                          settings.default_model ? undefined : __('Loading...')
+                        }
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {settings.default_model_provider === 'openai'

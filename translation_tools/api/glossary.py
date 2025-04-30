@@ -1,7 +1,9 @@
-import frappe
 import json
+
+import frappe
 from frappe import _
 from frappe.utils import cint
+
 from .common import logger
 
 # from translation_tools.utils.json_logger import get_json_logger

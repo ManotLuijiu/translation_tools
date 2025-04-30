@@ -56,8 +56,8 @@ def create_workspace():
                 "links": [
                     {
                         "type": "DocType",
-                        "name": "Translation Settings",
-                        "label": "Translation Settings",
+                        "name": "Translation Tools Settings",
+                        "label": "Translation Tools Settings",
                         "description": "Configure translation API settings",
                     },
                     {
@@ -65,12 +65,6 @@ def create_workspace():
                         "name": "Translation Glossary Term",
                         "label": "Glossary",
                         "description": "Manage translation glossary terms",
-                    },
-                    {
-                        "type": "DocType",
-                        "name": "ERPNext Module",
-                        "label": "ERPNext Modules",
-                        "description": "Manage ERPNext modules for translation",
                     },
                 ],
             },

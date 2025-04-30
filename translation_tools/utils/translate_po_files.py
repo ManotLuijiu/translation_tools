@@ -46,7 +46,7 @@ from tqdm import tqdm
 # Constants
 DEFAULT_TARGET_LANG = "th"
 # DEFAULT_MODEL = "gpt-4"
-DEFAULT_MODEL = "gpt-4-1106-preview"  # Using a model that supports JSON format
+DEFAULT_MODEL = "gpt-4.1-mini-2025-04-14"  # Using a model that supports JSON format
 DEFAULT_BATCH_SIZE = 10
 SLEEP_TIME = 0.5  # Seconds to sleep between API calls to avoid rate limiting
 
@@ -278,24 +278,32 @@ def translate_batch(
 
             response = client.chat.completions.create(
                 model=model,
-                messages=messages,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": json.dumps(messages_to_translate)},
+                ],
                 temperature=temperature,  # Lower temperature for more consistent translations
                 max_tokens=max_tokens,
-                # response_format={"type": "json_object"},
-                # response_format="json",
-                **api_params,
                 timeout=30,
             )
             print("API call completed successfully")
 
             # Parse the JSON response
             response_text = response.choices[0].message.content
-            print(f"Raw response: {response_text[:200]}...")  # Print first 200 chars
+            if response_text is not None:
+                print(
+                    f"Raw response: {response_text[:200]}..."
+                )  # Print first 200 chars
+            else:
+                print("Raw response is None")
             # response_json = json.loads(response_text)
             # translations = json.loads(response_text)
             # Try to parse the JSON
             try:
-                response_json = json.loads(response_text)
+                if response_text is not None:
+                    response_json = json.loads(response_text)
+                else:
+                    response_json = {}
                 print(f"Parsed JSON type: {type(response_json)}")
                 print(
                     f"JSON keys: {list(response_json.keys()) if isinstance(response_json, dict) else 'Not a dict'}"
@@ -318,7 +326,11 @@ def translate_batch(
                 print(f"JSON parsing error: {e}")
 
                 # If JSON parsing fails, try to extract translations line by line
-                lines = [line.strip() for line in response_text.strip().split("\n")]
+                lines = (
+                    [line.strip() for line in response_text.strip().split("\n")]
+                    if response_text
+                    else []
+                )
                 if len(lines) == len(entries):
                     print("Falling back to line-by-line parsing")
                     return lines
@@ -399,8 +411,8 @@ def translate_po_file(
             target_lang,
             api_key,
             model,
-            temperature=temperature,
-            max_tokens=max_tokens,
+            temperature=temperature,  # type: ignore
+            max_tokens=max_tokens,  # type: ignore
         )
 
         # Apply translations to the entries

@@ -230,12 +230,12 @@ def create_required_doctypes():
         # doc = import_doc(glossary_doctype)
         # doc.save()
 
-    # Create the Translation Settings DocType if it doesn't exist
-    from .settings import create_translation_settings_doctype
+    # Create the Translation Tools Settings DocType if it doesn't exist
+    from .settings import create_translation_tools_settings_doctype
 
-    if not frappe.db.exists("DocType", "Translation Settings"):
-        create_translation_settings_doctype()
-        print("Created DocType: Translation Settings")
+    if not frappe.db.exists("DocType", "Translation Tools Settings"):
+        create_translation_tools_settings_doctype()
+        print("Created DocType: Translation Tools Settings")
 
     frappe.db.commit()
     print("All required DocTypes have been created successfully.")
@@ -244,10 +244,11 @@ def create_required_doctypes():
 def setup_translation_tools():
     """Initial setup for Translation Tools (safe to run during development)"""
     import logging
-    from translation_tools.translation_tools.setup.create_doctypes import (
-        create_required_doctypes,
-    )
-    from translation_tools.translation_tools.setup.create_workspace import (
+
+    # from translation_tools.setup.create_doctypes import (
+    #     create_required_doctypes,
+    # )
+    from translation_tools.setup.create_workspace import (
         add_translation_tools_link_to_integrations,
     )
 
