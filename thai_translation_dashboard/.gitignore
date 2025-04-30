@@ -24,5 +24,4 @@ dist-ssr
 *.sln
 *.sw?
 
-/public/thai_translation_dashboard/assets/*
-!/public/thai_translation_dashboard/assets/.gitkeep
+translation_tools/public/thai_translation_dashboard/assets/*
