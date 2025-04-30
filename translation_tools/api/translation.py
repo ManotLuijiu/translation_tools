@@ -147,7 +147,7 @@ def translate_single_entry(file_path, entry_id, model_provider="openai", model=N
         frappe.throw(_("File not found: {0}").format(file_path))
 
     # Create a log file
-    log_dir = os.path.join(get_bench_path(), "logs", "translation_logs")
+    log_dir = os.path.join(get_bench_path(), "logs", "ai_translation_logs")
     os.makedirs(log_dir, exist_ok=True)
     log_file = os.path.join(
         log_dir,
@@ -185,7 +185,7 @@ def translate_single_entry(file_path, entry_id, model_provider="openai", model=N
             if provider == "openai":
                 model = settings.get("default_model", "gpt-4.1-mini-2025-04-14")
             else:
-                model = settings.get("default_model", "claude-3-haiku")
+                model = settings.get("default_model", "claude-3-haiku-20240307")
 
         # Get API keys
         api_key = None
@@ -196,6 +196,11 @@ def translate_single_entry(file_path, entry_id, model_provider="openai", model=N
 
         if not api_key:
             frappe.throw(_("API key not configured for {0}").format(provider))
+
+        print(f"source_text {source_text}")
+        print(f"provider {provider}")
+        print(f"model {model}")
+        print(f"temperature {settings.get("temperature")}")
 
         # Get translation
         translation = call_ai_translation_api(

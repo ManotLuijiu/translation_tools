@@ -56,6 +56,7 @@ import TranslationStats from './TranslationStats';
 // import { StatusToast } from '@/components/StatusToast';
 import { useStatusMessage } from '@/hooks/useStatusMessage';
 import { useTranslation } from '@/context/TranslationContext';
+import { toast } from 'sonner';
 
 // Pagination settings
 const ENTRIES_PER_PAGE = 20;
@@ -303,16 +304,21 @@ export default function TranslationEditor({
 
       if (message?.success) {
         console.log('github_test_success', message?.success);
+        toast.success('Github Test Success');
       } else {
+        toast.warning('Github Test has warning');
         console.log('else_github_test');
       }
     } catch (err: any) {
+      toast.error(err);
       console.log('github_test_err', err);
     }
   };
 
   const handleTranslate = async () => {
     if (!selectedEntry || !selectedFile.file_path) return;
+
+    console.log('selectedEntry in handleTranslate', selectedEntry);
 
     // setStatusMessage({ type: 'info', message: 'Translating...' });
     showMessage('Translating...', 'info');
@@ -324,6 +330,8 @@ export default function TranslationEditor({
         model_provider: settings?.default_model_provider || 'openai',
         model: settings?.default_model || undefined,
       });
+
+      console.log('result in handleTranslate', result);
 
       if (result.success && result.translation) {
         setEditedTranslation(result.translation);
@@ -1066,12 +1074,12 @@ export default function TranslationEditor({
                     {translateEntry.loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {__('Translating...')}
+                        {__('AI Translating...')}
                       </>
                     ) : (
                       <>
                         <RefreshCw className="mr-2 h-4 w-4" />
-                        {__('Translate')}
+                        {__('AI Translate')}
                       </>
                     )}
                   </Button>

@@ -70,7 +70,7 @@ export default function TranslationOptionsSettings({
                 onSwitchChange('auto_save', checked)
               }
             />
-            <Label htmlFor="auto_save">{__('Auto-save Translations')}</Label>
+            <Label htmlFor="auto_save">{__('AI Auto-save Translations')}</Label>
           </div>
 
           <div className="flex items-center space-x-2">
