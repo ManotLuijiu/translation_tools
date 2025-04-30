@@ -18,7 +18,7 @@ export type TestGithubConnection = {
 };
 
 export type TranslationToolsSettings = {
-  default_model_provider: 'openai' | 'claude';
+  default_model_provider: 'openai' | 'anthropic';
   default_model: string;
   openai_api_key: string;
   anthropic_api_key: string;
@@ -30,6 +30,22 @@ export type TranslationToolsSettings = {
   github_repo: string;
   github_token: string;
 };
+
+/**
+ * Get translation settings
+ */
+export function useGetAiModels() {
+  const {
+    data: modelData,
+    error: modelError,
+    isLoading: modelLoading,
+  } = useFrappeGetCall('translation_tools.api.ai_models.get_cached_models', {});
+  return {
+    modelData,
+    modelError,
+    modelLoading,
+  };
+}
 
 /**
  * Get translation settings
