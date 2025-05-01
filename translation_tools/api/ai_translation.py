@@ -1,14 +1,101 @@
+import os
 import frappe
 import polib
 import json
 import hashlib
+import logging
+import tempfile
 from .settings import get_translation_settings
-from .po_files import push_translation_to_github
+from .po_files import (
+    push_translation_to_github,
+    enhanced_error_handler,
+    validate_file_path,
+)
+from .common import get_bench_path
 from .translation import _batch_translate_with_openai, _batch_translate_with_claude
+from translation_tools.utils.json_logger import get_json_logger
 from frappe.utils import cstr, now
+
+# Configure logging
+LOG_DIR = os.path.join(get_bench_path(), "logs", "ai_translation_tools")
+os.makedirs(LOG_DIR, exist_ok=True)
+
+LOG_FILE = os.path.join(LOG_DIR, "ai_translation_file_debug.log")
+
+logger = logging.getLogger("translation_tools.api.po_files")
+loggerJson = get_json_logger()
+
+# Avoid adding handlers multiple times
+if not logger.handlers:
+    logger.setLevel(logging.DEBUG)
+
+    # File handler
+    file_handler = logging.FileHandler(LOG_FILE)
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(
+        logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    )
+
+    logger.addHandler(file_handler)
+
+    # Create console handler with formatting
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    ch.setFormatter(
+        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    )
+    logger.addHandler(ch)
+
+
+def validate_po_file(file_path):
+    """
+    Check if a PO file is valid and return its content
+
+    Args:
+        file_path (str): Path to the PO file
+
+    Returns:
+        tuple: (is_valid, po_object or error_message)
+    """
+    try:
+        # Validate path is within the bench directory
+        full_path = validate_file_path(file_path)
+
+        if not os.path.exists(full_path):
+            return False, f"File not found: {file_path}"
+
+        # Try reading the file as UTF-8
+        with open(full_path, "rb") as f:
+            content = f.read()
+
+        # Check for and remove BOM if present
+        if content.startswith(b"\xef\xbb\xbf"):
+            logger.info(f"Removing BOM from file {file_path}")
+            content = content[3:]
+
+        # Create a temporary file without BOM
+        with tempfile.NamedTemporaryFile(delete=False) as temp:
+            temp_path = temp.name
+            temp.write(content)
+
+        try:
+            # Try to parse the cleaned file
+            po = polib.pofile(temp_path)
+            return True, po
+        except Exception as e:
+            logger.error(f"PO Syntax error in {file_path}: {str(e)}")
+            return False, f"Syntax error in po file: {str(e)}"
+        finally:
+            # Clean up temp file
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+    except Exception as e:
+        logger.error(f"Error validating PO file {file_path}: {str(e)}")
+        return False, str(e)
 
 
 @frappe.whitelist()
+@enhanced_error_handler
 def translate_batch(file_path, entry_ids, model_provider="openai", model=None):
     """
     Translate a batch of entries at once
@@ -22,9 +109,45 @@ def translate_batch(file_path, entry_ids, model_provider="openai", model=None):
     Returns:
         dict: Dictionary with translation results
     """
+
+    # Validate path is within the bench directory
+    full_path = validate_file_path(file_path)
+
+    print(f"full_path ai_translation.py {full_path}")
+
+    if not os.path.exists(full_path):
+        logger.error(f"File not found: {full_path}")
+        return {"success": False, "error": f"File not found: {file_path}"}
+
+    is_valid, po_result = validate_po_file(file_path)
+    if not is_valid:
+        return {"success": False, "error": po_result}
+
+    # po_result now contains the valid polib object
+    po = po_result
+
     try:
-        # Load PO file
-        po_file = polib.pofile(file_path)
+        # # Try reading the file as UTF-8
+        # with open(full_path, "rb") as f:
+        #     content = f.read()
+
+        # # Check for and remove BOM if present
+        # if content.startswith(b"\xef\xbb\xbf"):
+        #     logger.info(f"Removing BOM from file {file_path}")
+        #     content = content[3:]
+
+        # # Create a temporary file without BOM
+        # with tempfile.NamedTemporaryFile(delete=False) as temp:
+        #     temp_path = temp.name
+        #     temp.write(content)
+
+        # try:
+        #     # Try to parse the cleaned file
+        #     po = polib.pofile(temp_path)
+        # finally:
+        #     # Clean up temp file
+        #     if os.path.exists(temp_path):
+        #         os.unlink(temp_path)
 
         # Get settings
         settings = get_translation_settings()
@@ -49,8 +172,8 @@ def translate_batch(file_path, entry_ids, model_provider="openai", model=None):
         entries_dict = {}  # Dictionary for batch translation functions
         entries_to_translate = []  # List for result mapping
 
-        for po_index, entry in enumerate(po_file):
-            if not entry.msgid:
+        for po_index, entry in enumerate(po):
+            if not isinstance(entry, polib.POEntry) or not entry.msgid:
                 continue
 
             # Generate entry ID using the same method as FrontEnd
@@ -104,6 +227,7 @@ def translate_batch(file_path, entry_ids, model_provider="openai", model=None):
 
 
 @frappe.whitelist()
+@enhanced_error_handler
 def save_batch_translations(file_path, translations, push_to_github=False):
     """
     Save batch translations to PO file
@@ -116,6 +240,15 @@ def save_batch_translations(file_path, translations, push_to_github=False):
     Returns:
         dict: Result of the operation
     """
+    # Validate and load the PO file
+    is_valid, po_result = validate_po_file(file_path)
+
+    if not is_valid:
+        return {"success": False, "error": po_result}
+
+    # po_result now contains the valid polib object
+    po_file = po_result
+
     try:
         # Parse translations if it's a string
         if isinstance(translations, str):
@@ -126,12 +259,13 @@ def save_batch_translations(file_path, translations, push_to_github=False):
             push_to_github = push_to_github.lower() == "true"
 
         # Load PO file
-        po_file = polib.pofile(file_path)
+        full_path = validate_file_path(file_path)
+        po_file = polib.pofile(full_path)
 
         # Update entries
         updated_count = 0
         for po_index, entry in enumerate(po_file):
-            if not entry.msgid:
+            if not isinstance(entry, polib.POEntry) or not entry.msgid:
                 continue
 
             # Generate entry ID
@@ -140,7 +274,7 @@ def save_batch_translations(file_path, translations, push_to_github=False):
 
             # Check if this entry should be updated
             if str(entry_id) in translations:
-                new_translation = translations[entry_id]
+                new_translation = translations[str(entry_id)]
 
                 # Update entry
                 entry.msgstr = new_translation
@@ -156,7 +290,8 @@ def save_batch_translations(file_path, translations, push_to_github=False):
                         )
 
         # Save the file
-        po_file.save()
+        full_path = validate_file_path(file_path)
+        po_file.save(full_path)
 
         # Update metadata
         update_po_metadata(po_file, file_path)
@@ -174,6 +309,7 @@ def save_batch_translations(file_path, translations, push_to_github=False):
 
 # Alternatively, if prefer to do a single GitHub push after all translations:
 @frappe.whitelist()
+@enhanced_error_handler
 def save_batch_translations_with_single_github_push(
     file_path, translations, push_to_github=False
 ):
@@ -188,6 +324,15 @@ def save_batch_translations_with_single_github_push(
     Returns:
         dict: Result of the operation
     """
+    # Validate and load the PO file
+    is_valid, po_result = validate_po_file(file_path)
+
+    if not is_valid:
+        return {"success": False, "error": po_result}
+
+    # po_result now contains the valid polib object
+    po_file = po_result
+
     try:
         # Parse translations if it's a string
         if isinstance(translations, str):
@@ -214,8 +359,8 @@ def save_batch_translations_with_single_github_push(
             entry_id = hashlib.md5(unique_string.encode("utf-8")).hexdigest()
 
             # Check if this entry should be updated
-            if entry_id in translations:
-                new_translation = translations[entry_id]
+            if str(entry_id) in translations:
+                new_translation = translations[str(entry_id)]
 
                 # Store the entry and translation for later GitHub push
                 updated_entries.append({"entry": entry, "translation": new_translation})
@@ -225,7 +370,8 @@ def save_batch_translations_with_single_github_push(
                 updated_count += 1
 
         # Save the file
-        po_file.save()
+        full_path = validate_file_path(file_path)
+        po_file.save(full_path)
 
         # Update metadata
         update_po_metadata(po_file, file_path)
@@ -273,6 +419,9 @@ def push_batch_to_github(file_path, updated_entries):
                 "error": "GitHub integration not enabled or token not provided",
             }
 
+        if not updated_entries or len(updated_entries) == 0:
+            return {"success": False, "error": "No entries to push"}
+
         # For simplicity, we'll just push the first entry but with a better commit message
         # indicating multiple entries were updated
         first_entry = updated_entries[0]["entry"]
@@ -295,6 +444,7 @@ def push_batch_to_github(file_path, updated_entries):
                 "success": result.get("success", True),
                 "github_pushed": True,
                 "commit_message": commit_message,
+                "batch_size": len(updated_entries),
                 "details": result,
             }
 
@@ -302,6 +452,7 @@ def push_batch_to_github(file_path, updated_entries):
             "success": True,
             "github_pushed": True,
             "commit_message": commit_message,
+            "batch_size": len(updated_entries),
         }
 
     except Exception as e:

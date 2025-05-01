@@ -20,6 +20,8 @@ export type TestGithubConnection = {
 export type TranslationToolsSettings = {
   default_model_provider: 'openai' | 'anthropic';
   default_model: string;
+  openai_model?: string;
+  anthropic_model?: string;
   openai_api_key: string;
   anthropic_api_key: string;
   batch_size: number;

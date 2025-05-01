@@ -12,6 +12,16 @@ export type POFile = {
   last_scanned: string;
 };
 
+export interface POEntry {
+  id: string;
+  msgid: string;
+  msgstr: string;
+  is_translated: boolean;
+  context?: string | null;
+  comments?: string[] | string;
+  orig_index?: number;
+}
+
 export type POFileEntry = {
   id: string;
   msgid: string;

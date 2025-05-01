@@ -35,17 +35,25 @@ export default function BatchTranslationView({
     [key: string]: string;
   }>({});
   const [isTranslating, setIsTranslating] = useState(false);
-  const [currentBatch, setCurrentBatch] = useState<POEntry[]>([]);
+  // const [currentBatch, setCurrentBatch] = useState<POEntry[]>([]);
   const { statusMessage, showMessage, clearMessage } = useStatusMessage();
 
   // Select entries that need translation
   const untranslatedEntries = entries.filter((entry) => !entry.is_translated);
   const { translate: __, isReady } = useTranslation();
+
   // Prepare batches for translation
   const batches = [];
   for (let i = 0; i < untranslatedEntries.length; i += batchSize) {
     batches.push(untranslatedEntries.slice(i, i + batchSize));
   }
+
+  // Clear selection when entries change
+  // useEffect(() => {
+  //   setSelectedEntries([]);
+  //   setTranslatedEntries({});
+  //   clearMessage();
+  // }, [entries, clearMessage]);
 
   const translateBatch = async () => {
     if (!selectedFile?.file_path || selectedEntries.length === 0) return;
@@ -139,6 +147,15 @@ export default function BatchTranslationView({
       showMessage(__('Failed to save translations'), 'error');
     }
   };
+
+  if (!isReady) {
+    return (
+      <div className="flex h-[calc(100vh-200px)] items-center justify-center">
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
+        <span className="ml-2">{__('Loading...')}</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -1549,3 +1549,113 @@ def save_translations(file_path, translations):
         logger.error(f"Error saving translations: {str(e)}", exc_info=True)
         frappe.log_error(f"Error saving translations: {str(e)}")
         raise
+
+
+@frappe.whitelist()
+@enhanced_error_handler
+def repair_po_file(file_path):
+    """
+    Attempt to repair common issues in a PO file
+
+    Args:
+        file_path (str): Path to the PO file
+
+    Returns:
+        dict: Repair result
+    """
+    resolved_path = validate_file_path(file_path)
+
+    if not os.path.exists(resolved_path):
+        return {"success": False, "error": "File not found"}
+
+    try:
+        # Create backup
+        backup_path = f"{resolved_path}.bak"
+        shutil.copy2(resolved_path, backup_path)
+
+        # Read file content
+        with open(resolved_path, "rb") as f:
+            content = f.read()
+
+        # Remove BOM if present
+        if content.startswith(b"\xef\xbb\xbf"):
+            content = content[3:]
+
+        # Try to detect encoding issues and fix them
+        try:
+            content_str = content.decode("utf-8", errors="replace")
+
+            # Fix common syntax issues
+            # 1. Ensure each msgid has a corresponding msgstr
+            lines = content_str.split("\n")
+            fixed_lines = []
+            i = 0
+
+            while i < len(lines):
+                line = lines[i]
+                fixed_lines.append(line)
+
+                if line.startswith('msgid "') and i + 1 < len(lines):
+                    if not lines[i + 1].startswith('msgstr "'):
+                        # Missing msgstr, add empty one
+                        fixed_lines.append('msgstr ""')
+
+                i += 1
+
+            # Write fixed content back to file
+            with open(resolved_path, "w", encoding="utf-8") as f:
+                f.write("\n".join(fixed_lines))
+
+            # Verify if the file is now valid
+            try:
+                po = polib.pofile(resolved_path)
+                return {
+                    "success": True,
+                    "message": "PO file repaired successfully",
+                    "backup_path": backup_path,
+                }
+            except Exception as e:
+                # If still invalid, restore backup
+                shutil.copy2(backup_path, resolved_path)
+                return {
+                    "success": False,
+                    "error": f"Repair attempt failed: {str(e)}",
+                    "message": "Original file restored from backup",
+                }
+
+        except UnicodeDecodeError:
+            # Try with different encodings
+            encodings = ["latin1", "cp1252", "iso-8859-1"]
+
+            for encoding in encodings:
+                try:
+                    content_str = content.decode(encoding)
+
+                    # Write as UTF-8
+                    with open(resolved_path, "w", encoding="utf-8") as f:
+                        f.write(content_str)
+
+                    # Verify if valid
+                    try:
+                        po = polib.pofile(resolved_path)
+                        return {
+                            "success": True,
+                            "message": f"PO file encoding converted from {encoding} to UTF-8",
+                            "backup_path": backup_path,
+                        }
+                    except:
+                        continue
+
+                except:
+                    continue
+
+            # If we get here, all repair attempts failed
+            shutil.copy2(backup_path, resolved_path)
+            return {
+                "success": False,
+                "error": "Could not repair file - encoding issues detected",
+                "message": "Original file restored from backup",
+            }
+
+    except Exception as e:
+        return {"success": False, "error": str(e)}

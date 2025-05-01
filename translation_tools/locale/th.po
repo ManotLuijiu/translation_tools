@@ -190,7 +190,7 @@ msgstr "หน่วยติดต่อระบบ Chat"
 #. Name of a DocType
 #: translation_tools/translation_tools/doctype/chat_profile/chat_profile.json
 msgid "Chat Profile"
-msgstr ""
+msgstr "โปรไฟล์แชท"
 
 #. Name of a DocType
 #: translation_tools/translation_tools/doctype/chat_room/chat_room.json

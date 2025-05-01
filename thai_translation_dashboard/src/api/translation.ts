@@ -8,6 +8,13 @@ export type TranslationResult = {
   error?: string;
 };
 
+export interface TranslationStats {
+  total: number;
+  translated: number;
+  untranslated: number;
+  percentage: number;
+}
+
 export type BatchTranslationResult = {
   success: boolean;
   translations?: Record<string, string>;
