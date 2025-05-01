@@ -200,7 +200,7 @@ def translate_single_entry(file_path, entry_id, model_provider="openai", model=N
         print(f"source_text {source_text}")
         print(f"provider {provider}")
         print(f"model {model}")
-        print(f"temperature {settings.get("temperature")}")
+        # print(f"temperature {settings.get("temperature")}")
 
         # Get translation
         translation = call_ai_translation_api(
