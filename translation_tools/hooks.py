@@ -36,7 +36,7 @@ after_install = [
     # "translation_tools.setup.install_custom_fields.install_custom_fields",
     # "translation_tools.setup.create_doctypes.create_signature_doctype",
     # "translation_tools.setup.create_doctypes.create_settings_page",
-    "chat.patches.migrate_chat_data.execute",
+    # "translation_tools.patches.migrate_chat_data.execute",
 ]
 
 after_migrate = "translation_tools.setup.update_workspace.update_icons"
