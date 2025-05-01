@@ -204,20 +204,22 @@ doc_events = {
 
 
 # Fixtures: export workspace so your link stays after migration/restart
-fixtures = [
-    {"dt": "Workspace", "filters": [["name", "=", "Integrations"]]},
-    {"dt": "Workspace", "filters": [["name", "=", "Translation Tools"]]},
-    {"dt": "Page", "filters": [["name", "=", "translation-tools"]]},
-    {"dt": "Custom Field", "filters": [["dt", "in", ["Print Settings", "Company"]]]},
-    {
-        "doctype": "Property Setter",
-        "filters": [
-            ["doc_type", "=", "Print Format"],
-            ["field_name", "=", "pdf_generator"],
-            ["property", "=", "options"],
-        ],
-    },
-]
+# fixtures = [
+#     # {"dt": "Workspace", "filters": [["name", "=", "Integrations"]]},
+#     {"dt": "Number Card", "filters": [["module", "=", "Translation Tools"]]},
+#     {"dt": "Dashboard Chart", "filters": [["module", "=", "Translation Tools"]]},
+#     {"dt": "Workspace", "filters": [["name", "=", "Translation Tools"]]},
+#     {"dt": "Page", "filters": [["name", "=", "translation-tools"]]},
+#     {"dt": "Custom Field", "filters": [["dt", "in", ["Print Settings", "Company"]]]},
+#     {
+#         "doctype": "Property Setter",
+#         "filters": [
+#             ["doc_type", "=", "Print Format"],
+#             ["field_name", "=", "pdf_generator"],
+#             ["property", "=", "options"],
+#         ],
+#     },
+# ]
 
 doctype_js = {
     #  "Print Format": "public/js/print_format.js"
@@ -275,7 +277,5 @@ workspace_order = {
 }
 
 scheduler_events = {
-    "daily": [
-        "translation_tools.translation_tools.api.ai_models.get_available_ai_models"
-    ]
+    "daily": ["translation_tools.api.ai_models.get_available_ai_models"]
 }

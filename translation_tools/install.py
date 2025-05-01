@@ -80,6 +80,8 @@ def after_install():
             # Then try to add to integrations workspace
             add_to_integrations_workspace()
 
+            print("✅ Translation Tools setup completed successfully")
+
         except Exception as e:
             logger.error(f"Error setting up workspaces: {e}")
             frappe.db.rollback()

@@ -177,48 +177,101 @@ def add_to_integrations_workspace():
             logger.warning("Integrations workspace not found")
             return
 
-        # Create the link (shortcut) as a child of the workspace
+        # Get the existing Integrations workspace
         integrations_ws = frappe.get_doc("Workspace", "Integrations")
 
-        # Avoid adding it multiple times
-        existing_links = [l.link_to for l in integrations_ws.links or []]  # type: ignore
-        if "Translation Tools Settings" in existing_links:
-            logger.info(
-                "Link to Translation Tools Settings already exists in Integrations workspace"
+        # First, check if our card already exists
+        thai_card_exists = False
+        for link in integrations_ws.links:  # type: ignore
+            if link.label == "Thai Business Suite" and link.type == "Card Break":
+                thai_card_exists = True
+                break
+
+        if not thai_card_exists:
+            # Add card break for Thai Business Suite
+            integrations_ws.append(
+                "links",
+                {
+                    "label": "Thai Business Suite",
+                    "type": "Card Break",
+                    "link_count": 0,
+                    "onboard": 0,
+                },
             )
-            return
 
-        integrations_ws.append(
-            "links",
-            {
-                "type": "DocType",
-                "link_to": "Translation Tools Settings",
-                "label": "Translation Tools Settings",
-                "icon": "octicon octicon-globe",  # customize as needed
-                "dependencies": "",
-            },
-        )
+            # Add link to Translation Tools Settings
+            integrations_ws.append(
+                "links",
+                {
+                    "label": "Translation Tools Settings",
+                    "link_to": "Translation Tools Settings",
+                    "link_type": "DocType",
+                    "type": "Link",
+                    "onboard": 0,
+                },
+            )
 
-        integrations_ws.save(ignore_permissions=True)
-        frappe.db.commit()
-        logger.info(
-            "Successfully added Translation Tools link to Integrations workspace"
-        )
+            # Add link to AI Translator page
+            integrations_ws.append(
+                "links",
+                {
+                    "label": "AI Translator",
+                    "link_to": "thai_translator",
+                    "link_type": "Page",
+                    "type": "Link",
+                    "onboard": 0,
+                },
+            )
+
+            # Now update the content JSON to include our card
+            import json
+
+            # content = []
+            # if integrations_ws.content:
+            #     content = json.loads(integrations_ws.content)
+
+            try:
+                content = (
+                    json.loads(getattr(integrations_ws, "content", "[]"))
+                    if getattr(integrations_ws, "content", None)
+                    else []
+                )
+            except Exception as e:
+                logger.error(f"Error parsing Integrations workspace content: {str(e)}")
+                content = []
+
+            # Check if our card already exists in the content
+            thai_card_exists_in_content = False
+            for item in content:
+                if item.get("id") == "thai_trans_card":
+                    thai_card_exists_in_content = True
+                    break
+
+            if not thai_card_exists_in_content:
+                # Add our card to the content
+                content.append(
+                    {
+                        "id": "thai_trans_card",
+                        "type": "card",
+                        "data": {"card_name": "Thai Business Suite", "col": 4},
+                    }
+                )
+
+                # Update the content field
+                integrations_ws.content = json.dumps(content)  # type: ignore
+
+            # Save the changes
+            integrations_ws.save(ignore_permissions=True)
+            frappe.db.commit()
+            logger.info(
+                "Successfully added Thai Business Suite card to Integrations workspace"
+            )
+        else:
+            logger.info(
+                "Thai Business Suite card already exists in Integrations workspace"
+            )
 
     except Exception as e:
-        logger.error(f"Failed to add link to Integrations workspace: {e}")
-        raise
-
-
-# In [1]: import frappe
-#    ...:
-#    ...: doctypes = frappe.get_all("DocType", filters={"module": "Translation Tools"})
-#    ...: print("DocTypes in Translation Tools module:")
-#    ...: for dt in doctypes:
-#    ...:     print(f"- {dt.name}")
-#    ...:
-# DocTypes in Translation Tools module:
-# - PO File
-# - Translation Tools Settings
-# - Translation Glossary Term
-# - ERPNext Module
+        logger.error(f"Failed to add to Integrations workspace: {e}")
+        # Don't re-raise the exception - better to continue with installation
+        # even if this particular step fails

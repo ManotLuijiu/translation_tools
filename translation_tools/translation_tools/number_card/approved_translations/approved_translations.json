@@ -1,5 +1,5 @@
 {
-  "aggregate_function_based_on": "",
+  "aggregate_function_based_on": "count",
   "color": "#4C8BCA",
   "creation": "2025-04-26 14:30:21.355421",
   "docstatus": 0,

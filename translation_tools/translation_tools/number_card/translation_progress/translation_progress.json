@@ -12,7 +12,8 @@
   "is_public": 1,
   "is_standard": 1,
   "label": "Translation Progress",
-  "modified": "2025-04-26 14:45:21.355421",
+  "method": "translation_tools.utils.dashboard.get_translation_progress",
+  "modified": "2025-05-01 19:15:31.375069",
   "modified_by": "Administrator",
   "module": "Translation Tools",
   "name": "Translation Progress",
@@ -21,5 +22,5 @@
   "report_function": "Sum",
   "show_percentage_stats": 1,
   "stats_time_interval": "Monthly",
-  "type": "Document Type"
+  "type": "Custom"
 }
