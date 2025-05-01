@@ -36,7 +36,7 @@ export default function BatchTranslationView({
   }>({});
   const [isTranslating, setIsTranslating] = useState(false);
   // const [currentBatch, setCurrentBatch] = useState<POEntry[]>([]);
-  const { statusMessage, showMessage, clearMessage } = useStatusMessage();
+  const { statusMessage, showMessage } = useStatusMessage();
 
   // Select entries that need translation
   const untranslatedEntries = entries.filter((entry) => !entry.is_translated);
