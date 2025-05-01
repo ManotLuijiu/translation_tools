@@ -13,6 +13,7 @@ import { useTranslateBatch, useSaveBatchTranslations } from '../api';
 import { useStatusMessage } from '@/hooks/useStatusMessage';
 import type { POFile, TranslationToolsSettings, POEntry } from '../types';
 import { useTranslation } from '@/context/TranslationContext';
+import { useFrappePostCall } from 'frappe-react-sdk';
 
 interface BatchTranslationViewProps {
   selectedFile: POFile | null;
@@ -42,11 +43,36 @@ export default function BatchTranslationView({
   const untranslatedEntries = entries.filter((entry) => !entry.is_translated);
   const { translate: __, isReady } = useTranslation();
 
+  // Use frappe-react-sdk hooks
+  const {
+    call: translateBatchCall,
+    loading: translateLoading,
+    error: translateError,
+  } = useFrappePostCall('translation_tools.api.ai_translation.translate_batch');
+
+  const {
+    call: saveBatchCall,
+    loading: saveLoading,
+    error: saveError,
+  } = useFrappePostCall(
+    'translation_tools.api.ai_translation.save_batch_translations'
+  );
+
   // Prepare batches for translation
   const batches = [];
   for (let i = 0; i < untranslatedEntries.length; i += batchSize) {
     batches.push(untranslatedEntries.slice(i, i + batchSize));
   }
+
+  // Monitor errors from SDK
+  useEffect(() => {
+    if (translateError) {
+      showMessage(translateError.message || 'Translation failed', 'error');
+    }
+    if (saveError) {
+      showMessage(saveError.message || 'Failed to save translations', 'error');
+    }
+  }, [translateError, saveError, showMessage]);
 
   // Clear selection when entries change
   // useEffect(() => {
@@ -66,27 +92,37 @@ export default function BatchTranslationView({
 
     try {
       // API call to translate batch
-      const result = await fetch(
-        '/api/method/translation_tools.api.ai_translation.translate_batch',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            file_path: selectedFile.file_path,
-            entry_ids: selectedEntries.map((e) => e.id),
-            model_provider: settings?.default_model_provider || 'openai',
-            model: settings?.default_model || undefined,
-          }),
-        }
-      );
+      // const result = await fetch(
+      //   '/api/method/translation_tools.api.ai_translation.translate_batch',
+      //   {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //     body: JSON.stringify({
+      //       file_path: selectedFile.file_path,
+      //       entry_ids: selectedEntries.map((e) => e.id),
+      //       model_provider: settings?.default_model_provider || 'openai',
+      //       model: settings?.default_model || undefined,
+      //     }),
+      //   }
+      // );
 
-      const data = await result.json();
+      // const data = await result.json();
 
-      if (data.message?.success) {
+      // Use SDK hook instead of fetch
+      const response = await translateBatchCall({
+        file_path: selectedFile.file_path,
+        entry_ids: selectedEntries.map((e) => e.id),
+        model_provider: settings?.default_model_provider || 'openai',
+        model: settings?.default_model || undefined,
+      });
+
+      console.log('response translateBatchCall', response);
+
+      if (response?.message?.success) {
         // Update translations
-        const newTranslations = data.message.translations;
+        const newTranslations = response?.message?.translations;
         setTranslatedEntries((prev) => ({ ...prev, ...newTranslations }));
 
         showMessage('Batch translation completed successfully', 'success');
@@ -96,8 +132,8 @@ export default function BatchTranslationView({
           await saveBatchTranslations();
         }
       } else {
-        console.error('Translation error:', data.message?.error);
-        showMessage(data.message?.error || 'Translation failed', 'error');
+        console.error('Translation error:', response?.message?.error);
+        showMessage(response?.message?.error || 'Translation failed', 'error');
       }
     } catch (err) {
       console.error('Translation error:', err);
@@ -114,31 +150,40 @@ export default function BatchTranslationView({
     showMessage(__('Saving translations...'), 'info');
 
     try {
-      const result = await fetch(
-        '/api/method/translation_tools.api.ai_translation.save_batch_translations',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            file_path: selectedFile.file_path,
-            translations: translatedEntries,
-            push_to_github: settings?.github_enable && settings?.github_token,
-          }),
-        }
-      );
+      // const result = await fetch(
+      //   '/api/method/translation_tools.api.ai_translation.save_batch_translations',
+      //   {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //     body: JSON.stringify({
+      //       file_path: selectedFile.file_path,
+      //       translations: translatedEntries,
+      //       push_to_github: settings?.github_enable && settings?.github_token,
+      //     }),
+      //   }
+      // );
 
-      const data = await result.json();
+      // const data = await result.json();
 
-      if (data.message?.success) {
+      // Use SDK hook instead of fetch
+      const result = await saveBatchCall({
+        file_path: selectedFile.file_path,
+        translations: translatedEntries,
+        push_to_github: settings?.github_enable && settings?.github_token,
+      });
+
+      console.log('result saveBatchCall', result);
+
+      if (result?.message?.success) {
         showMessage(__('Translations saved successfully'), 'success');
         onTranslationComplete(); // Refresh data
         setTranslatedEntries({});
         setSelectedEntries([]);
       } else {
         showMessage(
-          data.message?.error || 'Failed to save translations',
+          result?.message?.error || 'Failed to save translations',
           'error'
         );
       }
@@ -299,9 +344,13 @@ export default function BatchTranslationView({
             <Button
               variant="outline"
               onClick={translateBatch}
-              disabled={isTranslating || selectedEntries.length === 0}
+              disabled={
+                isTranslating ||
+                translateLoading ||
+                selectedEntries.length === 0
+              }
             >
-              {isTranslating ? (
+              {isTranslating || translateLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {__('Translating...')}
@@ -317,10 +366,16 @@ export default function BatchTranslationView({
             <Button
               onClick={saveBatchTranslations}
               disabled={
-                isTranslating || Object.keys(translatedEntries).length === 0
+                isTranslating ||
+                saveLoading ||
+                Object.keys(translatedEntries).length === 0
               }
             >
-              <Save className="mr-2 h-4 w-4" />
+              {saveLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
               {__('Save Translations')}
             </Button>
           </div>
