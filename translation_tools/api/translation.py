@@ -913,7 +913,7 @@ Text to translate: {text}""",
         return None
 
 
-def _batch_translate_with_openai(api_key, model, entries):
+def _batch_translate_with_openai(api_key, model, entries, temperature=0.3):
     """Translate multiple entries using OpenAI API"""
     try:
         client = openai.OpenAI(api_key=api_key)
@@ -922,9 +922,22 @@ def _batch_translate_with_openai(api_key, model, entries):
         glossary_terms = get_glossary_terms_dict()
         glossary_text = json.dumps(glossary_terms, indent=2)
 
+        print(f"glossary_terms {glossary_terms}")
+        print(f"glossary_text {glossary_text}")
+
         # Build a message with all entries
         entries_list = [f"Entry {idx}: {text}" for idx, text in entries.items()]
         entries_text = "\n\n".join(entries_list)
+
+        print(f"entries_list {entries_list}")
+        print(f"entries_text {entries_text}")
+
+        # Get the temperature from settings if available
+        settings = get_translation_settings()
+        temp = settings.get("temperature", temperature)
+
+        print(f"settings from OpenAI {settings}")
+        print(f"temp from OpenAI {temp}")
 
         response = client.chat.completions.create(
             model=model,
@@ -941,10 +954,11 @@ For each entry, respond with 'Entry X: [Thai translation]' where X is the entry 
                 },
                 {"role": "user", "content": entries_text},
             ],
-            temperature=0.3,
+            temperature=temp,
         )
 
         # Parse the response to extract translations
+        print(f"response from OpenAI {response}")
         response_text = response.choices[0].message.content
         translations = {}
 
@@ -954,6 +968,10 @@ For each entry, respond with 'Entry X: [Thai translation]' where X is the entry 
                     parts = line.split(":", 1)
                     entry_part = parts[0].strip()
                     translation = parts[1].strip() if len(parts) > 1 else ""
+
+                    print(f"parts OpenAI {parts}")
+                    print(f"entry_part OpenAI {entry_part}")
+                    print(f"translation OpenAI {translation}")
 
                     idx = int(entry_part.replace("Entry ", ""))
                     if idx in entries:
@@ -968,7 +986,7 @@ For each entry, respond with 'Entry X: [Thai translation]' where X is the entry 
         return {}
 
 
-def _batch_translate_with_claude(api_key, model, entries):
+def _batch_translate_with_claude(api_key, model, entries, temperature=0.3):
     """Translate multiple entries using Anthropic Claude API"""
     try:
         client = anthropic.Anthropic(api_key=api_key)
@@ -981,10 +999,14 @@ def _batch_translate_with_claude(api_key, model, entries):
         entries_list = [f"Entry {idx}: {text}" for idx, text in entries.items()]
         entries_text = "\n\n".join(entries_list)
 
+        # Get the temperature from settings if available
+        settings = get_translation_settings()
+        temp = settings.get("temperature", temperature)
+
         response = client.messages.create(
             model=model or "claude-3-haiku-20240307",
             max_tokens=2000,
-            temperature=0.3,
+            temperature=temp,
             messages=[
                 {
                     "role": "user",

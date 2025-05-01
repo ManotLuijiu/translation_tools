@@ -6,7 +6,7 @@ import { RefreshCw } from 'lucide-react';
 import { ModeToggle } from './ModeToggle';
 import LanguageToggle from './LanguageToggle';
 import { useTranslation } from '@/context/TranslationContext';
-
+import { GitCompareArrows } from 'lucide-react';
 interface NavbarProps {
   currentTab?: string;
 }
@@ -57,15 +57,19 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab }) => {
             </a>
           </div>
 
-          <div className="text-muted-foreground flex items-center gap-4">
+          <div className="text-muted-foreground flex justify-center items-center gap-4">
             <h1 className="text-lg font-semibold">{__('Translation Tools')}</h1>
-            <div className="flex items-center gap-4">
-              {currentUser && (
+            <div className="flex space-x-2 justify-center items-center">
+              <GitCompareArrows className="w-4 h-4" />
+              <a href="/app/thai_translator">Desk Version</a>
+            </div>
+            <div className="flex justify-center items-center gap-4">
+              {/* {currentUser && (
                 <div className="text-sm">
                   {__('Logged in as:')}{' '}
                   <span className="font-medium">{currentUser}</span>
                 </div>
-              )}
+              )} */}
               <LanguageToggle />
               <ModeToggle />
             </div>

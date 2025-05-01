@@ -13,6 +13,8 @@ import SettingsPanel from './SettingsPanel';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { useTranslation } from '@/context/TranslationContext';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 export default function Dashboard() {
   const { translate: __, isReady } = useTranslation();
@@ -23,7 +25,9 @@ export default function Dashboard() {
     missing_doctypes: string[];
   } | null>(null);
   const [isSettingUp, setIsSettingUp] = useState(false);
-
+  const [translationMode, setTranslationMode] = useState<'manual' | 'ai'>(
+    'manual'
+  );
   const { data: settingsData } = useGetTranslationSettings();
 
   console.log('selectedFile', selectedFile);
@@ -132,10 +136,26 @@ export default function Dashboard() {
               {__('Manage translations for Frappe/ERPNext ecosystem')}
             </p>
           </div>
-          <div>
-            <div className="flex space-x-2 justify-center items-center">
-              <GitCompareArrows className="w-4 h-4" />
-              <a href="/app/thai_translator">Desk Version</a>
+          <div className="flex">
+            <div className="flex justify-center items-center space-x-2 mb-4">
+              <Switch
+                id="translation-mode"
+                checked={translationMode === 'ai'}
+                onCheckedChange={(checked) =>
+                  setTranslationMode(checked ? 'ai' : 'manual')
+                }
+              />
+              <Label htmlFor="translation-mode">
+                {translationMode === 'manual' ? (
+                  __('Manual Mode')
+                ) : (
+                  <span
+                    className={translationMode === 'ai' ? 'text-blue-600' : ''}
+                  >
+                    {__('AI Mode')}
+                  </span>
+                )}
+              </Label>
             </div>
           </div>
         </div>
@@ -177,6 +197,7 @@ export default function Dashboard() {
 
           <TabsContent value="editor" className="rounded-lg border p-4">
             <TranslationEditor
+              translationMode={translationMode}
               selectedFile={selectedFile}
               settings={settingsData?.message! || null}
             />

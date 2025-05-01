@@ -43,7 +43,17 @@ export function useTranslatePOFile() {
  */
 export function useTranslateBatch() {
   return useFrappePostCall<BatchTranslationResult>(
-    'translation_tools.api.translation.translate_batch'
+    // 'translation_tools.api.translation.translate_batch'
+    'translation_tools.api.ai_translation.translate_batch'
+  );
+}
+
+/**
+ * Translate multiple entries in a batch
+ */
+export function useSaveBatchTranslations() {
+  return useFrappePostCall<BatchTranslationResult>(
+    'translation_tools.api.ai_translation.save_batch_translations'
   );
 }
 

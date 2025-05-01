@@ -5,6 +5,7 @@ import {
   // useGetPOFileEntries,
   useGetPOFileEntriesPaginated,
   useTranslateSingleEntry,
+  useTranslateBatch,
   useSaveTranslation,
   useSaveGithubToken,
   useTestGithubConnection,
@@ -40,7 +41,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import {
   Loader2,
@@ -54,6 +55,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import TranslationStats from './TranslationStats';
 // import { StatusToast } from '@/components/StatusToast';
+import BatchTranslationView from './BatchTranslationView';
 import { useStatusMessage } from '@/hooks/useStatusMessage';
 import { useTranslation } from '@/context/TranslationContext';
 import { toast } from 'sonner';
@@ -62,11 +64,13 @@ import { toast } from 'sonner';
 const ENTRIES_PER_PAGE = 20;
 
 interface TranslationEditorProps {
+  translationMode: string;
   selectedFile: POFile | null;
   settings: TranslationToolsSettings;
 }
 
 export default function TranslationEditor({
+  translationMode,
   selectedFile,
   settings,
 }: TranslationEditorProps) {
@@ -89,9 +93,13 @@ export default function TranslationEditor({
   const testGithub = useTestGithubConnection();
 
   console.log('settings TranslationEditor', settings);
-  const { github_token } = settings;
+  const { github_token, batch_size } = settings;
 
   console.log('github_token', github_token);
+  console.log('batch_size', batch_size);
+  console.log('translationMode', translationMode);
+
+  const batchSize = settings?.batch_size || 10; // Get from settings
 
   interface PendingPushEntry {
     file_path: string;
@@ -808,414 +816,431 @@ export default function TranslationEditor({
         />
       </div>
 
-      <div className="flex space-x-4">
-        <div className="w-1/3 rounded-lg border">
-          <div className="border-b p-4">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-medium">Entries</h3>
-              <Select
-                value={entryFilter}
-                onValueChange={(
-                  value: 'all' | 'untranslated' | 'translated'
-                ) => {
-                  setEntryFilter(value);
-                  setCurrentPage(1); // Reset to first page when filter changes
+      {/* Separate Manual or AI Mode */}
+      {translationMode === 'manual' ? (
+        <div className="flex space-x-4">
+          <div className="w-1/3 rounded-lg border">
+            <div className="border-b p-4">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="font-medium">Entries</h3>
+                <Select
+                  value={entryFilter}
+                  onValueChange={(
+                    value: 'all' | 'untranslated' | 'translated'
+                  ) => {
+                    setEntryFilter(value);
+                    setCurrentPage(1); // Reset to first page when filter changes
+                  }}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder={__('Filter entries')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{__('All entries')}</SelectItem>
+                    <SelectItem value="untranslated">
+                      {__('Untranslated only')}
+                    </SelectItem>
+                    <SelectItem value="translated">
+                      {__('Translated only')}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Input
+                placeholder={__('Search in entries...')}
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1); // Reset to first page when search term changes
                 }}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder={__('Filter entries')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{__('All entries')}</SelectItem>
-                  <SelectItem value="untranslated">
-                    {__('Untranslated only')}
-                  </SelectItem>
-                  <SelectItem value="translated">
-                    {__('Translated only')}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                className="mb-2"
+              />
             </div>
 
-            <Input
-              placeholder={__('Search in entries...')}
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1); // Reset to first page when search term changes
-              }}
-              className="mb-2"
-            />
+            <div className="h-[calc(100vh-400px)] overflow-y-auto">
+              {isLoading ? (
+                <div className="flex h-32 items-center justify-center">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                </div>
+              ) : entries.length === 0 ? (
+                <div className="text-muted-foreground p-4 text-center">
+                  {__('No entries match your filter')}
+                </div>
+              ) : (
+                <ul className="divide-y">
+                  {entries.map((entry, index) => (
+                    <li key={`entry-${entry.id}-${index}`}>
+                      <button
+                        type="button"
+                        className={`hover:bg-muted/50 w-full p-3 text-left transition-colors ${
+                          selectedEntryId === entry.id ? 'bg-muted' : ''
+                        }`}
+                        onClick={() => setSelectedEntryId(entry.id)}
+                      >
+                        <div className="mb-1 flex items-center justify-between">
+                          <Badge
+                            variant={
+                              entry.is_translated ? 'default' : 'outline'
+                            }
+                            className={
+                              entry.is_translated ? 'bg-green-500' : ''
+                            }
+                          >
+                            {entry.is_translated
+                              ? 'Translated'
+                              : 'Untranslated'}
+                          </Badge>
+                        </div>
+                        <p className="truncate text-sm">{entry.msgid}</p>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
 
-          <div className="h-[calc(100vh-400px)] overflow-y-auto">
-            {isLoading ? (
-              <div className="flex h-32 items-center justify-center">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              </div>
-            ) : entries.length === 0 ? (
-              <div className="text-muted-foreground p-4 text-center">
-                {__('No entries match your filter')}
-              </div>
-            ) : (
-              <ul className="divide-y">
-                {entries.map((entry, index) => (
-                  <li key={`entry-${entry.id}-${index}`}>
-                    <button
-                      type="button"
-                      className={`hover:bg-muted/50 w-full p-3 text-left transition-colors ${
-                        selectedEntryId === entry.id ? 'bg-muted' : ''
-                      }`}
-                      onClick={() => setSelectedEntryId(entry.id)}
-                    >
-                      <div className="mb-1 flex items-center justify-between">
-                        <Badge
-                          variant={entry.is_translated ? 'default' : 'outline'}
-                          className={entry.is_translated ? 'bg-green-500' : ''}
+          <div className="w-2/3">
+            {selectedEntry ? (
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <CardTitle>{__('Translation')}</CardTitle>
+                    <div className="flex space-x-2">
+                      {pushToGithub ? (
+                        <Button
+                          variant="outline"
+                          onClick={() =>
+                            handleTestGitHubConnection(
+                              settings.github_repo || '',
+                              settings.github_token || ''
+                            )
+                          }
+                          disabled={
+                            !settings.github_enable ||
+                            !settings.github_repo ||
+                            !settings.github_token
+                          }
                         >
-                          {entry.is_translated ? 'Translated' : 'Untranslated'}
-                        </Badge>
+                          {__('Test Connect')}
+                        </Button>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant={'outline'}
+                          onClick={() => setShowTokenDialog(true)}
+                        >
+                          <div className="flex justify-center items-center">
+                            {__('Github Token')}
+                          </div>
+                        </Button>
+                      )}
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="push-to-github"
+                          checked={pushToGithub}
+                          onCheckedChange={setPushToGithub}
+                        />
+                        <Label
+                          htmlFor="push-to-github"
+                          className={cn(
+                            'cursor-pointer',
+                            pushToGithub ? 'text-green-600' : ''
+                          )}
+                        >
+                          {__('Push to Github')}
+                        </Label>
                       </div>
-                      <p className="truncate text-sm">{entry.msgid}</p>
-                    </button>
-                  </li>
-                ))}
-              </ul>
+                    </div>
+                  </div>
+                  <CardDescription>
+                    {selectedEntry.context && (
+                      <Badge variant="outline" className="mb-1">
+                        {__('Context:')} {selectedEntry.context}
+                      </Badge>
+                    )}
+                    {selectedEntry.comments &&
+                      selectedEntry.comments.length > 0 && (
+                        <div className="text-muted-foreground mt-2 text-xs">
+                          <p>{selectedEntry.comments}</p>
+                        </div>
+                      )}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <label
+                        htmlFor="source-english"
+                        className="mb-1 block text-sm font-medium"
+                      >
+                        {__('Source (English)')}
+                      </label>
+                      <div
+                        id="source-english"
+                        className="bg-muted whitespace-pre-wrap rounded-md p-3"
+                      >
+                        {selectedEntry.msgid}
+                      </div>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="translation-thai"
+                        className="mb-1 block text-sm font-medium"
+                      >
+                        {__('Translation (Thai)')}
+                      </label>
+                      <Textarea
+                        id="translation-thai"
+                        rows={5}
+                        value={editedTranslation}
+                        onChange={(e) => setEditedTranslation(e.target.value)}
+                        placeholder="Enter translation here..."
+                        className="min-h-32 resize-y"
+                      />
+                    </div>
+
+                    {statusMessage && (
+                      <Alert
+                        variant={
+                          statusMessage.type === 'error'
+                            ? 'destructive'
+                            : 'default'
+                        }
+                      >
+                        {statusMessage.type === 'success' && (
+                          <Check className="h-4 w-4" />
+                        )}
+                        {statusMessage.type === 'error' && (
+                          <AlertCircle className="h-4 w-4" />
+                        )}
+                        {statusMessage.type === 'info' && (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        )}
+                        <AlertTitle
+                          className={
+                            statusMessage.type === 'success'
+                              ? 'text-green-600'
+                              : statusMessage.type === 'info'
+                                ? 'text-blue-600'
+                                : 'text-red-600'
+                          }
+                        >
+                          {statusMessage.type === 'success'
+                            ? 'Success'
+                            : statusMessage.type === 'error'
+                              ? 'Error'
+                              : 'Info'}
+                        </AlertTitle>
+                        <AlertDescription>
+                          {statusMessage.message}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+                </CardContent>
+                <CardFooter className="justify-between">
+                  <div className="flex space-x-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => {
+                        setSelectedEntryId(selectedEntryId);
+                        const entry = entries.find(
+                          (e) => e.id === selectedEntryId
+                        );
+
+                        console.log('entry reset button', entry);
+                        if (entry) setEditedTranslation(entry.msgstr);
+                        // setStatusMessage(null);
+                        clearMessage();
+                      }}
+                    >
+                      {__('Reset')}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={goToNextUntranslated}
+                      disabled={isLoading}
+                      // onClick={() => {
+                      //   // Find next untranslated entry
+                      //   const untranslatedEntries = entries.filter(
+                      //     (e) => !e.is_translated
+                      //   );
+                      //   if (untranslatedEntries.length > 0) {
+                      //     setSelectedEntryId(untranslatedEntries[0].id);
+                      //   }
+                      // }}
+                    >
+                      {isLoading ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : null}
+                      {__('Next Untranslated')}
+                    </Button>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleTranslate}
+                      disabled={translateEntry.loading}
+                    >
+                      {translateEntry.loading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          {__('AI Translating...')}
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          {__('AI Translate')}
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      onClick={handleSave}
+                      disabled={saveTranslation.loading}
+                    >
+                      {saveTranslation.loading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          {__('Saving...')}
+                        </>
+                      ) : (
+                        <>
+                          <Save className="mr-2 h-4 w-4" />
+                          {__('Save')}
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  {/* GitHub Token Dialog */}
+                  <Dialog
+                    open={showTokenDialog}
+                    onOpenChange={(open) => {
+                      if (!open) {
+                        handleDialogCancel();
+                      }
+                      setShowTokenDialog(open);
+                    }}
+                  >
+                    <DialogContent className="max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>
+                          {__('GitHub Personal Access Token Required')}
+                        </DialogTitle>
+                        <DialogDescription>
+                          {__(
+                            'To share translations on GitHub, you need to provide a GitHub Personal Access Token with repository permissions.'
+                          )}
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      <div className="py-4">
+                        <Label
+                          htmlFor="github-token"
+                          className="text-sm font-medium"
+                        >
+                          {__('GitHub Token (ghp_xxxxxxxxxxxxxxxx)')}
+                        </Label>
+                        <div className="relative mt-2">
+                          <Input
+                            id="github-token"
+                            type={showPassword ? 'text' : 'password'}
+                            className="mt-2 pr-10 py-2"
+                            value={githubToken}
+                            onChange={(e) => setGithubToken(e.target.value)}
+                            placeholder="ghp_xxxxxxxxxxxxxxxx"
+                          />
+                          <button
+                            type="button"
+                            className="absolute right-2 top-0 transform translate-y-1/2"
+                            onClick={() => setShowPassword(!showPassword)}
+                            aria-label={
+                              showPassword ? 'Hide password' : 'Show password'
+                            }
+                          >
+                            {showPassword ? (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5 text-gray-500"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                                  clipRule="evenodd"
+                                />
+                                <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                              </svg>
+                            ) : (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5 text-gray-500"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                <path
+                                  fillRule="evenodd"
+                                  d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                        <p className="mt-2 text-xs text-gray-500">
+                          {__('You can create a token at')}{' '}
+                          <a
+                            href="https://github.com/settings/tokens"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 hover:underline"
+                          >
+                            {__('GitHub Settings')}
+                          </a>{' '}
+                          {__("with 'repo' access.")}
+                        </p>
+                      </div>
+
+                      <DialogFooter>
+                        <Button variant="outline" onClick={handleDialogCancel}>
+                          {__('Cancel')}
+                        </Button>
+                        <Button
+                          className="bg-blue-500 text-white"
+                          onClick={handleTokenSubmit}
+                        >
+                          {__('Save & Push')}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </CardFooter>
+              </Card>
+            ) : (
+              <div className="flex h-full items-center justify-center rounded-lg border p-8">
+                <p className="text-muted-foreground">
+                  {__('Select an entry to start translating')}
+                </p>
+              </div>
             )}
           </div>
         </div>
-
-        <div className="w-2/3">
-          {selectedEntry ? (
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>{__('Translation')}</CardTitle>
-                  <div className="flex space-x-2">
-                    {pushToGithub ? (
-                      <Button
-                        variant="outline"
-                        onClick={() =>
-                          handleTestGitHubConnection(
-                            settings.github_repo || '',
-                            settings.github_token || ''
-                          )
-                        }
-                        disabled={
-                          !settings.github_enable ||
-                          !settings.github_repo ||
-                          !settings.github_token
-                        }
-                      >
-                        {__('Test Connect')}
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant={'outline'}
-                        onClick={() => setShowTokenDialog(true)}
-                      >
-                        <div className="flex justify-center items-center">
-                          {__('Github Token')}
-                        </div>
-                      </Button>
-                    )}
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="push-to-github"
-                        checked={pushToGithub}
-                        onCheckedChange={setPushToGithub}
-                      />
-                      <Label
-                        htmlFor="push-to-github"
-                        className={cn(
-                          'cursor-pointer',
-                          pushToGithub ? 'text-green-600' : ''
-                        )}
-                      >
-                        {__('Push to Github')}
-                      </Label>
-                    </div>
-                  </div>
-                </div>
-                <CardDescription>
-                  {selectedEntry.context && (
-                    <Badge variant="outline" className="mb-1">
-                      {__('Context:')} {selectedEntry.context}
-                    </Badge>
-                  )}
-                  {selectedEntry.comments &&
-                    selectedEntry.comments.length > 0 && (
-                      <div className="text-muted-foreground mt-2 text-xs">
-                        <p>{selectedEntry.comments}</p>
-                      </div>
-                    )}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <label
-                      htmlFor="source-english"
-                      className="mb-1 block text-sm font-medium"
-                    >
-                      {__('Source (English)')}
-                    </label>
-                    <div
-                      id="source-english"
-                      className="bg-muted whitespace-pre-wrap rounded-md p-3"
-                    >
-                      {selectedEntry.msgid}
-                    </div>
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="translation-thai"
-                      className="mb-1 block text-sm font-medium"
-                    >
-                      {__('Translation (Thai)')}
-                    </label>
-                    <Textarea
-                      id="translation-thai"
-                      rows={5}
-                      value={editedTranslation}
-                      onChange={(e) => setEditedTranslation(e.target.value)}
-                      placeholder="Enter translation here..."
-                      className="min-h-32 resize-y"
-                    />
-                  </div>
-
-                  {statusMessage && (
-                    <Alert
-                      variant={
-                        statusMessage.type === 'error'
-                          ? 'destructive'
-                          : 'default'
-                      }
-                    >
-                      {statusMessage.type === 'success' && (
-                        <Check className="h-4 w-4" />
-                      )}
-                      {statusMessage.type === 'error' && (
-                        <AlertCircle className="h-4 w-4" />
-                      )}
-                      {statusMessage.type === 'info' && (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      )}
-                      <AlertTitle
-                        className={
-                          statusMessage.type === 'success'
-                            ? 'text-green-600'
-                            : statusMessage.type === 'info'
-                              ? 'text-blue-600'
-                              : 'text-red-600'
-                        }
-                      >
-                        {statusMessage.type === 'success'
-                          ? 'Success'
-                          : statusMessage.type === 'error'
-                            ? 'Error'
-                            : 'Info'}
-                      </AlertTitle>
-                      <AlertDescription>
-                        {statusMessage.message}
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                </div>
-              </CardContent>
-              <CardFooter className="justify-between">
-                <div className="flex space-x-2">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => {
-                      setSelectedEntryId(selectedEntryId);
-                      const entry = entries.find(
-                        (e) => e.id === selectedEntryId
-                      );
-
-                      console.log('entry reset button', entry);
-                      if (entry) setEditedTranslation(entry.msgstr);
-                      // setStatusMessage(null);
-                      clearMessage();
-                    }}
-                  >
-                    {__('Reset')}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={goToNextUntranslated}
-                    disabled={isLoading}
-                    // onClick={() => {
-                    //   // Find next untranslated entry
-                    //   const untranslatedEntries = entries.filter(
-                    //     (e) => !e.is_translated
-                    //   );
-                    //   if (untranslatedEntries.length > 0) {
-                    //     setSelectedEntryId(untranslatedEntries[0].id);
-                    //   }
-                    // }}
-                  >
-                    {isLoading ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : null}
-                    {__('Next Untranslated')}
-                  </Button>
-                </div>
-                <div className="flex space-x-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleTranslate}
-                    disabled={translateEntry.loading}
-                  >
-                    {translateEntry.loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {__('AI Translating...')}
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        {__('AI Translate')}
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    onClick={handleSave}
-                    disabled={saveTranslation.loading}
-                  >
-                    {saveTranslation.loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {__('Saving...')}
-                      </>
-                    ) : (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        {__('Save')}
-                      </>
-                    )}
-                  </Button>
-                </div>
-
-                {/* GitHub Token Dialog */}
-                <Dialog
-                  open={showTokenDialog}
-                  onOpenChange={(open) => {
-                    if (!open) {
-                      handleDialogCancel();
-                    }
-                    setShowTokenDialog(open);
-                  }}
-                >
-                  <DialogContent className="max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>
-                        {__('GitHub Personal Access Token Required')}
-                      </DialogTitle>
-                      <DialogDescription>
-                        {__(
-                          'To share translations on GitHub, you need to provide a GitHub Personal Access Token with repository permissions.'
-                        )}
-                      </DialogDescription>
-                    </DialogHeader>
-
-                    <div className="py-4">
-                      <Label
-                        htmlFor="github-token"
-                        className="text-sm font-medium"
-                      >
-                        {__('GitHub Token (ghp_xxxxxxxxxxxxxxxx)')}
-                      </Label>
-                      <div className="relative mt-2">
-                        <Input
-                          id="github-token"
-                          type={showPassword ? 'text' : 'password'}
-                          className="mt-2 pr-10 py-2"
-                          value={githubToken}
-                          onChange={(e) => setGithubToken(e.target.value)}
-                          placeholder="ghp_xxxxxxxxxxxxxxxx"
-                        />
-                        <button
-                          type="button"
-                          className="absolute right-2 top-0 transform translate-y-1/2"
-                          onClick={() => setShowPassword(!showPassword)}
-                          aria-label={
-                            showPassword ? 'Hide password' : 'Show password'
-                          }
-                        >
-                          {showPassword ? (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5 text-gray-500"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
-                                clipRule="evenodd"
-                              />
-                              <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
-                            </svg>
-                          ) : (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5 text-gray-500"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                              <path
-                                fillRule="evenodd"
-                                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          )}
-                        </button>
-                      </div>
-                      <p className="mt-2 text-xs text-gray-500">
-                        {__('You can create a token at')}{' '}
-                        <a
-                          href="https://github.com/settings/tokens"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-500 hover:underline"
-                        >
-                          {__('GitHub Settings')}
-                        </a>{' '}
-                        {__("with 'repo' access.")}
-                      </p>
-                    </div>
-
-                    <DialogFooter>
-                      <Button variant="outline" onClick={handleDialogCancel}>
-                        {__('Cancel')}
-                      </Button>
-                      <Button
-                        className="bg-blue-500 text-white"
-                        onClick={handleTokenSubmit}
-                      >
-                        {__('Save & Push')}
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </CardFooter>
-            </Card>
-          ) : (
-            <div className="flex h-full items-center justify-center rounded-lg border p-8">
-              <p className="text-muted-foreground">
-                {__('Select an entry to start translating')}
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+      ) : (
+        <BatchTranslationView
+          selectedFile={selectedFile}
+          entries={entries}
+          settings={settings}
+          batchSize={batchSize}
+          onTranslationComplete={() => mutate()}
+        />
+      )}
     </div>
   );
 }

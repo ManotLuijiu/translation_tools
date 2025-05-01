@@ -1115,7 +1115,9 @@ def save_translation(file_path, entry_id, translation, push_to_github=False):
         raise
 
 
-def push_translation_to_github(file_path, entry=None, translation=None):
+def push_translation_to_github(
+    file_path, entry=None, translation=None, custom_commit_message=None
+):
     """
     Push a translation PO file to GitHub, handling existing repositories properly
 
@@ -1284,8 +1286,11 @@ def push_translation_to_github(file_path, entry=None, translation=None):
                     ),
                 }
 
-            # Prepare commit message
-            if entry and translation:
+            # Prepare commit message - using custom message if provided
+            if custom_commit_message:
+                # Use the provided custom message
+                commit_message = custom_commit_message
+            elif entry and translation:
                 # If we have specific entry info, create a detailed message
                 msg_id = (
                     entry.msgid[:50] + "..." if len(entry.msgid) > 50 else entry.msgid
@@ -1339,6 +1344,7 @@ def push_translation_to_github(file_path, entry=None, translation=None):
                     "message": _("Successfully pushed translations to GitHub"),
                     "app": app_name,
                     "language": language,
+                    "commit_message": commit_message,
                 }
             except subprocess.CalledProcessError as e:
                 error_msg = e.stderr if hasattr(e, "stderr") else str(e)
