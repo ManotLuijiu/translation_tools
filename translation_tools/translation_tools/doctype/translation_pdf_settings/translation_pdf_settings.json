@@ -6,8 +6,10 @@
   "engine": "InnoDB",
   "field_order": [
     "pdf_section",
+    "auto_attach_pdf",
     "pdf_generation_method",
     "weasyprint_path",
+    "auto_attach_pdf",
     "pdfmake_section",
     "custom_fonts",
     "help_section",
@@ -20,9 +22,16 @@
       "label": "PDF Settings"
     },
     {
+      "default": "0",
+      "fieldname": "auto_attach_pdf",
+      "fieldtype": "Check",
+      "label": "Auto Attach PDF"
+    },
+    {
       "default": "WeasyPrint",
       "fieldname": "pdf_generation_method",
       "fieldtype": "Select",
+      "in_list_view": 1,
       "label": "PDF Generation Method",
       "options": "WeasyPrint\nPDFMake\nwkhtmltopdf",
       "reqd": 1
@@ -52,13 +61,13 @@
     {
       "fieldname": "help_html",
       "fieldtype": "HTML",
-      "options": "<p>The GitHub integration allows translations to be automatically shared to a central repository.</p><p>To set up GitHub integration:</p><ol><li>Create a GitHub account if you don't have one</li><li>Create a Personal Access Token (Classic) at <a href='https://github.com/settings/tokens' target='_blank'>GitHub Settings</a></li><li>Give it the 'repo' permission</li><li>Copy the token and paste it above</li></ol>"
+      "options": "<p>The GitHub integration allows translations to be automatically shared to a central repository.</p><p>To set up GitHub integration:</p><ol><li>Create a GitHub account if you don't have one</li><li>Create a Personal Access Token (Classic) at <a href=\"https://github.com/settings/tokens\" target=\"_blank\">GitHub Settings</a></li><li>Give it the 'repo' permission</li><li>Copy the token and paste it above</li></ol>"
     }
   ],
   "grid_page_length": 50,
   "index_web_pages_for_search": 1,
   "links": [],
-  "modified": "2025-04-28 10:44:12.330263",
+  "modified": "2025-05-02 00:58:50.130615",
   "modified_by": "Administrator",
   "module": "Translation Tools",
   "name": "Translation PDF Settings",

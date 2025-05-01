@@ -8,7 +8,7 @@ app_publisher = "Manot Luijiu"
 app_description = "Translate English to Thai in Frappe/ERPNext ecosystem"
 app_email = "moocoding@gmail.com"
 app_license = "mit"
-app_icon = "assets/translation_tools/images/translation_icon.svg"
+app_icon = "/assets/translation_tools/images/translation_icon.svg"
 app_color = "#4183c4"  # A nice blue color
 guest_title = app_title
 
@@ -30,12 +30,12 @@ modules = {
 
 # Installation
 after_install = [
-    "translation_tools.patches.default.fix_fixtures_import",
-    "translation_tools.patches.default.add_default_font_to_print_settings",
+    # "translation_tools.patches.default.fix_fixtures_import",
+    # "translation_tools.patches.default.add_default_font_to_print_settings",
     "translation_tools.install.after_install",
-    "translation_tools.setup.install_custom_fields.install_custom_fields",
-    "translation_tools.setup.create_doctypes.create_signature_doctype",
-    "translation_tools.setup.create_doctypes.create_settings_page",
+    # "translation_tools.setup.install_custom_fields.install_custom_fields",
+    # "translation_tools.setup.create_doctypes.create_signature_doctype",
+    # "translation_tools.setup.create_doctypes.create_settings_page",
     "chat.patches.migrate_chat_data.execute",
 ]
 
@@ -68,13 +68,13 @@ website_route_rules = [
     {"from_route": "/frontend/<path:app_path>", "to_route": "frontend"},
 ]
 
-workspace_route_rules = [
-    {
-        "from_route": "integrations",
-        "to_route": "",
-        "apply_on": "update",
-    }
-]
+# workspace_route_rules = [
+#     {
+#         "from_route": "integrations",
+#         "to_route": "",
+#         "apply_on": "update",
+#     }
+# ]
 
 app_include_head = [
     "<link rel='preconnect' href='https://fonts.googleapis.com'>",
@@ -103,7 +103,7 @@ app_include_js = [
     "/assets/translation_tools/js/utils/pdfmake.min.js.map",
     "/assets/translation_tools/js/utils/vfs_fonts.js",
     "/assets/translation_tools/js/font_override.js",
-    "/assets/translation_tools/js/print_designer/thai_fonts_patch.js",
+    # "/assets/translation_tools/js/print_designer/thai_fonts_patch.js",
     "chat.bundle.js",
 ]
 
@@ -145,12 +145,12 @@ print_style = ["/assets/translation_tools/css/thai_fonts.css"]
 #     "includes/navbar/navbar.html": "templates/includes/navbar/navbar.html"
 # }
 
-jenv = {
-    "methods": [
-        "get_pdf_generator_settings:translation_tools.translation_tools.utils.pdf_utils.get_pdf_generator_settings",
-        "get_sarabun_pdf_font_styles:translation_tools.translation_tools.utils.pdf_utils.get_sarabun_pdf_font_styles",
-    ]
-}
+# jenv = {
+#     "methods": [
+#         "get_pdf_generator_settings:translation_tools.translation_tools.utils.pdf_utils.get_pdf_generator_settings",
+#         "get_sarabun_pdf_font_styles:translation_tools.translation_tools.utils.pdf_utils.get_sarabun_pdf_font_styles",
+#     ]
+# }
 
 # Add Sarabun to print format
 # print_format_map = {"font": "Sarabun"}
@@ -186,21 +186,21 @@ desk_page = {
     }
 }
 
-doc_events = {
-    "Print Format": {"before_save": "translation_tools.print_format.before_save"},
-    "Quotation": {
-        "validate": "translation_tools.utils.thai_in_words.set_in_words_thai"
-    },
-    "Sales Invoice": {
-        "validate": "translation_tools.utils.thai_in_words.set_in_words_thai"
-    },
-    "Purchase Invoice": {
-        "validate": "translation_tools.utils.thai_in_words.set_in_words_thai"
-    },
-    "Delivery Note": {
-        "validate": "translation_tools.utils.thai_in_words.set_in_words_thai"
-    },
-}
+# doc_events = {
+#     "Print Format": {"before_save": "translation_tools.print_format.before_save"},
+#     "Quotation": {
+#         "validate": "translation_tools.utils.thai_in_words.set_in_words_thai"
+#     },
+#     "Sales Invoice": {
+#         "validate": "translation_tools.utils.thai_in_words.set_in_words_thai"
+#     },
+#     "Purchase Invoice": {
+#         "validate": "translation_tools.utils.thai_in_words.set_in_words_thai"
+#     },
+#     "Delivery Note": {
+#         "validate": "translation_tools.utils.thai_in_words.set_in_words_thai"
+#     },
+# }
 
 
 # Fixtures: export workspace so your link stays after migration/restart
@@ -221,10 +221,10 @@ doc_events = {
 #     },
 # ]
 
-doctype_js = {
-    #  "Print Format": "public/js/print_format.js"
-    # "Print Format": "/assets/translation_tools/js/print_format.js"
-}
+# doctype_js = {
+#      "Print Format": "public/js/print_format.js",
+#     "Print Format": "/assets/translation_tools/js/print_format.js"
+# }
 
 sounds = [
     {
@@ -245,23 +245,23 @@ sounds = [
 ]
 
 # Override doctype class
-override_doctype_class = {
-    "Sales Invoice": "translation_tools.override.custom_sales_invoice.CustomSalesInvoice",
-    "Print Format": "translation_tools.override.print_format.CustomPrintFormat",
-}
+# override_doctype_class = {
+#     # "Sales Invoice": "translation_tools.override.custom_sales_invoice.CustomSalesInvoice",
+#     "Print Format": "translation_tools.override.print_format.CustomPrintFormat",
+# }
 
 # Override the default PDF styles
-override_whitelisted_methods = {
-    # "frappe.utils.pdf.get_pdf_styles": "translation_tools.utils.pdf_utils.get_pdf_styles",
-    # "frappe.www.printview.get_print_style": "translation_tools.utils.pdf_utils.get_print_style_with_thai",
-    # "frappe.utils.pdf.get_pdf": "translation_tools.utils.pdf.get_pdf_with_thai_fonts",
-    # "frappe.www.printview.get_html_and_style": "translation_tools.utils.print_view.get_html_and_style_with_thai_support",
-    # "frappe.utils.print_format.download_pdf": "translation_tools.utils.print_format.download_pdf_with_options",
-    # "frappe.client.validate_link": "translation_tools.override.client.validate_link_optimized",
-}
+# override_whitelisted_methods = {
+#     # "frappe.utils.pdf.get_pdf_styles": "translation_tools.utils.pdf_utils.get_pdf_styles",
+#     # "frappe.www.printview.get_print_style": "translation_tools.utils.pdf_utils.get_print_style_with_thai",
+#     "frappe.utils.pdf.get_pdf": "translation_tools.utils.pdf.get_pdf_with_thai_fonts",
+#     # "frappe.www.printview.get_html_and_style": "translation_tools.utils.print_view.get_html_and_style_with_thai_support",
+#     # "frappe.utils.print_format.download_pdf": "translation_tools.utils.print_format.download_pdf_with_options",
+#     # "frappe.client.validate_link": "translation_tools.override.client.validate_link_optimized",
+# }
 
 # Include JS file
-doctype_js = {"Sales Invoice": "public/js/sales_invoice.js"}
+# doctype_js = {"Sales Invoice": "public/js/sales_invoice.js"}
 
 # Include Thai font files
 app_include_fonts = [

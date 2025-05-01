@@ -17,7 +17,7 @@ class CustomSalesInvoice(SalesInvoice):
     def on_submit(self):
         super(CustomSalesInvoice, self).on_submit()
         # Auto-attach PDF if enabled in settings
-        if frappe.db.get_single_value("Translation Tools Settings", "auto_attach_pdf"):
+        if frappe.db.get_value("Translation PDF Settings", "auto_attach_pdf"):
             self.generate_and_attach_pdf()
 
     def generate_and_attach_pdf(self):
