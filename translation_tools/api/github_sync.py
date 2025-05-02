@@ -139,6 +139,11 @@ def preview_sync(repo_url, branch, repo_files, local_file_path):
         updated = 0
         unchanged = 0
         github_entries_total = 0
+        # local_entries_total = 0
+        github_translated = 0
+        github_untranslated = 0
+        local_translated = len([e for e in local_po if e.msgstr])
+        local_untranslated = len([e for e in local_po if not e.msgstr])
 
         # Create a dictionary of existing translations
         existing_translations = {}
@@ -172,6 +177,8 @@ def preview_sync(repo_url, branch, repo_files, local_file_path):
                 print(f"github_po {github_po}")
 
                 github_entries_total += len(github_po)
+                github_translated += len([e for e in github_po if e.msgstr])
+                github_untranslated += len([e for e in github_po if not e.msgstr])
 
                 print(f"GitHub PO file loaded with {len(github_po)} entries")
 
@@ -210,6 +217,10 @@ def preview_sync(repo_url, branch, repo_files, local_file_path):
                 "unchanged": unchanged,
                 "github_entries": github_entries_total,
                 "local_entries": len(local_po),
+                "github_translated": github_translated,
+                "github_untranslated": github_untranslated,
+                "local_translated": local_translated,
+                "local_untranslated": local_untranslated,
             },
         }
 

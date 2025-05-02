@@ -62,6 +62,12 @@ export default function GithubSync({
     added: number;
     updated: number;
     unchanged: number;
+    github_entries: number;
+    local_entries: number;
+    github_translated: number;
+    github_untranslated: number;
+    local_translated: number;
+    local_untranslated: number;
   } | null>(null);
   const [currentTab, setCurrentTab] = useState('repository');
 
@@ -162,8 +168,13 @@ export default function GithubSync({
 
       console.log('response handlePreviewSync', response);
 
+      const data = response.message.preview;
+      const { added } = response.message.preview;
+
+      console.log('data in preview', added);
+
       if (response?.message?.preview) {
-        setPreviewData(response.message.preview);
+        setPreviewData(data);
 
         setCurrentTab('preview');
       }
@@ -424,6 +435,7 @@ export default function GithubSync({
             )}
           </TabsContent>
 
+          {/* Preview tab */}
           <TabsContent value="preview" className="space-y-4 py-4">
             {previewData && (
               <div className="space-y-4">
@@ -454,6 +466,89 @@ export default function GithubSync({
                   </div>
                 </div>
 
+                {/* Add a new section for translation status */}
+                <div className="p-4 bg-muted rounded-md">
+                  <h4 className="font-medium mb-3">
+                    {__('Translation Status')}
+                  </h4>
+                  <div className="grid grid-cols-2 gap-x-8 gap-y-2">
+                    <div className="border-b pb-2">
+                      <span className="font-medium">
+                        {__('GitHub Repository')}:
+                      </span>
+                    </div>
+                    <div className="border-b pb-2">
+                      <span className="font-medium">{__('Local File')}:</span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span>{__('Total Entries')}:</span>
+                      <span className="font-semibold">
+                        {previewData.github_entries}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{__('Total Entries')}:</span>
+                      <span className="font-semibold">
+                        {previewData.local_entries}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span>{__('Translated')}:</span>
+                      <span className="text-green-600 font-semibold">
+                        {previewData.github_translated}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{__('Translated')}:</span>
+                      <span className="text-green-600 font-semibold">
+                        {previewData.local_translated}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span>{__('Untranslated')}:</span>
+                      <span className="text-red-600 font-semibold">
+                        {previewData.github_untranslated}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{__('Untranslated')}:</span>
+                      <span className="text-red-600 font-semibold">
+                        {previewData.local_untranslated}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span>{__('Percent Complete')}:</span>
+                      <span className="font-semibold">
+                        {previewData.github_entries > 0
+                          ? Math.round(
+                              (previewData.github_translated /
+                                previewData.github_entries) *
+                                100
+                            )
+                          : 0}
+                        %
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{__('Percent Complete')}:</span>
+                      <span className="font-semibold">
+                        {previewData.local_entries > 0
+                          ? Math.round(
+                              (previewData.local_translated /
+                                previewData.local_entries) *
+                                100
+                            )
+                          : 0}
+                        %
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="p-4 bg-muted rounded-md">
                   <h4 className="font-medium mb-2">
                     {__('Applying these changes will:')}
@@ -477,7 +572,7 @@ export default function GithubSync({
             )}
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => setSyncMode('preview')}>
+              <Button variant="outline" onClick={() => setCurrentTab('files')}>
                 {__('Back')}
               </Button>
               <Button onClick={handleApplySync} disabled={applyLoading}>
