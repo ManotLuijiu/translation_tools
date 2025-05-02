@@ -1,0 +1,505 @@
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+
+import { Checkbox } from '@/components/ui/checkbox';
+import { Loader2, Download, Check, AlertCircle } from 'lucide-react';
+import { useFrappePostCall } from 'frappe-react-sdk';
+import { useTranslation } from '@/context/TranslationContext';
+import type { POFile } from '../types';
+import githubIconLight from '../assets/github-mark/github-mark.svg';
+import githubIconDark from '../assets/github-mark/github-mark-white.svg';
+import { useStatusMessage } from '@/hooks/useStatusMessage';
+
+interface GithubSyncProps {
+  selectedFile: POFile | null;
+  onSyncComplete: () => void;
+  onFilesFound?: () => void;
+  onSelectGithubFile?: (fileData: POFile) => void;
+}
+
+export default function GithubSync({
+  selectedFile,
+  onSyncComplete,
+  onFilesFound,
+  onSelectGithubFile,
+}: GithubSyncProps) {
+  console.log('selectedFile Accessing', selectedFile);
+  console.log('onFilesFound Beginning Access', onFilesFound);
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [repoUrl, setRepoUrl] = useState(
+    'https://github.com/ManotLuijiu/erpnext-thai-translation.git'
+  );
+  const [branch, setBranch] = useState('main');
+  const [syncMode, setSyncMode] = useState<'preview' | 'apply'>('preview');
+  const [availableFiles, setAvailableFiles] = useState<
+    { path: string; matchScore: number }[]
+  >([]);
+
+  const { statusMessage, showMessage } = useStatusMessage();
+
+  const [selectedRepoFiles, setSelectedRepoFiles] = useState<string[]>([]);
+  const [previewData, setPreviewData] = useState<{
+    added: number;
+    updated: number;
+    unchanged: number;
+  } | null>(null);
+  const [currentTab, setCurrentTab] = useState('repository');
+
+  const { translate: __ } = useTranslation();
+
+  console.log('syncMode GithubSync.tsx', syncMode);
+  console.log('selectedFile before api call', selectedFile);
+
+  // API calls
+  const {
+    call: findTranslationFiles,
+    loading: findingFiles,
+    error: findError,
+  } = useFrappePostCall(
+    'translation_tools.api.github_sync.find_translation_files'
+  );
+
+  const {
+    call: previewSync,
+    loading: previewLoading,
+    error: previewError,
+  } = useFrappePostCall('translation_tools.api.github_sync.preview_sync');
+
+  const {
+    call: applySync,
+    loading: applyLoading,
+    error: applyError,
+  } = useFrappePostCall('translation_tools.api.github_sync.apply_sync');
+
+  // Step 1: Find translation files in the repository
+  const searchRepository = async () => {
+    if (!repoUrl) return;
+
+    try {
+      const response = await findTranslationFiles({
+        repo_url: repoUrl,
+        branch: branch,
+        target_language: selectedFile?.language || 'th',
+      });
+
+      console.log('response searchRepository', response);
+
+      if (response?.message?.files) {
+        setAvailableFiles(response.message.files);
+        setSelectedRepoFiles([]); // Reset selection
+        setPreviewData(null); // Reset preview
+        setSyncMode('preview');
+
+        // Switch to the "files" tab within the dialog
+        setCurrentTab('files');
+      } else {
+        console.error('Error finding files:', response?.message?.error);
+      }
+    } catch (err) {
+      console.error('Error searching repository:', err);
+    }
+  };
+
+  //   Step 1.1: Take care selectedFile
+  const handleFileSelect = (filePath: string) => {
+    setSelectedRepoFiles([filePath]);
+
+    if (onSelectGithubFile && availableFiles.length > 0) {
+      // Create a POFile object from the selected GitHub file
+      // This would need to be adapted based on your POFile type structure
+      const selectedGithubFile = {
+        file_path: filePath,
+        app: 'github', // Or extract app name from path
+        filename: filePath.split('/').pop() || '',
+        language: selectedFile?.language || 'th',
+        total_entries: 0,
+        translated_entries: 0,
+        translated_percentage: 0, // Default values
+        last_modified: new Date().toISOString(),
+        last_scanned: new Date().toISOString(),
+      };
+
+      console.log('selectedGithubFile', selectedGithubFile);
+
+      onSelectGithubFile(selectedGithubFile);
+    }
+  };
+
+  // Step 2: Preview sync changes
+  const handlePreviewSync = async () => {
+    console.log('clicked');
+    if (!selectedFile || selectedRepoFiles.length === 0) return;
+
+    console.log('selectedFile handlePreviewSync', selectedFile);
+
+    try {
+      const response = await previewSync({
+        repo_url: repoUrl,
+        branch: branch,
+        repo_files: selectedRepoFiles,
+        local_file_path: selectedFile.file_path,
+      });
+
+      console.log('response handlePreviewSync', response);
+
+      if (response?.message?.preview) {
+        setPreviewData(response.message.preview);
+
+        setCurrentTab('preview');
+      }
+    } catch (err) {
+      console.error('Error previewing sync:', err);
+      showMessage(`Error previewing sync: ${err}`, 'error');
+    }
+  };
+
+  // Step 3: Apply sync changes
+  const handleApplySync = async () => {
+    if (!selectedFile || selectedRepoFiles.length === 0) return;
+
+    try {
+      const response = await applySync({
+        repo_url: repoUrl,
+        branch: branch,
+        repo_files: selectedRepoFiles,
+        local_file_path: selectedFile.file_path,
+      });
+
+      if (response?.message?.success) {
+        onSyncComplete();
+        setIsOpen(false);
+      }
+    } catch (err) {
+      console.error('Error applying sync:', err);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    if (!selectedFile) return;
+                    setIsOpen(true);
+                  }}
+                  className={
+                    !selectedFile ? 'opacity-50 cursor-not-allowed' : ''
+                  }
+                >
+                  <img
+                    src={githubIconDark}
+                    className="h-4 w-4 hidden dark:block"
+                    alt="Github Icon Dark"
+                  />
+                  <img
+                    src={githubIconLight}
+                    className="h-4 w-4 block dark:hidden"
+                    alt="Github Icon Light"
+                  />
+                  {__('Sync from GitHub')}
+                </Button>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              {selectedFile ? (
+                <p>{__('Click to sync')}</p>
+              ) : (
+                <p>{__('Please select PO File first')}</p>
+              )}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[625px]">
+        <DialogHeader>
+          <DialogTitle>{__('Sync Translations from GitHub')}</DialogTitle>
+          <DialogDescription>
+            {__(
+              'Import translations from existing PO files in a GitHub repository'
+            )}
+          </DialogDescription>
+        </DialogHeader>
+
+        <Tabs
+          value={currentTab}
+          onValueChange={setCurrentTab}
+          className="w-full"
+        >
+          <TabsList>
+            <TabsTrigger value="repository">{__('Repository')}</TabsTrigger>
+            <TabsTrigger value="files" disabled={availableFiles.length === 0}>
+              {__('Files')}
+            </TabsTrigger>
+            <TabsTrigger value="preview" disabled={!previewData}>
+              {__('Preview')}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="repository" className="space-y-4 py-4">
+            <div className="grid gap-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="repo-url" className="text-right">
+                  {__('Repository URL')}
+                </Label>
+                <Input
+                  id="repo-url"
+                  value={repoUrl}
+                  onChange={(e) => setRepoUrl(e.target.value)}
+                  placeholder="https://github.com/username/repo"
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="branch" className="text-right">
+                  {__('Branch')}
+                </Label>
+                <Input
+                  id="branch"
+                  value={branch}
+                  onChange={(e) => setBranch(e.target.value)}
+                  placeholder="main"
+                  className="col-span-3"
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                onClick={searchRepository}
+                disabled={!repoUrl || findingFiles}
+              >
+                {findingFiles ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="mr-2 h-4 w-4" />
+                )}
+                {__('Find Translation Files')}
+              </Button>
+            </DialogFooter>
+
+            {findError && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  {findError.message || __('Error searching repository')}
+                </AlertDescription>
+              </Alert>
+            )}
+          </TabsContent>
+
+          <TabsContent value="files" className="space-y-4 py-4">
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium">
+                {__('Available Translation Files')}
+              </h3>
+
+              {availableFiles.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  {__('No translation files found')}
+                </p>
+              ) : (
+                <div className="max-h-[300px] overflow-y-auto">
+                  {availableFiles.map((file) => (
+                    <div
+                      key={file.path}
+                      className="flex items-start space-x-3 p-2 hover:bg-muted/50 rounded"
+                    >
+                      <Checkbox
+                        checked={selectedRepoFiles.includes(file.path)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            const newSelectedFiles = [
+                              ...selectedRepoFiles,
+                              file.path,
+                            ];
+                            setSelectedRepoFiles(newSelectedFiles);
+                            handleFileSelect(file.path);
+                          } else {
+                            setSelectedRepoFiles(
+                              selectedRepoFiles.filter(
+                                (path) => path !== file.path
+                              )
+                            );
+                          }
+                        }}
+                        id={`file-${file.path}`}
+                      />
+                      <div className="flex-1">
+                        <label
+                          htmlFor={`file-${file.path}`}
+                          className="text-sm font-medium cursor-pointer"
+                        >
+                          {file.path}
+                        </label>
+                        <div className="text-xs text-muted-foreground">
+                          {__('Match score')}:{' '}
+                          {Math.round(file.matchScore * 100)}%
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button
+                onClick={handlePreviewSync}
+                disabled={selectedRepoFiles.length === 0 || previewLoading}
+              >
+                {previewLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="mr-2 h-4 w-4" />
+                )}
+                {__('Preview Changes')}
+              </Button>
+            </DialogFooter>
+
+            {previewError && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  {previewError.message || __('Error previewing changes')}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {statusMessage && (
+              <Alert
+                variant={
+                  statusMessage.type === 'error' ? 'destructive' : 'default'
+                }
+              >
+                {statusMessage.type === 'success' && (
+                  <Check className="h-4 w-4" />
+                )}
+                {statusMessage.type === 'error' && (
+                  <AlertCircle className="h-4 w-4" />
+                )}
+                {statusMessage.type === 'info' && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}
+                <AlertTitle
+                  className={
+                    statusMessage.type === 'success'
+                      ? 'text-green-600'
+                      : statusMessage.type === 'info'
+                        ? 'text-blue-600'
+                        : 'text-red-600'
+                  }
+                >
+                  {statusMessage.type === 'success'
+                    ? 'Success'
+                    : statusMessage.type === 'error'
+                      ? 'Error'
+                      : 'Info'}
+                </AlertTitle>
+                <AlertDescription>{statusMessage.message}</AlertDescription>
+              </Alert>
+            )}
+          </TabsContent>
+
+          <TabsContent value="preview" className="space-y-4 py-4">
+            {previewData && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2 p-4 bg-muted rounded-md text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {previewData.added}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {__('New Translations')}
+                    </div>
+                  </div>
+                  <div className="space-y-2 p-4 bg-muted rounded-md text-center">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {previewData.updated}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {__('Updated Translations')}
+                    </div>
+                  </div>
+                  <div className="space-y-2 p-4 bg-muted rounded-md text-center">
+                    <div className="text-2xl font-bold text-gray-600">
+                      {previewData.unchanged}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {__('Unchanged')}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-muted rounded-md">
+                  <h4 className="font-medium mb-2">
+                    {__('Applying these changes will:')}
+                  </h4>
+                  <ul className="space-y-1 list-disc pl-5 text-sm">
+                    <li>
+                      {__('Add')} {previewData.added}{' '}
+                      {__('new translations from GitHub')}
+                    </li>
+                    <li>
+                      {__('Update')} {previewData.updated}{' '}
+                      {__('existing translations')}
+                    </li>
+                    <li>
+                      {previewData.unchanged}{' '}
+                      {__('translations will remain unchanged')}
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setSyncMode('preview')}>
+                {__('Back')}
+              </Button>
+              <Button onClick={handleApplySync} disabled={applyLoading}>
+                {applyLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="mr-2 h-4 w-4" />
+                )}
+                {__('Apply Changes')}
+              </Button>
+            </DialogFooter>
+
+            {applyError && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  {applyError.message || __('Error applying changes')}
+                </AlertDescription>
+              </Alert>
+            )}
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
+  );
+}

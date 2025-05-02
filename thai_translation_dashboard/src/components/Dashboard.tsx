@@ -15,6 +15,7 @@ import Footer from './Footer';
 import { useTranslation } from '@/context/TranslationContext';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import GithubSync from './GithubSync';
 
 export default function Dashboard() {
   const { translate: __, isReady } = useTranslation();
@@ -32,7 +33,10 @@ export default function Dashboard() {
 
   console.log('selectedFile', selectedFile);
   console.log(__('Print Message'));
-  // const __ = translate;
+
+  const refreshTranslations = () => {
+    console.log('refreshTranslations clicked');
+  };
 
   // Check setup status
   const { data: setupData, isLoading: isCheckingSetup } = useFrappeGetCall(
@@ -136,8 +140,16 @@ export default function Dashboard() {
               {__('Manage translations for Frappe/ERPNext ecosystem')}
             </p>
           </div>
-          <div className="flex">
-            <div className="flex justify-center items-center space-x-2 mb-4">
+          <div className="flex justify-center items-center space-x-4">
+            <div className="flex">
+              <GithubSync
+                selectedFile={selectedFile}
+                onSyncComplete={refreshTranslations}
+                onFilesFound={() => setActiveTab('files')}
+                onSelectGithubFile={(fileData) => setSelectedFile(fileData)}
+              />
+            </div>
+            <div className="flex justify-center items-center space-x-2">
               <Switch
                 id="translation-mode"
                 checked={translationMode === 'ai'}

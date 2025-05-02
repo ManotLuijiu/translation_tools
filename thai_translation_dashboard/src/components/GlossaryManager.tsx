@@ -193,7 +193,7 @@ export default function GlossaryManager() {
       console.log('result GlossaryManager', result);
       console.log('message GlossaryManager', message);
 
-      if (result.success) {
+      if (message && message.success) {
         setStatusMessage({
           type: 'success',
           message: 'Term added successfully',
@@ -202,16 +202,16 @@ export default function GlossaryManager() {
         resetForm();
         setIsAddDialogOpen(false);
         refreshTerms();
-      } else if (message.success === false) {
+      } else if (message && message.success === false) {
         setStatusMessage({
           type: 'error',
-          message: message.message,
+          message: message.message || 'Failed to add term',
         });
         toast.error(message.message);
       } else {
         setStatusMessage({
           type: 'error',
-          message: 'Failed to add term',
+          message: 'Unexpected response: Failed to add term',
         });
       }
     } catch (err: unknown) {
