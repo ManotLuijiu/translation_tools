@@ -19,7 +19,7 @@ Translation Tools is a standalone app for ERPNext that provides powerful machine
 - Thai language glossary for consistent terminology
 - Batch processing for efficiency and rate limit management
 
-This tool is particularly useful for translating ERPNext to Thai, but it can be adapted for any language.
+The app now includes a user-friendly dashboard for managing translations with GitHub synchronization capabilities.
 
 ## Installation
 
@@ -40,11 +40,6 @@ bench get-app https://github.com/ManotLuijiu/translation_tools.git
 
 # Install the app on your site
 bench --site your-site.local install-app translation_tools
-
-# ./apps/translation_tools/setup.sh would be run automatically
-# if not
-# Manual run the setup script
-./apps/translation_tools/translation_tools/setup.sh
 ```
 
 The setup script will:
@@ -55,7 +50,35 @@ The setup script will:
 4. Prompt you to save your API key for future use
 5. Help you generate PO files for translation
 
-## Usage
+## Using the Dashboard
+
+After installation, you can access the Translation Dashboard from the ERPNext desktop:
+
+1. Navigate to the "Translation Dashboard" icon in your ERPNext home screen
+2. The dashboard has four main tabs:
+   - **File Explorer**: Browse and select PO files for translation
+   - **Translation Editor**: Edit translations manually or using AI
+   - **Glossary Manager**: Manage terminology for consistent translations
+   - **Settings**: Configure API keys and preferences
+
+### GitHub Synchronization
+
+The dashboard includes GitHub synchronization features:
+
+1. Click "Sync from GitHub" to open the GitHub sync dialog
+2. Enter your GitHub repository URL and branch
+3. Click "Find Translation Files" to discover PO files
+4. Select files to sync and click "Preview Changes"
+5. Review the changes and click "Apply Changes" to update your local translations
+
+### Manual vs AI Translation
+
+You can toggle between manual and AI translation modes:
+
+- **Manual Mode**: Translate entries yourself
+- **AI Mode**: Let AI suggest translations based on your selected service (OpenAI or Anthropic)
+
+## Command Line Usage
 
 ### Basic Usage
 
@@ -87,50 +110,6 @@ To translate a PO file to Thai:
 ./bin/translate-po --dry-run apps/frappe/frappe/locale/th.po
 ```
 
-### Complete Command Reference
-
-```bash
-Usage: translate-po [options] <po_file_path>
-
-Options:
-  --target-lang=<language>     Target language (default: th for Thai)
-  --api-key=<key>              API key (required unless saved during setup)
-  --model-provider=<provider>  AI service to use (openai or claude)
-  --model=<model>              Model to use (default: gpt-4-1106-preview)
-  --batch-size=<size>          Entries per API call (default: 10)
-  --temperature=<temp>         Model temperature (default: 0.3)
-  --max-tokens=<tokens>        Max tokens per API call (default: 512)
-  --output=<path>              Output file path
-  --dry-run                    Show entries without translating
-```
-
-## Translation Workflow
-
-1. Generate or update PO files for your app:
-
-   ```bash
-   bench update-translations --app frappe --language th
-   ```
-
-2. Translate the PO file:
-
-   ```bash
-   ./bin/translate-po apps/frappe/frappe/locale/th.po
-   ```
-
-3. The tool will:
-   - Parse the PO file and identify untranslated entries
-   - Send them in batches to the AI service
-   - Apply the translations back to the PO file
-   - Save progress after each batch
-   - Update the metadata when complete
-
-4. After translation, rebuild the app:
-
-   ```bash
-   bench build
-   ```
-
 ## Customizing the Thai Glossary
 
 The app includes a Thai glossary with common business and ERPNext terms. To customize it:
@@ -149,6 +128,15 @@ GLOSSARY = {
 }
 ```
 
+## Support the Project
+
+If you find this tool useful for your ERPNext localization efforts, you can support further development:
+
+- **Buy me a coffee**: [https://ko-fi.com/manotluijiu](https://ko-fi.com/manotluijiu)
+- **GitHub Sponsor**: [https://github.com/sponsors/ManotLuijiu](https://github.com/sponsors/ManotLuijiu)
+
+Your support helps maintain and improve this open-source project. Thank you!
+
 ## Troubleshooting
 
 ### API Rate Limits
@@ -166,13 +154,13 @@ Different models return responses in different formats. If you encounter parsing
 - Use a newer model that supports JSON responses (gpt-4-1106-preview)
 - Try the Claude model provider which may handle certain types of responses better
 
-### Missing Dependencies
+### GitHub Sync Issues
 
-If you get import errors, ensure all dependencies are installed:
+If you encounter issues with GitHub synchronization:
 
-```bash
-pip install -r apps/translation_tools/requirements.txt
-```
+1. Ensure your GitHub token is valid and has appropriate permissions
+2. Verify the repository URL is correct and includes the organization/username
+3. Check that the PO files in the repository follow the standard format
 
 ## License
 
@@ -197,7 +185,7 @@ Translation Tools เป็นแอปสแตนด์อโลนสำห�
 - อภิธานศัพท์ภาษาไทยสำหรับคำศัพท์ที่สอดคล้องกัน
 - การประมวลผลเป็นชุดเพื่อประสิทธิภาพและการจัดการขีดจำกัดอัตรา
 
-เครื่องมือนี้มีประโยชน์อย่างยิ่งสำหรับการแปล ERPNext เป็นภาษาไทย แต่สามารถปรับให้เข้ากับภาษาใดก็ได้
+แอปนี้ยังรวมถึงแดชบอร์ดที่ใช้งานง่ายสำหรับการจัดการการแปลพร้อมความสามารถในการซิงค์กับ GitHub
 
 ## การติดตั้ง
 
@@ -218,11 +206,6 @@ bench get-app https://github.com/ManotLuijiu/translation_tools.git
 
 # ติดตั้งแอปบนไซต์ของคุณ
 bench --site your-site.local install-app translation_tools
-
-# ./apps/translation_tools/setup.sh จะรันโดยอัตโนมัติในขั้นตอนนี้
-# ถ้าไม่รันอัตโนมัติ สามารถสั่งรันไฟล์ setup.sh ได้ โดยการ
-# รันสคริปต์ติดตั้ง
-./apps/translation_tools/translation_tools/setup.sh
 ```
 
 สคริปต์ติดตั้งจะ:
@@ -232,7 +215,35 @@ bench --site your-site.local install-app translation_tools
 3. สร้างคำสั่ง bench ที่สะดวก (`translate-po`)
 4. แจ้งเตือนให้คุณบันทึก API key ของคุณสำหรับการใช้งานในอนาคต
 
-## การใช้งาน
+## การใช้แดชบอร์ด
+
+หลังจากการติดตั้ง คุณสามารถเข้าถึงแดชบอร์ดการแปลจากเดสก์ท็อป ERPNext:
+
+1. นำทางไปยังไอคอน "Translation Dashboard" ในหน้าจอหลัก ERPNext
+2. แดชบอร์ดมีแท็บหลักสี่แท็บ:
+   - **File Explorer**: เรียกดูและเลือกไฟล์ PO สำหรับการแปล
+   - **Translation Editor**: แก้ไขการแปลด้วยตนเองหรือใช้ AI
+   - **Glossary Manager**: จัดการคำศัพท์สำหรับการแปลที่สอดคล้องกัน
+   - **Settings**: กำหนดค่า API keys และการตั้งค่า
+
+### การซิงค์กับ GitHub
+
+แดชบอร์ดรวมคุณสมบัติการซิงค์กับ GitHub:
+
+1. คลิก "Sync from GitHub" เพื่อเปิดกล่องโต้ตอบการซิงค์ GitHub
+2. ป้อน URL ของที่เก็บ GitHub และสาขา
+3. คลิก "Find Translation Files" เพื่อค้นหาไฟล์ PO
+4. เลือกไฟล์ที่จะซิงค์และคลิก "Preview Changes"
+5. ตรวจสอบการเปลี่ยนแปลงและคลิก "Apply Changes" เพื่ออัปเดตการแปลในเครื่องของคุณ
+
+### การแปลแบบธรรมดาและแบบ AI
+
+คุณสามารถสลับระหว่างโหมดการแปลแบบธรรมดาและแบบ AI:
+
+- **Manual Mode**: แปลรายการด้วยตัวเอง
+- **AI Mode**: ให้ AI แนะนำการแปลตามบริการที่คุณเลือก (OpenAI หรือ Anthropic)
+
+## การใช้งานบรรทัดคำสั่ง
 
 ### การใช้งานพื้นฐาน
 
@@ -264,49 +275,14 @@ bench --site your-site.local install-app translation_tools
 ./bin/translate-po --dry-run apps/frappe/frappe/locale/th.po
 ```
 
-### การอ้างอิงคำสั่งทั้งหมด
+## สนับสนุนโครงการ
 
-```bash
-วิธีใช้: translate-po [options] <po_file_path>
+หากคุณพบว่าเครื่องมือนี้มีประโยชน์สำหรับการแปลภาษา ERPNext ของคุณ คุณสามารถสนับสนุนการพัฒนาต่อไปได้:
 
-ตัวเลือก:
-  --target-lang=<language>     ภาษาเป้าหมาย (ค่าเริ่มต้น: th สำหรับภาษาไทย)
-  --api-key=<key>              API key (จำเป็นเว้นแต่บันทึกระหว่างการติดตั้ง)
-  --model-provider=<provider>  บริการ AI ที่จะใช้ (openai หรือ claude)
-  --model=<model>              โมเดลที่จะใช้ (ค่าเริ่มต้น: gpt-4-1106-preview)
-  --batch-size=<size>          รายการต่อการเรียก API (ค่าเริ่มต้น: 10)
-  --temperature=<temp>         อุณหภูมิของโมเดล (ค่าเริ่มต้น: 0.3)
-  --max-tokens=<tokens>        โทเค็นสูงสุดต่อการเรียก API (ค่าเริ่มต้น: 512)
-  --output=<path>              เส้นทางไฟล์ผลลัพธ์
-  --dry-run                    แสดงรายการโดยไม่ต้องแปล
-```
+- **เลี้ยงกาแฟ**: [https://ko-fi.com/manotluijiu](https://ko-fi.com/manotluijiu)
+- **สนับสนุนผ่าน GitHub**: [https://github.com/sponsors/ManotLuijiu](https://github.com/sponsors/ManotLuijiu)
 
-## ขั้นตอนการแปลภาษา
-
-1. สร้างหรืออัปเดตไฟล์ PO สำหรับแอปของคุณ:
-
-   ```bash
-   bench update-translations --app frappe --language th
-   ```
-
-2. แปลไฟล์ PO:
-
-   ```bash
-   ./bin/translate-po apps/frappe/frappe/locale/th.po
-   ```
-
-3. เครื่องมือจะ:
-   - แยกวิเคราะห์ไฟล์ PO และระบุรายการที่ยังไม่ได้แปล
-   - ส่งรายการเป็นชุดไปยังบริการ AI
-   - นำการแปลกลับมาใส่ในไฟล์ PO
-   - บันทึกความคืบหน้าหลังจากแต่ละชุด
-   - อัปเดตข้อมูลเมตาเมื่อเสร็จสมบูรณ์
-
-4. หลังจากการแปล ให้สร้างแอปใหม่:
-
-   ```bash
-   bench build
-   ```
+การสนับสนุนของคุณช่วยในการบำรุงรักษาและปรับปรุงโครงการโอเพนซอร์สนี้ ขอบคุณครับ!
 
 ## การปรับแต่งอภิธานศัพท์ภาษาไทย
 
@@ -336,20 +312,20 @@ GLOSSARY = {
 - เพิ่มเวลาหยุดระหว่างชุด (แก้ไขค่าคงที่ `SLEEP_TIME`)
 - ใช้โมเดลหรือผู้ให้บริการที่แตกต่าง
 
+### ปัญหาการซิงค์ GitHub
+
+หากคุณพบปัญหาเกี่ยวกับการซิงค์ GitHub:
+
+1. ตรวจสอบว่าโทเค็น GitHub ของคุณถูกต้องและมีสิทธิ์ที่เหมาะสม
+2. ตรวจสอบว่า URL ของที่เก็บถูกต้องและรวมถึงองค์กร/ชื่อผู้ใช้
+3. ตรวจสอบว่าไฟล์ PO ในที่เก็บเป็นไปตามรูปแบบมาตรฐาน
+
 ### ปัญหารูปแบบการตอบสนอง
 
 โมเดลที่แตกต่างกันจะส่งคืนการตอบสนองในรูปแบบที่แตกต่างกัน หากคุณพบปัญหาการแยกวิเคราะห์:
 
 - ใช้โมเดลที่ใหม่กว่าที่รองรับการตอบสนอง JSON (gpt-4-1106-preview)
 - ลองผู้ให้บริการโมเดล Claude ซึ่งอาจจัดการกับการตอบสนองบางประเภทได้ดีกว่า
-
-### การขาดการพึ่งพา
-
-หากคุณได้รับข้อผิดพลาดการนำเข้า ตรวจสอบให้แน่ใจว่าการพึ่งพาทั้งหมดได้รับการติดตั้ง:
-
-```bash
-pip install -r apps/translation_tools/requirements.txt
-```
 
 ## ใบอนุญาต
 
