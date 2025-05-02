@@ -1,0 +1,29 @@
+[changelog]
+header = "# 📜 ประวัติการเปลี่ยนแปลง (Changelog)\n\n"
+body = """
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group }}
+{% for commit in commits %}
+- {{ commit.message | trim }} ([{{ commit.id | truncate(length=7) }}]({{ commit.href }}))
+{% endfor %}
+{% endfor %}
+"""
+
+[git]
+tag_pattern = "v[0-9]*"
+conventional_commits = false  # disable strict checking so we can match anything
+
+# 👇 Custom group definitions
+commit_parsers = [
+  { message = "^feat:", group = "✨ ฟีเจอร์ใหม่" },
+  { message = "^fix:", group = "🐞 แก้ไขบั๊ก" },
+  { message = "^chore:", group = "🧹 จัดการงานเบื้องหลัง" },
+  { message = "^docs:", group = "📝 เอกสาร" },
+  { message = "^refactor:", group = "🧠 ปรับปรุงโค้ด" },
+  { message = "^style:", group = "🎨 ปรับสไตล์โค้ด" },
+  { message = "^test:", group = "🧪 ทดสอบ" },
+  { message = "^ปรับ:", group = "🔧 การปรับแต่ง" },
+  { message = "^เพิ่ม:", group = "➕ เพิ่มฟีเจอร์" },
+  { message = "^ลบ:", group = "➖ ลบออก" },
+  { message = ".*", group = "อื่น ๆ" }
+]
