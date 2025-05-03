@@ -152,7 +152,7 @@ web_include_css = [
     # "/assets/translation_tools/css/icons.css",
     "chat.bundle.css",
 ]
-web_include_js = ["chat.bundle.js"]
+web_include_js = ["chat.bundle.js", "translation_tools.app.bundle.js"]
 
 # To specifically target the print designer page
 # page_js = {
@@ -234,7 +234,8 @@ desk_page = {
 
 # Fixtures: export workspace so your link stays after migration/restart
 fixtures = [
-    {"doctype": "Workspace", "filters": [["name", "=", "Integrations"]]}
+    {"doctype": "Workspace", "filters": [["name", "=", "Integrations"]]},
+    {"doctype": "Language", "filters": [["name", "in", ["en", "th"]]]},
     # {"dt": "Workspace", "filters": [["name", "=", "Integrations"]]},
     # {"dt": "Number Card", "filters": [["module", "=", "Translation Tools"]]},
     # {"dt": "Dashboard Chart", "filters": [["module", "=", "Translation Tools"]]},
