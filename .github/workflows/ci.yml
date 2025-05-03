@@ -1,0 +1,54 @@
+name: Frappe App CI
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:10.6
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
+
+      - name: Install Bench
+        run: |
+          pip install frappe-bench
+          bench --version
+
+      - name: Setup Bench Environment
+        run: |
+          bench init frappe-bench --skip-redis --frappe-branch version-15
+          cd frappe-bench
+          bench get-app translation_tools ../translation_tools
+          bench new-site test.local --mariadb-root-password=root --admin-password=admin --no-mariadb-socket
+          bench --site test.local install-app translation_tools
+          bench --site test.local list-apps
+
+      - name: Run Custom Test (Optional)
+        run: |
+          cd frappe-bench
+          bench --site test.local run-tests --app translation_tools

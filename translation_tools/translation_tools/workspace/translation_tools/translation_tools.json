@@ -73,6 +73,16 @@
       "link_type": "DocType",
       "onboard": 0,
       "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Translation Tools Settings",
+      "link_count": 0,
+      "link_to": "Translation Tools Settings",
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Link"
     }
   ],
   "modified": "2025-04-27 12:00:00.000000",
@@ -81,16 +91,20 @@
   "name": "Translation Tools",
   "number_cards": [
     {
-      "card_name": "Approved Translations"
+      "label": "Approved Translations",
+      "number_card_name": "Approved Translations"
     },
     {
-      "card_name": "Pending Translations"
+      "label": "Pending Translations",
+      "number_card_name": "Pending Translations"
     },
     {
-      "card_name": "Total Glossary Terms"
+      "label": "Total Glossary Terms",
+      "number_card_name": "Total Glossary Terms"
     },
     {
-      "card_name": "Translation Progress"
+      "label": "Translation Progress",
+      "number_card_name": "Translation Progress"
     }
   ],
   "owner": "Administrator",
@@ -101,13 +115,6 @@
   "roles": [],
   "sequence_id": 99.0,
   "shortcuts": [
-    {
-      "color": "Green",
-      "doc_view": "List",
-      "label": "PDF Generator",
-      "link_to": "pdf-generator",
-      "type": "Page"
-    },
     {
       "color": "Blue",
       "doc_view": "List",

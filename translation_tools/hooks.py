@@ -28,6 +28,35 @@ modules = {
     }
 }
 
+# Custom email provider for Resend
+mail_providers = [
+    {
+        "name": "Resend",
+        "module": "resend_integration.resend_provider",
+        "class_name": "ResendEmailProvider",
+    }
+]
+
+# DocType for settings
+doctype_js = {
+    "Email Account": "public/js/email_account.js",
+}
+
+# Configuration options that will be created
+default_mail_footer = """
+<div style="font-size: small; color: #8d99a6;">
+    Sent via <a href="https://resend.com" target="_blank" style="color: #8d99a6;">Resend</a>
+</div>
+"""
+
+# Desk page for Resend configuration
+desk_page = {
+    "name": "resend-settings",
+    "label": "Resend Settings",
+    "icon": "octicon octicon-mail",
+    "type": "module",
+}
+
 # Installation
 after_install = [
     # "translation_tools.patches.default.fix_fixtures_import",
@@ -204,22 +233,23 @@ desk_page = {
 
 
 # Fixtures: export workspace so your link stays after migration/restart
-# fixtures = [
-#     # {"dt": "Workspace", "filters": [["name", "=", "Integrations"]]},
-#     {"dt": "Number Card", "filters": [["module", "=", "Translation Tools"]]},
-#     {"dt": "Dashboard Chart", "filters": [["module", "=", "Translation Tools"]]},
-#     {"dt": "Workspace", "filters": [["name", "=", "Translation Tools"]]},
-#     {"dt": "Page", "filters": [["name", "=", "translation-tools"]]},
-#     {"dt": "Custom Field", "filters": [["dt", "in", ["Print Settings", "Company"]]]},
-#     {
-#         "doctype": "Property Setter",
-#         "filters": [
-#             ["doc_type", "=", "Print Format"],
-#             ["field_name", "=", "pdf_generator"],
-#             ["property", "=", "options"],
-#         ],
-#     },
-# ]
+fixtures = [
+    {"doctype": "Workspace", "filters": [["name", "=", "Integrations"]]}
+    # {"dt": "Workspace", "filters": [["name", "=", "Integrations"]]},
+    # {"dt": "Number Card", "filters": [["module", "=", "Translation Tools"]]},
+    # {"dt": "Dashboard Chart", "filters": [["module", "=", "Translation Tools"]]},
+    # {"dt": "Workspace", "filters": [["name", "=", "Translation Tools"]]},
+    # {"dt": "Page", "filters": [["name", "=", "translation-tools"]]},
+    # {"dt": "Custom Field", "filters": [["dt", "in", ["Print Settings", "Company"]]]},
+    # {
+    #     "doctype": "Property Setter",
+    #     "filters": [
+    #         ["doc_type", "=", "Print Format"],
+    #         ["field_name", "=", "pdf_generator"],
+    #         ["property", "=", "options"],
+    #     ],
+    # },
+]
 
 # doctype_js = {
 #      "Print Format": "public/js/print_format.js",

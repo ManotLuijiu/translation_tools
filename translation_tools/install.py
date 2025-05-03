@@ -17,6 +17,11 @@ from translation_tools.api.components import (
 )
 from translation_tools.api.notifications import show_success_notification
 
+from translation_tools.api.resend_integration import (
+    update_email_service_options,
+    create_sample_email_account,
+)
+
 # from translation_tools.api.setup_workspace import (
 #     setup_workspace_and_links,
 #     add_to_integrations_workspace,
@@ -34,6 +39,16 @@ def after_install():
             doc.sequence_id = 99  # type: ignore
             doc.save(ignore_permissions=True)
             frappe.db.commit()
+
+        print("Setting up Resend Integration...")
+
+        # Add Resend to the service options in Email Account
+        update_email_service_options()
+
+        # Create sample Email Account for Resend if not exists
+        create_sample_email_account()
+
+        print("Resend Integration setup complete!")
 
         # Check version for upgrades
         handle_version_upgrade()

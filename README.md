@@ -1,4 +1,4 @@
-# Translation Tools for ERPNext
+# Translation Tools for Frappe/ERPNext ecosystem
 
 An AI-powered translation utility for ERPNext that helps translate PO files using advanced language models like OpenAI GPT and Anthropic Claude.
 
