@@ -51,7 +51,7 @@ $height: 582px;
   height: 100%;
   width: 100%;
   position: relative;
-  font-family: "Sarabun", sans-serif;
+  font-family: 'Sarabun', sans-serif;
   box-shadow:
     0px 2px 6px rgba(17, 43, 66, 0.08),
     0px 1px 4px rgba(17, 43, 66, 0.1);
@@ -411,7 +411,7 @@ $height: 582px;
   }
 
   .tax-consultant-title {
-    font-family: "Sarabun", sans-serif;
+    font-family: 'Sarabun', sans-serif;
     font-weight: 700;
     font-size: 1.2rem;
     color: #2c5282; /* Deep blue color */
@@ -535,4 +535,71 @@ $height: 582px;
     transform: scale(1);
     opacity: 0.7;
   }
+}
+
+// Base SVG styling
+.theme-svg {
+  width: 24px;
+  height: 24px;
+
+  // Use Frappe theme variables with fallbacks
+  .fill-primary {
+    fill: var(--blue-500, #2d95f0);
+  }
+
+  .fill-secondary {
+    fill: var(--orange-500, #ff8b0d);
+  }
+
+  .fill-accent {
+    fill: var(--blue-500, #2d95f0);
+  }
+
+  .stroke-primary {
+    stroke: var(--blue-500, #2d95f0);
+  }
+
+  .bg-card {
+    fill: var(--card-bg, #ffffff);
+  }
+
+  .text-color {
+    fill: var(--text-color, #1f272e);
+  }
+}
+
+// Dark mode styles are automatically applied through CSS variables
+// when Frappe's theme changes
+
+/* Light theme (default) styles */
+.theme-svg .star-large {
+  fill: var(--blue-400, #2490ef);
+}
+
+.theme-svg .star-small {
+  fill: var(--orange-500, #ff8b0d);
+}
+
+.theme-svg .star-medium {
+  fill: var(--blue-500, #2d95f0);
+}
+
+/* Special styling for chat bubble - make all stars white */
+.chat-bubble .theme-svg .star-large,
+.chat-bubble .theme-svg .star-small,
+.chat-bubble .theme-svg .star-medium {
+  fill: var(--white, #ffffff);
+}
+
+/* Dark theme styles - will be applied automatically when dark theme is active */
+[data-theme='dark'] .theme-svg .star-large {
+  fill: var(--blue-500, #45a7ff);
+}
+
+[data-theme='dark'] .theme-svg .star-small {
+  fill: var(--orange-400, #ff9f2b);
+}
+
+[data-theme='dark'] .theme-svg .star-medium {
+  fill: var(--blue-400, #4aa8f9);
 }
