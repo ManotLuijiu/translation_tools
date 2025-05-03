@@ -80,7 +80,7 @@ export default class ChatAddRoom {
       await create_private_room(room_name, users, type);
       this.add_room_dialog.clear();
     } catch (error) {
-      //pass
+      console.error(error);
     }
   }
 }

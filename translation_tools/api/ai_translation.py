@@ -3,6 +3,8 @@ import frappe
 import polib
 import json
 import hashlib
+import openai
+import anthropic
 import logging
 import tempfile
 from .settings import get_translation_settings
@@ -476,3 +478,96 @@ def update_po_metadata(po_file, file_path):
         po_file.save(file_path)
     except Exception as e:
         frappe.log_error(f"Error updating PO metadata: {str(e)}")
+
+
+@frappe.whitelist()
+def test_ai_connection(provider="openai"):
+    """Test connection to AI service without performing a full translation
+
+    Args:
+        provider (str): AI provider to test (openai/claude)
+
+    Returns:
+        dict: Connection test result
+    """
+    # settings = frappe.get_single("Translation Tools Settings")
+    # Get settings
+    settings = get_translation_settings()
+
+    print(f"settings test_ai_connection {settings}")
+
+    # Use minimal prompt and request minimal tokens
+    test_text = "Hello"
+
+    try:
+        if provider == "openai":
+            api_key = settings.openai_api_key  # type: ignore
+            if not api_key:
+                return {"success": False, "error": "OpenAI API key not configured"}
+
+            # Test OpenAI connection with minimal token usage
+            client = openai.OpenAI(api_key=api_key)
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",  # Use cheapest model for testing
+                messages=[{"role": "user", "content": test_text}],
+                max_tokens=1,  # Request only 1 token
+                temperature=0,
+            )
+            return {
+                "success": True,
+                "provider": "openai",
+                "model": response.model,
+                "message": "Connection to OpenAI successful",
+            }
+
+        elif provider == "anthropic":
+            api_key = settings.anthropic_api_key  # type: ignore
+            if not api_key:
+                return {"success": False, "error": "Anthropic API key not configured"}
+
+            # Test Claude connection with minimal token usage
+            client = anthropic.Anthropic(api_key=api_key)
+            response = client.messages.create(
+                model="claude-3-haiku-20240307",  # Use cheapest model
+                messages=[{"role": "user", "content": test_text}],
+                max_tokens=1,  # Request only 1 token
+                temperature=0,
+            )
+            return {
+                "success": True,
+                "provider": "anthropic",
+                "model": response.model,
+                "message": "Connection to Anthropic successful",
+            }
+        else:
+            return {"success": False, "error": "Invalid provider specified"}
+
+    except Exception as e:
+        return {"success": False, "error": str(e), "provider": provider}
+
+
+@frappe.whitelist()
+def test_all_ai_connections():
+    """Test connections to all configured AI providers"""
+    results = {}
+
+    # Test OpenAI
+    try:
+        openai_result = test_ai_connection("openai")
+        results["openai"] = openai_result
+    except Exception as e:
+        results["openai"] = {"success": False, "error": str(e)}
+
+    # Test Claude
+    try:
+        anthropic_result = test_ai_connection("anthropic")
+        results["anthropic"] = anthropic_result
+    except Exception as e:
+        results["anthropic"] = {"success": False, "error": str(e)}
+
+    # Return overall status
+    results["all_successful"] = results.get("openai", {}).get(
+        "success", False
+    ) and results.get("anthropic", {}).get("success", False)
+
+    return results

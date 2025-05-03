@@ -5,6 +5,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Language-specific font classes */
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
@@ -42,10 +43,6 @@
   color: var(--orange);
 }
 
-.progress-container {
-  width: 200px;
-}
-
 .progress-header {
   display: flex;
   justify-content: space-between;
@@ -59,15 +56,28 @@
 }
 
 .progress {
-  background-color: var(--gray-200);
-  border-radius: 4px;
+  width: 100%;
   height: 8px;
+  background-color: #edf2f7;
+  border-radius: 4px;
   overflow: hidden;
+  margin-bottom: 0.5rem;
 }
 
+#file__text svg {
+  width: 20px;
+}
+
+/* #translation__tabs .nav-link.active {
+  background-color: #0984e3;
+  border-color: #0984e3;
+  color: black;
+} */
+
 .progress-bar {
-  background-color: var(--primary);
   height: 100%;
+  background-color: #0984e3;
+  border-radius: 4px;
 }
 
 /* Translation Editor Styles */
@@ -167,6 +177,7 @@
   border-radius: 10px;
   font-size: var(--text-xs);
   font-weight: 500;
+  color: #718096;
 }
 
 .badge-success {
@@ -745,14 +756,17 @@ textarea.form-control {
 
 .search-icon {
   position: absolute;
-  left: 10px;
+  left: 5px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
+  z-index: 999;
+  margin-right: 20px;
 }
 
 .search-wrapper input {
-  padding-left: 30px;
+  padding-left: 35px;
+  height: 40px;
 }
 
 .loading-container {
@@ -817,40 +831,17 @@ textarea.form-control {
   color: var(--text-muted);
 }
 
-.icon-refresh {
+/* .icon-refresh {
   margin-right: 8px;
-}
-
-.icon-search::before {
-  content: '🔍';
-}
-
-.icon-refresh::before {
-  content: '⟳';
-}
-
-.icon-file-text::before {
-  content: '📄';
-}
+  width: 35px;
+  height: 35px;
+} */
 
 .progress-container {
-  display: flex;
+  /* display: flex; */
   align-items: center;
   gap: 8px;
-}
-
-.progress {
-  height: 8px;
-  width: 112px;
-  background-color: var(--gray-200);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
-  background-color: var(--primary);
-  border-radius: 4px;
+  width: 100%;
 }
 
 .progress-text {
@@ -939,7 +930,7 @@ textarea.form-control {
   margin-left: 8px;
   padding: 2px 8px;
   font-size: 12px;
-  background-color: var(--bg-light-gray);
+  background-color: darkolivegreen;
   border-radius: 10px;
 }
 
@@ -1005,7 +996,7 @@ textarea.form-control {
 }
 
 /* App Wrapper Styles */
-.app-wrapper {
+/* .app-wrapper {
   font-family:
     'Sarabun',
     -apple-system,
@@ -1018,7 +1009,7 @@ textarea.form-control {
     'Open Sans',
     'Helvetica Neue',
     sans-serif;
-}
+} */
 
 .app-wrapper.dark {
   /* This will be applied when theme is dark */
@@ -1026,41 +1017,13 @@ textarea.form-control {
   --text-color: var(--gray-100);
 }
 
-.app-container {
+/* .app-container {
   min-height: 100vh;
   background-color: var(--bg-color);
   color: var(--text-color);
-}
+} */
 
 .app-content {
   margin: 0 auto;
   padding: 0 15px;
-}
-
-/* To make sure CSS variables are available in both light and dark modes */
-:root {
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-thai: 'Noto Sans Thai', system-ui, -apple-system, sans-serif;
-  --bg-color: var(--bg-white);
-  --text-color: var(--text-color);
-}
-
-/* Default font (English) */
-body {
-  font-family: var(--font-sans);
-}
-
-/* Thai-specific font */
-:lang(th) {
-  font-family: var(--font-thai);
-}
-
-.thai-text {
-  font-family: var(--font-thai);
-}
-
-/* Ensure Frappe theme integration */
-[data-theme='dark'] .app-wrapper:not(.dark) {
-  --bg-color: var(--gray-900);
-  --text-color: var(--gray-100);
 }

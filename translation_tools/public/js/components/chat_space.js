@@ -68,7 +68,9 @@ export default class ChatSpace {
     } catch (error) {
       frappe.msgprint({
         title: __('Error'),
-        message: __('Something went wrong. Please refresh and try again.'),
+        message: __(
+          `Something went wrong. Please refresh and try again. ${error}`
+        ),
       });
     }
   }
@@ -193,6 +195,7 @@ export default class ChatSpace {
                 file_doc = r.message;
               }
             } catch (e) {
+              console.error(e);
               r = xhr.responseText;
             }
             try {
@@ -201,7 +204,7 @@ export default class ChatSpace {
               }
               me.handle_send_message(file_doc.file_url);
             } catch (error) {
-              //pass
+              console.error(error);
             }
           } else {
             try {
@@ -210,7 +213,7 @@ export default class ChatSpace {
               const errorObj = JSON.parse(messages[0]);
               reject(frappe.throw(__(errorObj.message)));
             } catch (e) {
-              // pass
+              console.error(e);
             }
           }
         }
@@ -310,7 +313,7 @@ export default class ChatSpace {
           $('.chat-profile-status').css('visibility', 'hidden');
         } else {
           $('.chat-profile-status').css('visibility', 'visible');
-          const timeout = setTimeout(() => {
+          setTimeout(() => {
             $('.chat-profile-status').css('visibility', 'hidden');
           }, 3000);
         }

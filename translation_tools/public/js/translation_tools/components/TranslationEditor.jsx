@@ -236,7 +236,7 @@ export default function TranslationEditor({ selectedFile, settings }) {
 
         <div className="translation-panel">
           {selectedEntry ? (
-            <div className="card">
+            <div id="translation__card" className="">
               <div className="card-header">
                 <h4>Translation</h4>
                 <div className="context-info">

@@ -134,7 +134,7 @@ class Thai_Translator {
   }
 
   showSettings() {
-    frappe.set_route('Form', 'Translation Settings');
+    frappe.set_route('Form', 'Translation Tools Settings');
   }
 
   viewGlossary() {

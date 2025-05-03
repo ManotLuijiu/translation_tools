@@ -92,10 +92,11 @@ export default function Dashboard() {
         <div className="frappe-alert error">
           <span className="indicator red"></span>
           <div className="alert-body">
-            <h5>Setup Required</h5>
+            <h5>{__('Setup Required')}</h5>
             <div>
-              Translation Tools needs to be set up before use. The following
-              DocTypes are missing:
+              {__(
+                'Translation Tools needs to be set up before use. The following DocTypes are missing:'
+              )}
               <ul className="missing-doctypes">
                 {setupStatus.missing_doctypes.map((dt) => (
                   <li key={dt}>{dt}</li>
@@ -106,7 +107,7 @@ export default function Dashboard() {
         </div>
 
         <button className="btn btn-primary btn-block" onClick={handleRunSetup}>
-          Complete Setup
+          {__('Complete Setup')}
         </button>
       </div>
     );
@@ -118,33 +119,33 @@ export default function Dashboard() {
         <div className="spinner"></div>
         <p>
           {isSettingUp
-            ? 'Setting up Translation Tools...'
-            : 'Checking setup status...'}
+            ? __('Setting up Translation Tools...')
+            : __('Checking setup status...')}
         </p>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="page-header">
+    <div className="dashboard-container container">
+      <div className="page-header space-y-2 mt-2">
         <div>
-          <h1 className="page-title">ERPNext Translation Dashboard</h1>
-          <p className="text-muted">
-            Manage translations for Frappe/ERPNext ecosystem
+          <h1 className="page-title">{__('ERPNext Translation Dashboard')}</h1>
+          <p className="text-muted text-2xl">
+            {__('Manage translations for Frappe/ERPNext ecosystem')}
           </p>
         </div>
       </div>
 
       <div className="tabs-container">
-        <ul className="nav nav-tabs" role="tablist">
+        <ul id="translation__tabs" className="nav nav-tabs" role="tablist">
           <li className="nav-item">
             <a
               className={`nav-link ${activeTab === 'files' ? 'active' : ''}`}
               onClick={() => setActiveTab('files')}
               role="tab"
             >
-              File Explorer
+              {__('File Explorer')}
             </a>
           </li>
           <li className="nav-item">
@@ -153,7 +154,7 @@ export default function Dashboard() {
               onClick={() => selectedFile && setActiveTab('editor')}
               role="tab"
             >
-              Translation Editor
+              {__('Translation Editor')}
               {selectedFile && (
                 <span className="tab-badge">{selectedFile.filename}</span>
               )}
@@ -165,7 +166,7 @@ export default function Dashboard() {
               onClick={() => setActiveTab('glossary')}
               role="tab"
             >
-              Glossary Manager
+              {__('Glossary Manager')}
             </a>
           </li>
           <li className="nav-item">
@@ -174,7 +175,7 @@ export default function Dashboard() {
               onClick={() => setActiveTab('settings')}
               role="tab"
             >
-              Settings
+              {__('Settings')}
             </a>
           </li>
         </ul>

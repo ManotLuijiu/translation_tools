@@ -44,7 +44,7 @@ def translate_text(
     if not text:
         return {"error": "No text provided"}
 
-    settings = frappe.get_doc("Translation Tools Settings")
+    settings = frappe.get_single("Translation Tools Settings")
 
     if provider == "openai":
         api_key = settings.openai_api_key  # type: ignore
@@ -54,7 +54,7 @@ def translate_text(
         used_model = model or settings.openai_model  # type: ignore
         result = _translate_with_openai(text, api_key, used_model)
 
-    elif provider == "claude":
+    elif provider == "anthropic":
         api_key = getattr(settings, "anthropic_api_key", None)
         if not api_key:
             return {"error": "Anthropic API key not configured"}
