@@ -4,7 +4,7 @@ frappe.ui.language_toggle = class LanguageToggle {
   constructor() {
     this.languages = frappe.boot.languages || {
       en: 'English',
-      th: 'Thai',
+      th: 'ไทย',
     };
     this.current_language = frappe.boot.lang || 'en';
     this.setup();

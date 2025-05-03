@@ -39,10 +39,45 @@ frappe.Chat = class {
     this.chat_bubble = new ChatBubble(this);
     this.chat_bubble.render();
 
+    // const icon_html = `<img src="/assets/translation_tools/images/icons/sparkles.svg" class="custom-icon">`;
+
+    const icon_svg = `
+        <svg class="theme-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+          <path class="fill-primary" d="M208,512,155.62,372.38,16,320l139.62-52.38L208,128l52.38,139.62L400,320,260.38,372.38Z"></path>
+          <path class="fill-secondary" d="M88,176,64.43,111.57,0,88,64.43,64.43,88,0l23.57,64.43L176,88l-64.43,23.57Z"></path>
+          <path class="fill-accent" d="M400,256l-31.11-80.89L288,144l80.89-31.11L400,32l31.11,80.89L512,144l-80.89,31.11Z"></path>
+        </svg>
+        `;
+
+    // const stars_svg = `
+    //     <svg class="theme-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    //       <path class="star-large" d="M208,512,155.62,372.38,16,320l139.62-52.38L208,128l52.38,139.62L400,320,260.38,372.38Z"></path>
+    //       <path class="star-small" d="M88,176,64.43,111.57,0,88,64.43,64.43,88,0l23.57,64.43L176,88l-64.43,23.57Z"></path>
+    //       <path class="star-medium" d="M400,256l-31.11-80.89L288,144l80.89-31.11L400,32l31.11,80.89L512,144l-80.89,31.11Z"></path>
+    //     </svg>
+    //   `;
+
+    // Add to the DOM
+    // const $svgContainer = $('.svg-container');
+    // if ($svgContainer.length) {
+    //   $svgContainer.html(icon_svg);
+    // } else {
+    //   // Create the container if it doesn't exist
+    //   const $newContainer = $('<div class="svg-container"></div>');
+    //   $newContainer.html(icon_svg);
+
+    //   // Append to a parent element that definitely exists, like the navbar
+    //   if (this.is_desk) {
+    //     $('.navbar-brand').append($newContainer);
+    //   } else {
+    //     this.$app_element.append($newContainer);
+    //   }
+    // }
+
     const navbar_icon_html = `
           <li class='nav-item dropdown dropdown-notifications 
-            dropdown-mobile chat-navbar-icon' title="Show Chats" >
-            ${frappe.utils.icon('small-message', 'md')}
+            dropdown-mobile chat-navbar-icon' title="Thai Tax Consult Bot" >
+            ${icon_svg}
             <span class="badge" id="chat-notification-count"></span>
           </li>
       `;
