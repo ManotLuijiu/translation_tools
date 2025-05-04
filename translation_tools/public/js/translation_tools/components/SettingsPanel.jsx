@@ -302,10 +302,10 @@ export default function SettingsPanel() {
             {saveSettings.isLoading ? (
               <>
                 <span className="spinner-sm"></span>
-                Saving...
+                {__('Saving...')}
               </>
             ) : (
-              'Save Settings'
+              __('Save Settings')
             )}
           </button>
 

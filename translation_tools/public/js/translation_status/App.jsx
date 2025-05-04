@@ -99,13 +99,13 @@ export function App() {
         labels: labels,
         datasets: [
           {
-            label: 'Translated (%)',
+            label: __('Translated (%)'),
             data: translatedData,
             backgroundColor: '#28a745',
             borderWidth: 1,
           },
           {
-            label: 'Untranslated (%)',
+            label: __('Untranslated (%)'),
             data: untranslatedData,
             backgroundColor: '#dc3545',
             borderWidth: 1,
