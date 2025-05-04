@@ -43,7 +43,7 @@ export default function TranslationEditor({ selectedFile, settings }) {
   if (!selectedFile) {
     return (
       <div className="empty-state">
-        <p>Please select a PO file to start translation</p>
+        <p>{__('Please select a PO file to start translation')}</p>
       </div>
     );
   }
@@ -52,7 +52,7 @@ export default function TranslationEditor({ selectedFile, settings }) {
     return (
       <div className="loading-state">
         <div className="spinner"></div>
-        <span>Loading file contents...</span>
+        <span>{__('Loading file contents...')}</span>
       </div>
     );
   }
@@ -62,8 +62,10 @@ export default function TranslationEditor({ selectedFile, settings }) {
       <div className="frappe-alert error">
         <span className="indicator red"></span>
         <div className="alert-body">
-          <h5>Error</h5>
-          <div>Failed to load file: {error.message || 'Unknown error'}</div>
+          <h5>{__('Error')}</h5>
+          <div>
+            {__('Failed to load file:')} {error.message || 'Unknown error'}
+          </div>
         </div>
       </div>
     );
@@ -73,7 +75,7 @@ export default function TranslationEditor({ selectedFile, settings }) {
   if (!fileData) {
     return (
       <div className="padding text-center text-muted">
-        <p>No data available for this file</p>
+        <p>{__('No data available for this file')}</p>
       </div>
     );
   }
@@ -189,9 +191,11 @@ export default function TranslationEditor({ selectedFile, settings }) {
                   value={entryFilter}
                   onChange={(e) => setEntryFilter(e.target.value)}
                 >
-                  <option value="all">All entries</option>
-                  <option value="untranslated">Untranslated only</option>
-                  <option value="translated">Translated only</option>
+                  <option value="all">{__('All entries')}</option>
+                  <option value="untranslated">
+                    {__('Untranslated only')}
+                  </option>
+                  <option value="translated">{__('Translated only')}</option>
                 </select>
               </div>
             </div>
@@ -236,13 +240,13 @@ export default function TranslationEditor({ selectedFile, settings }) {
 
         <div className="translation-panel">
           {selectedEntry ? (
-            <div className="card">
+            <div id="translation__card" className="">
               <div className="card-header">
-                <h4>Translation</h4>
+                <h4>{__('Translation')}</h4>
                 <div className="context-info">
                   {selectedEntry.context && (
                     <span className="badge badge-light">
-                      Context: {selectedEntry.context}
+                      {__('Context:')} {selectedEntry.context}
                     </span>
                   )}
                   {selectedEntry.comments &&
@@ -258,11 +262,11 @@ export default function TranslationEditor({ selectedFile, settings }) {
               <div className="card-body">
                 <div className="translation-fields">
                   <div>
-                    <label>Source (English)</label>
+                    <label>{__('Source (English)')}</label>
                     <div className="source-text">{selectedEntry.msgid}</div>
                   </div>
                   <div>
-                    <label>Translation (Thai)</label>
+                    <label>{__('Translation (Thai)')}</label>
                     <textarea
                       rows={5}
                       value={editedTranslation}
@@ -311,7 +315,7 @@ export default function TranslationEditor({ selectedFile, settings }) {
                       setStatusMessage(null);
                     }}
                   >
-                    Reset
+                    {__('Reset')}
                   </button>
                   <button
                     className="btn btn-default"
@@ -325,7 +329,7 @@ export default function TranslationEditor({ selectedFile, settings }) {
                       }
                     }}
                   >
-                    Next Untranslated
+                    {__('Next Untranslated')}
                   </button>
                 </div>
                 <div className="button-group">
@@ -337,12 +341,12 @@ export default function TranslationEditor({ selectedFile, settings }) {
                     {translateEntry.isLoading ? (
                       <>
                         <span className="spinner-sm"></span>
-                        Translating...
+                        {__('Translating...')}
                       </>
                     ) : (
                       <>
                         <span className="icon-refresh-cw"></span>
-                        Translate
+                        {__('Translate')}
                       </>
                     )}
                   </button>
@@ -354,12 +358,12 @@ export default function TranslationEditor({ selectedFile, settings }) {
                     {saveTranslation.isLoading ? (
                       <>
                         <span className="spinner-sm"></span>
-                        Saving...
+                        {__('Saving...')}
                       </>
                     ) : (
                       <>
                         <span className="icon-save"></span>
-                        Save
+                        {__('Save')}
                       </>
                     )}
                   </button>
@@ -368,7 +372,7 @@ export default function TranslationEditor({ selectedFile, settings }) {
             </div>
           ) : (
             <div className="empty-panel">
-              <p>Select an entry to start translating</p>
+              <p>{__('Select an entry to start translating')}</p>
             </div>
           )}
         </div>

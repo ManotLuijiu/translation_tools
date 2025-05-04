@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useGetCachedPOFiles, useScanPOFiles } from '../api';
 import { formatPercentage, formatDate } from '../utils/helpers';
+import { FileText, RefreshCcw, Search } from 'lucide-react';
 
 export default function FileExplorer({ onFileSelect, selectedFilePath }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -57,8 +58,8 @@ export default function FileExplorer({ onFileSelect, selectedFilePath }) {
 
   return (
     <div className="file-explorer">
-      <div className="section-header">
-        <h3 className="section-title">PO Files</h3>
+      <div className="section-header flex justify-between items-center m-2 p-2">
+        <h3 className="section-title mb-0">{__('PO Files')}</h3>
         <button
           className="btn btn-default btn-sm"
           onClick={handleScan}
@@ -67,21 +68,21 @@ export default function FileExplorer({ onFileSelect, selectedFilePath }) {
           {isScanning ? (
             <>
               <span className="spinner-sm"></span>
-              Scanning...
+              {__('Scanning...')}
             </>
           ) : (
-            <>
-              <span className="icon-refresh"></span>
-              Scan Files
-            </>
+            <div className="">
+              <RefreshCcw className="w-35 h-35 mr-2" />
+              <span className="text-center m-0">{__('Scan Files')}</span>
+            </div>
           )}
         </button>
       </div>
 
       <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
         <div className="search-wrapper">
-          <span className="search-icon">
-            <span className="icon-search"></span>
+          <span className="search-icon flex space-x-4">
+            <Search />
           </span>
           <input
             type="text"
@@ -105,24 +106,26 @@ export default function FileExplorer({ onFileSelect, selectedFilePath }) {
         </div>
       ) : error ? (
         <div className="error-message">
-          Error loading files: {error.message || 'Unknown error'}
+          {__('Error loading files:')} {error.message || 'Unknown error'}
         </div>
       ) : sortedFiles.length === 0 ? (
         <div className="empty-state">
           {searchTerm
-            ? 'No files matching your search'
-            : 'No PO files found. Click "Scan Files" to discover translation files.'}
+            ? __('No files matching your search')
+            : __(
+                'No PO files found. Click "Scan Files" to discover translation files.'
+              )}
         </div>
       ) : (
         <div className="table-responsive">
           <table className="table table-bordered">
             <thead>
               <tr>
-                <th>App</th>
-                <th>Filename</th>
-                <th>Progress</th>
-                <th>Last Modified</th>
-                <th width="100">Action</th>
+                <th>{__('App')}</th>
+                <th>{__('Filename')}</th>
+                <th>{__('Progress')}</th>
+                <th>{__('Last Modified')}</th>
+                <th width="100">{__('Action')}</th>
               </tr>
             </thead>
             <tbody>
@@ -133,10 +136,12 @@ export default function FileExplorer({ onFileSelect, selectedFilePath }) {
                     selectedFilePath === file.file_path ? 'selected-row' : ''
                   }
                 >
-                  <td>{file.app}</td>
+                  <td className="align-middle">{file.app}</td>
                   <td>
-                    <div className="file-name">
-                      <span className="icon-file-text"></span>
+                    <div className="file-name align-middle">
+                      <span id="file__text" className="mr-2">
+                        <FileText w-30 />
+                      </span>
                       {file.filename}
                     </div>
                   </td>
@@ -146,24 +151,28 @@ export default function FileExplorer({ onFileSelect, selectedFilePath }) {
                         <div
                           className="progress-bar"
                           style={{
-                            width: `${Math.min(100, Math.max(0, file.translated_percentage || 0))}%`,
+                            width: `${Math.min(100, Math.max(0, parseFloat(file.translated_percentage || 0)))}%`,
                           }}
                         ></div>
                       </div>
-                      <span className="progress-text">
-                        {formatPercentage(file.translated_percentage)}
-                      </span>
-                      <span className="badge">
-                        {file.translated_entries}/{file.total_entries}
-                      </span>
+
+                      <div className="flex justify-between mt-1">
+                        <span className="progress-text">
+                          {formatPercentage(file.translated_percentage)}
+                        </span>
+                        <span className="badge">
+                          {file.translated_entries || 0}/
+                          {file.total_entries || 0}
+                        </span>
+                      </div>
                     </div>
                   </td>
-                  <td className="text-muted">
+                  <td className="text-muted align-middle">
                     {formatDate(file.last_modified)}
                   </td>
                   <td>
                     <button
-                      className={`btn btn-sm ${
+                      className={`btn btn-sm w-100 ${
                         selectedFilePath === file.file_path
                           ? 'btn-primary'
                           : 'btn-default'
@@ -171,8 +180,8 @@ export default function FileExplorer({ onFileSelect, selectedFilePath }) {
                       onClick={() => onFileSelect(file)}
                     >
                       {selectedFilePath === file.file_path
-                        ? 'Selected'
-                        : 'Select'}
+                        ? __('Selected')
+                        : __('Select')}
                     </button>
                   </td>
                 </tr>

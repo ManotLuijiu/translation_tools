@@ -4,6 +4,7 @@
   "editor.formatOnSave": true,
   "editor.wordWrap": "on",
   "files.autoSave": "onFocusChange",
+  "tailwindCSS.lint.invalidTailwindDirective": "ignore",
   "editor.fontFamily": "Consolas, 'MesloLGS Nerd Font', monospace",
   "terminal.integrated.fontFamily": "'MesloLGS Nerd Font'",
   "terminal.integrated.fontSize": 13,

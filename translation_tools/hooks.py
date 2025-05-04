@@ -143,6 +143,7 @@ app_include_css = [
     "/assets/translation_tools/css/custom_print.css",
     # "/assets/translation_tools/css/global_fonts.css",
     "chat.bundle.css",
+    "translation_tools.bundle.css",
 ]
 
 web_include_css = [

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
+
 $font-size-xs: 0.75rem;
 $font-size-sm: 0.875rem;
 $font-size-base: 1rem;
@@ -126,6 +128,20 @@ $height: 582px;
         margin-right: 11px;
         margin-top: 1px;
       }
+    }
+  }
+  .chat-list-header-details {
+    display: flex;
+    flex-direction: column;
+    margin: 0 0 5px 0;
+    h3 {
+      margin: 0;
+    }
+    .chat-list-header-span {
+      color: #0984e3;
+      font-weight: 600;
+      text-align: center;
+      margin: auto;
     }
   }
   .chat-search {
