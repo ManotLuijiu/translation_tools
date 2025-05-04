@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: Translation Tools VERSION 0.1.0\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
 "POT-Creation-Date: 2025-04-24 21:12+0642\n"
-"PO-Revision-Date: 2025-05-01 20:41+0000\n"
+"PO-Revision-Date: 2025-05-04 19:15\n"
 "Last-Translator: moocoding@gmail.com\n"
-"Language: th\n"
 "Language-Team: moocoding@gmail.com\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Language: th\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.13.1\n"
 
 #: translation_tools/api/notifications.py:28
@@ -45,7 +45,13 @@ msgstr ""
 
 #. Content of the 'help_html' (HTML) field in DocType 'Translation Settings'
 #: translation_tools/translation_tools/doctype/translation_settings/translation_settings.json
-msgid "<p>The GitHub integration allows translations to be automatically shared to a central repository.</p><p>To set up GitHub integration:</p><ol><li>Create a GitHub account if you don't have one</li><li>Create a Personal Access Token (Classic) at <a href='https://github.com/settings/tokens' target='_blank'>GitHub Settings</a></li><li>Give it the 'repo' permission</li><li>Copy the token and paste it above</li></ol>"
+msgid ""
+"<p>The GitHub integration allows translations to be automatically shared to "
+"a central repository.</p><p>To set up GitHub integration:</p><ol><li>Create "
+"a GitHub account if you don't have one</li><li>Create a Personal Access "
+"Token (Classic) at <a href='https://github.com/settings/tokens' "
+"target='_blank'>GitHub Settings</a></li><li>Give it the 'repo' "
+"permission</li><li>Copy the token and paste it above</li></ol>"
 msgstr ""
 
 #. Header text in the Integrations Workspace
@@ -81,7 +87,8 @@ msgid "API Settings"
 msgstr "ตั้งค่า API"
 
 #: translation_tools/api/components.py:146
-msgid "API key configuration file not found. Translation features may not work."
+msgid ""
+"API key configuration file not found. Translation features may not work."
 msgstr "ไม่พบการตั้งค่า API Key ส่งผลให้เครื่องมือแปลภาษาด้วย AI ไม่ทำงาน"
 
 #: translation_tools/api/translation.py:198
@@ -243,7 +250,8 @@ msgstr "บริบท"
 msgid "Create"
 msgstr "สร้าง"
 
-#. Description of the 'GitHub Personal Access Token (Classic)' (Password) field
+#. Description of the 'GitHub Personal Access Token (Classic)' (Password)
+#. field
 #. in DocType 'Translation Settings'
 #: translation_tools/translation_tools/doctype/translation_settings/translation_settings.json
 msgid "Create a token with 'repo' scope at https://github.com/settings/tokens"
@@ -762,7 +770,9 @@ msgid "PDFMake Settings"
 msgstr ""
 
 #: translation_tools/override/print_format.py:120
-msgid "PDFMake is a client-side library. This server-side function is a placeholder."
+msgid ""
+"PDFMake is a client-side library. This server-side function is a "
+"placeholder."
 msgstr ""
 
 #. Name of a DocType
@@ -782,7 +792,8 @@ msgstr ""
 #. Description of the 'Signature Storage Path' (Data) field in DocType 'PDF
 #. Settings'
 #: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
-msgid "Path where signature files will be stored (relative to site public folder)"
+msgid ""
+"Path where signature files will be stored (relative to site public folder)"
 msgstr ""
 
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:47
@@ -803,7 +814,7 @@ msgstr ""
 
 #: translation_tools/public/dist/thai_translator.bundle.X7E5SW57.js:34193
 msgid "Please select a file to translate"
-msgstr ""
+msgstr "โปรดเลือกไฟล์ที่ต้องการแปล"
 
 #. Label of a Select field in DocType 'Translation User Settings'
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
@@ -879,7 +890,7 @@ msgstr ""
 #: translation_tools/public/js/components/chat_user_settings.js:27
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:384
 msgid "Save"
-msgstr ""
+msgstr "บันทึก"
 
 #: translation_tools/api/components.py:104
 msgid "Scanning PO files..."
@@ -912,7 +923,7 @@ msgstr ""
 
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:379
 msgid "Settings saved"
-msgstr ""
+msgstr "บันทึกการตั้งค่า"
 
 #: translation_tools/api/config.py:138
 msgid "Settings updated successfully."
@@ -969,7 +980,9 @@ msgid "Signature URL"
 msgstr ""
 
 #: translation_tools/api/installation.py:195
-msgid "Some dependencies are missing. The setup script will attempt to install them."
+msgid ""
+"Some dependencies are missing. The setup script will attempt to install "
+"them."
 msgstr ""
 
 #: translation_tools/public/dist/js/chat.bundle.OAHEVCLF.js:4234
@@ -1119,11 +1132,15 @@ msgid "Thank you! An email has been sent with trial information."
 msgstr ""
 
 #: translation_tools/public/js/sales_invoice.js:43
-msgid "There was an error processing your request. Please try again. or contact support. support@moocoding.com"
+msgid ""
+"There was an error processing your request. Please try again. or contact "
+"support. support@moocoding.com"
 msgstr ""
 
 #: translation_tools/public/dist/pdf_generator.bundle.H7TIRT3V.js:19680
-msgid "This PDF generator uses pdfmake on the client side and WeasyPrint on the server side."
+msgid ""
+"This PDF generator uses pdfmake on the client side and WeasyPrint on the "
+"server side."
 msgstr ""
 
 #: translation_tools/www/thai_translation_dashboard.py:60
@@ -1147,17 +1164,17 @@ msgstr ""
 #: translation_tools/public/dist/thai_translator.bundle.X7E5SW57.js:34133
 #: translation_tools/public/dist/thai_translator.bundle.X7E5SW57.js:34138
 msgid "Translate File"
-msgstr ""
+msgstr "แปลภาษาในไฟล์"
 
 #. Label of a Int field in DocType 'PO File'
 #: translation_tools/translation_tools/doctype/po_file/po_file.json
 msgid "Translated Entries"
-msgstr ""
+msgstr "รายการที่แปลแล้ว"
 
 #. Label of a Small Text field in DocType 'Translation History Entry'
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
 msgid "Translated Text"
-msgstr ""
+msgstr "คำที่แปลแล้ว"
 
 #: translation_tools/setup/create_workspace.py:65
 #: translation_tools/translation_tools/page/translation_dashboard/translation_dashboard.js:4
@@ -1201,7 +1218,8 @@ msgid "Translation Settings Custom Font"
 msgstr ""
 
 #: translation_tools/api/po_files.py:961
-msgid "Translation Settings doctype does not exist. Please contact administrator."
+msgid ""
+"Translation Settings doctype does not exist. Please contact administrator."
 msgstr ""
 
 #. Label of a Percent field in DocType 'PO File'
@@ -1351,7 +1369,9 @@ msgid "WeasyPrint Path"
 msgstr ""
 
 #: translation_tools/public/js/print_format.js:12
-msgid "WeasyPrint: Modern PDF engine with excellent CSS support for Thai fonts (Recommended)<br>"
+msgid ""
+"WeasyPrint: Modern PDF engine with excellent CSS support for Thai fonts "
+"(Recommended)<br>"
 msgstr ""
 
 #: translation_tools/public/js/sales_invoice.js:27
@@ -1360,7 +1380,7 @@ msgstr ""
 
 #: translation_tools/api/settings.py:304
 msgid "You do not have permission to save API keys"
-msgstr ""
+msgstr "คุณไม่มีสิทธิ์เข้าใช้งาน ระบบบันทึก API Keys"
 
 #: translation_tools/api/translation.py:380
 msgid "You do not have permission to use the translation tools"
@@ -1501,4 +1521,3 @@ msgstr ""
 #: translation_tools/public/js/components/chat_welcome_screen.js:40
 msgid "⚡ Powered by MooCoding"
 msgstr "⚡ Powered by MooCoding"
-
