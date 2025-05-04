@@ -138,10 +138,14 @@ export default function Dashboard() {
       </div>
 
       <div className="tabs-container">
-        <ul id="translation__tabs" className="nav nav-tabs" role="tablist">
+        <ul
+          id="translation__tabs"
+          className="nav nav-tabs flex w-full justify-evenly"
+          role="tablist"
+        >
           <li className="nav-item">
             <a
-              className={`nav-link ${activeTab === 'files' ? 'active' : ''}`}
+              className={`nav-link text-center ${activeTab === 'files' ? 'active' : ''}`}
               onClick={() => setActiveTab('files')}
               role="tab"
             >
@@ -150,19 +154,21 @@ export default function Dashboard() {
           </li>
           <li className="nav-item">
             <a
-              className={`nav-link ${activeTab === 'editor' ? 'active' : ''} ${!selectedFile ? 'disabled' : ''}`}
+              className={`nav-link text-center ${activeTab === 'editor' ? 'active' : ''} ${!selectedFile ? 'disabled' : ''}`}
               onClick={() => selectedFile && setActiveTab('editor')}
               role="tab"
             >
               {__('Translation Editor')}
               {selectedFile && (
-                <span className="tab-badge">{selectedFile.filename}</span>
+                <span className="badge badge-success ml-2">
+                  {selectedFile.filename}
+                </span>
               )}
             </a>
           </li>
           <li className="nav-item">
             <a
-              className={`nav-link ${activeTab === 'glossary' ? 'active' : ''}`}
+              className={`nav-link text-center ${activeTab === 'glossary' ? 'active' : ''}`}
               onClick={() => setActiveTab('glossary')}
               role="tab"
             >
@@ -171,7 +177,8 @@ export default function Dashboard() {
           </li>
           <li className="nav-item">
             <a
-              className={`nav-link ${activeTab === 'settings' ? 'active' : ''}`}
+              id="translation__link"
+              className={`nav-link text-center ${activeTab === 'settings' ? 'active' : ''}`}
               onClick={() => setActiveTab('settings')}
               role="tab"
             >
@@ -185,7 +192,10 @@ export default function Dashboard() {
             className={`tab-pane ${activeTab === 'files' ? 'show active' : ''}`}
             role="tabpanel"
           >
-            <div className="tab-content-inner">
+            <div
+              id="translation__tab__content__inner"
+              className="tab-content-inner"
+            >
               <FileExplorer
                 onFileSelect={handleFileSelect}
                 selectedFilePath={selectedFile?.file_path || null}

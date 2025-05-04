@@ -22,9 +22,24 @@ export default class ChatList {
   }
 
   setup_header() {
+    const icon_svg = `
+        <svg class="theme-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+          <path class="fill-primary" d="M208,512,155.62,372.38,16,320l139.62-52.38L208,128l52.38,139.62L400,320,260.38,372.38Z"></path>
+          <path class="fill-secondary" d="M88,176,64.43,111.57,0,88,64.43,64.43,88,0l23.57,64.43L176,88l-64.43,23.57Z"></path>
+          <path class="fill-accent" d="M400,256l-31.11-80.89L288,144l80.89-31.11L400,32l31.11,80.89L512,144l-80.89,31.11Z"></path>
+        </svg>
+        `;
+
     const chat_list_header_html = `
 			<div class='chat-list-header'>
-				<h3>${__('Chats')}</h3>
+        <div class='chat-list-header-details'>
+          <h3>${__('Chats')}</h3>
+          <p>${__('Tax Consultant Bot and AI Bookkeeper')}</p>
+          <span class='chat-list-header-span'>
+          ${icon_svg}
+          ${__('Coming Soon')}
+          </span>
+        </div>
         <div class='chat-list-icons'>
           <div class='add-room' 
             title='Create Private Room'>
@@ -66,7 +81,8 @@ export default class ChatList {
     } catch (error) {
       frappe.msgprint({
         title: __('Error'),
-        message: __('Something went wrong. Please refresh and try again.'),
+        message:
+          __('Something went wrong. Please refresh and try again.') + { error },
       });
     }
   }
@@ -103,7 +119,7 @@ export default class ChatList {
     this.$chat_list.append(this.$chat_rooms_container);
   }
 
-  fitler_rooms(query) {
+  filter_rooms(query) {
     for (const room of this.chat_rooms) {
       const txt = room[1].profile.room_name.toLowerCase();
       if (txt.includes(query)) {
@@ -130,10 +146,12 @@ export default class ChatList {
   setup_events() {
     const me = this;
     $('.chat-search-box').on('input', function (e) {
-      me.fitler_rooms($(this).val().toLowerCase());
+      console.log('setup_events .chat-search-box', e);
+      me.filter_rooms($(this).val().toLowerCase());
     });
 
     $('.add-room').on('click', function (e) {
+      console.log('setup_events .add-room', e);
       if (typeof me.chat_add_room_modal === 'undefined') {
         me.chat_add_room_modal = new ChatAddRoom({
           user: me.user,
@@ -144,6 +162,7 @@ export default class ChatList {
     });
 
     $('.user-settings').on('click', function (e) {
+      console.log('.user-settings', e);
       if (typeof me.chat_user_settings === 'undefined') {
         me.chat_user_settings = new ChatUserSettings();
       }
