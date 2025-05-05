@@ -138,7 +138,7 @@ app_include_js = [
 
 app_include_css = [
     "/assets/translation_tools/css/thai_fonts.css",
-    "/assets/translation_tools/css/fonts.css",
+    "fonts.bundle.css",
     # "/assets/translation_tools/css/custom_fonts.css",
     "/assets/translation_tools/css/custom_print.css",
     # "/assets/translation_tools/css/global_fonts.css",

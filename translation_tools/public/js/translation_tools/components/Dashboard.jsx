@@ -5,6 +5,7 @@ import FileExplorer from './FileExplorer';
 import TranslationEditor from './TranslationEditor';
 import GlossaryManager from './GlossaryManager';
 import SettingsPanel from './SettingsPanel';
+// import GithubSync from './GithubSync';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('files');
@@ -61,6 +62,10 @@ export default function Dashboard() {
       setActiveTab('editor');
     }
   }, [selectedFile]);
+
+  // const refreshTranslations = () => {
+  //   console.log('refreshTranslations clicked');
+  // };
 
   const handleFileSelect = (file) => {
     setSelectedFile(file);
@@ -135,9 +140,20 @@ export default function Dashboard() {
             {__('Manage translations for Frappe/ERPNext ecosystem')}
           </p>
         </div>
+        {/* <div className="flex">
+          <div className="flex">
+            <GithubSync
+              selectedFile={selectedFile}
+              onSyncComplete={refreshTranslations}
+              onFilesFound={() => setActiveTab('files')}
+              onSelectGithubFile={(fileData) => setSelectedFile(fileData)}
+            />
+          </div>
+        </div> */}
+        {/* <div>Manual Mode</div> */}
       </div>
 
-      <div className="tabs-container">
+      <div id="translation__tabs__container" className="tabs-container">
         <ul
           id="translation__tabs"
           className="nav nav-tabs flex w-full justify-evenly"
@@ -155,8 +171,15 @@ export default function Dashboard() {
           <li className="nav-item">
             <a
               className={`nav-link text-center ${activeTab === 'editor' ? 'active' : ''} ${!selectedFile ? 'disabled' : ''}`}
-              onClick={() => selectedFile && setActiveTab('editor')}
+              onClick={(e) => {
+                if (!selectedFile) {
+                  e.preventDefault(); // Prevent click if disabled
+                  return;
+                }
+                setActiveTab('editor');
+              }}
               role="tab"
+              style={{ cursor: !selectedFile ? 'not-allowed' : 'pointer' }}
             >
               {__('Translation Editor')}
               {selectedFile && (

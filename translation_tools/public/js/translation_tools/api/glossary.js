@@ -1,20 +1,38 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 
-// export type GlossaryTerm = {
-//   name: string;
-//   source_term: string;
-//   thai_translation: string;
-//   context?: string;
-//   category?: string;
-//   module?: string;
-//   is_approved: boolean;
-// };
+/**
+ * Update category for term
+ */
+export function useUpdateGlossaryTermCategories() {
+  return useMutation({
+    mutationFn: (args) =>
+      frappe
+        .call({
+          method:
+            'translation_tools.api.glossary.update_glossary_term_categories',
+          args,
+        })
+        .then((r) => r.message),
+    mutationKey: ['update-glossary-term-categories'],
+  });
+}
 
-// export type ERPNextModule = {
-//   name: string;
-//   module_name: string;
-//   description?: string;
-// };
+/**
+ * Remove duplicate term
+ */
+export function useCleanDuplicateGlossaryTerms() {
+  return useMutation({
+    mutationFn: (name) =>
+      frappe
+        .call({
+          method:
+            'translation_tools.api.glossary.clean_duplicate_glossary_terms',
+          args: { name },
+        })
+        .then((r) => r.message),
+    mutationKey: ['delete-duplicate-glossary-term'],
+  });
+}
 
 /**
  * Get all glossary terms

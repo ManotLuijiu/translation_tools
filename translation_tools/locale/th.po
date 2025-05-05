@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Translation Tools VERSION 0.1.0\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
 "POT-Creation-Date: 2025-04-24 21:12+0642\n"
-"PO-Revision-Date: 2025-05-04 19:15\n"
+"PO-Revision-Date: 2025-05-04 19:30\n"
 "Last-Translator: moocoding@gmail.com\n"
 "Language-Team: moocoding@gmail.com\n"
 "Language: th\n"
@@ -806,7 +806,7 @@ msgstr ""
 
 #: translation_tools/api/config.py:103
 msgid "Please log in to save settings."
-msgstr ""
+msgstr "โปรดลงชื่อเข้าใช้ก่อนจะบันทึกการตั้งค่า"
 
 #: translation_tools/public/dist/pdf_generator.bundle.H7TIRT3V.js:19598
 msgid "Please select a document to print"

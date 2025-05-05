@@ -81,7 +81,7 @@ export default function FileExplorer({ onFileSelect, selectedFilePath }) {
 
       <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
         <div className="search-wrapper">
-          <span className="search-icon flex space-x-4">
+          <span className="search-icon flex">
             <Search />
           </span>
           <input
@@ -140,7 +140,7 @@ export default function FileExplorer({ onFileSelect, selectedFilePath }) {
                   <td>
                     <div className="file-name align-middle">
                       <span id="file__text" className="mr-2">
-                        <FileText w-30 />
+                        <FileText className="w-30" />
                       </span>
                       {file.filename}
                     </div>
@@ -171,18 +171,25 @@ export default function FileExplorer({ onFileSelect, selectedFilePath }) {
                     {formatDate(file.last_modified)}
                   </td>
                   <td>
-                    <button
-                      className={`btn btn-sm w-100 ${
-                        selectedFilePath === file.file_path
-                          ? 'btn-primary'
-                          : 'btn-default'
-                      }`}
-                      onClick={() => onFileSelect(file)}
-                    >
-                      {selectedFilePath === file.file_path
-                        ? __('Selected')
-                        : __('Select')}
-                    </button>
+                    <div id="file__explorer" className="custom-tooltip-wrapper">
+                      <button
+                        className={`btn btn-sm w-100 ${
+                          selectedFilePath === file.file_path
+                            ? 'btn-primary'
+                            : 'btn-default'
+                        }`}
+                        onClick={() => onFileSelect(file)}
+                        disabled={file.file_path.includes('translated')}
+                        style={{ backgroundColor: '#0984e3' }}
+                      >
+                        {selectedFilePath === file.file_path
+                          ? __('Selected')
+                          : __('Select')}
+                      </button>
+                      {file.file_path.includes('translated') && (
+                        <div className="custom-tooltip-text">Only AI</div>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
