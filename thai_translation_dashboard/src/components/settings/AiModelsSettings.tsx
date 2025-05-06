@@ -89,14 +89,14 @@ export default function AiModelsSettings({
       ? (models?.message?.openai ?? [])
       : (models?.message?.claude ?? []);
 
-  console.log('models', models);
+  // console.log('models', models);
 
-  console.log(
-    'settings.default_model_provider',
-    settings.default_model_provider
-  );
-  console.log('settings in AiModelsSettings.tsx', settings);
-  console.log('currentModels in AiModelsSettings.tsx', currentModels);
+  // console.log(
+  //   'settings.default_model_provider',
+  //   settings.default_model_provider
+  // );
+  // console.log('settings in AiModelsSettings.tsx', settings);
+  // console.log('currentModels in AiModelsSettings.tsx', currentModels);
 
   return (
     <Card>

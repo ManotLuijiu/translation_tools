@@ -51,7 +51,7 @@ export const initThaiPdfMake = async () => {
       },
     };
 
-    console.log('access js/vfs_fonts.js', pdfMake.fonts);
+    // console.log('access js/vfs_fonts.js', pdfMake.fonts);
 
     return true;
   } catch (error) {

@@ -32,7 +32,7 @@ frappe.pdfmake = {
     // Register fonts with pdfmake
     if (window.pdfMake) {
       pdfMake.fonts = fonts;
-      console.log('Thai fonts registered with pdfmake');
+      // console.log('Thai fonts registered with pdfmake');
     } else {
       console.warn('pdfMake not loaded yet, fonts will not be registered');
     }

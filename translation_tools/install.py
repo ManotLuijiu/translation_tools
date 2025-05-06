@@ -34,6 +34,8 @@ def after_install():
     # arrange_workspaces()
 
     try:
+        # create_translation_tools_workspace()
+
         if frappe.db.exists("Workspace", "Translation Tools"):
             doc = frappe.get_doc("Workspace", "Translation Tools")
             doc.sequence_id = 99  # type: ignore
@@ -106,6 +108,24 @@ def after_install():
     except Exception as e:
         logger.error(f"Installation failed: {str(e)}")
         handle_installation_error(e)
+
+
+def create_translation_tools_workspace():
+    """Delete the Translation Tools workspace so it will be recreated from JSON"""
+    try:
+        # Check if workspace exists
+        if frappe.db.exists("Workspace", "Translation Tools"):
+            # Delete existing workspace
+            frappe.delete_doc(
+                "Workspace", "Translation Tools", force=True, ignore_permissions=True
+            )
+            frappe.db.commit()
+            frappe.logger().info("Deleted existing Translation Tools workspace")
+
+    except Exception as e:
+        frappe.logger().error(
+            f"Error cleaning up Translation Tools workspace: {str(e)}"
+        )
 
 
 # def arrange_workspaces():

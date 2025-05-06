@@ -146,12 +146,12 @@ export default class ChatList {
   setup_events() {
     const me = this;
     $('.chat-search-box').on('input', function (e) {
-      console.log('setup_events .chat-search-box', e);
+      console.info('setup_events .chat-search-box', e);
       me.filter_rooms($(this).val().toLowerCase());
     });
 
     $('.add-room').on('click', function (e) {
-      console.log('setup_events .add-room', e);
+      console.info('setup_events .add-room', e);
       if (typeof me.chat_add_room_modal === 'undefined') {
         me.chat_add_room_modal = new ChatAddRoom({
           user: me.user,
@@ -162,7 +162,7 @@ export default class ChatList {
     });
 
     $('.user-settings').on('click', function (e) {
-      console.log('.user-settings', e);
+      console.info('.user-settings', e);
       if (typeof me.chat_user_settings === 'undefined') {
         me.chat_user_settings = new ChatUserSettings();
       }

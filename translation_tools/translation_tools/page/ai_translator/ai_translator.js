@@ -21,16 +21,16 @@ frappe.pages['ai-translator'].on_page_load = function (wrapper) {
     );
 
   // Log for debugging (can be removed in production)
-  console.log('Preparing to redirect to Thai Translation Dashboard');
+  // console.log('Preparing to redirect to Thai Translation Dashboard');
 };
 
 frappe.pages['ai-translator'].on_page_show = function (wrapper) {
-  console.log('wrapper ai-translator', wrapper);
+  console.info('wrapper ai-translator', wrapper);
   //   load_desk_page(wrapper);
 
   setTimeout(function () {
     // Log for debugging (can be removed in production)
-    console.log('Redirecting to Thai Translation Dashboard');
+    // console.log('Redirecting to Thai Translation Dashboard');
 
     // Perform the actual redirect
     window.location.href = '/thai_translation_dashboard';

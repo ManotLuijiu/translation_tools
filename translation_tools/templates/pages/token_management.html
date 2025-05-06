@@ -1,0 +1,152 @@
+<!-- token_management.html - Token management page -->
+<div class="token-management container">
+  <div class="row">
+    <div class="col-md-12">
+      <h1>{{ _("Thai Tax Consultant Tokens") }}</h1>
+      <p>
+        {{ _("Purchase tokens to continue using our Thai Tax Consultant
+        chatbot") }}
+      </p>
+    </div>
+  </div>
+
+  <div class="row token-balance-section">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h3>{{ _("Your Token Balance") }}</h3>
+          <div class="token-count">{{ token_balance }}</div>
+          <div class="token-stats">
+            <div>{{ _("Total Used") }}: {{ tokens_used }}</div>
+            <div>{{ _("Total Purchased") }}: {{ tokens_purchased }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row packages-section mt-4">
+    <div class="col-md-12">
+      <h3>{{ _("Purchase Token Packages") }}</h3>
+    </div>
+
+    {% for package in packages %}
+    <div class="col-md-4 mb-3">
+      <div class="card package-card">
+        <div class="card-body">
+          <h4>{{ package.package_name }}</h4>
+          <div class="token-amount">
+            {{ package.token_amount }} {{ _("Tokens") }}
+          </div>
+          <div class="package-price">
+            {{ package.currency }} {{ package.price }}
+          </div>
+          <div class="package-description">{{ package.description }}</div>
+          <button
+            class="btn btn-primary buy-package"
+            data-package="{{ package.package_name }}"
+          >
+            {{ _("Purchase") }}
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="row recent-purchases-section mt-4">
+    <div class="col-md-12">
+      <h3>{{ _("Recent Purchases") }}</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>{{ _("Package") }}</th>
+            <th>{{ _("Amount") }}</th>
+            <th>{{ _("Status") }}</th>
+            <th>{{ _("Date") }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for purchase in recent_purchases %}
+          <tr>
+            <td>{{ purchase.package }}</td>
+            <td>{{ purchase.currency }} {{ purchase.amount }}</td>
+            <td>{{ purchase.status }}</td>
+            <td>{{ purchase.payment_date }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  frappe.ready(function () {
+    $('.buy-package').click(function () {
+      var package_name = $(this).data('package');
+
+      frappe.call({
+        method: 'translation_tools.api.message.initiate_token_purchase',
+        args: {
+          package_name: package_name,
+        },
+        callback: function (r) {
+          if (r.message) {
+            // Here you would integrate with your payment gateway
+            // For now, we'll just redirect to the payment page
+            window.location.href = r.message.payment_url;
+          }
+        },
+      });
+    });
+  });
+</script>
+
+<style>
+  .token-management {
+    padding: 30px 0;
+  }
+
+  .token-count {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #4caf50;
+  }
+
+  .token-stats {
+    margin-top: 15px;
+    color: #666;
+  }
+
+  .package-card {
+    height: 100%;
+    transition: transform 0.2s;
+  }
+
+  .package-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .token-amount {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 10px 0;
+  }
+
+  .package-price {
+    font-size: 1.25rem;
+    color: #4caf50;
+    margin-bottom: 10px;
+  }
+
+  .package-description {
+    color: #666;
+    margin-bottom: 15px;
+  }
+
+  .buy-package {
+    width: 100%;
+  }
+</style>

@@ -10,7 +10,7 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 class PdfOverride {
   constructor({ page, wrapper }) {
-    console.log('PdfOverride constructor called');
+    // console.log('PdfOverride constructor called');
     this.$wrapper = $(wrapper);
     this.page = page;
 
@@ -18,7 +18,7 @@ class PdfOverride {
   }
 
   init() {
-    console.log('PdfOverride init called');
+    // console.log('PdfOverride init called');
     this.setup_page_actions();
     this.setup_app();
   }
@@ -168,7 +168,7 @@ class PdfOverride {
   //   }
 
   generateSimplePdf() {
-    console.log('Generating simple PDF');
+    // console.log('Generating simple PDF');
     if (window.pdfMake) {
       // Configure Thai fonts if needed
       if (!window.pdfMake.fonts || !window.pdfMake.fonts.Kanit) {
@@ -211,7 +211,7 @@ class PdfOverride {
   }
 
   setup_app() {
-    console.log('Setting up React app');
+    // console.log('Setting up React app');
     // Create and mount the react app
     const root = createRoot(this.$wrapper.get(0));
     root.render(

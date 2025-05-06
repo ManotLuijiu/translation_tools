@@ -1,0 +1,93 @@
+{
+  "actions": [],
+  "allow_rename": 1,
+  "creation": "2025-05-06 17:56:12.789081",
+  "doctype": "DocType",
+  "autoname": "field:transaction_id",
+  "engine": "InnoDB",
+  "field_order": [
+    "transaction_id",
+    "user",
+    "package",
+    "amount",
+    "currency",
+    "status",
+    "payment_date"
+  ],
+  "fields": [
+    {
+      "fieldname": "transaction_id",
+      "fieldtype": "Data",
+      "label": "Transaction ID",
+      "reqd": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "user",
+      "fieldtype": "Link",
+      "label": "User",
+      "options": "User",
+      "reqd": 1
+    },
+    {
+      "fieldname": "package",
+      "fieldtype": "Link",
+      "label": "Token Package",
+      "options": "Token Package",
+      "reqd": 1
+    },
+    {
+      "fieldname": "amount",
+      "fieldtype": "Currency",
+      "label": "Amount",
+      "reqd": 1
+    },
+    {
+      "fieldname": "currency",
+      "fieldtype": "Link",
+      "label": "Currency",
+      "options": "Currency",
+      "default": "THB",
+      "reqd": 1
+    },
+    {
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Status",
+      "options": "Pending\nCompleted\nFailed\nRefunded",
+      "default": "Pending",
+      "reqd": 1
+    },
+    {
+      "fieldname": "payment_date",
+      "fieldtype": "Datetime",
+      "label": "Payment Date"
+    }
+  ],
+  "grid_page_length": 50,
+  "index_web_pages_for_search": 1,
+  "links": [],
+  "modified": "2025-05-06 17:56:12.789081",
+  "modified_by": "Administrator",
+  "module": "Translation Tools",
+  "name": "Token Purchase",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "row_format": "Dynamic",
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": []
+}

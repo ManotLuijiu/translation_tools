@@ -115,7 +115,7 @@ export default function GlossaryManager() {
     mutate: refreshTerms,
   } = useGetGlossaryTerms();
 
-  console.log('termsData', termsData);
+  // console.log('termsData', termsData);
 
   const addTerm = useAddGlossaryTerm();
   const updateTerm = useUpdateGlossaryTerm();
@@ -190,8 +190,8 @@ export default function GlossaryManager() {
       const result = await addTerm.call({ term: formData });
       const { message } = result;
 
-      console.log('result GlossaryManager', result);
-      console.log('message GlossaryManager', message);
+      // console.log('result GlossaryManager', result);
+      // console.log('message GlossaryManager', message);
 
       if (message && message.success) {
         setStatusMessage({
@@ -322,11 +322,11 @@ export default function GlossaryManager() {
   };
 
   const handleUpdateCategories = async () => {
-    console.log('clicked');
+    // console.log('clicked');
     try {
       const result = await updateCategories;
 
-      console.log('result', result);
+      // console.log('result', result);
 
       if (result?.result?.success) {
         setStatusMessage({

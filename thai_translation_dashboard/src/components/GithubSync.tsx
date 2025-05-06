@@ -39,11 +39,11 @@ interface GithubSyncProps {
 export default function GithubSync({
   selectedFile,
   onSyncComplete,
-  onFilesFound,
+  // onFilesFound,
   onSelectGithubFile,
 }: GithubSyncProps) {
-  console.log('selectedFile Accessing', selectedFile);
-  console.log('onFilesFound Beginning Access', onFilesFound);
+  // console.log('selectedFile Accessing', selectedFile);
+  // console.log('onFilesFound Beginning Access', onFilesFound);
 
   const [isOpen, setIsOpen] = useState(false);
   const [repoUrl, setRepoUrl] = useState(
@@ -51,6 +51,9 @@ export default function GithubSync({
   );
   const [branch, setBranch] = useState('main');
   const [syncMode, setSyncMode] = useState<'preview' | 'apply'>('preview');
+
+  console.info('Sync Mode', syncMode);
+
   const [availableFiles, setAvailableFiles] = useState<
     { path: string; matchScore: number }[]
   >([]);
@@ -73,8 +76,8 @@ export default function GithubSync({
 
   const { translate: __ } = useTranslation();
 
-  console.log('syncMode GithubSync.tsx', syncMode);
-  console.log('selectedFile before api call', selectedFile);
+  // console.log('syncMode GithubSync.tsx', syncMode);
+  // console.log('selectedFile before api call', selectedFile);
 
   // API calls
   const {
@@ -108,7 +111,7 @@ export default function GithubSync({
         target_language: selectedFile?.language || 'th',
       });
 
-      console.log('response searchRepository', response);
+      // console.log('response searchRepository', response);
 
       if (response?.message?.files) {
         setAvailableFiles(response.message.files);
@@ -145,7 +148,7 @@ export default function GithubSync({
         last_scanned: new Date().toISOString(),
       };
 
-      console.log('selectedGithubFile', selectedGithubFile);
+      // console.log('selectedGithubFile', selectedGithubFile);
 
       onSelectGithubFile(selectedGithubFile);
     }
@@ -153,10 +156,11 @@ export default function GithubSync({
 
   // Step 2: Preview sync changes
   const handlePreviewSync = async () => {
-    console.log('clicked');
+    // console.log('clicked');
+
     if (!selectedFile || selectedRepoFiles.length === 0) return;
 
-    console.log('selectedFile handlePreviewSync', selectedFile);
+    // console.log('selectedFile handlePreviewSync', selectedFile);
 
     try {
       const response = await previewSync({
@@ -166,12 +170,12 @@ export default function GithubSync({
         local_file_path: selectedFile.file_path,
       });
 
-      console.log('response handlePreviewSync', response);
+      // console.log('response handlePreviewSync', response);
 
       const data = response.message.preview;
-      const { added } = response.message.preview;
+      // const { added } = response.message.preview;
 
-      console.log('data in preview', added);
+      // console.log('data in preview', added);
 
       if (response?.message?.preview) {
         setPreviewData(data);

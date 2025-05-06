@@ -272,7 +272,8 @@ export function App() {
         filters: filter,
       },
       callback: function (r) {
-        console.log('r', r);
+        console.info('r', r);
+
         frappe.show_alert({
           message: __('PDF Generated Successfully'),
           indicator: 'green',

@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
-import { useFrappeGetCall } from "frappe-react-sdk";
-import { Progress } from "./ui/progress";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Separator } from "./ui/separator";
+import React, { useEffect } from 'react';
+import { useFrappeGetCall } from 'frappe-react-sdk';
+import { Progress } from './ui/progress';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Separator } from './ui/separator';
 
 interface TranslationStatusProps {
   filePath: string;
@@ -12,9 +12,9 @@ interface PoFileContents {
   metadata: {
     Project: string;
     Language: string;
-    "Last-Translator": string;
-    "POT-Creation-Date": string;
-    "PO-Revision-Date": string;
+    'Last-Translator': string;
+    'POT-Creation-Date': string;
+    'PO-Revision-Date': string;
   };
   statistics: {
     total: number;
@@ -36,7 +36,7 @@ interface PoFileContents {
 const TranslationStatus: React.FC<TranslationStatusProps> = ({ filePath }) => {
   const { data, error, isLoading, mutate } = useFrappeGetCall<{
     message: PoFileContents;
-  }>("translation_tools.api.get_po_file_contents", {
+  }>('translation_tools.api.get_po_file_contents', {
     file_path: filePath,
   });
 
@@ -58,7 +58,7 @@ const TranslationStatus: React.FC<TranslationStatusProps> = ({ filePath }) => {
     return (
       <div className="p-4 border border-red-200 bg-red-50 text-red-700 rounded">
         <p className="font-medium">Error loading translation status</p>
-        <p>{error.message || "Unknown error occurred"}</p>
+        <p>{error.message || 'Unknown error occurred'}</p>
       </div>
     );
   }
@@ -68,8 +68,8 @@ const TranslationStatus: React.FC<TranslationStatusProps> = ({ filePath }) => {
   }
 
   const { metadata, statistics } = data.message;
-  console.log('metadata',metadata)
-  console.log('statistics',statistics)
+  // console.log('metadata',metadata)
+  // console.log('statistics',statistics)
 
   return (
     <div className="mb-6">
@@ -82,23 +82,23 @@ const TranslationStatus: React.FC<TranslationStatusProps> = ({ filePath }) => {
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <dt className="font-medium text-gray-500">Project:</dt>
-                <dd>{metadata.Project || "N/A"}</dd>
+                <dd>{metadata.Project || 'N/A'}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="font-medium text-gray-500">Language:</dt>
-                <dd>{metadata.Language || "N/A"}</dd>
+                <dd>{metadata.Language || 'N/A'}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="font-medium text-gray-500">Last Translator:</dt>
-                <dd>{metadata["Last-Translator"] || "N/A"}</dd>
+                <dd>{metadata['Last-Translator'] || 'N/A'}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="font-medium text-gray-500">Created:</dt>
-                <dd>{metadata["POT-Creation-Date"] || "N/A"}</dd>
+                <dd>{metadata['POT-Creation-Date'] || 'N/A'}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="font-medium text-gray-500">Last Updated:</dt>
-                <dd>{metadata["PO-Revision-Date"] || "N/A"}</dd>
+                <dd>{metadata['PO-Revision-Date'] || 'N/A'}</dd>
               </div>
             </dl>
           </CardContent>

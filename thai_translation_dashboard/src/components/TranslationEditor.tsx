@@ -92,12 +92,12 @@ export default function TranslationEditor({
   const [showPassword, setShowPassword] = useState(false);
   const testGithub = useTestGithubConnection();
 
-  console.log('settings TranslationEditor', settings);
+  // console.log('settings TranslationEditor', settings);
   const { github_token, batch_size } = settings;
 
-  console.log('github_token', github_token);
-  console.log('batch_size', batch_size);
-  console.log('translationMode', translationMode);
+  // console.log('github_token', github_token);
+  console.info('batch_size', batch_size);
+  // console.log('translationMode', translationMode);
 
   const batchSize = settings?.batch_size || 10; // Get from settings
 
@@ -114,8 +114,8 @@ export default function TranslationEditor({
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
 
-  console.log('previousFile', previousFile);
-  console.log('showTokenDialog', showTokenDialog);
+  console.info('previousFile', previousFile);
+  // console.log('showTokenDialog', showTokenDialog);
 
   //   const [translation, setTranslation] = useState('');
   //   const [isSaving, setIsSaving] = useState(false);
@@ -126,13 +126,13 @@ export default function TranslationEditor({
 
   // Use the paginated API hook
   const {
-    data,
+    // data,
     error,
     isLoading,
     mutate,
     entries = [],
     stats,
-    metadata = {},
+    // metadata = {},
     totalPages = 0,
     totalEntries = 0,
   } = useGetPOFileEntriesPaginated(
@@ -143,10 +143,10 @@ export default function TranslationEditor({
     searchTerm
   );
 
-  console.log('data paginated', data);
-  console.log('stats paginated', stats);
-  console.log('selectedFile_translationEditor', selectedFile);
-  console.log('Push to Github', pushToGithub);
+  // console.log('data paginated', data);
+  // console.log('stats paginated', stats);
+  // console.log('selectedFile_translationEditor', selectedFile);
+  // console.log('Push to Github', pushToGithub);
 
   const translateEntry = useTranslateSingleEntry();
   const saveTranslation = useSaveTranslation.call({});
@@ -260,7 +260,7 @@ export default function TranslationEditor({
   // }
 
   // const { entries, stats, metadata } = fileData;
-  console.log('metadata', metadata);
+  // console.log('metadata', metadata);
 
   // Filter entries based on user selection
   // const filteredEntries = entries.filter((entry) => {
@@ -292,14 +292,14 @@ export default function TranslationEditor({
     ? entries.find((e) => e.id === selectedEntryId)
     : null;
 
-  console.log('selectedEntryId', selectedEntryId);
-  console.log('selectedEntry', selectedEntry);
+  // console.log('selectedEntryId', selectedEntryId);
+  // console.log('selectedEntry', selectedEntry);
 
   const handleTestGitHubConnection = async (
     github_repo: string,
     github_token: string
   ) => {
-    console.log('testing github', github_token);
+    // console.log('testing github', github_token);
 
     try {
       // Make an API call to test the GitHub connection
@@ -308,25 +308,25 @@ export default function TranslationEditor({
         github_token,
       });
 
-      console.log('message from github testing', message);
+      // console.log('message from github testing', message);
 
       if (message?.success) {
-        console.log('github_test_success', message?.success);
+        // console.log('github_test_success', message?.success);
         toast.success('Github Test Success');
       } else {
         toast.warning('Github Test has warning');
-        console.log('else_github_test');
+        // console.log('else_github_test');
       }
     } catch (err: any) {
       toast.error(err);
-      console.log('github_test_err', err);
+      // console.log('github_test_err', err);
     }
   };
 
   const handleTranslate = async () => {
     if (!selectedEntry || !selectedFile.file_path) return;
 
-    console.log('selectedEntry in handleTranslate', selectedEntry);
+    // console.log('selectedEntry in handleTranslate', selectedEntry);
 
     // setStatusMessage({ type: 'info', message: 'Translating...' });
     showMessage('Translating...', 'info');
@@ -339,7 +339,7 @@ export default function TranslationEditor({
         model: settings?.default_model || undefined,
       });
 
-      console.log('result in handleTranslate', result);
+      // console.log('result in handleTranslate', result);
 
       if (result.success && result.translation) {
         setEditedTranslation(result.translation);
@@ -405,7 +405,7 @@ export default function TranslationEditor({
           push_to_github: true,
         });
 
-        console.log('Push result after token save:', pushResult);
+        // console.log('Push result after token save:', pushResult);
 
         const message =
           typeof pushResult.message === 'string'
@@ -556,7 +556,7 @@ export default function TranslationEditor({
         push_to_github: pushToGithub,
       });
 
-      console.log('Save result:', result);
+      // console.log('Save result:', result);
 
       // Parse message if it's a string
       const message =
@@ -570,12 +570,12 @@ export default function TranslationEditor({
 
         // Handle GitHub pushing if enabled
         if (pushToGithub) {
-          console.log('GitHub push enabled');
+          // console.log('GitHub push enabled');
           const githubResult = message.github;
 
           // Token missing cases - show dialog
           if (githubResult?.error === 'missing_token') {
-            console.log('GitHub token missing, showing dialog');
+            // console.log('GitHub token missing, showing dialog');
 
             // Show success message for the save
             showMessage(
@@ -656,7 +656,7 @@ export default function TranslationEditor({
             errorObj.message.includes('missing_token')));
 
       if (isTokenError) {
-        console.log('Token error detected, showing token dialog');
+        // console.log('Token error detected, showing token dialog');
 
         // Show message
         showMessage(
@@ -888,8 +888,8 @@ export default function TranslationEditor({
                             }
                           >
                             {entry.is_translated
-                              ? 'Translated'
-                              : 'Untranslated'}
+                              ? __('Translated')
+                              : __('Untranslated')}
                           </Badge>
                         </div>
                         <p className="truncate text-sm">{entry.msgid}</p>
@@ -1051,7 +1051,7 @@ export default function TranslationEditor({
                           (e) => e.id === selectedEntryId
                         );
 
-                        console.log('entry reset button', entry);
+                        // console.log('entry reset button', entry);
                         if (entry) setEditedTranslation(entry.msgstr);
                         // setStatusMessage(null);
                         clearMessage();

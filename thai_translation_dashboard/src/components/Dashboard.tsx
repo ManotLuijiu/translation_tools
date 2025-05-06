@@ -31,11 +31,11 @@ export default function Dashboard() {
   );
   const { data: settingsData } = useGetTranslationSettings();
 
-  console.log('selectedFile', selectedFile);
-  console.log(__('Print Message'));
+  // console.log('selectedFile', selectedFile);
+  // console.log(__('Print Message'));
 
   const refreshTranslations = () => {
-    console.log('refreshTranslations clicked');
+    console.info('refreshTranslations clicked');
   };
 
   // Check setup status
@@ -44,7 +44,7 @@ export default function Dashboard() {
     {}
   );
 
-  console.log('Setup Data: from Dashboard.tsx', setupData);
+  // console.log('Setup Data: from Dashboard.tsx', setupData);
 
   // Run setup function
   const runSetup = useFrappePostCall(

@@ -171,14 +171,14 @@ function setup_page(wrapper) {
     const includeLogo = $content.find('#pdf-include-logo').prop('checked');
     const selectedFont = $content.find('#font-select').val();
 
-    console.log('selectedFont', selectedFont);
+    // console.log('selectedFont', selectedFont);
 
     // If Thai font is selected, load it first
     const prepare =
       selectedFont === 'THSarabun' ? load_thai_fonts() : Promise.resolve();
 
-    console.log('Selected font:', selectedFont);
-    console.log('prepare:', prepare);
+    // console.log('Selected font:', selectedFont);
+    // console.log('prepare:', prepare);
 
     // Show loading
     frappe.show_alert({
@@ -221,7 +221,7 @@ function setup_page(wrapper) {
 
         // Add content
         if (content) {
-          console.log('content',content)
+          // console.log('content', content);
           // Split by newlines and add each line as a paragraph
           const lines = content.split('\n');
           lines.forEach((line) => {

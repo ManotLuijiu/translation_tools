@@ -1,5 +1,8 @@
 import frappe
 from frappe import _
+
+# from typing import Optional
+
 # from frappe.utils import has_common
 # import datetime
 
@@ -191,7 +194,7 @@ def get_room_detail(room):
     return room_detail
 
 
-def is_user_allowed_in_room(room, email, user=None):
+def is_user_allowed_in_room(room: str, email: str, user: str | None = None) -> bool:
     """Check if user is allowed in rooms
 
     Args:
@@ -202,22 +205,53 @@ def is_user_allowed_in_room(room, email, user=None):
     Returns:
         bool: Whether user is allowed or not
     """
-    if user == "Guest" and frappe.session.user != user:
+    try:
+        # Get the room details as a document, not a list
+        room_detail = frappe.get_doc("Chat Room", room)
+
+        # Check if room exists
+        if not room_detail:
+            return False
+
+        # Guest check
+        room_type = room_detail.get("type", "")
+        members_data = room_detail.get("members") or []
+        members = [member.get("user") for member in members_data]
+
+        if room_type != "Guest":
+            if frappe.session.user == "Guest":
+                return False
+
+        # If this is a direct message room, check if user is one of the members
+        # members = [member.user for member in room_detail.members]
+
+        if room_type == "Direct":
+            return bool(email in members or (user and user in members))
+
+        # For other room types, check if email is one of the members
+        # members = [member.user for member in room_detail.members]
+        return email in members
+
+    except Exception as e:
+        frappe.log_error(f"Error in is_user_allowed_in_room: {str(e)}")
         return False
 
-    room_detail = get_room_detail(room)
-    if frappe.session.user == "Guest" and room_detail and room_detail.guest != email:  # type: ignore
-        return False
+    # if user == "Guest" and frappe.session.user != user:
+    #     return False
 
-    if (
-        frappe.session.user != "Guest"
-        and room_detail
-        and room_detail.type != "Guest"  # type: ignore
-        and email not in room_detail.members  # type: ignore
-    ):
-        return False
+    # room_detail = get_room_detail(room)
+    # if frappe.session.user == "Guest" and room_detail and room_detail.guest != email:  # type: ignore
+    #     return False
 
-    return True
+    # if (
+    #     frappe.session.user != "Guest"
+    #     and room_detail
+    #     and room_detail.type != "Guest"  # type: ignore
+    #     and email not in room_detail.members  # type: ignore
+    # ):
+    #     return False
+
+    # return True
 
 
 class NotAuthorizedError(Exception):

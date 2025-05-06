@@ -64,16 +64,16 @@ export default function SettingsPanel() {
   const { modelData, modelLoading, modelError } = useGetAiModels();
   const { translate: __, isReady } = useTranslation();
 
-  console.log('useGetTranslationSettings data: ', data);
-  console.log('useGetTranslationSettings data.message: ', data?.message);
-  console.log('useGetAiModels modelData: ', modelData);
-  console.log('useGetTranslationSettings settings: ', settings);
+  // console.log('useGetTranslationSettings data: ', data);
+  // console.log('useGetTranslationSettings data.message: ', data?.message);
+  // console.log('useGetAiModels modelData: ', modelData);
+  // console.log('useGetTranslationSettings settings: ', settings);
 
   useEffect(() => {
     if (data?.message) {
       const provider = data.message.default_model_provider || 'openai';
 
-      console.log('provider from Parent', provider);
+      // console.log('provider from Parent', provider);
       const default_model =
         data.message.default_model ||
         (provider === 'openai'
@@ -97,9 +97,9 @@ export default function SettingsPanel() {
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    console.log('name SettingsPanel.tsx', name);
-    console.log('value SettingsPanel.tsx', value);
-    console.log('handleSelectChange clicked');
+    // console.log('name SettingsPanel.tsx', name);
+    // console.log('value SettingsPanel.tsx', value);
+    // console.log('handleSelectChange clicked');
     if (name === 'default_model_provider') {
       // When provider changes, reset the model selection or select first available model
       const newModels =
@@ -107,7 +107,7 @@ export default function SettingsPanel() {
           ? modelData.message.openai
           : modelData.message.claude;
 
-      console.log('newModels', newModels);
+      // console.log('newModels', newModels);
 
       setSettings((prev) => ({
         ...prev,
@@ -140,7 +140,7 @@ export default function SettingsPanel() {
         github_token,
       });
 
-      console.log('message from github testing', message);
+      // console.log('message from github testing', message);
 
       if (message?.success) {
         setStatusMessage({
@@ -177,7 +177,7 @@ export default function SettingsPanel() {
         };
       } = await saveSettings.call({ settings });
 
-      console.log('result SettingsPanel.tsx', result);
+      // console.log('result SettingsPanel.tsx', result);
 
       if (result.message?.success) {
         // Check if there are any warnings

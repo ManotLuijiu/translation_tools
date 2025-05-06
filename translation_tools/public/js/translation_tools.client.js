@@ -37,7 +37,7 @@ frappe.ui.form.on('*', {
             },
           };
 
-          console.log('access translation_tools.client.js', pdfMake.fonts);
+          console.info('access translation_tools.client.js', pdfMake.fonts);
 
           pdfMake.createPdf(docDefinition).download(`${metadata.title}.pdf`);
         },

@@ -81,7 +81,7 @@ export default function TranslationEditor({ selectedFile, settings }) {
   }
 
   const { entries, stats, metadata } = fileData;
-  console.log('metadata', metadata);
+  console.info('metadata', metadata);
 
   // Filter entries based on user selection
   const filteredEntries = entries.filter((entry) => {

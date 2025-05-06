@@ -17,7 +17,7 @@ export default function Dashboard() {
 
   const { data: translationSettingsData } = useGetTranslationSettings();
 
-  console.log('Translation Settings Data:', translationSettingsData);
+  console.info('Translation Settings Data:', translationSettingsData);
 
   useEffect(() => {
     const checkSetup = async () => {
@@ -30,12 +30,12 @@ export default function Dashboard() {
         });
         setSetupStatus(setupResponse.message);
 
-        console.log('setupResponse:', setupResponse);
-        console.log('setupResponse.message:', setupResponse.message);
-        console.log(
-          'setupResponse.message.complete:',
-          setupResponse.message.complete
-        );
+        // console.log('setupResponse:', setupResponse);
+        // console.log('setupResponse.message:', setupResponse.message);
+        // console.log(
+        //   'setupResponse.message.complete:',
+        //   setupResponse.message.complete
+        // );
 
         // Load settings if setup is complete
         if (setupResponse.message.complete) {
@@ -44,8 +44,8 @@ export default function Dashboard() {
             args: {},
           });
           setSettingsData(settingsResponse.message);
-          console.log('settingsResponse:', settingsResponse);
-          console.log('settingsResponse.message:', settingsResponse.message);
+          // console.log('settingsResponse:', settingsResponse);
+          // console.log('settingsResponse.message:', settingsResponse.message);
         }
       } catch (error) {
         console.error('Error checking setup status:', error);

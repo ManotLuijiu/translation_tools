@@ -1,5 +1,5 @@
 frappe.pages['thai_translator'].on_page_load = function (wrapper) {
-  console.log('wrapper', wrapper);
+  // console.log('wrapper', wrapper);
 
   const page = frappe.ui.make_app_page({
     parent: wrapper,
@@ -7,16 +7,16 @@ frappe.pages['thai_translator'].on_page_load = function (wrapper) {
     single_column: true,
   });
 
-  console.log('page', page);
+  // console.log('page', page);
 
   page.set_indicator('อังกฤษ -> ไทย', 'blue');
 
   // Log for debugging (can be removed in production)
-  console.log('Preparing to redirect to Thai Translation Dashboard');
+  // console.log('Preparing to redirect to Thai Translation Dashboard');
 };
 
 frappe.pages['thai_translator'].on_page_show = function (wrapper) {
-  console.log('wrapper in thai_translator.js', wrapper);
+  // console.log('wrapper in thai_translator.js', wrapper);
   load_desk_page(wrapper);
 };
 

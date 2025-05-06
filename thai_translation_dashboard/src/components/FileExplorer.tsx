@@ -39,13 +39,14 @@ export default function FileExplorer({
   const [isScanning, setIsScanning] = useState(false);
   const { translate: __, isReady } = useTranslation();
 
-  console.log('selectedFilePath', selectedFilePath);
+  // console.log('selectedFilePath', selectedFilePath);
 
   const handleScan = async () => {
     setIsScanning(true);
     try {
-      const result = await scanFiles.call();
-      console.log('Scan result', result);
+      // const result = await scanFiles.call();
+      await scanFiles.call();
+      // console.log('Scan result', result);
 
       // await mutate();
     } catch (error) {
@@ -55,7 +56,7 @@ export default function FileExplorer({
     }
   };
 
-  console.log('data', data);
+  // console.log('data', data);
 
   const filteredFiles =
     data?.message?.filter((file) => {
@@ -68,7 +69,7 @@ export default function FileExplorer({
       );
     }) || [];
 
-  console.log('filteredFiles', filteredFiles);
+  // console.log('filteredFiles', filteredFiles);
 
   const sortedFiles = [...filteredFiles].sort((a, b) => {
     // Sort by app name first, then filename
@@ -76,7 +77,7 @@ export default function FileExplorer({
     return a.filename.localeCompare(b.filename);
   });
 
-  console.log('sortedFiles', sortedFiles);
+  // console.log('sortedFiles', sortedFiles);
 
   if (!isReady) {
     return (

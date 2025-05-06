@@ -83,14 +83,14 @@ export function useScanPOFiles() {
     'translation_tools.api.po_files.scan_po_files'
   );
 
-  console.log('scanPostCall', scanPostCall);
+  // console.log('scanPostCall', scanPostCall);
 
   // Wrap the call function to accept no parameters
   const scanFiles = async () => {
     return scanPostCall.call({});
   };
 
-  console.log('scanFiles', scanFiles);
+  // console.log('scanFiles', scanFiles);
 
   return {
     ...scanPostCall,
@@ -108,7 +108,7 @@ export function useGetPOFileEntries(filePath: string | null) {
   //   throw new Error('filePath cannot be null or undefined')
   // }
 
-  console.log('filePath', filePath);
+  // console.log('filePath', filePath);
 
   return useFrappeGetCall<{ message: POFileContents }>(
     'translation_tools.api.po_files.get_po_file_entries',
@@ -133,7 +133,7 @@ export function useGetPOFileEntriesPaginated(
   //   throw new Error('filePath cannot be null or undefined')
   // }
 
-  console.log('filePath', filePath);
+  // console.log('filePath', filePath);
 
   const { data, error, isLoading, mutate } = useFrappeGetCall<{
     message: POFileContentsPaginated;

@@ -1060,3 +1060,7 @@ textarea.form-control {
 #glossary__add__group .form-group label {
   margin-top: 5px;
 }
+
+.search-bar .awesomplete input {
+  padding-left: 45px;
+}

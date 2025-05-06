@@ -12,16 +12,19 @@ export default function FileExplorer({ onFileSelect, selectedFilePath }) {
   const [isScanning, setIsScanning] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
 
-  console.log('isMutating', isMutating);
+  console.info('isMutating', isMutating);
 
   // useEffect(() => {}, []);
 
   const handleScan = async () => {
-    console.log('handleScan initiated');
+    // console.log('handleScan initiated');
+
     setIsScanning(true);
     try {
       const result = await scanFiles.mutateAsync();
-      console.log('Scan result', result);
+
+      // console.log('Scan result', result);
+
       if (result && result.success === true) {
         setIsMutating(true);
         await refetch();

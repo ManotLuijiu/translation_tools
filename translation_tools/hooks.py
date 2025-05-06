@@ -68,7 +68,8 @@ after_install = [
     # "translation_tools.patches.migrate_chat_data.execute",
 ]
 
-after_migrate = "translation_tools.setup.update_workspace.update_icons"
+# after_migrate = "translation_tools.setup.update_workspace.update_icons"
+after_migrate = "translation_tools.setup.update_workspace.rebuild_workspace"
 
 # Uninstallation
 # ------------
@@ -95,6 +96,7 @@ website_route_rules = [
     # },
     {"from_route": "/tax_consultant", "to_route": "tax_consultant"},
     {"from_route": "/frontend/<path:app_path>", "to_route": "frontend"},
+    {"from_route": "/tokens", "to_route": "token_management"},
 ]
 
 # workspace_route_rules = [
@@ -120,7 +122,11 @@ website_context = {
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Mitr:wght@200;300;400;500;600;700&family=Noto+Sans+Thai:wght@100..900&family=Pattaya&family=Pridi:wght@200;300;400;500;600;700&family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
-    """
+    """,
+    "token_management": {
+        "template": "templates/pages/token_management.html",
+        "context": "translation_tools.api.token_dashboard.get_token_dashboard_data",
+    },
 }
 
 app_include_js = [
@@ -236,11 +242,11 @@ desk_page = {
 # Fixtures: export workspace so your link stays after migration/restart
 fixtures = [
     {"doctype": "Workspace", "filters": [["name", "=", "Integrations"]]},
-    {"doctype": "Language", "filters": [["name", "in", ["en", "th"]]]},
+    # {"doctype": "Language", "filters": [["name", "in", ["en", "th"]]]},
     # {"dt": "Workspace", "filters": [["name", "=", "Integrations"]]},
     # {"dt": "Number Card", "filters": [["module", "=", "Translation Tools"]]},
     # {"dt": "Dashboard Chart", "filters": [["module", "=", "Translation Tools"]]},
-    # {"dt": "Workspace", "filters": [["name", "=", "Translation Tools"]]},
+    # {"doctype": "Workspace", "filters": [["name", "=", "Translation Tools"]]},
     # {"dt": "Page", "filters": [["name", "=", "translation-tools"]]},
     # {"dt": "Custom Field", "filters": [["dt", "in", ["Print Settings", "Company"]]]},
     # {
