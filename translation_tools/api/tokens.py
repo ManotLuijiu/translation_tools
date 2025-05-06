@@ -67,6 +67,7 @@ def process_successful_payment(transaction_id):
     purchase_name = frappe.get_value(
         "Token Purchase", {"transaction_id": transaction_id}, "name"
     )
+    # purchase = frappe.get_doc("Token Purchase", {"transaction_id": transaction_id})
     if not purchase_name:
         return False
     # Then get the document using the name (explicitly cast to string)
@@ -109,21 +110,52 @@ def get_or_create_user_tokens(user_email):
     return frappe.get_doc("User Tokens", user_token_name)
 
 
-def check_token_balance(user_email, tokens_needed=TOKEN_COST_PER_MESSAGE):
+def check_token_balance(user_email, tokens_needed=TOKEN_COST_PER_QUESTION["basic"]):
     """Check if user has enough tokens"""
     user_tokens = get_or_create_user_tokens(user_email)
     return user_tokens.token_balance >= tokens_needed  # type: ignore
 
 
-def deduct_tokens_for_message(user_email, message_length=None):
-    """Deduct tokens for a message based on length or fixed cost"""
-    tokens_to_deduct = TOKEN_COST_PER_MESSAGE
+def calculate_token_cost(message_content):
+    """Calculate token cost based on message complexity"""
+    # Check for keywords that indicate complexity level
+    content_lower = message_content.lower()
 
-    # Optional: Adjust token cost based on message length
-    if message_length:
-        # For example: 1 token per 4 characters
-        calculated_tokens = max(round(message_length / 4), 1)
-        tokens_to_deduct = max(calculated_tokens, 5)  # Minimum 5 tokens per message
+    # Complex queries involve documents, calculations, or in-depth analysis
+    if any(
+        keyword in content_lower
+        for keyword in [
+            "invoice",
+            "calculate",
+            "analysis",
+            "document",
+            "financial",
+            "bookkeeping",
+        ]
+    ):
+        return TOKEN_COST_PER_QUESTION["complex"]
+
+    # Standard queries involve personalized advice or specific questions
+    elif any(
+        keyword in content_lower
+        for keyword in [
+            "my company",
+            "specific",
+            "advice",
+            "how should i",
+            "what should i",
+        ]
+    ):
+        return TOKEN_COST_PER_QUESTION["standard"]
+
+    # Basic queries are simple information requests
+    else:
+        return TOKEN_COST_PER_QUESTION["basic"]
+
+
+def deduct_tokens_for_message(user_email, message_content):
+    """Deduct tokens for a message based on complexity"""
+    tokens_to_deduct = calculate_token_cost(message_content)
 
     user_tokens = get_or_create_user_tokens(user_email)
     return user_tokens.deduct_tokens(tokens_to_deduct)  # type: ignore
