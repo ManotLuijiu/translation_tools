@@ -199,7 +199,7 @@ def is_user_allowed_in_room(room_name: str, email: str, user: str | None = None)
     """Check if user is allowed in rooms
 
     Args:
-        room (str): Room's name_case
+        room_name (str): Room's name/ID
         email (str): User's email
         user (str, optional): User's name. Defaults to None.
 
@@ -207,76 +207,77 @@ def is_user_allowed_in_room(room_name: str, email: str, user: str | None = None)
         bool: Whether user is allowed or not
     """
     try:
-        # Get the room details as a document, not a list
+        # Special case for Administrator - always allow
+        if email == "Administrator" or frappe.session.user == "Administrator":
+            return True
+            
+        # Special case for System Manager role
+        if "System Manager" in frappe.get_roles(frappe.session.user):
+            return True
+            
+        # Get the room details
         room_detail = frappe.get_doc("Chat Room", room_name)
         
-        print(f"room_detail is_user_allowed_in_room {room_detail}")
-
         # Check if room exists
         if not room_detail:
             return False
 
-        # Guest check
-        room_type = room_detail.get("type", "")
+        room_type = room_detail.type if hasattr(room_detail, "type") else "" # type: ignore
         
-        print(f"room_type {room_type}")
-        print(f"Room exists: {bool(room_detail)}")
-        print(f"Room type: {room_type}")
-        print(f"Raw members data: {room_detail.get('members')}")
-        print(f"Current user: {email}")
-       
+        # Guest cannot access non-Guest rooms
+        if room_type != "Guest" and frappe.session.user == "Guest":
+            return False
+            
+        # Check if user is the owner/creator of the room
+        if room_detail.owner == frappe.session.user:
+            return True
+            
+        # Get members from the users child table (if exists)
+        members = []
+        if hasattr(room_detail, "users") and room_detail.users: # type: ignore
+            members = [user_row.user for user_row in room_detail.users if hasattr(user_row, "user")] # type: ignore
+            
+        # Fallback to members text field if users table is empty
+        if not members and hasattr(room_detail, "members") and room_detail.members: # type: ignore
+            # Try different approaches to parse members
+            members_text = room_detail.members # type: ignore
+            
+            # Try JSON parsing first
+            try:
+                import json
+                members_data = json.loads(members_text)
+                if isinstance(members_data, list):
+                    # If list of strings
+                    if all(isinstance(item, str) for item in members_data):
+                        members = members_data
+                    # If list of objects with 'user' key
+                    elif all(isinstance(item, dict) for item in members_data):
+                        members = [item.get("user") for item in members_data if "user" in item]
+            except json.JSONDecodeError:
+                # If not JSON, try comma-separated list
+                members = [m.strip() for m in members_text.split(",") if m.strip()]
+                
+        # Check if current user or email is in members
+        current_user = frappe.session.user
+        user_email = email
         
-        members_json = room_detail.get("members") or "[]"
-        
-        print(f"members_json {members_json}")
-        
-        members_data = json.loads(members_json)
-        
-        members_str = room_detail.get("members") or ""
-        print(f"members_str {members_str}")
-        
-        print(f"members_data {members_data}")
-        
-        members = [member.get("user") for member in members_data]
-        print(f"Members list: {members}")
-        print(f"Is member: {email in members}")
-        
-        print(f"members {members}")
-
-        if room_type != "Guest":
-            if frappe.session.user == "Guest":
-                return False
-
-        # If this is a direct message room, check if user is one of the members
-        # members = [member.user for member in room_detail.members]
-
+        # For direct rooms, check if email or user is in members
         if room_type == "Direct":
-            return bool(email in members or (user and user in members))
-
-        # For other room types, check if email is one of the members
-        # members = [member.user for member in room_detail.members]
-        return email in members
+            return any([
+                current_user in members,
+                user_email in members,
+                user and user in members
+            ])
+            
+        # For all other room types
+        return any([
+            current_user in members,
+            user_email in members
+        ])
 
     except Exception as e:
-        frappe.log_error(f"Error in is_user_allowed_in_room: {str(e)}")
+        frappe.log_error(f"Error in is_user_allowed_in_room: {str(e)}, room: {room_name}, email: {email}")
         return False
-
-    # if user == "Guest" and frappe.session.user != user:
-    #     return False
-
-    # room_detail = get_room_detail(room)
-    # if frappe.session.user == "Guest" and room_detail and room_detail.guest != email:  # type: ignore
-    #     return False
-
-    # if (
-    #     frappe.session.user != "Guest"
-    #     and room_detail
-    #     and room_detail.type != "Guest"  # type: ignore
-    #     and email not in room_detail.members  # type: ignore
-    # ):
-    #     return False
-
-    # return True
 
 
 class NotAuthorizedError(Exception):

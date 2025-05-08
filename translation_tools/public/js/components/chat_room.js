@@ -23,6 +23,7 @@ export default class ChatRoom {
   setup() {
     this.$chat_room = $(document.createElement('div'));
     this.$chat_room.addClass('chat-room');
+    this.$chat_room.attr('id', `tax-bot-chat-room-${this.profile.room}`);
 
     this.avatar_html = get_avatar_html(
       this.profile.room_type,

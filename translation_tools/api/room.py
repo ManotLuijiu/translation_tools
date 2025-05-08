@@ -73,7 +73,7 @@ def delete(room):
         
         print(f"user inside delete() {user}")
         
-        if not is_user_allowed_in_room(room, frappe.session.user):
+        if not is_user_allowed_in_room(room, frappe.session.user): # type: ignore
             raise_not_authorized_error()
         
         # Delete all messages in the room first

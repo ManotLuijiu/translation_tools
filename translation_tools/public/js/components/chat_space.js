@@ -118,7 +118,7 @@ export default class ChatSpace {
       if (!this.profile.is_admin) {
         this.display_message({
           content:
-            "สวัสดีครับ! I'm your Thai Tax Consultant Bot. How can I help you with tax or accounting questions today? Type /help to see available commands.",
+            "สวัสดีค่ะ! I'm your Thai Tax Consultant Bot. How can I help you with tax or accounting questions today? Type /help to see available commands.",
           creation: new Date(),
           sender: 'Thai Tax Bot',
           sender_email: 'taxbot@system.local',
