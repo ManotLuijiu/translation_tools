@@ -22,6 +22,8 @@ from translation_tools.api.resend_integration import (
     create_sample_email_account,
 )
 
+from translation_tools.api.token_config import setup_token_system
+
 # from translation_tools.api.setup_workspace import (
 #     setup_workspace_and_links,
 #     add_to_integrations_workspace,
@@ -49,6 +51,8 @@ def after_install():
 
         # Create sample Email Account for Resend if not exists
         create_sample_email_account()
+        
+        setup_token_system()
 
         print("Resend Integration setup complete!")
 

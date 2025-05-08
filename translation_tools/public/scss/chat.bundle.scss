@@ -217,6 +217,23 @@ $height: 582px;
   }
 }
 
+.chat-room-actions {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.chat-room:hover .chat-room-actions {
+  opacity: 1;
+}
+
+.delete-room {
+  color: var(--red-500);
+}
+
 .chat-header {
   display: flex;
   align-items: center;

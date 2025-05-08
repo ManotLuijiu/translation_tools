@@ -12,7 +12,8 @@
     "amount",
     "currency",
     "status",
-    "payment_date"
+    "payment_date",
+    "stripe_session_id"
   ],
   "fields": [
     {
@@ -62,6 +63,11 @@
       "fieldname": "payment_date",
       "fieldtype": "Datetime",
       "label": "Payment Date"
+    },
+    {
+      "fieldname": "stripe_session_id",
+      "fieldtype": "Data",
+      "label": "Stripe Session ID"
     }
   ],
   "grid_page_length": 50,

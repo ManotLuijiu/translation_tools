@@ -9,6 +9,7 @@ from translation_tools.api.tokens import (
     check_token_balance,
     deduct_tokens_for_message,
     get_or_create_user_tokens,
+    calculate_token_cost
 )
 
 
@@ -22,12 +23,24 @@ def send(content: str, user: str, room: str, email: str):
         room (str): Room name.
         email (str): Sender's email.
     """
-    if not is_user_allowed_in_room(room, email, user):
+    try:
+        # Use get_doc to properly fetch room details
+        room_detail = frappe.get_doc("Chat Room", room)
+        
+        print(f"room_detail {room_detail}")
+        
+        if not is_user_allowed_in_room(room, email, user):
+            raise_not_authorized_error()
+    except Exception as e:
+        frappe.log_error(f"Error in room authorization: {str(e)}")
         raise_not_authorized_error()
+        
+    # Calculate token cost for this message
+    token_cost = calculate_token_cost(content)
 
     # For guest users or public chatbot, check token balance
     if user == "Guest" or not frappe.session.user:
-        if not check_token_balance(email):
+        if not check_token_balance(email, token_cost):
             frappe.throw(
                 _(
                     "You've used all your free tokens. Please purchase more to continue using the Thai Tax Consultant."
@@ -55,7 +68,7 @@ def send(content: str, user: str, room: str, email: str):
     )
     new_message.insert(ignore_permissions=True)
 
-    # Deduct tokens for non-authenticated users
+    # Deduct tokens for non-authenticated users or if message requires tokens
     if user == "Guest" or not frappe.session.user:
         deduct_tokens_for_message(email, len(content))
 
@@ -67,6 +80,7 @@ def send(content: str, user: str, room: str, email: str):
         "creation": new_message.creation,
         "room": room,
         "sender_email": email,
+        "token_cost": token_cost
     }
 
     typing_data = {
@@ -77,17 +91,7 @@ def send(content: str, user: str, room: str, email: str):
     }
     typing_event = f"{room}:typing"
 
-    from translation_tools.translation_tools.doctype.chat_room.chat_room import ChatRoom
-
-    # Cast the document to ChatRoom type to access get_members method
-    chat_room = frappe.get_cached_doc("Chat Room", room)
-    chat_room = chat_room.as_dict()
-    members = []
-    members_str = chat_room.get("members")
-    if members_str and isinstance(members_str, str):
-        members = [x.strip() for x in members_str.split(",")]
-
-    for chat_user in members:
+    for chat_user in room_detail.get_members(): # type: ignore
         frappe.publish_realtime(event=typing_event, message=typing_data, user=chat_user)
         frappe.publish_realtime(
             event=room,
@@ -104,7 +108,7 @@ def send(content: str, user: str, room: str, email: str):
 
 
 @frappe.whitelist(allow_guest=True)
-def get_all(room: str, email: str):
+def get_all(room_name: str, email: str):
     """Get all the messages of a particularly room
     Args:
         room (str): Room name.
@@ -112,11 +116,14 @@ def get_all(room: str, email: str):
     """
     # Fix: Use get_doc instead of get_all to get room details
     try:
-        room_detail = frappe.get_doc("Chat Room", room)
+        room_detail = frappe.get_doc("Chat Room", room_name)
+        
+        print(f"room_detail {room_detail}")
+        
         if not room_detail:
             raise_not_authorized_error()
 
-        if not is_user_allowed_in_room(room, email):
+        if not is_user_allowed_in_room(room_name, email):
             raise_not_authorized_error()
 
     except Exception as e:
@@ -125,10 +132,12 @@ def get_all(room: str, email: str):
 
     messages = frappe.get_all(
         "Chat Message",
-        filters={"room": room},
+        filters={"room": room_name},
         fields=["sender_email", "content", "sender", "creation"],
         order_by="creation asc",
     )
+    
+    print(f"messages {messages}")
 
     return messages
 
@@ -140,10 +149,6 @@ def get_token_balance():
         frappe.throw(_("Please sign in or provide your email to check token balance"))
     user_tokens = get_or_create_user_tokens(frappe.session.user)
 
-    from translation_tools.translation_tools.doctype.user_tokens.user_tokens import (
-        UserTokens,
-    )
-
     return {
         "token_balance": user_tokens.token_balance,  # type: ignore
         "total_used": user_tokens.total_tokens_used,  # type: ignore
@@ -154,9 +159,6 @@ def get_token_balance():
 @frappe.whitelist(allow_guest=True)
 def get_token_packages():
     """Get available token packages for purchase"""
-    from translation_tools.translation_tools.doctype.token_package.token_package import (
-        TokenPackage,
-    )
 
     packages = frappe.get_all(
         "Token Package",
@@ -173,10 +175,6 @@ def initiate_token_purchase(package_name):
     if frappe.session.user == "Guest":
         frappe.throw(_("Please sign in to purchase tokens"))
 
-    from translation_tools.translation_tools.doctype.token_package.token_package import (
-        TokenPackage,
-    )
-
     package = frappe.get_doc("Token Package", package_name)
     if not package or not package.is_active:  # type: ignore
         frappe.throw(_("Invalid token package"))
@@ -189,17 +187,39 @@ def initiate_token_purchase(package_name):
         package.price,  # type: ignore
         package.currency,  # type: ignore
     )
+    
+     # Create Stripe checkout session
+    from translation_tools.api.stripe_payment import create_stripe_checkout_session
+    checkout_session = create_stripe_checkout_session(
+        transaction_id,
+        package.price, # type: ignore
+        package.currency, # type: ignore
+        package.token_amount, # type: ignore
+        package.package_name # type: ignore
+    )
+    
+    if not checkout_session:
+        frappe.throw(_("Failed to create checkout session. Please try again."))
+    
+    # Type assertion for Pylance
+    assert checkout_session is not None
+        
+    return {
+        "transaction_id": transaction_id,
+        "checkout_url": checkout_session.url,
+        "stripe_session_id": checkout_session.id
+    }
 
     # Here integrate with payment gateway
     # Just return the transaction details
-    return {
-        "transaction_id": transaction_id,
-        "amount": package.price,  # type: ignore
-        "currency": package.currency,  # type: ignore
-        "tokens": package.token_amount,  # type: ignore
-        # Add payment URL or details based on payment gateway
-        "payment_url": f"/payment?transaction_id={transaction_id}",
-    }
+    # return {
+    #     "transaction_id": transaction_id,
+    #     "amount": package.price,  # type: ignore
+    #     "currency": package.currency,  # type: ignore
+    #     "tokens": package.token_amount,  # type: ignore
+    #     # Add payment URL or details based on payment gateway
+    #     "payment_url": f"/payment?transaction_id={transaction_id}",
+    # }
 
 
 @frappe.whitelist(allow_guest=True)

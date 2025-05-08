@@ -20,6 +20,14 @@
             <div>{{ _("Total Used") }}: {{ tokens_used }}</div>
             <div>{{ _("Total Purchased") }}: {{ tokens_purchased }}</div>
           </div>
+          <div class="token-usage-info mt-3">
+            <p>{{ _("Token Usage Guide:") }}</p>
+            <ul>
+              <li>{{ _("Basic questions") }} - 25 {{ _("tokens") }}</li>
+              <li>{{ _("Standard advice") }} - 75 {{ _("tokens") }}</li>
+              <li>{{ _("Complex consultations") }} - 150 {{ _("tokens") }}</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -79,10 +87,49 @@
       </table>
     </div>
   </div>
+
+  <!-- Payment Success/Error Messages -->
+  <div id="payment-messages" class="mt-3"></div>
 </div>
+
+<!-- Include Stripe.js -->
+<script src="https://js.stripe.com/v3/"></script>
 
 <script>
   frappe.ready(function () {
+    // Check for success or canceled query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      const sessionId = urlParams.get('session_id');
+      if (sessionId) {
+        // Verify payment with backend
+        frappe.call({
+          method: 'translation_tools.stripe_payment.verify_stripe_payment',
+          args: {
+            session_id: sessionId,
+          },
+          callback: function (r) {
+            if (r.message && r.message.success) {
+              $('#payment-messages').html(
+                `<div class="alert alert-success">${r.message.message}</div>`
+              );
+              // Refresh token balance after successful payment
+              setTimeout(() => window.location.reload(), 3000);
+            } else {
+              $('#payment-messages').html(
+                `<div class="alert alert-warning">${r.message.message}</div>`
+              );
+            }
+          },
+        });
+      }
+    } else if (urlParams.get('canceled') === 'true') {
+      $('#payment-messages').html(
+        `<div class="alert alert-info">${__("Payment canceled. You can try again whenever you're ready.")}</div>`
+      );
+    }
+
+    // Initialize purchase buttons
     $('.buy-package').click(function () {
       var package_name = $(this).data('package');
 
@@ -92,10 +139,15 @@
           package_name: package_name,
         },
         callback: function (r) {
-          if (r.message) {
-            // Here you would integrate with your payment gateway
-            // For now, we'll just redirect to the payment page
-            window.location.href = r.message.payment_url;
+          if (r.message && r.message.checkout_url) {
+            // Redirect to Stripe checkout
+            window.location.href = r.message.checkout_url;
+          } else {
+            frappe.msgprint(
+              __(
+                'There was an error initiating your payment. Please try again.'
+              )
+            );
           }
         },
       });
@@ -148,5 +200,17 @@
 
   .buy-package {
     width: 100%;
+  }
+
+  .token-usage-info {
+    font-size: 0.9rem;
+    background: #f5f5f5;
+    padding: 10px;
+    border-radius: 5px;
+  }
+
+  .token-usage-info ul {
+    padding-left: 20px;
+    margin-bottom: 0;
   }
 </style>

@@ -17,6 +17,8 @@ guest_title = app_title
 # Define your desktop sections
 desktop_icons = ["Translation Tools"]
 
+required_apps = ["payments"]
+
 # Modules Definition
 # -----------------
 modules = {
@@ -97,6 +99,7 @@ website_route_rules = [
     {"from_route": "/tax_consultant", "to_route": "tax_consultant"},
     {"from_route": "/frontend/<path:app_path>", "to_route": "frontend"},
     {"from_route": "/tokens", "to_route": "token_management"},
+    {"from_route": "/api/stripe-webhook", "to_route": "translation_tools.stripe_payment.handle_stripe_webhook"},
 ]
 
 # workspace_route_rules = [

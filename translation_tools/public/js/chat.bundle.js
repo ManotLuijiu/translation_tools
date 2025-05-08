@@ -6,7 +6,6 @@ import {
   get_settings,
   scroll_to_bottom,
 } from './components';
-import './chat_mcp_extension';
 frappe.provide('frappe.Chat');
 frappe.provide('frappe.Chat.settings');
 

@@ -1,5 +1,6 @@
 import frappe
 from frappe import _
+import json
 
 # from typing import Optional
 
@@ -194,7 +195,7 @@ def get_room_detail(room):
     return room_detail
 
 
-def is_user_allowed_in_room(room: str, email: str, user: str | None = None) -> bool:
+def is_user_allowed_in_room(room_name: str, email: str, user: str | None = None) -> bool:
     """Check if user is allowed in rooms
 
     Args:
@@ -207,7 +208,9 @@ def is_user_allowed_in_room(room: str, email: str, user: str | None = None) -> b
     """
     try:
         # Get the room details as a document, not a list
-        room_detail = frappe.get_doc("Chat Room", room)
+        room_detail = frappe.get_doc("Chat Room", room_name)
+        
+        print(f"room_detail is_user_allowed_in_room {room_detail}")
 
         # Check if room exists
         if not room_detail:
@@ -215,8 +218,30 @@ def is_user_allowed_in_room(room: str, email: str, user: str | None = None) -> b
 
         # Guest check
         room_type = room_detail.get("type", "")
-        members_data = room_detail.get("members") or []
+        
+        print(f"room_type {room_type}")
+        print(f"Room exists: {bool(room_detail)}")
+        print(f"Room type: {room_type}")
+        print(f"Raw members data: {room_detail.get('members')}")
+        print(f"Current user: {email}")
+       
+        
+        members_json = room_detail.get("members") or "[]"
+        
+        print(f"members_json {members_json}")
+        
+        members_data = json.loads(members_json)
+        
+        members_str = room_detail.get("members") or ""
+        print(f"members_str {members_str}")
+        
+        print(f"members_data {members_data}")
+        
         members = [member.get("user") for member in members_data]
+        print(f"Members list: {members}")
+        print(f"Is member: {email in members}")
+        
+        print(f"members {members}")
 
         if room_type != "Guest":
             if frappe.session.user == "Guest":
