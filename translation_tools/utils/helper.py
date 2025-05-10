@@ -17,6 +17,9 @@ def get_translation_settings() -> TranslationToolsSettings:
     """Return cached Translation Tools Settings or default settings if not found."""
     try:
         settings = frappe.get_cached_doc("Translation Tools Settings")
+        
+        print(f"settings get_translation_settings() {settings}")
+        
         return cast(TranslationToolsSettings, settings)
     except frappe.DoesNotExistError:
         # Return default settings when document not found

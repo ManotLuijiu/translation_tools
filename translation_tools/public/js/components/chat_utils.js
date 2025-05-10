@@ -117,6 +117,9 @@ async function get_settings(token) {
       token: token,
     },
   });
+
+  console.log('res get_settings', res);
+
   return await res.message;
 }
 
