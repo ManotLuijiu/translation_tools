@@ -22,7 +22,7 @@ dependencies = [
     "google-generativeai",
     "python-dotenv",
     "stipe",
-    "omise
+    "omise",
 ]
 
 [build-system]
