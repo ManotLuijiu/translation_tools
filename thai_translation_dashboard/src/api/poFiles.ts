@@ -71,7 +71,7 @@ export type POFileContentsPaginated = {
 export function useGetCachedPOFiles() {
   return useFrappeGetCall<{ message: POFile[] }>(
     'translation_tools.api.po_files.get_po_files',
-    {}
+    {},
   );
 }
 
@@ -80,7 +80,7 @@ export function useGetCachedPOFiles() {
  */
 export function useScanPOFiles() {
   const scanPostCall = useFrappePostCall(
-    'translation_tools.api.po_files.scan_po_files'
+    'translation_tools.api.po_files.scan_po_files',
   );
 
   // console.log('scanPostCall', scanPostCall);
@@ -113,7 +113,7 @@ export function useGetPOFileEntries(filePath: string | null) {
   return useFrappeGetCall<{ message: POFileContents }>(
     'translation_tools.api.po_files.get_po_file_entries',
     // { file_path: filePath },
-    shouldFetch ? { file_path: filePath } : undefined
+    shouldFetch ? { file_path: filePath } : undefined,
   );
 }
 
@@ -122,10 +122,10 @@ export function useGetPOFileEntries(filePath: string | null) {
  */
 export function useGetPOFileEntriesPaginated(
   filePath: string | null,
-  page: number = 1,
-  pageSize: number = 20,
+  page = 1,
+  pageSize = 20,
   filterType: 'all' | 'translated' | 'untranslated' = 'all',
-  searchTerm: string = ''
+  searchTerm = '',
 ) {
   //   const enabled = !!filePath
   const enabled = !!filePath;
@@ -149,7 +149,7 @@ export function useGetPOFileEntriesPaginated(
     // shouldFetch ? { file_path: filePath } : undefined
 
     // Only execute the API call if we have a file path
-    { enabled }
+    { enabled },
   );
 
   return {
@@ -172,7 +172,7 @@ export function useGetPOFileEntriesPaginated(
 export function useGetPOFileContents(
   filePath: string | null,
   limit = 100,
-  offset = 0
+  offset = 0,
 ) {
   return useFrappeGetCall(
     'translation_tools.api.po_files.get_po_file_contents',
@@ -182,7 +182,7 @@ export function useGetPOFileContents(
       offset,
     },
     // Only execute when a file path is provided
-    filePath ? undefined : { enabled: false }
+    filePath ? undefined : { enabled: false },
   );
 }
 

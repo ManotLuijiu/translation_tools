@@ -1,6 +1,6 @@
 {
-  "name": "BuncheeOnline",
-  "short_name": "Bunchee",
+  "name": "MyWebSite",
+  "short_name": "MySite",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -15,7 +15,7 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#0984e3",
-  "background_color": "#031e33",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
   "display": "standalone"
 }

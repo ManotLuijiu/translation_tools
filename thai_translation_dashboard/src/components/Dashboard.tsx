@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, Loader2, GitCompareArrows } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import { useFrappeGetCall, useFrappePostCall } from 'frappe-react-sdk';
 import { useGetTranslationSettings } from '../api';
-import { TabType, POFile } from '../types';
+import type { TabType, POFile } from '../types';
 import FileExplorer from './FileExplorer';
 import TranslationEditor from './TranslationEditor';
 import GlossaryManager from './GlossaryManager';
@@ -208,11 +208,13 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="editor" className="rounded-lg border p-4">
-            <TranslationEditor
-              translationMode={translationMode}
-              selectedFile={selectedFile}
-              settings={settingsData?.message! || null}
-            />
+            {settingsData?.message && (
+              <TranslationEditor
+                translationMode={translationMode}
+                selectedFile={selectedFile}
+                settings={settingsData.message}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="glossary" className="rounded-lg border p-4">

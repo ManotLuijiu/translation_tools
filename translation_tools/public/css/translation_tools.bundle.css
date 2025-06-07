@@ -872,7 +872,7 @@ textarea.form-control {
   padding-right: 5px;
 }
 
-.nav-link.active {
+#translation__tabs .nav-link.active {
   color: var(--text-color);
   background-color: gray;
   border-color: var(--border-color) var(--border-color) transparent;

@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { FrappeProvider } from 'frappe-react-sdk';
 
 import { AppProvider } from './context/AppProvider';

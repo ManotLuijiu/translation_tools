@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import {
   // useGetPOFileEntries,
   useGetPOFileEntriesPaginated,
   useTranslateSingleEntry,
-  useTranslateBatch,
+  // useTranslateBatch,
   useSaveTranslation,
   useSaveGithubToken,
   useTestGithubConnection,
@@ -41,7 +40,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import {
   Loader2,
@@ -165,7 +164,7 @@ export default function TranslationEditor({
     if (selectedFile?.file_path) {
       mutate();
     }
-  }, [selectedFile, entryFilter, searchTerm, mutate]);
+  }, [selectedFile, mutate, clearMessage]);
 
   // Update edited translation when selected entry changes
   // useEffect(() => {
@@ -192,7 +191,7 @@ export default function TranslationEditor({
       // This will trigger a new API call with the updated page
       mutate();
     }
-  }, [currentPage, mutate, selectedFile]);
+  }, [mutate, selectedFile]);
 
   // Use the settings to pre-fill the GitHub token
   useEffect(() => {
@@ -317,8 +316,12 @@ export default function TranslationEditor({
         toast.warning('Github Test has warning');
         // console.log('else_github_test');
       }
-    } catch (err: any) {
-      toast.error(err);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error(String(err));
+      }
       // console.log('github_test_err', err);
     }
   };
@@ -353,14 +356,15 @@ export default function TranslationEditor({
         if (settings?.auto_save) {
           await handleSave();
         }
-      } else {
-        console.error(result.error);
-        // setStatusMessage({
-        //   type: 'error',
-        //   message: result.error || 'Translation failed',
-        // });
-        showMessage('Translation Failed', 'error');
+        return;
       }
+
+      console.error(result.error);
+      // setStatusMessage({
+      //   type: 'error',
+      //   message: result.error || 'Translation failed',
+      // });
+      showMessage('Translation Failed', 'error');
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error
@@ -596,6 +600,7 @@ export default function TranslationEditor({
             return;
           }
           // GitHub push succeeded
+          // biome-ignore lint/style/noUselessElse: <explanation>
           else if (githubResult?.github_pushed) {
             msg += ' and shared on GitHub!';
           }
@@ -617,17 +622,23 @@ export default function TranslationEditor({
       }
     } catch (err: unknown) {
       // Handle exceptions
-      const errorObj = err as any;
+      const errorObj = err as unknown;
       console.error('Save error:', errorObj);
 
       // Check for server messages that might contain error details
       let errorMessage = 'An error occurred while saving';
-      let serverMessages = [];
+      let serverMessages: string[] = [];
 
       // Try to extract server messages if they exist
-      if (errorObj._server_messages) {
+      if (
+        typeof errorObj === 'object' &&
+        errorObj !== null &&
+        '_server_messages' in errorObj
+      ) {
         try {
-          serverMessages = JSON.parse(errorObj._server_messages);
+          serverMessages = JSON.parse(
+            (errorObj as { _server_messages: string })._server_messages
+          );
         } catch (parseErr) {
           console.error('Error parsing server messages:', parseErr);
         }
@@ -637,7 +648,7 @@ export default function TranslationEditor({
       const isTokenError =
         // Check server messages for token errors
         (serverMessages.length > 0 &&
-          serverMessages.some((msg: any) => {
+          serverMessages.some((msg: string) => {
             try {
               const parsedMsg = JSON.parse(msg);
               return (
@@ -650,10 +661,19 @@ export default function TranslationEditor({
             }
           })) ||
         // Check the error message itself
-        (errorObj.message &&
-          (errorObj.message.includes('Password not found') ||
-            errorObj.message.includes('GitHub token') ||
-            errorObj.message.includes('missing_token')));
+        (typeof errorObj === 'object' &&
+          errorObj !== null &&
+          'message' in errorObj &&
+          typeof (errorObj as { message?: string }).message === 'string' &&
+          ((errorObj as { message: string }).message.includes(
+            'Password not found'
+          ) ||
+            (errorObj as { message: string }).message.includes(
+              'GitHub token'
+            ) ||
+            (errorObj as { message: string }).message.includes(
+              'missing_token'
+            )));
 
       if (isTokenError) {
         // console.log('Token error detected, showing token dialog');
@@ -688,8 +708,13 @@ export default function TranslationEditor({
         } catch {
           // If parsing fails, fallback to standard error message
         }
-      } else if (errorObj.message) {
-        errorMessage = errorObj.message;
+      } else if (
+        typeof errorObj === 'object' &&
+        errorObj !== null &&
+        'message' in errorObj &&
+        typeof (errorObj as { message?: string }).message === 'string'
+      ) {
+        errorMessage = (errorObj as { message: string }).message;
       }
 
       showMessage(errorMessage, 'error');
@@ -725,7 +750,8 @@ export default function TranslationEditor({
     // First check if there's an untranslated entry in the current page
     const currentPageUntranslated = entries.find(
       (e, index) =>
-        !e.is_translated && entries.indexOf(selectedEntry as any) < index
+        !e.is_translated &&
+        entries.indexOf(selectedEntry as (typeof entries)[0]) < index
     );
 
     if (currentPageUntranslated) {
@@ -1160,7 +1186,14 @@ export default function TranslationEditor({
                             className="absolute right-2 top-0 transform translate-y-1/2"
                             onClick={() => setShowPassword(!showPassword)}
                             aria-label={
-                              showPassword ? 'Hide password' : 'Show password'
+                              showPassword
+                                ? 'Hide GitHub token'
+                                : 'Show GitHub token'
+                            }
+                            title={
+                              showPassword
+                                ? 'Hide GitHub token'
+                                : 'Show GitHub token'
                             }
                           >
                             {showPassword ? (
@@ -1170,6 +1203,7 @@ export default function TranslationEditor({
                                 viewBox="0 0 20 20"
                                 fill="currentColor"
                               >
+                                <title>Hide GitHub token</title>
                                 <path
                                   fillRule="evenodd"
                                   d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
@@ -1184,6 +1218,7 @@ export default function TranslationEditor({
                                 viewBox="0 0 20 20"
                                 fill="currentColor"
                               >
+                                <title>Show GitHub token</title>
                                 <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                                 <path
                                   fillRule="evenodd"
