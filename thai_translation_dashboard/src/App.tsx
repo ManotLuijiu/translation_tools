@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { FrappeProvider } from 'frappe-react-sdk';
 
 import { AppProvider } from './context/AppProvider';
@@ -7,11 +7,11 @@ import { Toaster } from '@/components/ui/sonner';
 import { useTheme } from './hooks/useTheme';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { CrossIcon, InfoIcon } from 'lucide-react';
+// import { CrossIcon, InfoIcon } from 'lucide-react';
 
 const App: React.FC = () => {
   const theme = useTheme();
-  console.log('theme', theme);
+  console.info('theme', theme);
   return (
     <FrappeProvider
       siteName={import.meta.env.VITE_SITE_NAME}

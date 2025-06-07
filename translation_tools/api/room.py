@@ -3,6 +3,7 @@ from frappe import _
 from translation_tools.utils import get_full_name
 import ast
 from typing import List, Dict
+from translation_tools.utils import is_user_allowed_in_room,raise_not_authorized_error
 
 
 @frappe.whitelist()
@@ -56,6 +57,35 @@ def get(email: str) -> List[Dict]:
     user_rooms.sort(key=lambda room: comparator(room))
     return user_rooms
 
+@frappe.whitelist()
+def delete(room):
+    """Delete a chat room and its messages.
+    
+    Args:
+        room (str): Room ID to delete.
+    
+    Returns:
+        bool: True if deletion was successful.
+    """
+    try:
+        # Check if user has permission to delete this room
+        user = frappe.session.user
+        
+        print(f"user inside delete() {user}")
+        
+        if not is_user_allowed_in_room(room, frappe.session.user): # type: ignore
+            raise_not_authorized_error()
+        
+        # Delete all messages in the room first
+        frappe.db.delete("Chat Message", {"room": room})
+        
+        # Then delete the room itself
+        frappe.delete_doc("Chat Room", room)
+        
+        return True
+    except Exception as e:
+        frappe.log_error(f"Error deleting chat room {room}: {str(e)}")
+        frappe.throw(f"Failed to delete chat room: {str(e)}")
 
 @frappe.whitelist()
 def create_private(room_name, users, type):

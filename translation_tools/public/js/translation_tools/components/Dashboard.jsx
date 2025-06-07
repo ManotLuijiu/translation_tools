@@ -5,6 +5,7 @@ import FileExplorer from './FileExplorer';
 import TranslationEditor from './TranslationEditor';
 import GlossaryManager from './GlossaryManager';
 import SettingsPanel from './SettingsPanel';
+// import GithubSync from './GithubSync';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('files');
@@ -16,7 +17,7 @@ export default function Dashboard() {
 
   const { data: translationSettingsData } = useGetTranslationSettings();
 
-  console.log('Translation Settings Data:', translationSettingsData);
+  console.info('Translation Settings Data:', translationSettingsData);
 
   useEffect(() => {
     const checkSetup = async () => {
@@ -29,12 +30,12 @@ export default function Dashboard() {
         });
         setSetupStatus(setupResponse.message);
 
-        console.log('setupResponse:', setupResponse);
-        console.log('setupResponse.message:', setupResponse.message);
-        console.log(
-          'setupResponse.message.complete:',
-          setupResponse.message.complete
-        );
+        // console.log('setupResponse:', setupResponse);
+        // console.log('setupResponse.message:', setupResponse.message);
+        // console.log(
+        //   'setupResponse.message.complete:',
+        //   setupResponse.message.complete
+        // );
 
         // Load settings if setup is complete
         if (setupResponse.message.complete) {
@@ -43,8 +44,8 @@ export default function Dashboard() {
             args: {},
           });
           setSettingsData(settingsResponse.message);
-          console.log('settingsResponse:', settingsResponse);
-          console.log('settingsResponse.message:', settingsResponse.message);
+          // console.log('settingsResponse:', settingsResponse);
+          // console.log('settingsResponse.message:', settingsResponse.message);
         }
       } catch (error) {
         console.error('Error checking setup status:', error);
@@ -61,6 +62,10 @@ export default function Dashboard() {
       setActiveTab('editor');
     }
   }, [selectedFile]);
+
+  // const refreshTranslations = () => {
+  //   console.log('refreshTranslations clicked');
+  // };
 
   const handleFileSelect = (file) => {
     setSelectedFile(file);
@@ -135,9 +140,20 @@ export default function Dashboard() {
             {__('Manage translations for Frappe/ERPNext ecosystem')}
           </p>
         </div>
+        {/* <div className="flex">
+          <div className="flex">
+            <GithubSync
+              selectedFile={selectedFile}
+              onSyncComplete={refreshTranslations}
+              onFilesFound={() => setActiveTab('files')}
+              onSelectGithubFile={(fileData) => setSelectedFile(fileData)}
+            />
+          </div>
+        </div> */}
+        {/* <div>Manual Mode</div> */}
       </div>
 
-      <div className="tabs-container">
+      <div id="translation__tabs__container" className="tabs-container">
         <ul
           id="translation__tabs"
           className="nav nav-tabs flex w-full justify-evenly"
@@ -155,8 +171,15 @@ export default function Dashboard() {
           <li className="nav-item">
             <a
               className={`nav-link text-center ${activeTab === 'editor' ? 'active' : ''} ${!selectedFile ? 'disabled' : ''}`}
-              onClick={() => selectedFile && setActiveTab('editor')}
+              onClick={(e) => {
+                if (!selectedFile) {
+                  e.preventDefault(); // Prevent click if disabled
+                  return;
+                }
+                setActiveTab('editor');
+              }}
               role="tab"
+              style={{ cursor: !selectedFile ? 'not-allowed' : 'pointer' }}
             >
               {__('Translation Editor')}
               {selectedFile && (

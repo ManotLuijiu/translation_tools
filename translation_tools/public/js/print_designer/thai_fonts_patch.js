@@ -1,7 +1,7 @@
 // Patch for adding Thai fonts to Print Designer
 
 (function () {
-  console.log('Thai fonts patch loading...');
+  // console.log('Thai fonts patch loading...');
 
   // Function to add Thai fonts to the Print Designer
   function addThaiToPrintDesigner() {
@@ -39,7 +39,8 @@
               [100, 200, 300, 400, 500, 600, 700, 800, 900],
             ];
 
-            console.log('Successfully added Thai fonts to Print Designer');
+            // console.log('Successfully added Thai fonts to Print Designer');
+
             return true;
           }
         }
@@ -52,7 +53,8 @@
           ];
 
           // Add other Thai fonts...
-          console.log('Added Thai fonts to global GoogleFonts');
+          // console.log('Added Thai fonts to global GoogleFonts');
+
           return true;
         }
       }
@@ -67,7 +69,7 @@
   // Try to modify fonts when the page loads
   $(document).on('page:change', function () {
     if (frappe.router.current_route[0] === 'print_designer') {
-      console.log('Print Designer detected, attempting to add Thai fonts...');
+      // console.log('Print Designer detected, attempting to add Thai fonts...');
 
       // Attempt immediately
       if (!addThaiToPrintDesigner()) {
@@ -77,12 +79,13 @@
 
         const attemptInterval = setInterval(function () {
           attempts++;
-          console.log(`Attempt ${attempts} to add Thai fonts...`);
+
+          console.info(`Attempt ${attempts} to add Thai fonts...`);
 
           if (addThaiToPrintDesigner() || attempts >= maxAttempts) {
             clearInterval(attemptInterval);
             if (attempts >= maxAttempts) {
-              console.log('Failed to add Thai fonts after maximum attempts');
+              console.info('Failed to add Thai fonts after maximum attempts');
             }
           }
         }, 1000);

@@ -9,7 +9,7 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { Loader2, RefreshCw, Save } from 'lucide-react';
-import { useTranslateBatch, useSaveBatchTranslations } from '../api';
+// import { useTranslateBatch, useSaveBatchTranslations } from '../api';
 import { useStatusMessage } from '@/hooks/useStatusMessage';
 import type { POFile, TranslationToolsSettings, POEntry } from '../types';
 import { useTranslation } from '@/context/TranslationContext';
@@ -30,7 +30,8 @@ export default function BatchTranslationView({
   batchSize,
   onTranslationComplete,
 }: BatchTranslationViewProps) {
-  console.log('batchSize BatchTranslationView.tsx', batchSize);
+  // console.log('batchSize BatchTranslationView.tsx', batchSize);
+
   const [selectedEntries, setSelectedEntries] = useState<POEntry[]>([]);
   const [translatedEntries, setTranslatedEntries] = useState<{
     [key: string]: string;
@@ -118,7 +119,7 @@ export default function BatchTranslationView({
         model: settings?.default_model || undefined,
       });
 
-      console.log('response translateBatchCall', response);
+      // console.log('response translateBatchCall', response);
 
       if (response?.message?.success) {
         // Update translations
@@ -174,7 +175,7 @@ export default function BatchTranslationView({
         push_to_github: settings?.github_enable && settings?.github_token,
       });
 
-      console.log('result saveBatchCall', result);
+      // console.log('result saveBatchCall', result);
 
       if (result?.message?.success) {
         showMessage(__('Translations saved successfully'), 'success');

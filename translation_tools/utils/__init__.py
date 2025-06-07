@@ -1,5 +1,9 @@
 import frappe
 from frappe import _
+import json
+
+# from typing import Optional
+
 # from frappe.utils import has_common
 # import datetime
 
@@ -191,33 +195,89 @@ def get_room_detail(room):
     return room_detail
 
 
-def is_user_allowed_in_room(room, email, user=None):
+def is_user_allowed_in_room(room_name: str, email: str, user: str | None = None) -> bool:
     """Check if user is allowed in rooms
 
     Args:
-        room (str): Room's name_case
+        room_name (str): Room's name/ID
         email (str): User's email
         user (str, optional): User's name. Defaults to None.
 
     Returns:
         bool: Whether user is allowed or not
     """
-    if user == "Guest" and frappe.session.user != user:
-        return False
+    try:
+        # Special case for Administrator - always allow
+        if email == "Administrator" or frappe.session.user == "Administrator":
+            return True
+            
+        # Special case for System Manager role
+        if "System Manager" in frappe.get_roles(frappe.session.user):
+            return True
+            
+        # Get the room details
+        room_detail = frappe.get_doc("Chat Room", room_name)
+        
+        # Check if room exists
+        if not room_detail:
+            return False
 
-    room_detail = get_room_detail(room)
-    if frappe.session.user == "Guest" and room_detail and room_detail.guest != email:  # type: ignore
-        return False
+        room_type = room_detail.type if hasattr(room_detail, "type") else "" # type: ignore
+        
+        # Guest cannot access non-Guest rooms
+        if room_type != "Guest" and frappe.session.user == "Guest":
+            return False
+            
+        # Check if user is the owner/creator of the room
+        if room_detail.owner == frappe.session.user:
+            return True
+            
+        # Get members from the users child table (if exists)
+        members = []
+        if hasattr(room_detail, "users") and room_detail.users: # type: ignore
+            members = [user_row.user for user_row in room_detail.users if hasattr(user_row, "user")] # type: ignore
+            
+        # Fallback to members text field if users table is empty
+        if not members and hasattr(room_detail, "members") and room_detail.members: # type: ignore
+            # Try different approaches to parse members
+            members_text = room_detail.members # type: ignore
+            
+            # Try JSON parsing first
+            try:
+                import json
+                members_data = json.loads(members_text)
+                if isinstance(members_data, list):
+                    # If list of strings
+                    if all(isinstance(item, str) for item in members_data):
+                        members = members_data
+                    # If list of objects with 'user' key
+                    elif all(isinstance(item, dict) for item in members_data):
+                        members = [item.get("user") for item in members_data if "user" in item]
+            except json.JSONDecodeError:
+                # If not JSON, try comma-separated list
+                members = [m.strip() for m in members_text.split(",") if m.strip()]
+                
+        # Check if current user or email is in members
+        current_user = frappe.session.user
+        user_email = email
+        
+        # For direct rooms, check if email or user is in members
+        if room_type == "Direct":
+            return any([
+                current_user in members,
+                user_email in members,
+                user and user in members
+            ])
+            
+        # For all other room types
+        return any([
+            current_user in members,
+            user_email in members
+        ])
 
-    if (
-        frappe.session.user != "Guest"
-        and room_detail
-        and room_detail.type != "Guest"  # type: ignore
-        and email not in room_detail.members  # type: ignore
-    ):
+    except Exception as e:
+        frappe.log_error(f"Error in is_user_allowed_in_room: {str(e)}, room: {room_name}, email: {email}")
         return False
-
-    return True
 
 
 class NotAuthorizedError(Exception):

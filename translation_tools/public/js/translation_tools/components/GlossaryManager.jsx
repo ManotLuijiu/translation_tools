@@ -4,9 +4,9 @@ import {
   useAddGlossaryTerm,
   useUpdateGlossaryTerm,
   useDeleteGlossaryTerm,
-  useGetERPNextModules,
   // GlossaryTerm,
 } from '../api';
+import { Search, PencilLine, Trash2Icon, X, Plus } from 'lucide-react';
 
 export default function GlossaryManager() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,7 +19,6 @@ export default function GlossaryManager() {
     thai_translation: '',
     context: '',
     category: '',
-    module: '',
     is_approved: false,
   });
   const [statusMessage, setStatusMessage] = useState(null);
@@ -31,10 +30,7 @@ export default function GlossaryManager() {
     isLoading: isLoadingTerms,
     refetch: refreshTerms,
   } = useGetGlossaryTerms();
-  const { data: modulesData, isLoading: isLoadingModules } =
-    useGetERPNextModules();
 
-  console.log('isLoadingModules', isLoadingModules);
   const addTerm = useAddGlossaryTerm();
   const updateTerm = useUpdateGlossaryTerm();
   const deleteTerm = useDeleteGlossaryTerm();
@@ -53,7 +49,6 @@ export default function GlossaryManager() {
       thai_translation: '',
       context: '',
       category: '',
-      module: '',
       is_approved: false,
     });
     setSelectedTerm(null);
@@ -66,7 +61,6 @@ export default function GlossaryManager() {
       thai_translation: term.thai_translation,
       context: term.context,
       category: term.category,
-      module: term.module,
       is_approved: term.is_approved,
     });
     setIsEditDialogOpen(true);
@@ -82,7 +76,7 @@ export default function GlossaryManager() {
       if (!formData.source_term || !formData.thai_translation) {
         setStatusMessage({
           type: 'error',
-          message: 'Source term and Thai translation are required',
+          message: __('Source term and Thai translation are required'),
         });
         return;
       }
@@ -92,7 +86,7 @@ export default function GlossaryManager() {
       if (result.success) {
         setStatusMessage({
           type: 'success',
-          message: 'Term added successfully',
+          message: __('Term added successfully'),
         });
         resetForm();
         setIsAddDialogOpen(false);
@@ -100,13 +94,13 @@ export default function GlossaryManager() {
       } else {
         setStatusMessage({
           type: 'error',
-          message: 'Failed to add term',
+          message: __('Failed to add term'),
         });
       }
     } catch (err) {
       setStatusMessage({
         type: 'error',
-        message: err.message || 'An error occurred',
+        message: err.message || __('An error occurred'),
       });
     }
   };
@@ -120,7 +114,7 @@ export default function GlossaryManager() {
       ) {
         setStatusMessage({
           type: 'error',
-          message: 'Source term and Thai translation are required',
+          message: __('Source term and Thai translation are required'),
         });
         return;
       }
@@ -133,7 +127,7 @@ export default function GlossaryManager() {
       if (result.success) {
         setStatusMessage({
           type: 'success',
-          message: 'Term updated successfully',
+          message: __('Term updated successfully'),
         });
         resetForm();
         setIsEditDialogOpen(false);
@@ -141,13 +135,13 @@ export default function GlossaryManager() {
       } else {
         setStatusMessage({
           type: 'error',
-          message: 'Failed to update term',
+          message: __('Failed to update term'),
         });
       }
     } catch (err) {
       setStatusMessage({
         type: 'error',
-        message: err.message || 'An error occurred',
+        message: err.message || __('An error occurred'),
       });
     }
   };
@@ -161,7 +155,7 @@ export default function GlossaryManager() {
       if (result.success) {
         setStatusMessage({
           type: 'success',
-          message: 'Term deleted successfully',
+          message: __('Term deleted successfully'),
         });
         resetForm();
         setIsDeleteDialogOpen(false);
@@ -169,13 +163,13 @@ export default function GlossaryManager() {
       } else {
         setStatusMessage({
           type: 'error',
-          message: 'Failed to delete term',
+          message: __('Failed to delete term'),
         });
       }
     } catch (err) {
       setStatusMessage({
         type: 'error',
-        message: err.message || 'An error occurred',
+        message: err.message || __('An error occurred'),
       });
     }
   };
@@ -192,35 +186,37 @@ export default function GlossaryManager() {
     }) || [];
 
   const categories = [
-    { value: 'Business', label: 'Business' },
-    { value: 'Technical', label: 'Technical' },
-    { value: 'UI', label: 'UI' },
-    { value: 'Date/Time', label: 'Date/Time' },
-    { value: 'Status', label: 'Status' },
+    { value: 'Business', label: __('Business') },
+    { value: 'Technical', label: __('Technical') },
+    { value: 'UI', label: __('UI') },
+    { value: 'Date/Time', label: __('Date/Time') },
+    { value: 'Status', label: __('Status') },
   ];
 
   return (
     <div className="glossary-manager">
       <div className="page-header">
-        <h2 className="heading">Translation Glossary</h2>
+        <h2 className="heading">{__('Translation Glossary')}</h2>
 
-        <button
-          className="btn btn-primary"
-          onClick={() => setIsAddDialogOpen(true)}
-        >
-          <span className="icon-plus"></span>
-          Add Term
-        </button>
+        <div className="flex justify-center text-center">
+          <button
+            className="btn btn-primary"
+            onClick={() => setIsAddDialogOpen(true)}
+          >
+            <Plus />
+            {__('Add Term')}
+          </button>
+        </div>
       </div>
 
-      <div className="search-box">
-        <span className="search-icon">
-          <span className="icon-search"></span>
+      <div className="search-wrapper">
+        <span className="search-icon flex">
+          <Search />
         </span>
         <input
           type="text"
           className="form-control"
-          placeholder="Search terms..."
+          placeholder={__('Search terms...')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -235,14 +231,16 @@ export default function GlossaryManager() {
           <span className="indicator red"></span>
           <div className="alert-body">
             <h5>Error</h5>
-            <div>{termsError.message || 'Failed to load glossary terms'}</div>
+            <div>
+              {termsError.message || __('Failed to load glossary terms')}
+            </div>
           </div>
         </div>
       ) : filteredTerms.length === 0 ? (
         <div className="no-results">
           {searchTerm
-            ? 'No terms match your search'
-            : 'No glossary terms found. Click "Add Term" to create one.'}
+            ? __('No terms match your search')
+            : __('No glossary terms found. Click "Add Term" to create one.')}
         </div>
       ) : (
         <div className="frappe-card">
@@ -250,12 +248,11 @@ export default function GlossaryManager() {
             <table className="table table-bordered">
               <thead>
                 <tr>
-                  <th>English Term</th>
-                  <th>Thai Translation</th>
-                  <th>Category</th>
-                  <th>Module</th>
-                  <th>Status</th>
-                  <th width="100">Actions</th>
+                  <th>{__('English Term')}</th>
+                  <th>{__('Thai Translation')}</th>
+                  <th>{__('Category')}</th>
+                  <th>{__('Status')}</th>
+                  <th width="100">{__('Actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -264,12 +261,15 @@ export default function GlossaryManager() {
                     <td className="bold">{term.source_term}</td>
                     <td>{term.thai_translation}</td>
                     <td>{term.category || '-'}</td>
-                    <td>{term.module || '-'}</td>
                     <td>
                       {term.is_approved ? (
-                        <span className="indicator-pill green">Approved</span>
+                        <span className="indicator-pill green">
+                          {__('Approved')}
+                        </span>
                       ) : (
-                        <span className="indicator-pill gray">Pending</span>
+                        <span className="indicator-pill gray">
+                          {__('Pending')}
+                        </span>
                       )}
                     </td>
                     <td>
@@ -278,13 +278,13 @@ export default function GlossaryManager() {
                           className="btn btn-icon btn-sm"
                           onClick={() => openEditDialog(term)}
                         >
-                          <span className="icon-pencil"></span>
+                          <PencilLine />
                         </button>
                         <button
                           className="btn btn-icon btn-sm text-danger"
                           onClick={() => openDeleteDialog(term)}
                         >
-                          <span className="icon-trash"></span>
+                          <Trash2Icon />
                         </button>
                       </div>
                     </td>
@@ -300,27 +300,28 @@ export default function GlossaryManager() {
       {isAddDialogOpen && (
         <div className="modal-backdrop">
           <div className="modal-dialog">
-            <div className="modal-content">
+            <div id="glossary__modal__content" className="modal-content">
               <div className="modal-header">
-                <h4 className="modal-title">Add New Glossary Term</h4>
+                <h4 className="modal-title">{__('Add New Glossary Term')}</h4>
                 <button
                   type="button"
                   className="close"
                   onClick={() => setIsAddDialogOpen(false)}
                 >
-                  &times;
+                  <X />
                 </button>
               </div>
 
               <div className="modal-body">
                 <p className="text-muted">
-                  Add a new term to the translation glossary.
+                  {__('Add a new term to the translation glossary.')}
                 </p>
 
-                <div className="form-grid">
+                <div id="glossary__term" className="form-grid">
                   <div className="form-group">
                     <label className="control-label" htmlFor="source_term">
-                      English Term *
+                      {__('English Term')}{' '}
+                      <span className="glossary-term-text text-red-600">*</span>
                     </label>
                     <input
                       type="text"
@@ -329,14 +330,15 @@ export default function GlossaryManager() {
                       className="form-control"
                       value={formData.source_term || ''}
                       onChange={handleInputChange}
-                      placeholder="Enter source term"
+                      placeholder={__('Enter source term')}
                       required
                     />
                   </div>
 
                   <div className="form-group">
                     <label className="control-label" htmlFor="thai_translation">
-                      Thai Translation *
+                      {__('Thai Translation')}{' '}
+                      <span className="glossary-term-text">*</span>
                     </label>
                     <input
                       type="text"
@@ -345,31 +347,35 @@ export default function GlossaryManager() {
                       className="form-control"
                       value={formData.thai_translation || ''}
                       onChange={handleInputChange}
-                      placeholder="Enter Thai translation"
+                      placeholder={__('Enter Thai translation')}
                       required
                     />
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label className="control-label" htmlFor="context">
-                    Context
-                  </label>
-                  <textarea
-                    id="context"
-                    name="context"
-                    className="form-control"
-                    value={formData.context || ''}
-                    onChange={handleInputChange}
-                    placeholder="Provide context for this term (optional)"
-                    rows="3"
-                  ></textarea>
+                <div id="glossary__context" className="form-flex">
+                  <div className="form-group">
+                    <label className="control-label" htmlFor="context">
+                      {__('Context')}
+                    </label>
+                    <textarea
+                      id="context"
+                      name="context"
+                      className="form-control"
+                      value={formData.context || ''}
+                      onChange={handleInputChange}
+                      placeholder={__(
+                        'Provide context for this term (optional)'
+                      )}
+                      rows="3"
+                    ></textarea>
+                  </div>
                 </div>
 
                 <div className="form-grid">
                   <div className="form-group">
                     <label className="control-label" htmlFor="category">
-                      Category
+                      {__('Category')}
                     </label>
                     <select
                       id="category"
@@ -378,7 +384,7 @@ export default function GlossaryManager() {
                       value={formData.category || ''}
                       onChange={handleInputChange}
                     >
-                      <option value="">Select category</option>
+                      <option value="">{__('Select category')}</option>
                       {categories.map((category) => (
                         <option key={category.value} value={category.value}>
                           {category.label}
@@ -386,30 +392,10 @@ export default function GlossaryManager() {
                       ))}
                     </select>
                   </div>
-
-                  <div className="form-group">
-                    <label className="control-label" htmlFor="module">
-                      Module
-                    </label>
-                    <select
-                      id="module"
-                      name="module"
-                      className="form-control"
-                      value={formData.module || ''}
-                      onChange={handleInputChange}
-                    >
-                      <option value="">Select module</option>
-                      {modulesData?.map((module) => (
-                        <option key={module.name} value={module.name}>
-                          {module.module_name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
                 </div>
 
                 <div className="form-group">
-                  <div className="checkbox">
+                  <div id="glossary__checkbox" className="checkbox">
                     <label>
                       <input
                         type="checkbox"
@@ -418,7 +404,7 @@ export default function GlossaryManager() {
                         checked={!!formData.is_approved}
                         onChange={handleInputChange}
                       />
-                      Approved Term
+                      {__('Approved Term')}
                     </label>
                   </div>
                 </div>
@@ -449,7 +435,7 @@ export default function GlossaryManager() {
                   className="btn btn-secondary"
                   onClick={() => setIsAddDialogOpen(false)}
                 >
-                  Cancel
+                  {__('Cancel')}
                 </button>
                 <button
                   className="btn btn-primary"
@@ -459,10 +445,10 @@ export default function GlossaryManager() {
                   {addTerm.isLoading ? (
                     <>
                       <span className="spinner-sm"></span>
-                      Adding...
+                      {__('Adding...')}
                     </>
                   ) : (
-                    'Save Term'
+                    __('Save Term')
                   )}
                 </button>
               </div>
@@ -475,27 +461,28 @@ export default function GlossaryManager() {
       {isEditDialogOpen && (
         <div className="modal-backdrop">
           <div className="modal-dialog">
-            <div className="modal-content">
+            <div id="glossary__modal__edit" className="modal-content">
               <div className="modal-header">
-                <h4 className="modal-title">Edit Glossary Term</h4>
+                <h4 className="modal-title">{__('Edit Glossary Term')}</h4>
                 <button
                   type="button"
                   className="close"
                   onClick={() => setIsEditDialogOpen(false)}
                 >
-                  &times;
+                  <X />
                 </button>
               </div>
 
               <div className="modal-body">
                 <p className="text-muted">
-                  Update the translation glossary term.
+                  {__('Update the translation glossary term.')}
                 </p>
 
                 <div className="form-grid">
                   <div className="form-group">
                     <label className="control-label" htmlFor="edit_source_term">
-                      English Term *
+                      {__('English Term')}{' '}
+                      <span className="glossary-term-text text-red-600">*</span>
                     </label>
                     <input
                       type="text"
@@ -504,7 +491,7 @@ export default function GlossaryManager() {
                       className="form-control"
                       value={formData.source_term || ''}
                       onChange={handleInputChange}
-                      placeholder="Enter source term"
+                      placeholder={__('Enter source term')}
                       required
                     />
                   </div>
@@ -514,7 +501,8 @@ export default function GlossaryManager() {
                       className="control-label"
                       htmlFor="edit_thai_translation"
                     >
-                      Thai Translation *
+                      {__('Thai Translation')}{' '}
+                      <span className="glossary-term-text text-red-600">*</span>
                     </label>
                     <input
                       type="text"
@@ -523,31 +511,35 @@ export default function GlossaryManager() {
                       className="form-control"
                       value={formData.thai_translation || ''}
                       onChange={handleInputChange}
-                      placeholder="Enter Thai translation"
+                      placeholder={__('Enter Thai translation')}
                       required
                     />
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label className="control-label" htmlFor="edit_context">
-                    Context
-                  </label>
-                  <textarea
-                    id="edit_context"
-                    name="context"
-                    className="form-control"
-                    value={formData.context || ''}
-                    onChange={handleInputChange}
-                    placeholder="Provide context for this term (optional)"
-                    rows="3"
-                  ></textarea>
+                <div id="glossary__context__edit" className="form-flex">
+                  <div className="form-group">
+                    <label className="control-label" htmlFor="edit_context">
+                      {__('Context')}
+                    </label>
+                    <textarea
+                      id="edit_context"
+                      name="context"
+                      className="form-control"
+                      value={formData.context || ''}
+                      onChange={handleInputChange}
+                      placeholder={__(
+                        'Provide context for this term (optional)'
+                      )}
+                      rows="3"
+                    ></textarea>
+                  </div>
                 </div>
 
                 <div className="form-grid">
                   <div className="form-group">
                     <label className="control-label" htmlFor="edit_category">
-                      Category
+                      {__('Category')}
                     </label>
                     <select
                       id="edit_category"
@@ -556,7 +548,7 @@ export default function GlossaryManager() {
                       value={formData.category || ''}
                       onChange={handleInputChange}
                     >
-                      <option value="">Select category</option>
+                      <option value="">{__('Select category')}</option>
                       {categories.map((category) => (
                         <option key={category.value} value={category.value}>
                           {category.label}
@@ -564,30 +556,10 @@ export default function GlossaryManager() {
                       ))}
                     </select>
                   </div>
-
-                  <div className="form-group">
-                    <label className="control-label" htmlFor="edit_module">
-                      Module
-                    </label>
-                    <select
-                      id="edit_module"
-                      name="module"
-                      className="form-control"
-                      value={formData.module || ''}
-                      onChange={handleInputChange}
-                    >
-                      <option value="">Select module</option>
-                      {modulesData?.map((module) => (
-                        <option key={module.name} value={module.name}>
-                          {module.module_name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
                 </div>
 
                 <div className="form-group">
-                  <div className="checkbox">
+                  <div id="glossary__checkbox__edit" className="checkbox">
                     <label>
                       <input
                         type="checkbox"
@@ -596,7 +568,7 @@ export default function GlossaryManager() {
                         checked={!!formData.is_approved}
                         onChange={handleInputChange}
                       />
-                      Approved Term
+                      {__('Approved Term')}
                     </label>
                   </div>
                 </div>
@@ -627,7 +599,7 @@ export default function GlossaryManager() {
                   className="btn btn-secondary"
                   onClick={() => setIsEditDialogOpen(false)}
                 >
-                  Cancel
+                  {__('Cancel')}
                 </button>
                 <button
                   className="btn btn-primary"
@@ -637,10 +609,10 @@ export default function GlossaryManager() {
                   {updateTerm.isLoading ? (
                     <>
                       <span className="spinner-sm"></span>
-                      Updating...
+                      {__('Updating...')}
                     </>
                   ) : (
-                    'Update Term'
+                    __('Update Term')
                   )}
                 </button>
               </div>
@@ -655,21 +627,22 @@ export default function GlossaryManager() {
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h4 className="modal-title">Confirm Deletion</h4>
+                <h4 className="modal-title">{__('Confirm Deletion')}</h4>
                 <button
                   type="button"
                   className="close"
                   onClick={() => setIsDeleteDialogOpen(false)}
                 >
-                  &times;
+                  <X />
                 </button>
               </div>
 
               <div className="modal-body">
-                <p>Are you sure you want to delete this term?</p>
+                <p>{__('Are you sure you want to delete this term?')}</p>
                 <p className="text-danger">
-                  This will permanently delete the glossary term "
-                  {selectedTerm?.source_term}". This action cannot be undone.
+                  {__('This will permanently delete the glossary term "')}
+                  {selectedTerm?.source_term}".{' '}
+                  {__('This action cannot be undone.')}
                 </p>
               </div>
 
@@ -678,7 +651,7 @@ export default function GlossaryManager() {
                   className="btn btn-secondary"
                   onClick={() => setIsDeleteDialogOpen(false)}
                 >
-                  Cancel
+                  {__('Cancel')}
                 </button>
                 <button
                   className="btn btn-danger"
@@ -688,10 +661,10 @@ export default function GlossaryManager() {
                   {deleteTerm.isLoading ? (
                     <>
                       <span className="spinner-sm"></span>
-                      Deleting...
+                      {__('Deleting...')}
                     </>
                   ) : (
-                    'Delete'
+                    __('Delete')
                   )}
                 </button>
               </div>

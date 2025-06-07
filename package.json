@@ -17,7 +17,7 @@
     "skip-commit": "HUSKY=0 git commit -m"
   },
   "keywords": [],
-  "author": "",
+  "author": "Manot Luijiu",
   "license": "ISC",
   "dependencies": {
     "@tanstack/react-query": "4.29.19",

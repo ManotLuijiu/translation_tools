@@ -71,7 +71,7 @@ export type POFileContentsPaginated = {
 export function useGetCachedPOFiles() {
   return useFrappeGetCall<{ message: POFile[] }>(
     'translation_tools.api.po_files.get_po_files',
-    {}
+    {},
   );
 }
 
@@ -80,17 +80,17 @@ export function useGetCachedPOFiles() {
  */
 export function useScanPOFiles() {
   const scanPostCall = useFrappePostCall(
-    'translation_tools.api.po_files.scan_po_files'
+    'translation_tools.api.po_files.scan_po_files',
   );
 
-  console.log('scanPostCall', scanPostCall);
+  // console.log('scanPostCall', scanPostCall);
 
   // Wrap the call function to accept no parameters
   const scanFiles = async () => {
     return scanPostCall.call({});
   };
 
-  console.log('scanFiles', scanFiles);
+  // console.log('scanFiles', scanFiles);
 
   return {
     ...scanPostCall,
@@ -108,12 +108,12 @@ export function useGetPOFileEntries(filePath: string | null) {
   //   throw new Error('filePath cannot be null or undefined')
   // }
 
-  console.log('filePath', filePath);
+  // console.log('filePath', filePath);
 
   return useFrappeGetCall<{ message: POFileContents }>(
     'translation_tools.api.po_files.get_po_file_entries',
     // { file_path: filePath },
-    shouldFetch ? { file_path: filePath } : undefined
+    shouldFetch ? { file_path: filePath } : undefined,
   );
 }
 
@@ -122,10 +122,10 @@ export function useGetPOFileEntries(filePath: string | null) {
  */
 export function useGetPOFileEntriesPaginated(
   filePath: string | null,
-  page: number = 1,
-  pageSize: number = 20,
+  page = 1,
+  pageSize = 20,
   filterType: 'all' | 'translated' | 'untranslated' = 'all',
-  searchTerm: string = ''
+  searchTerm = '',
 ) {
   //   const enabled = !!filePath
   const enabled = !!filePath;
@@ -133,7 +133,7 @@ export function useGetPOFileEntriesPaginated(
   //   throw new Error('filePath cannot be null or undefined')
   // }
 
-  console.log('filePath', filePath);
+  // console.log('filePath', filePath);
 
   const { data, error, isLoading, mutate } = useFrappeGetCall<{
     message: POFileContentsPaginated;
@@ -149,7 +149,7 @@ export function useGetPOFileEntriesPaginated(
     // shouldFetch ? { file_path: filePath } : undefined
 
     // Only execute the API call if we have a file path
-    { enabled }
+    { enabled },
   );
 
   return {
@@ -172,7 +172,7 @@ export function useGetPOFileEntriesPaginated(
 export function useGetPOFileContents(
   filePath: string | null,
   limit = 100,
-  offset = 0
+  offset = 0,
 ) {
   return useFrappeGetCall(
     'translation_tools.api.po_files.get_po_file_contents',
@@ -182,7 +182,7 @@ export function useGetPOFileContents(
       offset,
     },
     // Only execute when a file path is provided
-    filePath ? undefined : { enabled: false }
+    filePath ? undefined : { enabled: false },
   );
 }
 

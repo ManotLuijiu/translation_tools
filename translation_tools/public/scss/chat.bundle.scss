@@ -154,7 +154,6 @@ $height: 582px;
       position: absolute;
       padding-right: 10px;
       height: 100%;
-      margin-left: 12px;
       z-index: 3;
     }
     .chat-search-box {
@@ -174,6 +173,8 @@ $height: 582px;
 
     .chat-room {
       display: flex;
+      justify-content: center;
+      align-items: center;
       font-size: $font-size-sm;
       cursor: pointer;
       position: relative;
@@ -190,6 +191,7 @@ $height: 582px;
 
       .chat-profile-info {
         display: flex;
+        flex: 1;
         justify-content: space-between;
         align-items: center;
         width: 100%;
@@ -204,6 +206,10 @@ $height: 582px;
 
       .chat-date {
         color: var(--text-muted);
+        display: flex;
+        justify-content: end;
+        overflow: hidden;
+        font-size: 0.6rem;
       }
 
       .chat-latest {
@@ -215,6 +221,28 @@ $height: 582px;
       }
     }
   }
+}
+
+.last-message {
+  overflow: hidden;
+  margin-right: 0.6rem;
+}
+
+.chat-room-actions {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.chat-room:hover .chat-room-actions {
+  opacity: 1;
+}
+
+.delete-room {
+  color: var(--red-500);
 }
 
 .chat-header {
@@ -514,6 +542,14 @@ $height: 582px;
     font-size: 9px;
     border: 1px solid var(--red-avatar-color);
   }
+}
+
+[id^='tax-bot-chat-room-'] .avatar-medium {
+  /* CSS properties for all tax bot chat rooms */
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .typing-indicator {

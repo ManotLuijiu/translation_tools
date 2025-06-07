@@ -5,6 +5,7 @@ import {
   get_time,
   get_avatar_html,
   set_notification_count,
+  delete_room,
 } from './chat_utils';
 
 export default class ChatRoom {
@@ -22,6 +23,7 @@ export default class ChatRoom {
   setup() {
     this.$chat_room = $(document.createElement('div'));
     this.$chat_room.addClass('chat-room');
+    this.$chat_room.attr('id', `tax-bot-chat-room-${this.profile.room}`);
 
     this.avatar_html = get_avatar_html(
       this.profile.room_type,
@@ -49,9 +51,20 @@ export default class ChatRoom {
 				${__(get_date_from_now(this.profile.last_date, 'room'))}
 			</div>
 		`;
+
+    // Add delete button
+    const delete_button = `
+      <div class="chat-room-actions">
+        <button class="btn btn-xs btn-danger delete-room" 
+          title="${__('Delete Room')}" data-room="${this.profile.room}">
+          ${frappe.utils.icon('delete', 'sm')}
+        </button>
+      </div>
+    `;
+
     let inner_html = '';
 
-    inner_html += this.avatar_html + info_html + date_html;
+    inner_html += this.avatar_html + info_html + date_html + delete_button;
 
     this.$chat_room.html(inner_html);
   }
@@ -103,7 +116,11 @@ export default class ChatRoom {
   }
 
   setup_events() {
-    this.$chat_room.on('click', () => {
+    this.$chat_room.on('click', (e) => {
+      // Don't trigger room open if delete button was clicked
+      if ($(e.target).closest('.delete-room').length) {
+        return;
+      }
       if (typeof this.chat_space !== 'undefined') {
         this.chat_space.render();
       } else {
@@ -118,5 +135,59 @@ export default class ChatRoom {
         this.set_as_read();
       }
     });
+
+    // Add click event for delete button
+    this.$chat_room.find('.delete-room').on('click', (e) => {
+      e.stopPropagation(); // Prevent event bubbling to parent
+
+      frappe.confirm(
+        __('Are you sure you want to delete this chat room?'),
+        () => {
+          // On Yes
+          this.delete_room();
+        },
+        () => {
+          // On No
+          return;
+        }
+      );
+    });
+  }
+
+  delete_room() {
+    const me = this;
+
+    frappe.show_alert({
+      message: __('Deleting chat room...'),
+      indicator: 'orange',
+    });
+
+    delete_room(this.profile.room)
+      .then(() => {
+        // Remove from DOM
+        me.$chat_room.fadeOut(300, function () {
+          $(this).remove();
+        });
+
+        // Remove from chat_list.chat_rooms array
+        const index = me.chat_list.chat_rooms.findIndex(
+          (item) => item[0] === me.profile.room
+        );
+
+        if (index !== -1) {
+          me.chat_list.chat_rooms.splice(index, 1);
+        }
+
+        frappe.show_alert({
+          message: __('Chat room deleted successfully'),
+          indicator: 'green',
+        });
+      })
+      .catch((error) => {
+        frappe.show_alert({
+          message: __('Failed to delete chat room: ') + error,
+          indicator: 'red',
+        });
+      });
   }
 }

@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, Loader2, GitCompareArrows } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import { useFrappeGetCall, useFrappePostCall } from 'frappe-react-sdk';
 import { useGetTranslationSettings } from '../api';
-import { TabType, POFile } from '../types';
+import type { TabType, POFile } from '../types';
 import FileExplorer from './FileExplorer';
 import TranslationEditor from './TranslationEditor';
 import GlossaryManager from './GlossaryManager';
@@ -31,11 +31,11 @@ export default function Dashboard() {
   );
   const { data: settingsData } = useGetTranslationSettings();
 
-  console.log('selectedFile', selectedFile);
-  console.log(__('Print Message'));
+  // console.log('selectedFile', selectedFile);
+  // console.log(__('Print Message'));
 
   const refreshTranslations = () => {
-    console.log('refreshTranslations clicked');
+    console.info('refreshTranslations clicked');
   };
 
   // Check setup status
@@ -44,7 +44,7 @@ export default function Dashboard() {
     {}
   );
 
-  console.log('Setup Data: from Dashboard.tsx', setupData);
+  // console.log('Setup Data: from Dashboard.tsx', setupData);
 
   // Run setup function
   const runSetup = useFrappePostCall(
@@ -208,11 +208,13 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="editor" className="rounded-lg border p-4">
-            <TranslationEditor
-              translationMode={translationMode}
-              selectedFile={selectedFile}
-              settings={settingsData?.message! || null}
-            />
+            {settingsData?.message && (
+              <TranslationEditor
+                translationMode={translationMode}
+                selectedFile={selectedFile}
+                settings={settingsData.message}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="glossary" className="rounded-lg border p-4">

@@ -1,0 +1,79 @@
+{
+  "actions": [],
+  "allow_rename": 1,
+  "creation": "2025-05-06 17:55:41.911332",
+  "doctype": "DocType",
+  "autoname": "field:name",
+  "engine": "InnoDB",
+  "field_order": [
+    "name",
+    "user",
+    "token_balance",
+    "total_tokens_used",
+    "total_tokens_purchased"
+  ],
+  "fields": [
+    {
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "label": "Name",
+      "reqd": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "user",
+      "fieldtype": "Link",
+      "label": "User",
+      "options": "User",
+      "reqd": 1
+    },
+    {
+      "fieldname": "token_balance",
+      "fieldtype": "Int",
+      "label": "Token Balance",
+      "default": 1000
+    },
+    {
+      "fieldname": "total_tokens_used",
+      "fieldtype": "Int",
+      "label": "Total Tokens Used",
+      "default": 0
+    },
+    {
+      "fieldname": "total_tokens_purchased",
+      "fieldtype": "Int",
+      "label": "Total Tokens Purchased",
+      "default": 0
+    }
+  ],
+  "grid_page_length": 50,
+  "index_web_pages_for_search": 1,
+  "links": [],
+  "modified": "2025-05-06 17:55:41.911332",
+  "modified_by": "Administrator",
+  "module": "Translation Tools",
+  "name": "User Tokens",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "read": 1,
+      "role": "All"
+    }
+  ],
+  "row_format": "Dynamic",
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": []
+}

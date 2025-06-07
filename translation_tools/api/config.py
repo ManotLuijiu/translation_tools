@@ -48,20 +48,31 @@ def settings(token=None):
     """Fetch and return the settings for a translation chat session."""
 
     user = safe_get_session_user()
+    user1 = frappe.session.user
+    user_email = frappe.get_cached_value("User", user, "email")
+    
+    print(f"user config.settings {user}") # Return Administrator
+    print(f"user1 config.settings {user1}") # Return Administrator
+    print(f"user_email config.settings {user_email}") # Return user email
+    
     is_admin = safe_is_admin(user)
 
     config = {
         "socketio_port": frappe.conf.socketio_port,
-        "user_email": user,
+        "user_email": user_email,
         "is_admin": is_admin,
         "guest_title": "".join(
             frappe.get_hooks("guest_title") or ["Translation Assistant"]
         ),
     }
+    
+    print(f"config config.settings {config}")
 
     # Add Translation Tools Settings
     try:
         settings = get_translation_settings()
+        
+        print(f"settings config.settings {settings}")
 
         config["enable_translation"] = settings.enable_translation or 1
         config["default_source_language"] = settings.default_source_language or "en"

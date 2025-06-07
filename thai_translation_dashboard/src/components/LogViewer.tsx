@@ -1,101 +1,101 @@
-import React, { useState, useEffect } from 'react'
-import { useFrappeGetCall } from 'frappe-react-sdk'
-import { Button } from './ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
+import React, { useState, useEffect } from 'react';
+import { useFrappeGetCall } from 'frappe-react-sdk';
+import { Button } from './ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
-} from './ui/card'
-import { Badge } from './ui/badge'
-import { Alert, AlertDescription, AlertTitle } from './ui/alert'
-import { Download, AlertCircle, RefreshCw } from 'lucide-react'
+} from './ui/card';
+import { Badge } from './ui/badge';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { Download, AlertCircle, RefreshCw } from 'lucide-react';
 
 interface LogViewerProps {
-  logFilePath: string | null
+  logFilePath: string | null;
 }
 
 interface LogData {
-  success: boolean
-  logs: string
+  success: boolean;
+  logs: string;
   analysis: {
-    api_calls: number
-    api_responses: number
-    errors: string[]
-  }
+    api_calls: number;
+    api_responses: number;
+    errors: string[];
+  };
 }
 
 const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
-  const [activeTab, setActiveTab] = useState<'analysis' | 'raw'>('analysis')
+  const [activeTab, setActiveTab] = useState<'analysis' | 'raw'>('analysis');
 
   const { data, error, isLoading, mutate } = useFrappeGetCall<{
-    message: LogData
+    message: LogData;
   }>('translation_tools.api.get_translation_logs', {
     log_file: logFilePath,
-  })
+  });
 
   // Extract API call issues from logs
   const apiCalls = React.useMemo(() => {
-    if (!data?.message?.logs) return []
+    if (!data?.message?.logs) return [];
 
-    const apiCallRegex = /API call.*?(?=API call|$)/gs
-    const matches = data.message.logs.match(apiCallRegex) || []
+    const apiCallRegex = /API call.*?(?=API call|$)/gs;
+    const matches = data.message.logs.match(apiCallRegex) || [];
 
     return matches.map((match) => {
-      const hasError = match.includes('Error') || match.includes('error')
+      const hasError = match.includes('Error') || match.includes('error');
       return {
         content: match.trim(),
         hasError,
-      }
-    })
-  }, [data?.message?.logs])
+      };
+    });
+  }, [data?.message?.logs]);
 
-  console.log('apiCalls', apiCalls)
+  console.info('apiCalls', apiCalls);
 
   // Extract model response patterns
   const responsePatterns = React.useMemo(() => {
-    if (!data?.message?.logs) return []
+    if (!data?.message?.logs) return [];
 
-    const responseRegex = /Raw response: (.*?)(?=Raw response:|$)/gs
-    const matches = data.message.logs.match(responseRegex) || []
+    const responseRegex = /Raw response: (.*?)(?=Raw response:|$)/gs;
+    const matches = data.message.logs.match(responseRegex) || [];
 
     return matches.map((match) => {
-      const content = match.trim()
-      const hasJson = content.includes('{') && content.includes('}')
-      const isArray = content.includes('[') && content.includes(']')
-      const hasError = content.includes('error') || content.includes('Error')
+      const content = match.trim();
+      const hasJson = content.includes('{') && content.includes('}');
+      const isArray = content.includes('[') && content.includes(']');
+      const hasError = content.includes('error') || content.includes('Error');
 
       return {
         content,
         format: hasJson ? 'JSON' : isArray ? 'Array' : 'Unknown',
         hasError,
-      }
-    })
-  }, [data?.message?.logs])
+      };
+    });
+  }, [data?.message?.logs]);
 
   // Parse JSON parsing issues
   const jsonParsingIssues = React.useMemo(() => {
-    if (!data?.message?.logs) return []
+    if (!data?.message?.logs) return [];
 
-    const regex = /JSON parsing error: (.*?)(?=\n|$)/g
-    const matches = []
-    let match: RegExpExecArray | null = regex.exec(data.message.logs)
+    const regex = /JSON parsing error: (.*?)(?=\n|$)/g;
+    const matches = [];
+    let match: RegExpExecArray | null = regex.exec(data.message.logs);
 
     while (match !== null) {
-      matches.push(match[1])
-      match = regex.exec(data.message.logs)
+      matches.push(match[1]);
+      match = regex.exec(data.message.logs);
     }
 
-    return matches
-  }, [data?.message?.logs])
+    return matches;
+  }, [data?.message?.logs]);
 
   // Analyze common pattern issues
   const commonIssues = React.useMemo(() => {
-    if (!data?.message?.logs) return []
+    if (!data?.message?.logs) return [];
 
-    const issues = []
+    const issues = [];
 
     // Check for rate limiting
     if (data.message.logs.includes('Rate limit')) {
@@ -103,7 +103,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
         type: 'Rate Limiting',
         description: 'API rate limits were reached during translation',
         severity: 'warning',
-      })
+      });
     }
 
     // Check for token limit issues
@@ -112,7 +112,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
         type: 'Token Limit',
         description: "The request exceeded the model's maximum token limit",
         severity: 'error',
-      })
+      });
     }
 
     // Check for JSON format issues
@@ -122,7 +122,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
         description:
           "The model returned responses that couldn't be parsed as JSON",
         severity: 'error',
-      })
+      });
     }
 
     // Check for API timeouts
@@ -131,7 +131,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
         type: 'API Timeout',
         description: 'API requests timed out during translation',
         severity: 'error',
-      })
+      });
     }
 
     // Check for connection issues
@@ -143,32 +143,32 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
         type: 'Connection',
         description: 'Network connection issues occurred during translation',
         severity: 'error',
-      })
+      });
     }
 
-    return issues
-  }, [data?.message?.logs, jsonParsingIssues])
+    return issues;
+  }, [data?.message?.logs, jsonParsingIssues]);
 
   // Download logs as a file
   const handleDownloadLogs = () => {
-    if (!data?.message?.logs) return
+    if (!data?.message?.logs) return;
 
-    const blob = new Blob([data.message.logs], { type: 'text/plain' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'translation_logs.txt'
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }
+    const blob = new Blob([data.message.logs], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'translation_logs.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   useEffect(() => {
     if (logFilePath) {
-      mutate()
+      mutate();
     }
-  }, [logFilePath, mutate])
+  }, [logFilePath, mutate]);
 
   if (!logFilePath) {
     return (
@@ -180,7 +180,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
           process.
         </p>
       </div>
-    )
+    );
   }
 
   if (isLoading) {
@@ -188,7 +188,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
       <div className="flex justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -207,7 +207,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
           </div>
         </AlertDescription>
       </Alert>
-    )
+    );
   }
 
   if (!data?.message?.logs) {
@@ -220,13 +220,13 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
           issue with the translation process.
         </AlertDescription>
       </Alert>
-    )
+    );
   }
 
   const logContentTruncated =
     data.message.logs.length > 10000
       ? `${data.message.logs.substring(0, 10000)}... [log truncated, download for full content]`
-      : data.message.logs
+      : data.message.logs;
 
   return (
     <div>
@@ -420,7 +420,7 @@ const LogViewer: React.FC<LogViewerProps> = ({ logFilePath }) => {
         </TabsContent>
       </Tabs>
     </div>
-  )
-}
+  );
+};
 
-export default LogViewer
+export default LogViewer;

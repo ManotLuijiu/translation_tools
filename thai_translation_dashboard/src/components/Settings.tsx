@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect } from "react";
-import { Button } from "./ui/button";
+import React, { useState, useEffect } from 'react';
+import { Button } from './ui/button';
 import {
   Card,
   CardContent,
@@ -8,21 +8,21 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "./ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { Switch } from "./ui/switch";
+} from './ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { Switch } from './ui/switch';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
-import { Info, HelpCircle, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useFrappeGetCall } from "frappe-react-sdk";
+} from './ui/select';
+import { Info, HelpCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useFrappeGetCall } from 'frappe-react-sdk';
 
 interface ConfigResponse {
   success: boolean;
@@ -36,19 +36,19 @@ interface ConfigResponse {
 
 const __ = (window as any).__ || ((msg: string) => msg); // fallback
 
-console.log(window.__);
+console.info(window.__);
 // console.log(frappe.call);
 
 const Settings: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"api" | "translation" | "about">(
-    "api"
+  const [activeTab, setActiveTab] = useState<'api' | 'translation' | 'about'>(
+    'api'
   );
 
   // API Settings
   const [apiConfig, setApiConfig] = useState({
-    openaiApiKey: "",
-    anthropicApiKey: "",
-    defaultProvider: "openai",
+    openaiApiKey: '',
+    anthropicApiKey: '',
+    defaultProvider: 'openai',
   });
 
   // State for showing/hiding API keys
@@ -66,26 +66,26 @@ const Settings: React.FC = () => {
     error: configError,
     isLoading: configLoading,
   } = useFrappeGetCall<{ message: ConfigResponse }>(
-    "translation_tools.api.get_config_file",
+    'translation_tools.api.get_config_file',
     {}
   );
 
   // Translation Settings
   const [translationSettings, setTranslationSettings] = useState({
-    defaultModel: "gpt-4o-mini",
-    batchSize: "10",
-    temperature: "0.3",
-    maxTokens: "512",
+    defaultModel: 'gpt-4o-mini',
+    batchSize: '10',
+    temperature: '0.3',
+    maxTokens: '512',
     useGlossary: true,
   });
 
   // About information
   const appInfo = {
-    version: "0.0.1",
-    author: "Manot Luijiu",
-    email: "moocoding@gmail.com",
-    repository: "https://github.com/ManotLuijiu/translation_tools",
-    license: "MIT",
+    version: '0.0.1',
+    author: 'Manot Luijiu',
+    email: 'moocoding@gmail.com',
+    repository: 'https://github.com/ManotLuijiu/translation_tools',
+    license: 'MIT',
   };
 
   // Load config data from the API response
@@ -96,9 +96,9 @@ const Settings: React.FC = () => {
 
       if (exists && config) {
         setApiConfig({
-          openaiApiKey: config.OPENAI_API_KEY || "",
-          anthropicApiKey: config.ANTHROPIC_API_KEY || "",
-          defaultProvider: config.MODEL_PROVIDER || "openai",
+          openaiApiKey: config.OPENAI_API_KEY || '',
+          anthropicApiKey: config.ANTHROPIC_API_KEY || '',
+          defaultProvider: config.MODEL_PROVIDER || 'openai',
         });
       }
     }
@@ -122,7 +122,7 @@ const Settings: React.FC = () => {
     // In a real application, this would call the API to save settings
     // Using frappe.call to call a Python method
     (window as any).frappe.call({
-      method: "translation_tools.api.save_api_settings",
+      method: 'translation_tools.api.save_api_settings',
       args: {
         openai_api_key: apiConfig.openaiApiKey,
         anthropic_api_key: apiConfig.anthropicApiKey,
@@ -131,13 +131,13 @@ const Settings: React.FC = () => {
       callback: function (response: any) {
         if (response.message && response.message.success) {
           (window as any).frappe.show_alert({
-            message: __("API settings saved successfully!"),
-            indicator: "green",
+            message: __('API settings saved successfully!'),
+            indicator: 'green',
           });
         } else {
           (window as any).frappe.show_alert({
-            message: __("Failed to save API settings"),
-            indicator: "red",
+            message: __('Failed to save API settings'),
+            indicator: 'red',
           });
         }
       },
@@ -147,7 +147,7 @@ const Settings: React.FC = () => {
   const handleSaveTranslationSettings = () => {
     // In a real application, this would call the API to save settings
     (window as any).frappe.call({
-      method: "translation_tools.api.save_translation_settings",
+      method: 'translation_tools.api.save_translation_settings',
       args: {
         default_model: translationSettings.defaultModel,
         batch_size: parseInt(translationSettings.batchSize),
@@ -158,13 +158,13 @@ const Settings: React.FC = () => {
       callback: function (response: any) {
         if (response.message && response.message.success) {
           (window as any).frappe.show_alert({
-            message: __("Translation settings saved successfully!"),
-            indicator: "green",
+            message: __('Translation settings saved successfully!'),
+            indicator: 'green',
           });
         } else {
           (window as any).frappe.show_alert({
-            message: __("Failed to save translation settings"),
-            indicator: "red",
+            message: __('Failed to save translation settings'),
+            indicator: 'red',
           });
         }
       },
@@ -173,7 +173,7 @@ const Settings: React.FC = () => {
 
   // Mask API keys for display
   const maskApiKey = (key: string): string => {
-    if (!key) return "";
+    if (!key) return '';
     const firstFour = key.substring(0, 4);
     const lastFour = key.substring(key.length - 4);
     return `${firstFour}...${lastFour}`;
@@ -235,14 +235,14 @@ const Settings: React.FC = () => {
                     <div className="flex">
                       <Input
                         id="openai-api-key"
-                        type={showOpenAiKey ? "text" : "password"}
+                        type={showOpenAiKey ? 'text' : 'password'}
                         value={
                           showOpenAiKey
                             ? apiConfig.openaiApiKey
                             : maskApiKey(apiConfig.openaiApiKey)
                         }
                         onChange={(e) =>
-                          handleApiConfigChange("openaiApiKey", e.target.value)
+                          handleApiConfigChange('openaiApiKey', e.target.value)
                         }
                         placeholder="sk-..."
                         className="flex-grow"
@@ -261,7 +261,7 @@ const Settings: React.FC = () => {
                       </Button>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Your OpenAI API key for GPT models. Get one at{" "}
+                      Your OpenAI API key for GPT models. Get one at{' '}
                       <a
                         href="https://platform.openai.com/api-keys"
                         target="_blank"
@@ -280,10 +280,10 @@ const Settings: React.FC = () => {
                 <div className="flex">
                   <Input
                     id="anthropic-api-key"
-                    type={showAnthropicKey ? "text" : "password"}
+                    type={showAnthropicKey ? 'text' : 'password'}
                     value={apiConfig.anthropicApiKey}
                     onChange={(e) =>
-                      handleApiConfigChange("anthropicApiKey", e.target.value)
+                      handleApiConfigChange('anthropicApiKey', e.target.value)
                     }
                     placeholder="sk_ant_..."
                     className="flex-grow"
@@ -302,7 +302,7 @@ const Settings: React.FC = () => {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Your Anthropic API key for Claude models. Get one at{" "}
+                  Your Anthropic API key for Claude models. Get one at{' '}
                   <a
                     href="https://console.anthropic.com/"
                     target="_blank"
@@ -319,7 +319,7 @@ const Settings: React.FC = () => {
                 <Select
                   value={apiConfig.defaultProvider}
                   onValueChange={(value) =>
-                    handleApiConfigChange("defaultProvider", value)
+                    handleApiConfigChange('defaultProvider', value)
                   }
                 >
                   <SelectTrigger id="default-provider">
@@ -352,7 +352,7 @@ const Settings: React.FC = () => {
                 <Select
                   value={translationSettings.defaultModel}
                   onValueChange={(value) =>
-                    handleTranslationSettingChange("defaultModel", value)
+                    handleTranslationSettingChange('defaultModel', value)
                   }
                 >
                   <SelectTrigger id="default-model">
@@ -384,7 +384,7 @@ const Settings: React.FC = () => {
                   max="50"
                   value={translationSettings.batchSize}
                   onChange={(e) =>
-                    handleTranslationSettingChange("batchSize", e.target.value)
+                    handleTranslationSettingChange('batchSize', e.target.value)
                   }
                 />
                 <p className="text-xs text-muted-foreground">
@@ -403,7 +403,7 @@ const Settings: React.FC = () => {
                   value={translationSettings.temperature}
                   onChange={(e) =>
                     handleTranslationSettingChange(
-                      "temperature",
+                      'temperature',
                       e.target.value
                     )
                   }
@@ -423,7 +423,7 @@ const Settings: React.FC = () => {
                   max="4000"
                   value={translationSettings.maxTokens}
                   onChange={(e) =>
-                    handleTranslationSettingChange("maxTokens", e.target.value)
+                    handleTranslationSettingChange('maxTokens', e.target.value)
                   }
                 />
                 <p className="text-xs text-muted-foreground">
@@ -436,7 +436,7 @@ const Settings: React.FC = () => {
                   id="use-glossary"
                   checked={translationSettings.useGlossary}
                   onCheckedChange={(checked) =>
-                    handleTranslationSettingChange("useGlossary", checked)
+                    handleTranslationSettingChange('useGlossary', checked)
                   }
                 />
                 <Label htmlFor="use-glossary">Use Thai Glossary</Label>

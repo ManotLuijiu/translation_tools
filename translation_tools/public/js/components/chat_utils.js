@@ -56,11 +56,32 @@ async function get_rooms(email) {
   return await res.message;
 }
 
+async function delete_room(room) {
+  try {
+    const res = await frappe.call({
+      method: 'translation_tools.api.room.delete',
+      args: {
+        room: room,
+      },
+    });
+    return res.message;
+  } catch (error) {
+    console.error('Error deleting room:', error);
+    throw error;
+  }
+}
+
+// Don't forget to add it to exports
+export {
+  // Existing exports...
+  delete_room,
+};
+
 async function get_messages(room, email) {
   const res = await frappe.call({
     method: 'translation_tools.api.message.get_all',
     args: {
-      room: room,
+      room_name: room,
       email: email,
     },
   });
@@ -81,7 +102,9 @@ async function send_message(content, user, room, email) {
   } catch (error) {
     frappe.msgprint({
       title: __('Error'),
-      message: __('Something went wrong. Please refresh and try again.'),
+      message: __(
+        `Something went wrong. Please refresh and try again. ${error}`
+      ),
     });
   }
 }
@@ -94,6 +117,9 @@ async function get_settings(token) {
       token: token,
     },
   });
+
+  console.log('res get_settings', res);
+
   return await res.message;
 }
 
@@ -106,6 +132,7 @@ async function mark_message_read(room) {
       },
     });
   } catch (error) {
+    console.error(error);
     //pass
   }
 }
@@ -134,6 +161,7 @@ async function set_typing(room, user, is_typing, is_guest) {
       },
     });
   } catch (error) {
+    console.log(error);
     //pass
   }
 }

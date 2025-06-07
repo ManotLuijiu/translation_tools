@@ -15,7 +15,7 @@ frappe.ui.form.on('Translation Tools Settings', {
           provider: 'openai',
         },
         callback: function (r) {
-          console.log('r OpenAI', r);
+          // console.log('r OpenAI', r);
           if (r.message && r.message.success) {
             frappe.msgprint({
               title: __('Test Successful'),
@@ -50,7 +50,7 @@ frappe.ui.form.on('Translation Tools Settings', {
           provider: 'anthropic',
         },
         callback: function (r) {
-          console.log('r', r);
+          // console.log('r', r);
           if (r.message && r.message.success) {
             frappe.msgprint({
               title: __('Test Successful'),
@@ -91,7 +91,7 @@ frappe.ui.form.on('Translation Tools Settings', {
             if (r.message) {
               let message = '';
 
-              console.log('API Response:', r.message);
+              // console.log('API Response:', r.message);
 
               // OpenAI results
               if (r.message.openai) {

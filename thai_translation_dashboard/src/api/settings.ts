@@ -53,7 +53,7 @@ export function useGetAiModels() {
  * Get translation settings
  */
 export function useGetTranslationSettings() {
-  console.log('Fetching translation settings...');
+  // console.log('Fetching translation settings...');
   return useFrappeGetCall<{ message: TranslationToolsSettings }>(
     'translation_tools.api.settings.get_translation_settings',
     {}
@@ -64,7 +64,7 @@ export function useGetTranslationSettings() {
  * Test Github Connection
  */
 export function useTestGithubConnection() {
-  console.log('Testing Github Connection...');
+  // console.log('Testing Github Connection...');
   return useFrappePostCall<{ message: TestGithubConnection }>(
     'translation_tools.api.settings.test_github_connection'
     // {}

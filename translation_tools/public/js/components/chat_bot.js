@@ -4,6 +4,7 @@ export default class ChatBot {
     this.$wrapper = opts.$wrapper;
     this.profile = opts.profile;
     this.messages = [];
+    this.mcpEnabled = false;
     this.setup();
   }
 
@@ -18,6 +19,9 @@ export default class ChatBot {
     this.$chat_space_container = $(document.createElement('div'));
     this.$chat_space_container.addClass('chat-space-container');
     this.$chat_bot.append(this.$chat_space_container);
+
+     // Check MCP server status
+    this.check_mcp_status();
 
     // Add initial AI greeting
     this.add_message(
@@ -34,10 +38,15 @@ export default class ChatBot {
         <div class='chat-header'>
           <div class='chat-profile-info'>
             <div class='chat-profile-name'>
-            ${__('AI Tax Consultant')}
-            <div class='online-circle'></div>
+            ${__('AI Tax Consultant')} 
+            <span id="mcp-status-badge" class="badge badge-warning ml-2" style="display: none;">MCP Off</span>
             </div>
             <div class='chat-profile-status'>${__('Online')}</div>
+          </div>
+          <div class="chat-header-actions">
+            <button id="toggle-mcp-button" class="btn btn-sm btn-default">
+              <span class="mcp-toggle-text">Enable MCP</span>
+            </button>
           </div>
         </div>
       `;
@@ -62,6 +71,76 @@ export default class ChatBot {
       `;
     this.$chat_actions.html(chat_actions_html);
     this.$chat_bot.append(this.$chat_actions);
+  }
+
+   async check_mcp_status() {
+    // Check if MCP client is available and initialized
+    if (typeof frappe.chat_mcp !== 'undefined') {
+      try {
+        // Wait for initialization if needed
+        if (!frappe.chat_mcp.isRunning) {
+          await frappe.chat_mcp.initMCPStatus();
+        }
+        
+        this.mcpEnabled = frappe.chat_mcp.isRunning();
+        this.update_mcp_ui();
+      } catch (error) {
+        console.error("Error checking MCP status:", error);
+        this.mcpEnabled = false;
+        this.update_mcp_ui();
+      }
+    } else {
+      console.warn("MCP client not available");
+      this.mcpEnabled = false;
+      this.update_mcp_ui();
+    }
+  }
+
+  update_mcp_ui() {
+    // Update UI elements based on MCP status
+    const $badge = $('#mcp-status-badge');
+    const $button = $('#toggle-mcp-button');
+    const $buttonText = $button.find('.mcp-toggle-text');
+    
+    if (this.mcpEnabled) {
+      $badge.removeClass('badge-warning').addClass('badge-success').text('MCP On').show();
+      $buttonText.text('Disable MCP');
+      $button.removeClass('btn-default').addClass('btn-primary');
+    } else {
+      $badge.removeClass('badge-success').addClass('badge-warning').text('MCP Off').show();
+      $buttonText.text('Enable MCP');
+      $button.removeClass('btn-primary').addClass('btn-default');
+    }
+  }
+
+  async toggle_mcp() {
+    try {
+      if (this.mcpEnabled) {
+        // Turn off MCP
+        const result = await frappe.chat_mcp.stopMCPServer();
+        if (result.success) {
+          this.mcpEnabled = false;
+          this.add_message("MCP server has been disabled. I'll now respond using my standard capabilities.", 'sender');
+        } else {
+          this.add_message(`Failed to disable MCP server: ${result.message || 'Unknown error'}`, 'sender');
+        }
+      } else {
+        // Turn on MCP
+        this.add_message("Starting MCP server. This might take a moment...", 'sender');
+        const result = await frappe.chat_mcp.startMCPServer();
+        if (result.success) {
+          this.mcpEnabled = true;
+          this.add_message("MCP server is now enabled! I can now help you with your ERPNext data and operations.", 'sender');
+        } else {
+          this.add_message(`Failed to enable MCP server: ${result.message || 'Unknown error'}`, 'sender');
+        }
+      }
+      
+      this.update_mcp_ui();
+    } catch (error) {
+      console.error("Error toggling MCP:", error);
+      this.add_message(`Error toggling MCP server: ${error.message || 'Unknown error'}`, 'sender');
+    }
   }
 
   add_message(content, type) {
@@ -112,40 +191,65 @@ export default class ChatBot {
     this.show_typing_indicator();
 
     try {
-      // Make API call to get AI response
-      // This is where you would integrate with your AI service
-      // For demonstration, using a timeout to simulate API call
-      setTimeout(() => {
-        this.hide_typing_indicator();
-        this.add_message(
-          "Thank you for your interest! The AI Tax Consultant is currently in development and will be available soon. This is just a demo to showcase the interface. In the full version, you'll be able to get answers to all your tax-related questions right here.",
-          'sender'
-        );
-
-        // Add a follow-up message after a short delay
-        setTimeout(() => {
-          this.add_message(
-            "For now, please contact our support team for assistance with your tax questions via email at <a href='mailto:admin@moocoding.com'>admin@moocoding.com</a>.",
-            'sender'
-          );
-        }, 1000);
-      }, 1500);
-
-      // For actual implementation, use:
-      // const response = await frappe.call({
-      //   method: 'translation_tools.api.ai_chat.get_response',
-      //   args: { message: message }
-      // });
-      // this.hide_typing_indicator();
-      // this.add_message(response.message, 'sender');
+      let response;
+      
+      if (this.mcpEnabled && frappe.chat_mcp && frappe.chat_mcp.isRunning()) {
+        // Use MCP for the response
+        response = await this.get_mcp_response(message);
+      } else {
+        // Use standard AI service
+        response = await this.get_standard_ai_response(message);
+      }
+      
+      // Hide typing indicator
+      this.hide_typing_indicator();
+      
+      // Add response to chat
+      this.add_message(response, 'sender');
     } catch (error) {
+      console.error("Error processing message:", error);
       this.hide_typing_indicator();
       this.add_message(
         "I'm sorry, I'm having trouble processing your request right now. Please try again later.",
         'sender'
       );
-      console.error('Error fetching AI response:', error);
     }
+  }
+
+  async get_mcp_response(message) {
+    try {
+      // Query the MCP server through our client
+      const result = await frappe.chat_mcp.queryMCP(message, {
+        chat_history: this.messages.slice(-10) // Send recent chat history for context
+      });
+      
+      if (result.error) {
+        return `I encountered an error while processing your request: ${result.error}. You may need to restart the MCP server or check the server logs.`;
+      }
+      
+      return result.response || "I processed your request through the MCP server, but didn't receive a clear response. Please check the server logs or try again.";
+    } catch (error) {
+      console.error("MCP response error:", error);
+      return `I encountered an error while communicating with the MCP server: ${error.message || 'Unknown error'}. Please check if the server is running correctly.`;
+    }
+  }
+
+  async get_standard_ai_response(message) {
+    // For demonstration, using a timeout to simulate API call
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        if (message.toLowerCase().includes('sales invoice') || 
+            message.toLowerCase().includes('invoice') || 
+            message.toLowerCase().includes('order') ||
+            message.toLowerCase().includes('enable mcp')) {
+          resolve("I see you're asking about ERPNext data. To help you with that, please enable MCP using the button at the top right. Once enabled, I can access your ERPNext data and help you query invoices, customers, and more.");
+        } else if (message.toLowerCase().includes('tax')) {
+          resolve("I can answer general tax questions, but for specific tax calculations or to query your ERPNext tax data, please enable MCP first using the button at the top right.");
+        } else {
+          resolve("Thank you for your message. I'm your AI Tax Consultant and can help with a variety of tax and accounting questions. For more advanced features like accessing your ERPNext data, please enable MCP using the button at the top right.");
+        }
+      }, 1500);
+    });
   }
 
   show_typing_indicator() {
@@ -168,6 +272,11 @@ export default class ChatBot {
 
   setup_events() {
     const me = this;
+
+     // MCP toggle button
+    $('#toggle-mcp-button').on('click', function() {
+      me.toggle_mcp();
+    });
 
     // Send message on button click
     $('.message-send-button').on('click', function () {

@@ -15,7 +15,14 @@ dependencies = [
     "anthropic>=0.5.0",
     "weasyprint",
     "PyPDF2",
-    "num2words"
+    "num2words",
+    "google-adk",
+    "psutil",
+    "litellm",
+    "google-generativeai",
+    "python-dotenv",
+    "stipe",
+    "omise
 ]
 
 [build-system]

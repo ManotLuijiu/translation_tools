@@ -22,6 +22,8 @@ from translation_tools.api.resend_integration import (
     create_sample_email_account,
 )
 
+from translation_tools.api.token_config import setup_token_system
+
 # from translation_tools.api.setup_workspace import (
 #     setup_workspace_and_links,
 #     add_to_integrations_workspace,
@@ -34,6 +36,8 @@ def after_install():
     # arrange_workspaces()
 
     try:
+        # create_translation_tools_workspace()
+
         if frappe.db.exists("Workspace", "Translation Tools"):
             doc = frappe.get_doc("Workspace", "Translation Tools")
             doc.sequence_id = 99  # type: ignore
@@ -47,6 +51,8 @@ def after_install():
 
         # Create sample Email Account for Resend if not exists
         create_sample_email_account()
+        
+        setup_token_system()
 
         print("Resend Integration setup complete!")
 
@@ -106,6 +112,24 @@ def after_install():
     except Exception as e:
         logger.error(f"Installation failed: {str(e)}")
         handle_installation_error(e)
+
+
+def create_translation_tools_workspace():
+    """Delete the Translation Tools workspace so it will be recreated from JSON"""
+    try:
+        # Check if workspace exists
+        if frappe.db.exists("Workspace", "Translation Tools"):
+            # Delete existing workspace
+            frappe.delete_doc(
+                "Workspace", "Translation Tools", force=True, ignore_permissions=True
+            )
+            frappe.db.commit()
+            frappe.logger().info("Deleted existing Translation Tools workspace")
+
+    except Exception as e:
+        frappe.logger().error(
+            f"Error cleaning up Translation Tools workspace: {str(e)}"
+        )
 
 
 # def arrange_workspaces():

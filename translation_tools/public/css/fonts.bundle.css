@@ -486,7 +486,7 @@
   font-family: 'Noto Sans Thai';
   font-weight: 400;
   font-style: normal;
-  src: url('/assets/translation_tools/fonts/Noto_Sans_Thai/NotoSansThai-Regular.ttf')
+  src: url('/assets/translation_tools/fonts/Noto_Sans_Thai/static/NotoSansThai-Regular.ttf')
     format('truetype');
   font-display: swap;
 }

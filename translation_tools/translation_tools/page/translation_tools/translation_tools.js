@@ -10,21 +10,21 @@ frappe.pages['translation-tools'].on_page_load = function (wrapper) {
     parent: wrapper,
     title: __('translation-tools'),
     single_column: false,
-  });
-};
+  })
+}
 
 frappe.pages['translation-tools'].on_page_show = function (wrapper) {
-  load_desk_page(wrapper);
-};
+  load_desk_page(wrapper)
+}
 
 function load_desk_page(wrapper) {
-  let $parent = $(wrapper).find('.layout-main-section');
-  $parent.empty();
+  const $parent = $(wrapper).find('.layout-main-section')
+  $parent.empty()
 
   frappe.require('translation_tools.bundle.jsx').then(() => {
     frappe.translation_tools = new frappe.ui.TranslationTools({
       wrapper: $parent,
       page: wrapper.page,
-    });
-  });
+    })
+  })
 }
