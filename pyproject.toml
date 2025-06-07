@@ -21,7 +21,7 @@ dependencies = [
     "litellm",
     "google-generativeai",
     "python-dotenv",
-    "stipe",
+    "stripe",
     "omise",
 ]
 
