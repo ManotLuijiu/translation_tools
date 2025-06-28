@@ -163,10 +163,10 @@ export default function TranslationEditor({
     clearMessage();
 
     // Also trigger a data refetch when filter or search term changes
-    // if (selectedFile?.file_path) {
-    //   mutate();
-    // }
-  }, [selectedFile, clearMessage]);
+    if (selectedFile?.file_path) {
+      mutate();
+    }
+  }, [selectedFile?.file_path]);
 
   // Update edited translation when selected entry changes
   // useEffect(() => {
@@ -602,7 +602,6 @@ export default function TranslationEditor({
             return;
           }
           // GitHub push succeeded
-          // biome-ignore lint/style/noUselessElse: <explanation>
           else if (githubResult?.github_pushed) {
             msg += ' and shared on GitHub!';
           }
@@ -734,13 +733,7 @@ export default function TranslationEditor({
       setCurrentPage(newPage);
       // The useEffect hook will handle refetching
       // Explicitly refetch data with the new page
-      // mutate({
-      //   file_path: selectedFile?.file_path,
-      //   page: newPage,
-      //   page_sized: ENTRIES_PER_PAGE,
-      //   filter_type: entryFilter,
-      //   search_term: searchTerm,
-      // });
+      mutate();
     }
   };
 
@@ -748,6 +741,7 @@ export default function TranslationEditor({
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
       // The useEffect hook will handle refetching
+      mutate();
     }
   };
 
@@ -860,8 +854,10 @@ export default function TranslationEditor({
                   onValueChange={(
                     value: 'all' | 'untranslated' | 'translated'
                   ) => {
+                    console.log('Selected filter:', value);
                     setEntryFilter(value);
                     setCurrentPage(1); // Reset to first page when filter changes
+                    mutate(); // Refetch data with new filter
                   }}
                 >
                   <SelectTrigger className="w-[180px]">
@@ -885,6 +881,7 @@ export default function TranslationEditor({
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
                   setCurrentPage(1); // Reset to first page when search term changes
+                  mutate(); // Refetch data with new search term
                 }}
                 className="mb-2"
               />
