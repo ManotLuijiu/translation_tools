@@ -19,6 +19,7 @@
   "dependencies": {
     "@tanstack/react-query": "4.29.19",
     "buffer": "^6.0.3",
+    "chart.js": "^4.5.0",
     "frappe-ui": "^0.1.134",
     "lucide-react": "^0.487.0",
     "react": "^19.1.0",
