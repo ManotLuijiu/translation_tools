@@ -154,6 +154,7 @@ export default function TranslationEditor({
 
   // Reset selected entry when file changes
   useEffect(() => {
+    console.log('TranslationEditor Clicked');
     setSelectedEntryId(null);
     setEditedTranslation('');
     // setStatusMessage(null);
