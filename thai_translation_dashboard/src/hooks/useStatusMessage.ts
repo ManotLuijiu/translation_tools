@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 type StatusType = 'info' | 'success' | 'error' | 'warning';
 
@@ -19,10 +19,15 @@ export function useStatusMessage() {
     setTimeout(() => setStatusMessage(null), duration);
   };
 
-  const clearMessage = () => {
+  const clearMessage = useCallback(() => {
     setShowStatus(false);
     setStatusMessage(null);
-  };
+  }, []);
+
+  // const clearMessage = () => {
+  //   setShowStatus(false);
+  //   setStatusMessage(null);
+  // };
 
   return { statusMessage, showStatus, showMessage, clearMessage };
 }

@@ -125,6 +125,12 @@ setup_logging()
 def get_po_file_entries_paginated(
     file_path, page=1, page_size=20, filter_type="all", search_term=""
 ):
+    # Add request tracking
+    import time
+
+    request_id = str(time.time())
+    logger.info(f"[REQUEST {request_id}] Starting request for {file_path}")
+
     """
     Return paginated PO file entries based on filters with robust error handling
     """
@@ -308,6 +314,7 @@ def get_po_file_entries_paginated(
     logger.info(
         f"Returning {len(formatted_entries)} entries for page {page}/{total_pages}"
     )
+    logger.info(f"[REQUEST {request_id}] Starting request for {file_path}")
     return result
 
 

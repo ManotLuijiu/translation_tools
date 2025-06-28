@@ -1,94 +1,93 @@
-// biome-ignore lint/style/useImportType: <explanation>
-import React, { useState, useEffect } from 'react'
-import { useFrappeGetCall, useFrappePostCall } from 'frappe-react-sdk'
+import React, { useState, useEffect } from 'react';
+import { useFrappeGetCall, useFrappePostCall } from 'frappe-react-sdk';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../components/ui/card'
-import { Input } from '../components/ui/input'
-import { Button } from '../components/ui/button'
-import { RefreshCw, Search, FileText, ScanLine } from 'lucide-react'
-import { Skeleton } from '../components/ui/skeleton'
-import { toast } from 'sonner'
+} from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
+import { RefreshCw, Search, FileText, ScanLine } from 'lucide-react';
+import { Skeleton } from '../components/ui/skeleton';
+import { toast } from 'sonner';
 
 type PoFile = {
-  file_path: string
-  app: string
-  filename: string
-  language?: string
-  last_modified?: string
-  translated_percentage?: number
-  total_entries?: number
-  translated_entries?: number
-}
+  file_path: string;
+  app: string;
+  filename: string;
+  language?: string;
+  last_modified?: string;
+  translated_percentage?: number;
+  total_entries?: number;
+  translated_entries?: number;
+};
 
 type ScanResult = {
-  success: boolean
-  total_files: number
-  new_files: number
-  updated_files: number
-  error?: string
-}
+  success: boolean;
+  total_files: number;
+  new_files: number;
+  updated_files: number;
+  error?: string;
+};
 
 type Props = {
-  onFileSelect: (filePath: string) => void
-  selectedFile: string | null
-}
+  onFileSelect: (filePath: string) => void;
+  selectedFile: string | null;
+};
 
 const FileManager: React.FC<Props> = ({ onFileSelect, selectedFile }) => {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [appFilter, setAppFilter] = useState<string | null>(null)
-  const [uniqueApps, setUniqueApps] = useState<string[]>([])
-  const [isScanning, setIsScanning] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('');
+  const [appFilter, setAppFilter] = useState<string | null>(null);
+  const [uniqueApps, setUniqueApps] = useState<string[]>([]);
+  const [isScanning, setIsScanning] = useState(false);
 
   const { data, error, isValidating, mutate } = useFrappeGetCall<{
-    message: PoFile[]
-  }>('translation_tools.api.get_cached_po_files', {})
+    message: PoFile[];
+  }>('translation_tools.api.get_cached_po_files', {});
 
   const { call: scanPoFiles } = useFrappePostCall<ScanResult>(
-    'translation_tools.translation_tools.api.scan_po_files',
-  )
+    'translation_tools.translation_tools.api.scan_po_files'
+  );
 
   useEffect(() => {
     if (data?.message) {
-      const apps = [...new Set(data.message.map((file) => file.app))]
-      setUniqueApps(apps)
+      const apps = [...new Set(data.message.map((file) => file.app))];
+      setUniqueApps(apps);
     }
-  }, [data])
+  }, [data]);
 
   const handleScanFiles = async () => {
-    setIsScanning(true)
+    setIsScanning(true);
     try {
-      const result = await scanPoFiles({})
+      const result = await scanPoFiles({});
 
       if (result.success) {
         toast(
-          `Found ${result.total_files} PO files (${result.new_files} new, ${result.updated_files} updated)`,
-        )
-        mutate()
+          `Found ${result.total_files} PO files (${result.new_files} new, ${result.updated_files} updated)`
+        );
+        mutate();
       } else {
-        toast(result.error || 'An error occurred during scanning')
+        toast(result.error || 'An error occurred during scanning');
       }
     } catch (error) {
-      toast((error as Error).message || 'An error occurred during scanning')
+      toast((error as Error).message || 'An error occurred during scanning');
     } finally {
-      setIsScanning(false)
+      setIsScanning(false);
     }
-  }
+  };
 
   const filteredFiles = data?.message?.filter((file) => {
     const matchesSearch =
       !searchTerm ||
       file.filename.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      file.app.toLowerCase().includes(searchTerm.toLowerCase())
+      file.app.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesApp = !appFilter || file.app === appFilter
+    const matchesApp = !appFilter || file.app === appFilter;
 
-    return matchesSearch && matchesApp
-  })
+    return matchesSearch && matchesApp;
+  });
 
   return (
     <Card>
@@ -228,7 +227,7 @@ const FileManager: React.FC<Props> = ({ onFileSelect, selectedFile }) => {
         )}
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default FileManager
+export default FileManager;

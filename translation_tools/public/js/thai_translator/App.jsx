@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import '../translation_tools/styles/globals.css';
-import Dashboard from '../translation_tools/components/Dashboard';
+// import '../translation_tools/styles/globals.css';
+// import Dashboard from '../translation_tools/components/Dashboard';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
@@ -140,7 +140,8 @@ export function App() {
       <main className="app-wrapper">
         <div className="app-container">
           <div className="app-content">
-            <Dashboard />
+            test
+            {/* <Dashboard /> */}
           </div>
         </div>
       </main>
