@@ -113,7 +113,8 @@ export default function TranslationEditor({
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
 
-  console.info('previousFile', previousFile);
+  console.log('currentPage', currentPage);
+  console.log('previousFile', previousFile);
   // console.log('showTokenDialog', showTokenDialog);
 
   //   const [translation, setTranslation] = useState('');
@@ -162,10 +163,10 @@ export default function TranslationEditor({
     clearMessage();
 
     // Also trigger a data refetch when filter or search term changes
-    if (selectedFile?.file_path) {
-      mutate();
-    }
-  }, [selectedFile, mutate, clearMessage]);
+    // if (selectedFile?.file_path) {
+    //   mutate();
+    // }
+  }, [selectedFile, clearMessage]);
 
   // Update edited translation when selected entry changes
   // useEffect(() => {
@@ -724,6 +725,10 @@ export default function TranslationEditor({
 
   // Pagination functions
   const goToNextPage = () => {
+    console.log('currentPage', currentPage);
+    console.log('totalPages', totalPages);
+    console.log('entries', entries);
+    console.log('clicked next page');
     if (currentPage < totalPages) {
       const newPage = currentPage + 1;
       setCurrentPage(newPage);
