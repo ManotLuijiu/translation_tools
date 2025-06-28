@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import '../translation_tools/styles/globals.css';
+// import '../translation_tools/styles/globals.css';
 import Dashboard from '../translation_tools/components/Dashboard';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
