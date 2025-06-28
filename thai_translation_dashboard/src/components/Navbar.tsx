@@ -1,4 +1,3 @@
-// biome-ignore lint/style/useImportType: <explanation>
 import React from 'react';
 import tbsLogo from '../assets/tbs_logo.png';
 import { useFrappeAuth } from 'frappe-react-sdk';
@@ -59,10 +58,10 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab }) => {
 
           <div className="text-muted-foreground flex justify-center items-center gap-4">
             <h1 className="text-lg font-semibold">{__('Translation Tools')}</h1>
-            <div className="flex space-x-2 justify-center items-center">
+            {/* <div className="flex space-x-2 justify-center items-center">
               <GitCompareArrows className="w-4 h-4" />
               <a href="/app/thai_translator">Desk Version</a>
-            </div>
+            </div> */}
             <div className="flex justify-center items-center gap-4">
               {/* {currentUser && (
                 <div className="text-sm">
@@ -70,7 +69,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab }) => {
                   <span className="font-medium">{currentUser}</span>
                 </div>
               )} */}
-              <LanguageToggle />
+              {/* <LanguageToggle /> */}
               <ModeToggle />
             </div>
           </div>

@@ -5,14 +5,11 @@
   "main": "index.js",
   "scripts": {
     "install-pwa-deps": "cd thai_translation_dashboard && yarn install --check-files",
-    "install-frontend-deps": "cd frontend && yarn install --check-files",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "yarn install-pwa-deps && yarn install-frontend-deps",
+    "postinstall": "yarn install-pwa-deps",
     "dev-pwa": "cd thai_translation_dashboard && yarn dev",
-    "dev-frontend": "cd frontend && yarn dev",
     "build-pwa": "cd thai_translation_dashboard && yarn build",
-    "build-frontend": "cd frontend && yarn build",
-    "build": "yarn build-pwa && yarn build-frontend",
+    "build": "yarn build-pwa",
     "prepare": "husky install",
     "skip-commit": "HUSKY=0 git commit -m"
   },
@@ -22,15 +19,10 @@
   "dependencies": {
     "@tanstack/react-query": "4.29.19",
     "buffer": "^6.0.3",
-    "chart.js": "^4.4.9",
     "frappe-ui": "^0.1.134",
-    "html2canvas": "^1.4.1",
-    "jspdf": "^3.0.1",
     "lucide-react": "^0.487.0",
-    "pdfmake": "^0.2.18",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-to-pdf": "^2.0.0"
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

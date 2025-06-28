@@ -1,4 +1,13 @@
 // services/frappe.ts
+
+declare global {
+  interface Window {
+    frappe: {
+      call: (params: any) => Promise<any>;
+    };
+  }
+}
+
 type FrappeCall<T = any> = (params: {
   method: string;
   args?: Record<string, any>;
@@ -21,7 +30,7 @@ type FrappeCall<T = any> = (params: {
 }) => Promise<T>;
 
 export const frappeCall: FrappeCall = async (params) => {
-  const response = await frappe.call(params);
+  const response = await window.frappe.call(params);
   return response.message;
 };
 
