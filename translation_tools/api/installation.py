@@ -14,21 +14,24 @@ def generate_po_file():
     try:
         # Get current site name
         site_name = frappe.local.site
-        app_name = "translation_tools"  # The app being installed
+        app_name = "translation_tools"
+        installed_apps = frappe.get_installed_apps()
 
         print(f"✅ Translation Tools installed successfully on {site_name}")
         print("Setting up translation files...")
 
-        # Run translation commands for the app
-        try:
-            subprocess.run(
-                f"bench --site {site_name} generate-pot-file --app {app_name}",
-                shell=True,
-                check=True,
-            )
-            print(f"✅ Generated POT file for {app_name}")
-        except Exception as e:
-            print(f"⚠️ Could not generate POT file: {str(e)}")
+        # Run translation commands for all apps
+        for current_app in installed_apps:
+            try:
+                print(f"Generating POT file for {current_app}...")
+                subprocess.run(
+                    f"bench --site {site_name} generate-pot-file --app {current_app}",
+                    shell=True,
+                    check=True,
+                )
+                print(f"✅ Generated POT file for {current_app}")
+            except Exception as e:
+                print(f"⚠️  Could not generate POT file for {current_app}: {str(e)}")
 
         try:
             subprocess.run(
