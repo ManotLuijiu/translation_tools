@@ -334,15 +334,16 @@ export default function TranslationEditor({
     try {
       const result = await translateEntry.call({
         file_path: selectedFile.file_path,
+        msgid: selectedEntry.msgid,
         entry_id: selectedEntry.id,
         model_provider: settings?.default_model_provider || 'openai',
         model: settings?.default_model || undefined,
       });
 
-      // console.log('result in handleTranslate', result);
+      console.log('result in handleTranslate', result);
 
-      if (result.success && result.translation) {
-        setEditedTranslation(result.translation);
+      if (result.message.success && result.message.translation) {
+        setEditedTranslation(result.message.translation);
         // setStatusMessage({
         //   type: 'success',
         //   message: 'Translation completed',
