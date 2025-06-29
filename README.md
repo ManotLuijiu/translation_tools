@@ -2,6 +2,8 @@
 
 An AI-powered translation utility for ERPNext that helps translate PO files using advanced language models like OpenAI GPT and Anthropic Claude, with a specialized Thai Tax Consultant Bot.
 
+[![Demo Video](media/Translation_Tools_Demo-ezgif.com-optimize.gif)](https://www.youtube.com/watch?v=cB1kZOpYsXQ)
+
 [🇬🇧 English](#english-version) | [🇹🇭 ภาษาไทย](#thai-version--ภาษาไทย)
 
 ---

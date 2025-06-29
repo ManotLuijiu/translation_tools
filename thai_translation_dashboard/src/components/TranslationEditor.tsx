@@ -95,6 +95,7 @@ export default function TranslationEditor({
   const { github_token, batch_size } = settings;
 
   // console.log('github_token', github_token);
+  console.info('previousFile', previousFile);
   console.info('batch_size', batch_size);
   // console.log('translationMode', translationMode);
 
@@ -113,8 +114,8 @@ export default function TranslationEditor({
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
 
-  console.log('currentPage', currentPage);
-  console.log('previousFile', previousFile);
+  // console.log('currentPage', currentPage);
+  // console.log('previousFile', previousFile);
   // console.log('showTokenDialog', showTokenDialog);
 
   //   const [translation, setTranslation] = useState('');
@@ -155,18 +156,20 @@ export default function TranslationEditor({
 
   // Reset selected entry when file changes
   useEffect(() => {
-    console.log('TranslationEditor Clicked');
+    // console.log('TranslationEditor Clicked');
     setSelectedEntryId(null);
     setEditedTranslation('');
     // setStatusMessage(null);
     setCurrentPage(1);
     clearMessage();
+  }, [selectedFile?.file_path]);
 
-    // Also trigger a data refetch when filter or search term changes
+  // Effect to fetch data when page, filter, or search term changes
+  useEffect(() => {
     if (selectedFile?.file_path) {
       mutate();
     }
-  }, [selectedFile?.file_path]);
+  }, [currentPage, entryFilter, searchTerm, selectedFile?.file_path, mutate]);
 
   // Update edited translation when selected entry changes
   // useEffect(() => {
@@ -186,14 +189,6 @@ export default function TranslationEditor({
       setEditedTranslation(entry.msgstr || '');
     }
   }, [selectedEntryId, entries]);
-
-  // Effect to fetch data when page changes
-  useEffect(() => {
-    if (selectedFile?.file_path) {
-      // This will trigger a new API call with the updated page
-      mutate();
-    }
-  }, [mutate, selectedFile]);
 
   // Use the settings to pre-fill the GitHub token
   useEffect(() => {
@@ -724,24 +719,18 @@ export default function TranslationEditor({
 
   // Pagination functions
   const goToNextPage = () => {
-    console.log('currentPage', currentPage);
-    console.log('totalPages', totalPages);
-    console.log('entries', entries);
-    console.log('clicked next page');
+    // console.log('currentPage', currentPage);
+    // console.log('totalPages', totalPages);
+    // console.log('entries', entries);
+    // console.log('clicked next page');
     if (currentPage < totalPages) {
-      const newPage = currentPage + 1;
-      setCurrentPage(newPage);
-      // The useEffect hook will handle refetching
-      // Explicitly refetch data with the new page
-      mutate();
+      setCurrentPage(currentPage + 1);
     }
   };
 
   const goToPreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
-      // The useEffect hook will handle refetching
-      mutate();
     }
   };
 
@@ -854,10 +843,8 @@ export default function TranslationEditor({
                   onValueChange={(
                     value: 'all' | 'untranslated' | 'translated'
                   ) => {
-                    console.log('Selected filter:', value);
                     setEntryFilter(value);
                     setCurrentPage(1); // Reset to first page when filter changes
-                    mutate(); // Refetch data with new filter
                   }}
                 >
                   <SelectTrigger className="w-[180px]">
@@ -881,7 +868,6 @@ export default function TranslationEditor({
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
                   setCurrentPage(1); // Reset to first page when search term changes
-                  mutate(); // Refetch data with new search term
                 }}
                 className="mb-2"
               />
