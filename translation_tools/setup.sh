@@ -94,11 +94,22 @@ read -r gen_po
 
 if [[ -z "$gen_po" || "$gen_po" =~ ^[Yy]$ ]]; then
     # Get list of installed apps
-    echo "Installed apps:"
-    bench list-apps
-
+    echo "Generating POT files for all installed apps..."
+    
+    # Get the list of apps
+    apps=$(bench list-apps)
+    
+    for app in $apps; do
+        echo "Generating POT file for $app..."
+        bench generate-pot-file --app "$app"
+    done
+    
+    echo "POT files generated for all apps."
+    
     # Ask which app to generate PO files for
-    echo "Enter the app name to generate PO files for (e.g., erpnext):"
+    echo
+    echo "Now, let's set up the initial translation for a specific app."
+    echo "Enter the app name to migrate CSV translations for (e.g., erpnext):"
     read -r app_name
     
     # Ask which language locale to use
@@ -106,10 +117,7 @@ if [[ -z "$gen_po" || "$gen_po" =~ ^[Yy]$ ]]; then
     read -r locale
     
     if [[ -n "$app_name" && -n "$locale" ]]; then
-        echo "Generating POT file for $app_name..."
-        bench generate-pot-file --app "$app_name"
-        
-        echo "Converting CSV to PO for $locale locale..."
+        echo "Converting CSV to PO for $locale locale in $app_name..."
         bench migrate-csv-to-po --app "$app_name" --locale "$locale"
         
         echo "PO files generated successfully!"
