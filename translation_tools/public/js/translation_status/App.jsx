@@ -18,7 +18,7 @@ export function App() {
 
   // Expose methods to parent component
   React.useEffect(() => {
-    window.$transltion_status = {
+    window.$translation_status = {
       refreshData: fetchData,
       exportCSV: handleExportCSV,
       exportPDF: handleExportPDF,

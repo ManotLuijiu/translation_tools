@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 const queryClient = new QueryClient();
 
 export function App() {
-  console.log('App component rendering');
+  // console.log('App component rendering');
 
   // Check initial theme state and log it
   // const initialTheme = document.documentElement.classList.contains('dark')
