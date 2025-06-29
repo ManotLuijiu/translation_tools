@@ -1,8 +1,10 @@
 import { useFrappePostCall } from 'frappe-react-sdk';
 
 export type TranslationResult = {
-  success: boolean;
-  translation?: string;
+  message: {
+    success: boolean;
+    translation?: string;
+  };
   log_file?: string;
   translated_count?: number;
   error?: string;

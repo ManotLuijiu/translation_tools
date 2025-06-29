@@ -1,22 +1,26 @@
-import os
-import time
+import hashlib
 import json
 import logging
-import re
-import frappe
-import polib
-import subprocess
-import openai
-import anthropic
+import os
 import random
-from frappe import _
+import re
+import subprocess
+import time
 from datetime import datetime
-from typing import Dict, List, Any, Optional
-from .common import get_bench_path, logger, _get_translation_config
+from typing import Any, Dict, List, Optional
+
+import anthropic
+import frappe
+import openai
+import polib
+from frappe import _
+from frappe.utils import now
+
+from translation_tools.utils.thai_glossary import GLOSSARY
+
+from .common import _get_translation_config, get_bench_path, logger
 from .glossary import get_glossary_terms_dict
 from .settings import get_translation_settings
-from frappe.utils import now
-from translation_tools.utils.thai_glossary import GLOSSARY
 
 
 @frappe.whitelist()
@@ -143,8 +147,9 @@ def save_to_translation_history(
 @frappe.whitelist()
 def translate_single_entry(file_path, entry_id, model_provider="openai", model=None):
     """Translate a single entry using AI"""
-    if not os.path.exists(file_path):
-        frappe.throw(_("File not found: {0}").format(file_path))
+    full_path = os.path.join(get_bench_path(), file_path)
+    if not os.path.exists(full_path):
+        frappe.throw(_("File not found: {0}").format(full_path))
 
     # Create a log file
     log_dir = os.path.join(get_bench_path(), "logs", "ai_translation_logs")
@@ -161,17 +166,22 @@ def translate_single_entry(file_path, entry_id, model_provider="openai", model=N
 
     try:
         # Load the PO file
-        po = polib.pofile(file_path)
+        po = polib.pofile(full_path)
 
-        # Find the entry by ID (index)
-        index = int(entry_id)
-        if index < 0 or index >= len(po):
-            frappe.throw(_("Invalid entry ID"))
+        # Find the entry by ID (hash)
+        entry = None
+        for index, potential_entry in enumerate(po):
+            unique_string = f"{index}-{potential_entry.msgid}"
+            current_hash = hashlib.md5(unique_string.encode("utf-8")).hexdigest()
+            if current_hash == entry_id:
+                entry = potential_entry
+                break
 
-        entry = po[index]
+        if entry is None:
+            frappe.throw(_("Entry not found"))
 
         # Get the text to translate
-        source_text = entry.msgid
+        source_text = entry.msgid if entry is not None else ""
         logger.info(f"Translating entry: {source_text}")
 
         # Get settings
@@ -222,7 +232,7 @@ def translate_single_entry(file_path, entry_id, model_provider="openai", model=N
             po.metadata["PO-Revision-Date"] = time.strftime("%Y-%m-%d %H:%M%z")
 
             # Save the file
-            po.save(file_path)
+            po.save(full_path)
 
             # Clear cache
             global PO_FILES_CACHE
@@ -232,7 +242,7 @@ def translate_single_entry(file_path, entry_id, model_provider="openai", model=N
             if frappe.db.exists("PO File", {"file_path": file_path}):
                 file_doc = frappe.get_doc("PO File", {"file_path": file_path})  # type: ignore
                 if (
-                    not entry.msgstr and translation
+                    entry is not None and not entry.msgstr and translation
                 ):  # If this was previously untranslated
                     file_doc.translated_entries += 1  # type: ignore
                     file_doc.translation_status = (  # type: ignore
@@ -519,9 +529,10 @@ def translate_batch(file_path, indices):
 
 
 @frappe.whitelist()
-def translate_entry(file_path, msgid, index):
+def translate_entry(file_path, msgid, entry_id):
     """Translate a single entry using AI"""
-    if not os.path.exists(file_path):
+    full_path = os.path.join(get_bench_path(), file_path)
+    if not os.path.exists(full_path):
         return {"error": "File not found"}
 
     # Get API key and model from config
@@ -541,9 +552,19 @@ def translate_entry(file_path, msgid, index):
 
         if translation:
             # Update the PO file
-            po = polib.pofile(file_path)
-            po[int(index)].msgstr = translation
-            po.save()
+            po = polib.pofile(full_path)
+            entry_found = False
+            for i, entry in enumerate(po):
+                unique_string = f"{i}-{entry.msgid}"
+                current_hash = hashlib.md5(unique_string.encode("utf-8")).hexdigest()
+                if current_hash == entry_id:
+                    entry.msgstr = translation
+                    entry_found = True
+                    break
+            if entry_found:
+                po.save(full_path)
+            else:
+                return {"error": "Entry not found"}
 
             logger.info("Single entry translation successful")
             return {"success": True, "translation": translation}
@@ -1056,6 +1077,9 @@ For each entry, respond with 'Entry X: [Thai translation]' where X is the entry 
 
         return translations
     except Exception as e:
+        logger.error(f"Claude batch translation error: {str(e)}", exc_info=True)
+        frappe.log_error(f"Claude batch translation error: {str(e)}")
+        return {}
         logger.error(f"Claude batch translation error: {str(e)}", exc_info=True)
         frappe.log_error(f"Claude batch translation error: {str(e)}")
         return {}
