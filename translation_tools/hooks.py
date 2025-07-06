@@ -42,7 +42,7 @@ desk_page = {
 after_install = [
     # "translation_tools.patches.default.fix_fixtures_import",
     # "translation_tools.patches.default.add_default_font_to_print_settings",
-    "translation_tools.install.after_install",
+    # "translation_tools.install.after_install",
     # "translation_tools.setup.install_custom_fields.install_custom_fields",
     # "translation_tools.setup.create_doctypes.create_signature_doctype",
     # "translation_tools.setup.create_doctypes.create_settings_page",
