@@ -69,8 +69,7 @@ website_route_rules = [
     {
         "from_route": "/thai_translation_dashboard/<path:app_path>",
         "to_route": "thai_translation_dashboard",
-    },
-    {"from_route": "/frontend/<path:app_path>", "to_route": "frontend"},
+    }
 ]
 
 app_include_js = [
@@ -148,6 +147,6 @@ workspace_order = {
     "Translation Tools": 99  # Use a very high number to ensure it's at the bottom
 }
 
-scheduler_events = {
-    "daily": ["translation_tools.api.ai_models.get_available_ai_models"]
-}
+# scheduler_events = {
+#     "daily": ["translation_tools.api.ai_models.get_available_ai_models"]
+# }
