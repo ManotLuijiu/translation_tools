@@ -567,7 +567,10 @@ def translate_entry(file_path, msgid, entry_id):
                 return {"error": "Entry not found"}
 
             logger.info("Single entry translation successful")
-            return {"success": True, "translation": translation}
+            response_data = {"success": True, "translation": translation}
+            frappe.response.data = json.dumps({"message": response_data}, ensure_ascii=False)
+            frappe.response.headers["Content-Type"] = "application/json; charset=utf-8"
+            return frappe.response
         else:
             logger.error("Failed to get translation")
             return {"error": "Failed to get translation"}
@@ -818,6 +821,7 @@ def call_ai_translation_api(source_text, provider, model, api_key, temperature=0
                 {"role": "user", "content": source_text},
             ],
             temperature=temperature,
+            timeout=60,
         )
 
         return response.choices[0].message.content.strip()  # type: ignore
@@ -856,6 +860,7 @@ def call_ai_translation_api(source_text, provider, model, api_key, temperature=0
             max_tokens=1000,
             temperature=temperature,
             messages=[{"role": "user", "content": prompt}],
+            timeout=60,
         )
 
         return response.content[0].text.strip()  # type: ignore

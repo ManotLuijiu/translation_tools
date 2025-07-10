@@ -240,7 +240,10 @@ export default function BatchTranslationView({
             <div className="space-y-4">
               {batches.map((batch, batchIndex) => (
                 <div
-                  key={`batch-${batchIndex}`}
+                  key={`batch-${
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                    batchIndex
+                  }`}
                   className="border rounded-md p-4"
                 >
                   <div className="flex items-center justify-between mb-4">
