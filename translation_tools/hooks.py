@@ -42,7 +42,7 @@ desk_page = {
 after_install = [
     # "translation_tools.patches.default.fix_fixtures_import",
     # "translation_tools.patches.default.add_default_font_to_print_settings",
-    "translation_tools.install.after_install",
+    # "translation_tools.install.after_install",
     # "translation_tools.setup.install_custom_fields.install_custom_fields",
     # "translation_tools.setup.create_doctypes.create_signature_doctype",
     # "translation_tools.setup.create_doctypes.create_settings_page",
@@ -60,17 +60,16 @@ after_uninstall = "translation_tools.uninstall.after_uninstall"
 
 # Custom bench commands
 # --------------------
-commands = [
-    "translation_tools.commands.repair_translation_tools",
-    "translation_tools.commands.open_translation_dashboard",
-]
+# commands = [
+#     "translation_tools.commands.repair_translation_tools",
+#     "translation_tools.commands.open_translation_dashboard",
+# ]
 
 website_route_rules = [
     {
         "from_route": "/thai_translation_dashboard/<path:app_path>",
         "to_route": "thai_translation_dashboard",
-    },
-    {"from_route": "/frontend/<path:app_path>", "to_route": "frontend"},
+    }
 ]
 
 app_include_js = [
@@ -148,6 +147,6 @@ workspace_order = {
     "Translation Tools": 99  # Use a very high number to ensure it's at the bottom
 }
 
-scheduler_events = {
-    "daily": ["translation_tools.api.ai_models.get_available_ai_models"]
-}
+# scheduler_events = {
+#     "daily": ["translation_tools.api.ai_models.get_available_ai_models"]
+# }
