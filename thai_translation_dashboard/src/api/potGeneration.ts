@@ -1,5 +1,23 @@
 import { useFrappeGetCall, useFrappePostCall } from 'frappe-react-sdk';
 
+// Frappe API response wrapper - can be wrapped in message or direct
+export type FrappeResponse<T> = {
+  message: T;
+} | T;
+
+// Helper function to extract data from Frappe response
+export function extractFrappeData<T>(response: FrappeResponse<T> | undefined): T | undefined {
+  if (!response) return undefined;
+  
+  // Check if response has message property (wrapped format)
+  if (typeof response === 'object' && response !== null && 'message' in response) {
+    return (response as { message: T }).message;
+  }
+  
+  // Direct format
+  return response as T;
+}
+
 export type FrappeApp = {
   name: string;
   path: string;
@@ -11,6 +29,7 @@ export type FrappeApp = {
 
 export type POTGenerationResult = {
   success: boolean;
+  app_name?: string;
   message?: string;
   pot_file?: string;
   entries_count?: number;
@@ -41,12 +60,12 @@ export type BatchPOTResult = {
  * Get list of installed Frappe apps that can have POT files generated
  */
 export function useGetInstalledApps() {
-  return useFrappeGetCall<{
+  return useFrappeGetCall<FrappeResponse<{
     success: boolean;
     apps: FrappeApp[];
     total_apps: number;
     error?: string;
-  }>('translation_tools.api.pot_generation.get_installed_apps');
+  }>>('translation_tools.api.pot_generation.get_installed_apps');
 }
 
 /**

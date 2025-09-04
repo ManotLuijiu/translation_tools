@@ -466,7 +466,7 @@ def get_po_files():
         # Try to get cached files first
         po_files = frappe.get_all(
             "PO File",
-            filters=[["filename", "in", ["th.po", "th.translated.po"]]],
+            filters=[["filename", "in", ["th.po"]]],
             fields=[
                 "file_path",
                 "app_name as app",
@@ -486,7 +486,7 @@ def get_po_files():
             # Check if cache is fresh (less than 1 hour old)
             newest_scan = frappe.get_all(
                 "PO File",
-                filters=[["filename", "in", ["th.po", "th.translated.po"]]],
+                filters=[["filename", "in", ["th.po"]]],
                 fields=["MAX(last_scanned) as last_scan"],
                 limit=1,
             )
@@ -502,7 +502,7 @@ def get_po_files():
         # If we got here, either no cache or cache is stale
         # Scan the filesystem for PO files
         logger.info("No fresh cache found, scanning filesystem for PO files")
-        return scan_and_cache_po_files(filename_patterns=["th.po", "th.translated.po"])
+        return scan_and_cache_po_files(filename_patterns=["th.po"])
 
     except Exception as e:
         logger.error(f"Error fetching PO files: {str(e)}", exc_info=True)
@@ -623,8 +623,13 @@ def parse_po_file(file_path):
     total = len(po)
     translated = len(po.translated_entries())
 
-    # Get language from PO file metadata
-    language = po.metadata.get("Language", "unknown")
+    # Get language from filename (more reliable than metadata)
+    filename = os.path.basename(file_path)
+    if filename.endswith('.po'):
+        language_parts = filename[:-3].split('.')  # Remove .po extension and split
+        language = language_parts[0]  # First part is the language code (e.g., 'th' from 'th.po')
+    else:
+        language = po.metadata.get("Language", "unknown")
 
     # Calculate translation status percentage
     translation_status = 0
@@ -690,7 +695,12 @@ def process_po_file(file_path, apps_path):
         total = len(po)
         translated = len(po.translated_entries())
         translation_status = int((translated / total) * 100) if total > 0 else 0
-        language = po.metadata.get("Language", "th")
+        # Extract language from filename (more reliable than metadata)
+        if filename.endswith('.po'):
+            language_parts = filename[:-3].split('.')  # Remove .po extension and split
+            language = language_parts[0]  # First part is the language code
+        else:
+            language = po.metadata.get("Language", "th")
 
         return {
             "app_name": app_name,
@@ -700,7 +710,7 @@ def process_po_file(file_path, apps_path):
             "translated_entries": translated,
             "translation_status": translation_status,
             "last_modified": last_modified_datetime,
-            "last_scanned": frappe.utils.nowtime(),
+            "last_scanned": frappe.utils.now_datetime(),
             "file_path": file_path,
         }
     except Exception as e:

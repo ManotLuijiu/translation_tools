@@ -672,8 +672,8 @@ def translate_entries(
 
                 process.wait()
 
-            # Read results
-            translated_po = polib.pofile(temp_file.replace(".po", ".translated.po"))
+            # Read results from the modified original file
+            translated_po = polib.pofile(temp_file)
 
             # Parse results
             results = []
@@ -689,8 +689,6 @@ def translate_entries(
             # Clean up
             if os.path.exists(temp_file):
                 os.remove(temp_file)
-            if os.path.exists(temp_file.replace(".po", ".translated.po")):
-                os.remove(temp_file.replace(".po", ".translated.po"))
 
             logger.info(
                 f"Translation completed successfully for {len(results)} entries"

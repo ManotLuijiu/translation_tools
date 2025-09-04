@@ -3,6 +3,7 @@ import {
   useGetInstalledApps,
   useGeneratePOTFilesBatch,
   useGetPOTGenerationProgress,
+  extractFrappeData,
   type FrappeApp,
   type POTGenerationProgress
 } from '../api/potGeneration';
@@ -55,8 +56,8 @@ export default function POTGenerationDialog({
   const generatePOTBatch = useGeneratePOTFilesBatch();
   const { data: progressData, isLoading: progressLoading } = useGetPOTGenerationProgress(currentJobId);
 
-  const apps = appsData?.apps || [];
-  const progress = progressData?.progress;
+  const apps = extractFrappeData(appsData)?.apps || [];
+  const progress = extractFrappeData(progressData)?.progress;
 
   // Auto-select common apps by default
   useEffect(() => {
@@ -118,15 +119,16 @@ export default function POTGenerationDialog({
     setGenerationStep('progress');
 
     try {
-      const result = await generatePOTBatch.call({
+      const rawResult = await generatePOTBatch.call({
         app_names: selectedApps,
         force_regenerate: forceRegenerate
       });
 
-      if (result.success && result.job_id) {
+      const result = extractFrappeData(rawResult);
+      if (result?.success && result.job_id) {
         setCurrentJobId(result.job_id);
       } else {
-        throw new Error(result.error || 'Failed to start POT generation');
+        throw new Error(result?.error || 'Failed to start POT generation');
       }
     } catch (error) {
       console.error('Error starting POT generation:', error);
