@@ -425,13 +425,49 @@ const result = await call.post('translation_tools.api.translation.translate_text
 
 ---
 
+## CRITICAL DEVELOPMENT RULES
+
+⚠️ **These rules are MANDATORY and must be followed for all development work:**
+
+### 1. File Creation Rule
+**ALWAYS scan relevant files before creating new files to prevent redundancy**
+- Check if similar functionality already exists
+- Review existing API endpoints, components, and utilities
+- Avoid duplicate implementations
+
+### 2. Custom Field Naming (ERPNext Guidelines)
+**All custom fields MUST use app-specific prefix:**
+- **App**: translation_tools → **Prefix**: `tt_custom_`
+- **Pattern**: `tt_custom_{descriptive_field_name}`  
+- **Example**: `tt_custom_thai_translation_enabled`
+
+### 3. Hooks.py Maintenance  
+**Review hooks.py regularly for duplicated functions or redundancy**
+- Check for duplicate event handlers
+- Remove obsolete or unused hooks
+- Ensure clean, maintainable hook configuration
+
+### 4. Uninstall Compliance (CRITICAL)
+**All custom fields created by the app MUST be removed during uninstallation**
+- Implement `before_uninstall` hook in hooks.py
+- Clean up all custom fields to prevent orphaned data
+- Reference: https://github.com/frappe/frappe/issues/24108
+
+### 5. Testing Standards
+**Follow ERPNext testing patterns:**
+- Tests location: `translation_tools/translation_tools/tests/`
+- Reference: `apps/erpnext/erpnext/tests` structure
+- Documentation: https://docs.frappe.io/framework/user/en/testing
+
+---
+
 ## Development Rules & Standards
 
 ### Custom Field Naming Convention (MANDATORY)
 Following [Documentation/rules.md](/home/frappe/frappe-bench/Documentation/rules.md):
 
 - **App Name**: translation_tools
-- **Prefix**: `tt_custom_` (suggested translation-tools prefix)
+- **Prefix**: `tt_custom_` (required by ERPNext Custom Field Guidelines)
 - **Pattern**: `tt_custom_{descriptive_field_name}`
 
 #### Examples
@@ -464,13 +500,25 @@ custom_field = {
 #### Current Status
 ✅ **Note**: Translation Tools appears to use custom DocTypes rather than custom fields. If any custom fields exist, they should follow the `tt_custom_` naming convention.
 
-### File Creation Guidelines
-- Scan relevant files before creating new ones to prevent redundancy
-- Check hooks.py regularly for duplicated functions or redundancy
-- Follow ERPNext Custom Field Guidelines consistently
+### File Creation Guidelines (MANDATORY)
+- **Scan relevant files before creating new files** to prevent redundancy
+- **Check hooks.py regularly** for duplicated functions or redundancy  
+- **Follow ERPNext Custom Field Guidelines** consistently for all custom field operations
 
-### Priority Compliance Items
-1. **Review existing custom fields** (if any) and update naming to use `tt_custom_` prefix
-2. **Add uninstall functionality** to clean up all custom fields (if any exist)
-3. **Maintain test structure** following ERPNext standards
-4. **Review hooks.py** for any redundancy
+### Uninstall Requirements (CRITICAL)
+- **All custom fields created by translation_tools MUST be removed during app uninstallation**
+- **Reference Issue**: https://github.com/frappe/frappe/issues/24108
+- **Implementation**: Use `before_uninstall` hook in hooks.py to clean up custom fields
+- **Testing**: Verify that uninstallation leaves no orphaned custom fields
+
+### Priority Compliance Checklist
+1. ✅ **Custom Field Naming**: Use `tt_custom_` prefix for all new custom fields  
+2. ❓ **Uninstall Cleanup**: Review if app creates custom fields and add cleanup logic if needed
+3. ✅ **Test Structure**: Maintain tests in `translation_tools/translation_tools/tests/` folder
+4. ❓ **Hooks Review**: Check hooks.py for redundant or duplicated functions  
+
+### Current Compliance Status
+- **Custom Fields**: Translation Tools primarily uses custom DocTypes rather than custom fields
+- **Testing**: Test structure follows ERPNext standards (`apps/erpnext/erpnext/tests` pattern)
+- **File Organization**: Follows recommended structure and patterns
+- **Documentation**: Comprehensive CLAUDE.md with guidelines and examples
