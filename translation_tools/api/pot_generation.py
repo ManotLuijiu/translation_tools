@@ -149,6 +149,40 @@ def generate_pot_file(app_name, force_regenerate=False):
                 "command": cmd
             }
         
+        # Run additional Thai translation commands
+        additional_commands = [
+            f"cd {bench_path} && bench migrate-csv-to-po --app {app_name} --locale th",
+            f"cd {bench_path} && bench update-po-files --app {app_name} --locale th", 
+            f"cd {bench_path} && bench compile-po-to-mo --app {app_name} --locale th"
+        ]
+        
+        command_results = []
+        for additional_cmd in additional_commands:
+            try:
+                logger.info(f"Executing additional command: {additional_cmd}")
+                additional_result = subprocess.run(
+                    additional_cmd,
+                    shell=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=120  # 2 minute timeout for each
+                )
+                command_results.append({
+                    "command": additional_cmd,
+                    "success": additional_result.returncode == 0,
+                    "output": additional_result.stdout,
+                    "error": additional_result.stderr if additional_result.returncode != 0 else None
+                })
+                if additional_result.returncode != 0:
+                    logger.warning(f"Additional command failed for {app_name}: {additional_result.stderr}")
+            except Exception as e:
+                logger.warning(f"Additional command error for {app_name}: {str(e)}")
+                command_results.append({
+                    "command": additional_cmd,
+                    "success": False,
+                    "error": str(e)
+                })
+        
         # Verify POT file was created
         if not os.path.exists(pot_file):
             return {
@@ -168,6 +202,7 @@ def generate_pot_file(app_name, force_regenerate=False):
                 "pot_file": pot_file,
                 "entries_count": entries_count,
                 "command_output": result.stdout,
+                "additional_commands": command_results,
                 "generated_at": now_datetime().isoformat()
             }
             
@@ -178,6 +213,7 @@ def generate_pot_file(app_name, force_regenerate=False):
                 "message": f"POT file generated for '{app_name}' but could not read statistics",
                 "pot_file": pot_file,
                 "command_output": result.stdout,
+                "additional_commands": command_results,
                 "generated_at": now_datetime().isoformat()
             }
         
@@ -331,17 +367,27 @@ def execute_batch_pot_generation(app_names, force_regenerate=False, job_id=None)
 
 
 @frappe.whitelist()
-def get_pot_generation_progress(job_id):
+def get_pot_generation_progress(**kwargs):
     """
     Get progress of a batch POT generation job.
     
     Args:
-        job_id: Job identifier
+        job_id: Job identifier (optional, can be passed as kwargs)
         
     Returns:
         dict: Progress information
     """
     try:
+        # Extract job_id from kwargs or form_dict
+        job_id = kwargs.get('job_id') or frappe.form_dict.get('job_id')
+        
+        # Handle missing or empty job_id
+        if not job_id:
+            return {
+                "success": False,
+                "error": "Job ID is required"
+            }
+        
         progress_key = f"pot_generation_progress_{job_id}"
         progress_json = frappe.cache().get_value(progress_key)
         

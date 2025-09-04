@@ -83,7 +83,9 @@ export function useGetPOTGenerationProgress(jobId: string | null) {
     { 
       enabled: shouldFetch,
       // Poll every 2 seconds when job is active
-      refetchInterval: shouldFetch ? 2000 : false
+      refetchInterval: shouldFetch ? 2000 : false,
+      // Don't retry if no job ID
+      retry: shouldFetch ? 3 : false
     }
   );
 }
