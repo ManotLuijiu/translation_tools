@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
-"POT-Creation-Date: 2025-09-04 17:40+0642\n"
-"PO-Revision-Date: 2025-09-04 17:40+0642\n"
+"POT-Creation-Date: 2025-09-04 18:47+0642\n"
+"PO-Revision-Date: 2025-09-04 18:47+0642\n"
 "Last-Translator: moocoding@gmail.com\n"
 "Language-Team: moocoding@gmail.com\n"
 "MIME-Version: 1.0\n"
@@ -655,8 +655,8 @@ msgstr ""
 msgid "File Path"
 msgstr ""
 
-#: translation_tools/api/po_files.py:830 translation_tools/api/po_files.py:892
-#: translation_tools/api/po_files.py:985
+#: translation_tools/api/po_files.py:840 translation_tools/api/po_files.py:902
+#: translation_tools/api/po_files.py:995
 #: translation_tools/api/translation.py:152
 #: translation_tools/api/translation.py:274
 msgid "File not found: {0}"
@@ -737,7 +737,7 @@ msgstr ""
 msgid "GitHub Sync Settings"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1447
+#: translation_tools/api/po_files.py:1457
 msgid "GitHub token saved successfully"
 msgstr ""
 
@@ -833,8 +833,8 @@ msgstr ""
 msgid "Invalid GitHub repository URL"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1020
 #: translation_tools/api/po_files.py:1030
+#: translation_tools/api/po_files.py:1040
 msgid "Invalid entry ID or entry not found"
 msgstr ""
 
@@ -1033,7 +1033,7 @@ msgstr ""
 msgid "No API keys found in configuration file."
 msgstr ""
 
-#: translation_tools/api/po_files.py:1291
+#: translation_tools/api/po_files.py:1301
 msgid "No changes needed, translations are already up to date"
 msgstr ""
 
@@ -1559,7 +1559,7 @@ msgstr ""
 msgid "Success! Model: {0}"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1351
+#: translation_tools/api/po_files.py:1361
 msgid "Successfully pushed translations to GitHub"
 msgstr ""
 
@@ -1956,7 +1956,7 @@ msgstr ""
 msgid "Translation Tools Settings"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1414
+#: translation_tools/api/po_files.py:1424
 msgid "Translation Tools Settings doctype does not exist. Please contact administrator."
 msgstr ""
 
@@ -2005,7 +2005,7 @@ msgstr ""
 msgid "Unchanged"
 msgstr ""
 
-#: translation_tools/api/translation.py:869
+#: translation_tools/api/translation.py:867
 msgid "Unsupported model provider: {0}"
 msgstr ""
 
@@ -2112,7 +2112,7 @@ msgstr ""
 msgid "You do not have permission to use the translation tools"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1405
+#: translation_tools/api/po_files.py:1415
 msgid "You don't have permission to modify Translation Tools Settings"
 msgstr ""
 

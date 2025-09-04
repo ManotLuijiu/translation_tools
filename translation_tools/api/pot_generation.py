@@ -122,38 +122,40 @@ def generate_pot_file(app_name, force_regenerate=False):
         
         # Check if POT file already exists
         pot_file = os.path.join(app_path, app_name, "locale", "main.pot")
-        if os.path.exists(pot_file) and not force_regenerate:
-            return {
-                "success": False,
-                "error": f"POT file already exists for '{app_name}'. Use force_regenerate=True to overwrite."
-            }
+        pot_file_exists = os.path.exists(pot_file)
         
-        # Execute bench generate-pot-file command
-        cmd = f"cd {bench_path} && bench generate-pot-file --app {app_name}"
-        logger.info(f"Executing command: {cmd}")
+        # Always run the complete Thai translation workflow, but skip POT generation if file exists and force_regenerate=False
+        skip_pot_generation = pot_file_exists and not force_regenerate
         
-        result = subprocess.run(
-            cmd,
-            shell=True,
-            capture_output=True,
-            text=True,
-            timeout=300  # 5 minute timeout
-        )
+        # Execute bench generate-pot-file command (only if needed)
+        if not skip_pot_generation:
+            cmd = f"cd {bench_path} && bench generate-pot-file --app {app_name}"
+            logger.info(f"Executing command: {cmd}")
+            
+            result = subprocess.run(
+                cmd,
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=300  # 5 minute timeout
+            )
+            
+            if result.returncode != 0:
+                error_msg = result.stderr or result.stdout or "Unknown error"
+                logger.error(f"POT generation failed for {app_name}: {error_msg}")
+                return {
+                    "success": False,
+                    "error": f"Command failed: {error_msg}",
+                    "command": cmd
+                }
+        else:
+            logger.info(f"Skipping POT generation for {app_name} - file already exists")
         
-        if result.returncode != 0:
-            error_msg = result.stderr or result.stdout or "Unknown error"
-            logger.error(f"POT generation failed for {app_name}: {error_msg}")
-            return {
-                "success": False,
-                "error": f"Command failed: {error_msg}",
-                "command": cmd
-            }
-        
-        # Run additional Thai translation commands
+        # Run additional Thai translation commands (in correct order)
         additional_commands = [
-            f"cd {bench_path} && bench migrate-csv-to-po --app {app_name} --locale th",
-            f"cd {bench_path} && bench update-po-files --app {app_name} --locale th", 
-            f"cd {bench_path} && bench compile-po-to-mo --app {app_name} --locale th"
+            f"cd {bench_path} && bench update-po-files --app {app_name} --locale th",  # Create/update th.po from main.pot
+            f"cd {bench_path} && bench migrate-csv-to-po --app {app_name} --locale th",  # Migrate old CSV translations
+            f"cd {bench_path} && bench compile-po-to-mo --app {app_name} --locale th"   # Compile to binary
         ]
         
         command_results = []
@@ -198,10 +200,10 @@ def generate_pot_file(app_name, force_regenerate=False):
             
             return {
                 "success": True,
-                "message": f"POT file generated successfully for '{app_name}'",
+                "message": f"POT {'generation skipped (file exists)' if skip_pot_generation else 'file generated successfully'} for '{app_name}' - Thai translation workflow completed",
                 "pot_file": pot_file,
                 "entries_count": entries_count,
-                "command_output": result.stdout,
+                "command_output": result.stdout if not skip_pot_generation else "POT generation skipped - file already exists",
                 "additional_commands": command_results,
                 "generated_at": now_datetime().isoformat()
             }
@@ -263,7 +265,7 @@ def generate_pot_files_batch(app_names, force_regenerate=False):
             job_name=f"POT Generation: {', '.join(app_names[:3])}{'...' if len(app_names) > 3 else ''}",
             app_names=app_names,
             force_regenerate=force_regenerate,
-            job_id=job_id
+            batch_job_id=job_id  # Renamed to avoid conflict with Frappe's job_id
         )
         
         return {
@@ -281,17 +283,18 @@ def generate_pot_files_batch(app_names, force_regenerate=False):
         }
 
 
-def execute_batch_pot_generation(app_names, force_regenerate=False, job_id=None):
+def execute_batch_pot_generation(app_names, force_regenerate=False, batch_job_id=None):
     """
     Background job to generate POT files for multiple apps.
     
     Args:
         app_names: List of app names
         force_regenerate: Whether to regenerate existing POT files
-        job_id: Optional job identifier
+        batch_job_id: Optional job identifier (renamed to avoid Frappe conflicts)
     """
     results = []
     total_apps = len(app_names)
+    job_id = batch_job_id  # For internal use, keep the original variable name
     
     try:
         logger.info(f"Starting batch POT generation for {total_apps} apps")
