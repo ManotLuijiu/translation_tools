@@ -13,8 +13,8 @@ Translation Tools is a Frappe app for ERPNext that provides AI-powered translati
 # Run tests for the app
 bench run-tests --app translation_tools
 
-# Run specific test modules
-bench run-tests --module translation_tools.translation_tools.doctype.translation_tools_settings.test_translation_tools_settings
+# Run specific test modules (must be in tests folder)
+bench run-tests --module translation_tools.tests.test_translation_tools_settings
 
 # Install app on site
 bench --site moo.localhost install-app translation_tools
@@ -27,6 +27,29 @@ bench watch
 
 # Start development server
 bench serve --port 8000
+```
+
+### Frappe Translation Workflow Commands
+```bash
+# Generate POT (Portable Object Template) file containing all translatable strings
+bench generate-pot-file --app translation_tools
+# Creates: apps/translation_tools/translation_tools/locale/main.pot
+
+# Migrate existing CSV translations to PO format (if upgrading from old system)
+bench migrate-csv-to-po --app translation_tools --locale th
+# Requires: POT file must exist beforehand
+
+# Update existing PO files with latest strings from POT file
+bench update-po-files --app translation_tools --locale th
+# Syncs: Removes outdated strings, adds new ones
+
+# Compile PO files to binary MO files for runtime usage
+bench compile-po-to-mo --app translation_tools --locale th
+# Outputs: sites/assets/locale/th/LC_MESSAGES/translation_tools.mo
+# Note: Automatically runs during bench build and bench update
+
+# Force recompilation even if files haven't changed
+bench compile-po-to-mo --app translation_tools --locale th --force
 ```
 
 ### Frontend Development (React Dashboard)
@@ -107,6 +130,74 @@ translation_tools/
     └── package.json
 ```
 
+## Development Standards
+
+### Custom Field Management (MANDATORY)
+
+#### Naming Convention
+All custom fields created by translation_tools MUST follow this naming pattern:
+- **App Name**: translation_tools  
+- **Prefix**: `tt_custom_`
+- **Pattern**: `tt_custom_{descriptive_field_name}`
+- **Label**: Can be human-readable without prefix
+
+```python
+# CORRECT - Following naming convention
+"Print Format": [
+    {
+        "fieldname": "tt_custom_thai_translation_enabled",
+        "label": "Thai Translation Enabled",
+        "fieldtype": "Check",
+        "default": 0,
+        "insert_after": "print_language"
+    }
+]
+
+# INCORRECT - Missing prefix (legacy fields, to be migrated)
+"Print Format": [
+    {
+        "fieldname": "thai_translation_enabled",  # Missing tt_custom_ prefix
+        "label": "Thai Translation Enabled",
+        "fieldtype": "Check",
+        "default": 0,
+        "insert_after": "print_language"
+    }
+]
+```
+
+**Note**: Some legacy fields may not follow this convention yet. New fields MUST use the `tt_custom_` prefix, and existing fields should be migrated when modified.
+
+### Test Folder Structure (MANDATORY)
+All test files MUST be placed in the designated tests folder following ERPNext standards:
+
+```
+translation_tools/
+├── translation_tools/
+│   └── tests/                    # MANDATORY test folder location
+│       ├── __init__.py          # Required for Python module
+│       ├── test_translation_tools_settings.py    # Settings configuration tests
+│       ├── test_translation_user_settings.py     # User preferences tests
+│       ├── test_glossary_term.py                 # Glossary management tests
+│       └── test_translation_history.py           # Translation audit tests
+├── api/
+│   └── tests/                    # API-specific tests (if needed)
+│       ├── __init__.py
+│       ├── test_translation.py  # Translation API tests
+│       └── test_po_files.py     # PO file processing tests
+└── utils/
+    └── tests/                    # Utility function tests (if needed)
+        ├── __init__.py
+        └── test_ai_models.py
+```
+
+**Reference Standard**: Follow `apps/erpnext/erpnext/tests` structure as documented in Documentation/rules.md
+
+**Rules**:
+1. **All test files** MUST be in `app_name/app_name/tests/` folder
+2. **Test files** MUST start with `test_` prefix
+3. **Each module** can have its own tests subfolder if complex
+4. **Import pattern**: `from translation_tools.tests.test_module import TestClass`
+
 ## Development Workflow
 
 ### Working with Translations
@@ -126,6 +217,43 @@ translation_tools/
 - **Frontend**: No automated tests configured (manual testing recommended)
 - **API Testing**: Use Frappe's test client or Postman
 
+#### Test Structure Example
+```python
+# translation_tools/translation_tools/tests/test_translation_tools_settings.py
+import frappe
+import unittest
+from frappe.tests.utils import FrappeTestCase
+
+class TestTranslationToolsSettings(unittest.TestCase):  # or FrappeTestCase
+    def setUp(self):
+        # Test setup for translation settings
+        self.settings_doc = frappe.get_single("Translation Tools Settings")
+        pass
+    
+    def test_settings_validation(self):
+        """Test translation settings validation"""
+        settings = frappe.get_doc({
+            "doctype": "Translation Tools Settings",
+            "openai_api_key": "test-key",
+            "anthropic_api_key": "test-key",
+            "default_model": "gpt-4"
+        })
+        settings.validate()
+        self.assertEqual(settings.default_model, "gpt-4")
+    
+    def test_api_key_encryption(self):
+        """Test that API keys are properly encrypted"""
+        settings = frappe.get_single("Translation Tools Settings")
+        settings.openai_api_key = "sk-test123456789"
+        settings.save()
+        # API keys should be encrypted when saved
+        self.assertNotEqual(settings.get_password("openai_api_key"), "sk-test123456")
+    
+    def tearDown(self):
+        # Clean up test data
+        pass
+```
+
 ## Configuration
 
 ### Environment Setup
@@ -142,6 +270,106 @@ translation_tools/
 - **After Install**: Workspace setup and default configuration
 - **Scheduler**: Daily AI model availability checks
 - **Assets**: Automatic bundle inclusion via hooks.py
+
+## Translation File Management
+
+### Frappe Translation System Overview
+Frappe uses the standard gettext internationalization system with PO/POT/MO files:
+
+- **POT Files** (Portable Object Template): Template files containing all translatable strings extracted from the app
+- **PO Files** (Portable Object): Language-specific files containing actual translations
+- **MO Files** (Machine Object): Compiled binary files used at runtime for performance
+
+### Translation File Structure
+```
+translation_tools/
+└── translation_tools/
+    └── locale/
+        ├── main.pot           # Template with all translatable strings
+        ├── th.po             # Thai translations
+        ├── en.po             # English translations (if needed)
+        └── [locale].po       # Other language translations
+```
+
+### Translation Workflow
+
+#### 1. Extract Translatable Strings
+```bash
+# Generate or update the POT template file
+bench generate-pot-file --app translation_tools
+```
+This scans all Python, JavaScript, and JSON files for translatable strings marked with:
+- Python: `_("string")` or `frappe._("string")`
+- JavaScript: `__("string")` or `frappe._("string")`
+- JSON: Fields with `translatable: 1` property
+
+#### 2. Create/Update Language Files
+```bash
+# Update existing PO files with new strings from POT
+bench update-po-files --app translation_tools --locale th
+
+# Or update all locales
+bench update-po-files --app translation_tools
+```
+
+#### 3. Add Translations
+Edit the PO files directly or use translation tools:
+- Manual editing with text editor
+- Use POEdit or similar PO file editors
+- Integration with translation platforms (Crowdin, Weblate)
+
+#### 4. Compile for Production
+```bash
+# Compile PO to binary MO files
+bench compile-po-to-mo --app translation_tools --locale th
+
+# Or compile all during build
+bench build  # Automatically compiles all PO files
+```
+
+#### 5. Migration from Legacy CSV
+If upgrading from old CSV-based translations:
+```bash
+# Migrate CSV translations to PO format
+bench migrate-csv-to-po --app translation_tools --locale th
+```
+
+### Best Practices for Translatable Strings
+
+#### In Python Files
+```python
+from frappe import _
+
+# Simple translation
+message = _("Document saved successfully")
+
+# With dynamic values (use format, not f-strings)
+message = _("Hello {0}, you have {1} new messages").format(user_name, count)
+
+# Context-specific translations
+message = _("Bank", context="Financial Institution")
+```
+
+#### In JavaScript Files
+```javascript
+// Simple translation
+frappe.msgprint(__("Document saved successfully"));
+
+// With dynamic values
+frappe.msgprint(__("Hello {0}, you have {1} new messages", [user_name, count]));
+
+// Context-specific
+__("Bank", null, "Financial Institution");
+```
+
+#### In DocType JSON Files
+```json
+{
+  "fieldname": "customer_name",
+  "label": "Customer Name",
+  "translatable": 1
+}
+```
 
 ## Thai Business Context
 
@@ -194,3 +422,55 @@ const result = await call.post('translation_tools.api.translation.translate_text
 - **AI API Calls**: Implement rate limiting and batch processing
 - **File Processing**: Stream large PO files rather than loading entirely in memory
 - **Caching**: Use Frappe's cache for expensive operations like model validation
+
+---
+
+## Development Rules & Standards
+
+### Custom Field Naming Convention (MANDATORY)
+Following [Documentation/rules.md](/home/frappe/frappe-bench/Documentation/rules.md):
+
+- **App Name**: translation_tools
+- **Prefix**: `tt_custom_` (suggested translation-tools prefix)
+- **Pattern**: `tt_custom_{descriptive_field_name}`
+
+#### Examples
+```python
+# ✅ CORRECT - Following naming convention
+custom_field = {
+    "fieldname": "tt_custom_source_language",
+    "fieldtype": "Select",
+    "label": "Source Language"
+}
+
+# ❌ INCORRECT - Missing app-specific prefix
+custom_field = {
+    "fieldname": "source_language",  # Should be tt_custom_source_language
+    "fieldtype": "Select",
+    "label": "Source Language"
+}
+```
+
+### Testing Standards
+- **Test Location**: `translation_tools/translation_tools/tests/`
+- **Reference**: Follow `apps/erpnext/erpnext/tests` structure
+- **Docs**: https://docs.frappe.io/framework/user/en/testing
+
+### Uninstall Compliance
+- **Requirement**: All custom fields MUST be removed during app uninstallation
+- **Implementation**: Add `before_uninstall` hook in `hooks.py`
+- **Reference Issue**: https://github.com/frappe/frappe/issues/24108
+
+#### Current Status
+✅ **Note**: Translation Tools appears to use custom DocTypes rather than custom fields. If any custom fields exist, they should follow the `tt_custom_` naming convention.
+
+### File Creation Guidelines
+- Scan relevant files before creating new ones to prevent redundancy
+- Check hooks.py regularly for duplicated functions or redundancy
+- Follow ERPNext Custom Field Guidelines consistently
+
+### Priority Compliance Items
+1. **Review existing custom fields** (if any) and update naming to use `tt_custom_` prefix
+2. **Add uninstall functionality** to clean up all custom fields (if any exist)
+3. **Maintain test structure** following ERPNext standards
+4. **Review hooks.py** for any redundancy

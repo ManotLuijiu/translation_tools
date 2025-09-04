@@ -17,7 +17,7 @@ guest_title = app_title
 # Define your desktop sections
 desktop_icons = ["Translation Tools"]
 
-required_apps = ["payments"]
+required_apps = ["payments", "print_designer"]
 
 # Modules Definition
 # -----------------
@@ -147,6 +147,24 @@ workspace_order = {
     "Translation Tools": 99  # Use a very high number to ensure it's at the bottom
 }
 
-# scheduler_events = {
-#     "daily": ["translation_tools.api.ai_models.get_available_ai_models"]
-# }
+scheduler_events = {
+    # Translation Schedule automation - runs every minute
+    "cron": {
+        "* * * * *": [
+            "translation_tools.tasks.translation_scheduler.check_and_run_scheduled_tasks"
+        ]
+    },
+    # Daily tasks
+    "daily": [
+        "translation_tools.api.ai_models.get_available_ai_models",
+        "translation_tools.tasks.translation_scheduler.cleanup_old_logs"
+    ],
+    # Hourly safety check for missed schedules
+    "hourly": [
+        "translation_tools.tasks.translation_scheduler.run_missed_schedules"
+    ],
+    # Daily long-running tasks
+    "daily_long": [
+        "translation_tools.tasks.translation_scheduler.run_daily_translation_workflows"
+    ]
+}
