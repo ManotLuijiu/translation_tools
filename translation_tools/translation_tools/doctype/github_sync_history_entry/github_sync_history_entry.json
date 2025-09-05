@@ -1,0 +1,97 @@
+{
+  "actions": [],
+  "creation": "2025-01-10 00:00:00.000000",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "sync_datetime",
+    "sync_type",
+    "repository_url",
+    "branch",
+    "status",
+    "changes_added",
+    "changes_updated",
+    "changes_unchanged",
+    "error_message",
+    "sync_duration",
+    "files_processed"
+  ],
+  "fields": [
+    {
+      "fieldname": "sync_datetime",
+      "fieldtype": "Datetime",
+      "label": "Sync Date/Time",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "sync_type",
+      "fieldtype": "Select",
+      "label": "Sync Type",
+      "options": "Manual\nAutomatic\nScheduled",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "repository_url",
+      "fieldtype": "Data",
+      "label": "Repository URL"
+    },
+    {
+      "fieldname": "branch",
+      "fieldtype": "Data",
+      "label": "Branch"
+    },
+    {
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Status",
+      "options": "Success\nFailed\nPending\nIn Progress",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "changes_added",
+      "fieldtype": "Int",
+      "label": "Added",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "changes_updated",
+      "fieldtype": "Int",
+      "label": "Updated",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "changes_unchanged",
+      "fieldtype": "Int",
+      "label": "Unchanged"
+    },
+    {
+      "fieldname": "error_message",
+      "fieldtype": "Text",
+      "label": "Error Message"
+    },
+    {
+      "fieldname": "sync_duration",
+      "fieldtype": "Float",
+      "label": "Sync Duration (seconds)"
+    },
+    {
+      "fieldname": "files_processed",
+      "fieldtype": "Text",
+      "label": "Files Processed"
+    }
+  ],
+  "grid_page_length": 50,
+  "istable": 1,
+  "links": [],
+  "modified": "2025-01-10 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Translation Tools",
+  "name": "GitHub Sync History Entry",
+  "owner": "Administrator",
+  "permissions": [],
+  "row_format": "Dynamic",
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": []
+}

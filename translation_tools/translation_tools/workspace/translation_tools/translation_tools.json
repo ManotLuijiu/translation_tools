@@ -6,7 +6,7 @@
       "label": "Translation Status"
     }
   ],
-  "content": "[{\"id\":\"thai-banner\",\"type\":\"header\",\"data\":{\"text\":\"<h3 style='margin-bottom:15px;'>Translation Tools for Frappe/ERPNext Ecosystem</h3><p style='margin-bottom:15px;'>AI-powered utilities for translating English to Thai language and other localization tools</p>\",\"col\":12}},{\"id\":\"number-cards\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Approved Translations\",\"col\":3}},{\"id\":\"number-cards-2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Pending Translations\",\"col\":3}},{\"id\":\"number-cards-3\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Glossary Terms\",\"col\":3}},{\"id\":\"number-cards-4\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Translation Progress\",\"col\":3}},{\"id\":\"chart-section\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Translation Status\",\"col\":12}},{\"id\":\"pu9Ft3mUeT\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Your Shortcuts</b></span>\",\"col\":12}},{\"id\":\"mYg4h6H7aX\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Translator\",\"col\":3}},{\"id\":\"OBOPP0dnjY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Translation Status\",\"col\":3}},{\"id\":\"zyVHu4rF3u\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"HSmKHOvqMN\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Tools</b></span>\",\"col\":12}},{\"id\":\"UnVtsnxLo_\",\"type\":\"card\",\"data\":{\"card_name\":\"Translation\",\"col\":4}},{\"id\":\"YXISc0V2sT\",\"type\":\"card\",\"data\":{\"card_name\":\"Configuration\",\"col\":4}}]",
+  "content": "[{\"id\":\"thai-banner\",\"type\":\"header\",\"data\":{\"text\":\"<h3 style='margin-bottom:15px;'>Translation Tools for Frappe/ERPNext Ecosystem</h3><p style='margin-bottom:15px;'>AI-powered utilities for translating English to Thai language and other localization tools</p>\",\"col\":12}},{\"id\":\"number-cards\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Approved Translations\",\"col\":3}},{\"id\":\"number-cards-2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Pending Translations\",\"col\":3}},{\"id\":\"number-cards-3\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Glossary Terms\",\"col\":3}},{\"id\":\"number-cards-4\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Translation Progress\",\"col\":3}},{\"id\":\"chart-section\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Translation Status\",\"col\":12}},{\"id\":\"pu9Ft3mUeT\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Your Shortcuts</b></span>\",\"col\":12}},{\"id\":\"mYg4h6H7aX\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"AI Translator\",\"col\":3}},{\"id\":\"schedule-shortcut\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Translation Schedule\",\"col\":3}},{\"id\":\"OBOPP0dnjY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Translation Status\",\"col\":3}},{\"id\":\"zyVHu4rF3u\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"HSmKHOvqMN\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Tools</b></span>\",\"col\":12}},{\"id\":\"UnVtsnxLo_\",\"type\":\"card\",\"data\":{\"card_name\":\"Translation\",\"col\":4}},{\"id\":\"automation-card\",\"type\":\"card\",\"data\":{\"card_name\":\"Automation\",\"col\":4}},{\"id\":\"YXISc0V2sT\",\"type\":\"card\",\"data\":{\"card_name\":\"Configuration\",\"col\":4}}]",
   "creation": "2025-04-26 12:00:00.000000",
   "custom_blocks": [],
   "docstatus": 0,
@@ -53,6 +53,24 @@
       "link_count": 0,
       "link_to": "Translation Status Report",
       "link_type": "Report",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Automation",
+      "link_count": 1,
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Translation Schedule",
+      "link_count": 0,
+      "link_to": "Translation Schedule",
+      "link_type": "DocType",
       "onboard": 0,
       "type": "Link"
     },
@@ -121,6 +139,13 @@
       "label": "AI Translator",
       "link_to": "ai-translator",
       "type": "Page"
+    },
+    {
+      "color": "Green",
+      "doc_view": "List",
+      "label": "Translation Schedule",
+      "link_to": "Translation Schedule",
+      "type": "DocType"
     },
     {
       "color": "Grey",

@@ -224,7 +224,9 @@ export default function GithubSync({
                     setIsOpen(true);
                   }}
                   className={
-                    !selectedFile ? 'opacity-50 cursor-not-allowed' : ''
+                    !selectedFile
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'cursor-pointer'
                   }
                 >
                   <img

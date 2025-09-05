@@ -29,3 +29,6 @@ yarn-error.log*
 .cache/
 .temp/
 .tmp/
+
+.serena
+CLAUDE.md

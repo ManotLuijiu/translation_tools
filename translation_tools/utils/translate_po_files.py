@@ -12,7 +12,7 @@ Options:
   --api-key=<key>            OpenAI API key (required)
   --model=<model>            OpenAI model to use (default: gpt-4)
   --batch-size=<size>        Number of entries to translate in a batch (default: 10)
-  --output=<path>            Output file path (default: input file with .translated suffix)
+  --output=<path>            Output file path (default: modifies input file directly)
   --help                     Show this help message
 """
 
@@ -90,7 +90,7 @@ def setup_argparse() -> argparse.Namespace:
     )
     parser.add_argument(
         "--output",
-        help="Output file path (default: input file with .translated suffix)",
+        help="Output file path (default: modifies input file directly)",
     )
     parser.add_argument(
         "--temperature",
@@ -372,8 +372,8 @@ def translate_po_file(
     )
 
     if not output_path:
-        base, ext = os.path.splitext(po_file_path)
-        output_path = f"{base}.translated{ext}"
+        # Modify the original file directly instead of creating .translated.po
+        output_path = po_file_path
 
     # Parse the PO file
     po = polib.pofile(po_file_path)

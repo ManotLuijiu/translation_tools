@@ -11,7 +11,7 @@
   "idx": 0,
   "is_public": 1,
   "is_standard": 1,
-  "modified": "2025-04-26 22:26:42.455515",
+  "modified": "2025-09-05 00:50:10.360387",
   "modified_by": "Administrator",
   "module": "Translation Tools",
   "name": "Translation Status",
@@ -19,10 +19,11 @@
   "owner": "Administrator",
   "report_name": "Translation Status Report",
   "roles": [],
+  "show_values_over_chart": 0,
   "time_interval": "Yearly",
   "timeseries": 0,
   "timespan": "Last Month",
   "type": "Bar",
-  "use_report_chart": 0,
+  "use_report_chart": 1,
   "y_axis": []
 }

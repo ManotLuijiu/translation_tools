@@ -1,0 +1,218 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "TS-.####",
+ "creation": "2025-09-04 17:04:20.064834",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_section",
+  "schedule_name",
+  "enabled",
+  "column_break_1",
+  "command_type",
+  "app_name",
+  "locale",
+  "scheduling_section",
+  "schedule_type",
+  "time",
+  "column_break_2",
+  "weekday",
+  "day_of_month",
+  "cron_expression",
+  "execution_section",
+  "last_run",
+  "next_run",
+  "column_break_3",
+  "status",
+  "retry_count",
+  "max_retries",
+  "log_section",
+  "execution_log"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_section",
+   "fieldtype": "Section Break",
+   "label": "Basic Settings"
+  },
+  {
+   "fieldname": "schedule_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Schedule Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "command_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Command Type",
+   "options": "generate_pot\nupdate_po\ncompile_mo\nfull_workflow\nmigrate_csv_to_po",
+   "reqd": 1
+  },
+  {
+   "default": "translation_tools",
+   "fieldname": "app_name",
+   "fieldtype": "Data",
+   "label": "App Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "locale",
+   "fieldtype": "Select",
+   "label": "Locale",
+   "options": "all\nth\nen\nes\nfr\nde\nja\nzh\npt\nit\nru\nko"
+  },
+  {
+   "fieldname": "scheduling_section",
+   "fieldtype": "Section Break",
+   "label": "Scheduling"
+  },
+  {
+   "default": "Daily",
+   "fieldname": "schedule_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Schedule Type",
+   "options": "Once\nDaily\nWeekly\nMonthly\nCron",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.schedule_type=='Daily' || doc.schedule_type=='Weekly' || doc.schedule_type=='Once'",
+   "fieldname": "time",
+   "fieldtype": "Time",
+   "label": "Time"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.schedule_type=='Weekly'",
+   "fieldname": "weekday",
+   "fieldtype": "Select",
+   "label": "Weekday",
+   "options": "\nMonday\nTuesday\nWednesday\nThursday\nFriday\nSaturday\nSunday"
+  },
+  {
+   "depends_on": "eval:doc.schedule_type=='Monthly'",
+   "fieldname": "day_of_month",
+   "fieldtype": "Int",
+   "label": "Day of Month",
+   "description": "Enter day of month (1-31)"
+  },
+  {
+   "depends_on": "eval:doc.schedule_type=='Cron'",
+   "fieldname": "cron_expression",
+   "fieldtype": "Data",
+   "label": "Cron Expression",
+   "description": "e.g., '0 2 * * *' for 2 AM daily, '0 0 * * 1' for Monday midnight"
+  },
+  {
+   "fieldname": "execution_section",
+   "fieldtype": "Section Break",
+   "label": "Execution Status"
+  },
+  {
+   "fieldname": "last_run",
+   "fieldtype": "Datetime",
+   "label": "Last Run",
+   "read_only": 1
+  },
+  {
+   "fieldname": "next_run",
+   "fieldtype": "Datetime",
+   "label": "Next Run",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Active\nRunning\nPaused\nError\nCompleted",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "retry_count",
+   "fieldtype": "Int",
+   "label": "Retry Count",
+   "read_only": 1
+  },
+  {
+   "default": "3",
+   "fieldname": "max_retries",
+   "fieldtype": "Int",
+   "label": "Max Retries"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "log_section",
+   "fieldtype": "Section Break",
+   "label": "Execution Log"
+  },
+  {
+   "fieldname": "execution_log",
+   "fieldtype": "Long Text",
+   "label": "Execution Log",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-09-04 17:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Translation Tools",
+ "name": "Translation Schedule",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Translation Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

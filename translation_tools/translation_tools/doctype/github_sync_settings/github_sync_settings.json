@@ -1,0 +1,175 @@
+{
+  "actions": [],
+  "creation": "2025-01-10 00:00:00.000000",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "general_section",
+    "enabled",
+    "repository_url",
+    "branch",
+    "target_language",
+    "sync_schedule_section",
+    "sync_frequency",
+    "custom_cron_expression",
+    "auto_sync_enabled",
+    "conflict_resolution_section",
+    "conflict_resolution_strategy",
+    "backup_before_sync",
+    "status_section",
+    "last_sync_datetime",
+    "last_sync_status",
+    "last_sync_changes",
+    "next_sync_datetime",
+    "sync_log_section",
+    "sync_history"
+  ],
+  "fields": [
+    {
+      "fieldname": "general_section",
+      "fieldtype": "Section Break",
+      "label": "General Settings"
+    },
+    {
+      "default": "0",
+      "fieldname": "enabled",
+      "fieldtype": "Check",
+      "label": "Enable Auto Sync"
+    },
+    {
+      "fieldname": "repository_url",
+      "fieldtype": "Data",
+      "label": "Repository URL",
+      "mandatory_depends_on": "enabled",
+      "placeholder": "https://github.com/username/repository.git"
+    },
+    {
+      "default": "main",
+      "fieldname": "branch",
+      "fieldtype": "Data",
+      "label": "Branch",
+      "mandatory_depends_on": "enabled"
+    },
+    {
+      "default": "th",
+      "fieldname": "target_language",
+      "fieldtype": "Data",
+      "label": "Target Language",
+      "mandatory_depends_on": "enabled"
+    },
+    {
+      "fieldname": "sync_schedule_section",
+      "fieldtype": "Section Break",
+      "label": "Sync Schedule"
+    },
+    {
+      "default": "daily",
+      "fieldname": "sync_frequency",
+      "fieldtype": "Select",
+      "label": "Sync Frequency",
+      "options": "hourly\ndaily\nweekly\ncustom",
+      "depends_on": "enabled"
+    },
+    {
+      "fieldname": "custom_cron_expression",
+      "fieldtype": "Data",
+      "label": "Custom Cron Expression",
+      "depends_on": "eval:doc.sync_frequency=='custom'",
+      "description": "Enter a valid cron expression (e.g., '0 2 * * *' for daily at 2 AM)"
+    },
+    {
+      "default": "0",
+      "fieldname": "auto_sync_enabled",
+      "fieldtype": "Check",
+      "label": "Enable Scheduled Auto Sync",
+      "depends_on": "enabled"
+    },
+    {
+      "fieldname": "conflict_resolution_section",
+      "fieldtype": "Section Break",
+      "label": "Conflict Resolution"
+    },
+    {
+      "default": "github_wins",
+      "fieldname": "conflict_resolution_strategy",
+      "fieldtype": "Select",
+      "label": "Conflict Resolution Strategy",
+      "options": "github_wins\nlocal_wins\nmanual_review",
+      "depends_on": "enabled"
+    },
+    {
+      "default": "1",
+      "fieldname": "backup_before_sync",
+      "fieldtype": "Check",
+      "label": "Backup Before Sync",
+      "depends_on": "enabled"
+    },
+    {
+      "fieldname": "status_section",
+      "fieldtype": "Section Break",
+      "label": "Sync Status"
+    },
+    {
+      "fieldname": "last_sync_datetime",
+      "fieldtype": "Datetime",
+      "label": "Last Sync Date/Time",
+      "read_only": 1
+    },
+    {
+      "fieldname": "last_sync_status",
+      "fieldtype": "Select",
+      "label": "Last Sync Status",
+      "options": "Success\nFailed\nPending\nIn Progress",
+      "read_only": 1
+    },
+    {
+      "fieldname": "last_sync_changes",
+      "fieldtype": "Text",
+      "label": "Last Sync Changes",
+      "read_only": 1
+    },
+    {
+      "fieldname": "next_sync_datetime",
+      "fieldtype": "Datetime",
+      "label": "Next Scheduled Sync",
+      "read_only": 1
+    },
+    {
+      "fieldname": "sync_log_section",
+      "fieldtype": "Section Break",
+      "label": "Sync History"
+    },
+    {
+      "fieldname": "sync_history",
+      "fieldtype": "Table",
+      "label": "Sync History",
+      "options": "GitHub Sync History Entry",
+      "read_only": 1
+    }
+  ],
+  "grid_page_length": 50,
+  "issingle": 1,
+  "links": [],
+  "modified": "2025-01-10 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Translation Tools",
+  "name": "GitHub Sync Settings",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "print": 1,
+      "read": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "row_format": "Dynamic",
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": []
+}

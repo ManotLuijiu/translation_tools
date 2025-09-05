@@ -1,8 +1,15 @@
 import { useState } from 'react';
-import { useGetCachedPOFiles, useScanPOFiles } from '../api';
+import { useGetCachedPOFiles, useScanPOFiles, useEnhancedScanWithPOT } from '../api';
 import { POFile } from '../types';
 import { formatPercentage, formatDate } from '../utils/helpers';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -19,10 +26,11 @@ import {
 } from '@/components/ui/tooltip';
 
 import { Input } from '@/components/ui/input';
-import { Loader2, RefreshCw, Search, FileText } from 'lucide-react';
+import { Loader2, RefreshCw, Search, FileText, ChevronDown, Zap, Settings } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/context/TranslationContext';
+import POTGenerationDialog from './POTGenerationDialog';
 
 interface FileExplorerProps {
   onFileSelect: (file: POFile) => void;
@@ -34,9 +42,11 @@ export default function FileExplorer({
   selectedFilePath,
 }: FileExplorerProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const { data, error, isLoading } = useGetCachedPOFiles();
+  const { data, error, isLoading, mutate } = useGetCachedPOFiles();
   const scanFiles = useScanPOFiles();
+  const enhancedScan = useEnhancedScanWithPOT();
   const [isScanning, setIsScanning] = useState(false);
+  const [showPOTDialog, setShowPOTDialog] = useState(false);
   const { translate: __, isReady } = useTranslation();
 
   // console.log('selectedFilePath', selectedFilePath);
@@ -44,16 +54,45 @@ export default function FileExplorer({
   const handleScan = async () => {
     setIsScanning(true);
     try {
-      // const result = await scanFiles.call();
       await scanFiles.call();
-      // console.log('Scan result', result);
-
-      // await mutate();
+      await mutate(); // Refresh the data
     } catch (error) {
       console.error('Error scanning files:', error);
     } finally {
       setIsScanning(false);
     }
+  };
+
+  const handlePOTGenerationScan = async () => {
+    setIsScanning(true);
+    try {
+      const result = await enhancedScan.call({
+        generate_pot: true,
+        force_regenerate: false
+      });
+      
+      if (result?.success) {
+        await mutate(); // Refresh the data
+      } else {
+        console.error('Enhanced scan failed:', result?.error);
+      }
+    } catch (error) {
+      console.error('Error in POT generation scan:', error);
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const handleAdvancedPOTGeneration = () => {
+    setShowPOTDialog(true);
+  };
+
+  const handlePOTGenerationComplete = async (success: boolean, message?: string) => {
+    if (success) {
+      // Refresh the PO files data after POT generation
+      await mutate();
+    }
+    console.log('POT Generation complete:', { success, message });
   };
 
   // console.log('data', data);
@@ -94,19 +133,42 @@ export default function FileExplorer({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">{__('PO Files')}</h2>
-        <Button onClick={handleScan} disabled={isScanning} variant="outline">
-          {isScanning ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {__('Scanning...')}
-            </>
-          ) : (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              {__('Scan Files')}
-            </>
-          )}
-        </Button>
+        <div className="flex items-center space-x-2">
+          <Button onClick={handleScan} disabled={isScanning} variant="outline">
+            {isScanning ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {__('Scanning...')}
+              </>
+            ) : (
+              <>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                {__('Scan Files')}
+              </>
+            )}
+          </Button>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" disabled={isScanning}>
+                <Zap className="mr-2 h-4 w-4" />
+                {__('POT Generation')}
+                <ChevronDown className="ml-1 h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem onClick={handlePOTGenerationScan} disabled={isScanning}>
+                <Zap className="mr-2 h-4 w-4" />
+                {__('Generate POT & Scan')}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleAdvancedPOTGeneration} disabled={isScanning}>
+                <Settings className="mr-2 h-4 w-4" />
+                {__('Advanced POT Options...')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       <div className="relative">
@@ -238,6 +300,12 @@ export default function FileExplorer({
           </Table>
         </div>
       )}
+
+      <POTGenerationDialog
+        isOpen={showPOTDialog}
+        onClose={() => setShowPOTDialog(false)}
+        onComplete={handlePOTGenerationComplete}
+      />
     </div>
   );
 }

@@ -245,6 +245,16 @@
       "link_type": "DocType",
       "onboard": 0,
       "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Company Retention Settings",
+      "link_count": 0,
+      "link_to": "Company Retention Settings",
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Link"
     }
   ],
   "modified": "2025-05-03 04:51:23.577523",

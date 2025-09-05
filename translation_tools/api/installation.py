@@ -33,35 +33,39 @@ def generate_po_file():
             except Exception as e:
                 print(f"⚠️  Could not generate POT file for {current_app}: {str(e)}")
 
-        try:
-            subprocess.run(
-                f"bench --site {site_name} migrate-csv-to-po --app {app_name} --locale th",
-                shell=True,
-                check=True,
-            )
-            print(f"✅ Migrated CSV to PO for {app_name}")
-        except Exception as e:
-            print(f"⚠️ Could not migrate CSV to PO: {str(e)}")
+            # Run Thai translation commands for each app
+            try:
+                print(f"Migrating CSV to PO for {current_app}...")
+                subprocess.run(
+                    f"bench --site {site_name} migrate-csv-to-po --app {current_app} --locale th",
+                    shell=True,
+                    check=True,
+                )
+                print(f"✅ Migrated CSV to PO for {current_app}")
+            except Exception as e:
+                print(f"⚠️ Could not migrate CSV to PO for {current_app}: {str(e)}")
 
-        try:
-            subprocess.run(
-                f"bench --site {site_name} update-po-files --app {app_name} --locale th",
-                shell=True,
-                check=True,
-            )
-            print(f"✅ Updated PO files for {app_name}")
-        except Exception as e:
-            print(f"⚠️ Could not update PO files: {str(e)}")
+            try:
+                print(f"Updating PO files for {current_app}...")
+                subprocess.run(
+                    f"bench --site {site_name} update-po-files --app {current_app} --locale th",
+                    shell=True,
+                    check=True,
+                )
+                print(f"✅ Updated PO files for {current_app}")
+            except Exception as e:
+                print(f"⚠️ Could not update PO files for {current_app}: {str(e)}")
 
-        try:
-            subprocess.run(
-                f"bench --site {site_name} compile-po-to-mo --app {app_name} --locale th",
-                shell=True,
-                check=True,
-            )
-            print(f"✅ Compiled PO to MO for {app_name}")
-        except Exception as e:
-            print(f"⚠️ Could not compile PO to MO: {str(e)}")
+            try:
+                print(f"Compiling PO to MO for {current_app}...")
+                subprocess.run(
+                    f"bench --site {site_name} compile-po-to-mo --app {current_app} --locale th",
+                    shell=True,
+                    check=True,
+                )
+                print(f"✅ Compiled PO to MO for {current_app}")
+            except Exception as e:
+                print(f"⚠️ Could not compile PO to MO for {current_app}: {str(e)}")
 
         print("\nTranslation setup completed!")
 
