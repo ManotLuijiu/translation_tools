@@ -50,8 +50,7 @@ msgstr ""
 msgid "<img src=\"{{ doc.signature_image }}\" style=\"max-height: 100px;\">"
 msgstr ""
 
-#. Content of the 'help_html' (HTML) field in DocType 'Translation PDF
-#. Settings'
+#. Content of the 'help_html' (HTML) field in DocType 'Translation PDF Settings'
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 msgid "<p>The GitHub integration allows translations to be automatically shared to a central repository.</p><p>To set up GitHub integration:</p><ol><li>Create a GitHub account if you don't have one</li><li>Create a Personal Access Token (Classic) at <a href=\"https://github.com/settings/tokens\" target=\"_blank\">GitHub Settings</a></li><li>Give it the 'repo' permission</li><li>Copy the token and paste it above</li></ol>"
 msgstr ""
@@ -214,14 +213,12 @@ msgstr ""
 msgid "Auto Save"
 msgstr ""
 
-#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
-#. Term'
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary Term'
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Auto-imported"
 msgstr ""
 
-#. Option for the 'Sync Type' (Select) field in DocType 'GitHub Sync History
-#. Entry'
+#. Option for the 'Sync Type' (Select) field in DocType 'GitHub Sync History Entry'
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Automatic"
 msgstr ""
@@ -272,8 +269,7 @@ msgstr ""
 msgid "Branch"
 msgstr ""
 
-#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
-#. Term'
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary Term'
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Business"
 msgstr ""
@@ -372,14 +368,12 @@ msgstr ""
 msgid "Context"
 msgstr ""
 
-#. Description of the 'GitHub Personal Access Token (Classic)' (Password) field
-#. in DocType 'Translation Tools Settings'
+#. Description of the 'GitHub Personal Access Token (Classic)' (Password) field in DocType 'Translation Tools Settings'
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Create a token with 'repo' scope at https://github.com/settings/tokens"
 msgstr ""
 
-#. Option for the 'Schedule Type' (Select) field in DocType 'Translation
-#. Schedule'
+#. Option for the 'Schedule Type' (Select) field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Cron"
 msgstr ""
@@ -419,8 +413,7 @@ msgstr ""
 msgid "Customer Name"
 msgstr ""
 
-#. Option for the 'Schedule Type' (Select) field in DocType 'Translation
-#. Schedule'
+#. Option for the 'Schedule Type' (Select) field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Daily"
 msgstr ""
@@ -429,8 +422,7 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
-#. Term'
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary Term'
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Date/Time"
 msgstr ""
@@ -949,8 +941,7 @@ msgstr ""
 msgid "Manage Tokens"
 msgstr ""
 
-#. Option for the 'Sync Type' (Select) field in DocType 'GitHub Sync History
-#. Entry'
+#. Option for the 'Sync Type' (Select) field in DocType 'GitHub Sync History Entry'
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Manual"
 msgstr ""
@@ -992,8 +983,7 @@ msgstr ""
 msgid "Monday"
 msgstr ""
 
-#. Option for the 'Schedule Type' (Select) field in DocType 'Translation
-#. Schedule'
+#. Option for the 'Schedule Type' (Select) field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Monthly"
 msgstr ""
@@ -1065,8 +1055,7 @@ msgstr ""
 msgid "OAuth Provider Settings"
 msgstr ""
 
-#. Option for the 'Schedule Type' (Select) field in DocType 'Translation
-#. Schedule'
+#. Option for the 'Schedule Type' (Select) field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Once"
 msgstr ""
@@ -1414,8 +1403,7 @@ msgstr ""
 msgid "Schedule Type"
 msgstr ""
 
-#. Option for the 'Sync Type' (Select) field in DocType 'GitHub Sync History
-#. Entry'
+#. Option for the 'Sync Type' (Select) field in DocType 'GitHub Sync History Entry'
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Scheduled"
 msgstr ""
@@ -1524,8 +1512,7 @@ msgstr ""
 
 #. Label of a Select field in DocType 'GitHub Sync History Entry'
 #. Label of a Select field in DocType 'Token Purchase'
-#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
-#. Term'
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary Term'
 #. Label of a Select field in DocType 'Translation Schedule'
 #: translation_tools/templates/pages/token_management.html:73
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
@@ -1641,8 +1628,7 @@ msgstr ""
 msgid "Target Language"
 msgstr ""
 
-#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
-#. Term'
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary Term'
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Technical"
 msgstr ""
@@ -1994,8 +1980,7 @@ msgstr ""
 msgid "Tuesday"
 msgstr ""
 
-#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
-#. Term'
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary Term'
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "UI"
 msgstr ""
@@ -2094,8 +2079,7 @@ msgstr ""
 msgid "Weekday"
 msgstr ""
 
-#. Option for the 'Schedule Type' (Select) field in DocType 'Translation
-#. Schedule'
+#. Option for the 'Schedule Type' (Select) field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Weekly"
 msgstr ""
