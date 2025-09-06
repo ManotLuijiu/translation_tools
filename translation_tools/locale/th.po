@@ -2036,10 +2036,10 @@ msgstr "เครื่องมือแปลถูกติดตั้งแ
 msgid "Translation User Settings"
 msgstr "การตั้งค่าผู้ใช้แปลภาษา"
 
-<<<<<<< HEAD
 #: translation_tools/api/po_files.py:935
 msgid "Translation pushed to GitHub successfully"
-=======
+msgstr "การแปลถูกพุชไปยัง GitHub เรียบร้อยแล้ว"
+
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:146
 msgid "Translation command executed successfully"
 msgstr "คำสั่งแปลดำเนินการสำเร็จแล้ว"
