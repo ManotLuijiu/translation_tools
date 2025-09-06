@@ -32,3 +32,5 @@ yarn-error.log*
 
 .serena
 CLAUDE.md
+
+translation_tools/locale/th.po
