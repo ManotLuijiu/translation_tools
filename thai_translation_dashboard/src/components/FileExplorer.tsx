@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react';
-import { useGetCachedPOFiles, useScanPOFiles, useEnhancedScanWithPOT, useDeletePOFiles, useForceRefreshPOStats } from '../api';
+import { useState, useMemo, useEffect } from 'react';
+import { useGetCachedPOFiles, useScanPOFiles, useEnhancedScanWithPOT, useDeletePOFiles, useForceRefreshPOStats, useGetAppSyncSettings, useToggleAppAutosync } from '../api';
 import { POFile } from '../types';
 import { formatPercentage, formatDate } from '../utils/helpers';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,7 +27,7 @@ import {
 } from '@/components/ui/tooltip';
 
 import { Input } from '@/components/ui/input';
-import { Loader2, RefreshCw, Search, FileText, ChevronDown, Zap, Settings, Trash2, CheckCircle, RotateCcw } from 'lucide-react';
+import { Loader2, RefreshCw, Search, FileText, ChevronDown, Zap, Settings, Trash2, CheckCircle, RotateCcw, GitBranch } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -66,8 +67,44 @@ export default function FileExplorer({
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteSuccess, setDeleteSuccess] = useState<{ show: boolean; count: number }>({ show: false, count: 0 });
   const { translate: __, isReady } = useTranslation();
+  
+  // App sync settings
+  const { data: appSyncData, mutate: refetchAppSyncData } = useGetAppSyncSettings();
+  const { call: toggleAppSync } = useToggleAppAutosync();
+  const [appSyncSettings, setAppSyncSettings] = useState<Record<string, boolean>>({});
 
   // console.log('selectedFilePath', selectedFilePath);
+
+  // Update local state when app sync data changes
+  useEffect(() => {
+    if (appSyncData?.success && appSyncData.app_settings) {
+      const settings: Record<string, boolean> = {};
+      Object.keys(appSyncData.app_settings).forEach(appName => {
+        settings[appName] = appSyncData.app_settings[appName].enabled;
+      });
+      setAppSyncSettings(settings);
+    }
+  }, [appSyncData]);
+
+  const handleToggleAppSync = async (appName: string, enabled: boolean) => {
+    try {
+      const result = await toggleAppSync(appName, enabled);
+      if (result?.success) {
+        // Update local state immediately for UI responsiveness
+        setAppSyncSettings(prev => ({
+          ...prev,
+          [appName]: enabled
+        }));
+        
+        // Refetch data to ensure consistency
+        await refetchAppSyncData();
+        
+        console.log(`Auto-sync ${enabled ? 'enabled' : 'disabled'} for ${appName}`);
+      }
+    } catch (error) {
+      console.error('Error toggling app sync:', error);
+    }
+  };
 
   const handleScan = async () => {
     setIsScanning(true);
@@ -362,11 +399,21 @@ export default function FileExplorer({
                 <TableHead>Filename</TableHead>
                 <TableHead>Progress</TableHead>
                 <TableHead>Last Modified</TableHead>
+                <TableHead className="w-[120px]">
+                  <div className="flex items-center gap-1">
+                    <GitBranch className="h-4 w-4" />
+                    Auto Sync
+                  </div>
+                </TableHead>
                 <TableHead className="w-[100px]">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedFiles.map((file) => (
+              {sortedFiles.map((file, index) => {
+                // Check if this is the first file for this app (to show the toggle only once)
+                const isFirstFileForApp = index === 0 || sortedFiles[index - 1].app !== file.app;
+                
+                return (
                 <TableRow
                   key={file.file_path}
                   className={
@@ -409,6 +456,18 @@ export default function FileExplorer({
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
                     {formatDate(file.last_modified)}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {isFirstFileForApp ? (
+                      <div className="flex items-center justify-center">
+                        <Switch
+                          checked={appSyncSettings[file.app] || false}
+                          onCheckedChange={(checked) => handleToggleAppSync(file.app, checked)}
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-5" />
+                    )}
                   </TableCell>
                   <TableCell>
                     <TooltipProvider>
@@ -460,7 +519,8 @@ export default function FileExplorer({
                     </TooltipProvider>
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
         </div>

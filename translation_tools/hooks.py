@@ -157,7 +157,8 @@ scheduler_events = {
     # Daily tasks
     "daily": [
         "translation_tools.api.ai_models.get_available_ai_models",
-        "translation_tools.tasks.translation_scheduler.cleanup_old_logs"
+        "translation_tools.tasks.translation_scheduler.cleanup_old_logs",
+        "translation_tools.tasks.github_auto_sync.check_and_run_auto_sync"
     ],
     # Hourly safety check for missed schedules
     "hourly": [
