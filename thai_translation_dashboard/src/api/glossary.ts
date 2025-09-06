@@ -46,10 +46,29 @@ export function useCleanDuplicateGlossaryTerms() {
  */
 export function useGetGlossaryTerms() {
   return useFrappeGetCall<{ message: GlossaryTerm[] }>(
-    // 'translation_tools.api.glossary.get_glossary_terms',
-    'translation_tools.api.glossary.sync_glossary_from_file',
+    'translation_tools.api.glossary.get_glossary_terms',
     {}
   );
+}
+
+/**
+ * Sync glossary terms from file
+ */
+export function useSyncGlossaryFromFile() {
+  return useFrappePostCall<{ message: GlossaryTerm[] }>(
+    'translation_tools.api.glossary.sync_glossary_from_file'
+  );
+}
+
+/**
+ * Sync glossary terms from GitHub
+ */
+export function useSyncGlossaryFromGitHub() {
+  return useFrappePostCall<{ 
+    success: boolean; 
+    message: string;
+    stats: { added: number; updated: number; skipped: number; errors: number };
+  }>('translation_tools.api.glossary.sync_glossary_from_github');
 }
 
 /**

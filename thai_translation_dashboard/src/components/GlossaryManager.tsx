@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, useMemo } from 'react';
+import { cn } from '@/lib/utils';
 // import useGetFrappeAuth, { useGetFrappeUser } from '@/hooks/useFrappeAuth';
 import {
   useGetGlossaryTerms,
@@ -8,6 +9,8 @@ import {
   useDeleteGlossaryTerm,
   useCleanDuplicateGlossaryTerms,
   useUpdateGlossaryTermCategories,
+  useSyncGlossaryFromFile,
+  useSyncGlossaryFromGitHub,
 } from '../api';
 import type { GlossaryTerm as GlossaryTermType } from '../api';
 import { Button } from '@/components/ui/button';
@@ -69,6 +72,8 @@ import {
   Pencil,
   AlertCircle,
   TagIcon,
+  Download,
+  RefreshCw,
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { toast } from 'sonner';
@@ -95,6 +100,7 @@ export default function GlossaryManager() {
     type: 'success' | 'error';
     message: string;
   } | null>(null);
+  const [pushToGithub, setPushToGithub] = useState(false);
 
   const [currentTab, setCurrentTab] = useState('all');
   const [pageSize, setPageSize] = useState(10);
@@ -122,6 +128,8 @@ export default function GlossaryManager() {
   const deleteTerm = useDeleteGlossaryTerm();
   const cleanDuplicates = useCleanDuplicateGlossaryTerms();
   const updateCategories = useUpdateGlossaryTermCategories();
+  const syncFromFile = useSyncGlossaryFromFile();
+  const syncFromGitHub = useSyncGlossaryFromGitHub();
   const { translate: __, isReady } = useTranslation();
 
   // Fetch glossary at component mount
@@ -187,18 +195,32 @@ export default function GlossaryManager() {
         return;
       }
 
-      const result = await addTerm.call({ term: formData });
+      const result = await addTerm.call({ 
+        term: formData,
+        push_to_github: pushToGithub 
+      });
       const { message } = result;
 
       // console.log('result GlossaryManager', result);
       // console.log('message GlossaryManager', message);
 
       if (message && message.success) {
+        let successMessage = 'Term added successfully';
+        
+        // Add GitHub status to success message
+        if (pushToGithub && message.github) {
+          if (message.github.github_pushed) {
+            successMessage += ' and pushed to GitHub';
+          } else {
+            successMessage += ` (GitHub: ${message.github.message})`;
+          }
+        }
+        
         setStatusMessage({
           type: 'success',
-          message: 'Term added successfully',
+          message: successMessage,
         });
-        toast('Term added successfully');
+        toast(successMessage);
         resetForm();
         setIsAddDialogOpen(false);
         refreshTerms();
@@ -241,13 +263,26 @@ export default function GlossaryManager() {
       const result = await updateTerm.call({
         term_name: selectedTerm.name,
         updates: formData,
+        push_to_github: pushToGithub,
       });
 
       if (result.success) {
+        let successMessage = 'Term updated successfully';
+        
+        // Add GitHub status to success message
+        if (pushToGithub && result.github) {
+          if (result.github.github_pushed) {
+            successMessage += ' and pushed to GitHub';
+          } else {
+            successMessage += ` (GitHub: ${result.github.message})`;
+          }
+        }
+        
         setStatusMessage({
           type: 'success',
-          message: 'Term updated successfully',
+          message: successMessage,
         });
+        toast(successMessage);
         resetForm();
         setIsEditDialogOpen(false);
         refreshTerms();
@@ -345,6 +380,59 @@ export default function GlossaryManager() {
         type: 'error',
         message: `Failed to update categories ${err}`,
       });
+    }
+  };
+
+  const handleSyncFromFile = async () => {
+    try {
+      const result = await syncFromFile.call({});
+
+      if (result.message) {
+        setStatusMessage({
+          type: 'success',
+          message: 'Successfully synced glossary terms from local file',
+        });
+        toast.success('Glossary synced from file');
+        refreshTerms();
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sync from file';
+      setStatusMessage({
+        type: 'error',
+        message: errorMessage,
+      });
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleSyncFromGitHub = async () => {
+    try {
+      const result = await syncFromGitHub.call({});
+
+      if (result.success) {
+        const { stats } = result;
+        const message = `GitHub sync completed: ${stats.added} added, ${stats.updated} updated, ${stats.skipped} unchanged`;
+        
+        setStatusMessage({
+          type: 'success',
+          message: message,
+        });
+        toast.success(message);
+        refreshTerms();
+      } else {
+        setStatusMessage({
+          type: 'error',
+          message: result.message || 'Failed to sync from GitHub',
+        });
+        toast.error(result.message);
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sync from GitHub';
+      setStatusMessage({
+        type: 'error',
+        message: errorMessage,
+      });
+      toast.error(errorMessage);
     }
   };
 
@@ -684,11 +772,48 @@ export default function GlossaryManager() {
         <h2 className="text-2xl font-bold">{__('Translation Glossary')}</h2>
 
         <div className="flex justify-between space-x-2">
-          <div className="justify-between space-x-2 hidden">
+          <div className="flex space-x-2">
+            <Button
+              onClick={handleSyncFromFile}
+              variant={'outline'}
+              disabled={syncFromFile.loading}
+            >
+              {syncFromFile.loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {__('Syncing...')}
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  {__('Sync from File')}
+                </>
+              )}
+            </Button>
+
+            <Button
+              onClick={handleSyncFromGitHub}
+              variant={'outline'}
+              disabled={syncFromGitHub.loading}
+            >
+              {syncFromGitHub.loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {__('Syncing from GitHub...')}
+                </>
+              ) : (
+                <>
+                  <Download className="mr-2 h-4 w-4" />
+                  {__('Sync from GitHub')}
+                </>
+              )}
+            </Button>
+
             <Button
               onClick={handleCleanupDuplicates}
               variant={'outline'}
               disabled={cleanDuplicates.loading}
+              className="hidden"
             >
               {cleanDuplicates.loading ? (
                 <>
@@ -699,24 +824,6 @@ export default function GlossaryManager() {
                 <>
                   <Trash className="mr-2 h-4 w-4" />
                   {__('Clean Duplicates')}
-                </>
-              )}
-            </Button>
-
-            <Button
-              onClick={handleUpdateCategories}
-              variant={'outline'}
-              disabled={updateCategories.loading}
-            >
-              {updateCategories.loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {__('Updating Categories...')}
-                </>
-              ) : (
-                <>
-                  <TagIcon className="mr-2 h-4 w-4" />
-                  {__('Update Categories')}
                 </>
               )}
             </Button>
@@ -839,6 +946,23 @@ export default function GlossaryManager() {
                   <Label htmlFor="is_approved">{__('Approved Term')}</Label>
                 </div>
 
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="push-to-github"
+                    checked={pushToGithub}
+                    onCheckedChange={setPushToGithub}
+                  />
+                  <Label
+                    htmlFor="push-to-github"
+                    className={cn(
+                      'cursor-pointer',
+                      pushToGithub ? 'text-green-600' : ''
+                    )}
+                  >
+                    {__('Push to Github')}
+                  </Label>
+                </div>
+
                 {statusMessage && (
                   <Alert
                     variant={
@@ -906,37 +1030,37 @@ export default function GlossaryManager() {
       ) : (
         <Tabs value={currentTab} onValueChange={setCurrentTab}>
           <TabsList className="w-full border-b">
-            <TabsTrigger value="all">
+            <TabsTrigger value="all" className="cursor-pointer">
               All
               <Badge variant="secondary" className="ml-2">
                 {categoryCounts.all || 0}
               </Badge>
             </TabsTrigger>
-            <TabsTrigger value="Business">
+            <TabsTrigger value="Business" className="cursor-pointer">
               Business
               <Badge variant="secondary" className="ml-2">
                 {categoryCounts.Business || 0}
               </Badge>
             </TabsTrigger>
-            <TabsTrigger value="Technical">
+            <TabsTrigger value="Technical" className="cursor-pointer">
               Technical
               <Badge variant="secondary" className="ml-2">
                 {categoryCounts.Technical || 0}
               </Badge>
             </TabsTrigger>
-            <TabsTrigger value="UI">
+            <TabsTrigger value="UI" className="cursor-pointer">
               UI
               <Badge variant="secondary" className="ml-2">
                 {categoryCounts.UI || 0}
               </Badge>
             </TabsTrigger>
-            <TabsTrigger value="Date/Time">
+            <TabsTrigger value="Date/Time" className="cursor-pointer">
               Date/Time
               <Badge variant="secondary" className="ml-2">
                 {categoryCounts['Date/Time'] || 0}
               </Badge>
             </TabsTrigger>
-            <TabsTrigger value="Status">
+            <TabsTrigger value="Status" className="cursor-pointer">
               Status
               <Badge variant="secondary" className="ml-2">
                 {categoryCounts.Status || 0}
@@ -1124,6 +1248,23 @@ export default function GlossaryManager() {
                 id="edit_is_approved"
               />
               <Label htmlFor="edit_is_approved">{__('Approved Term')}</Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="edit-push-to-github"
+                checked={pushToGithub}
+                onCheckedChange={setPushToGithub}
+              />
+              <Label
+                htmlFor="edit-push-to-github"
+                className={cn(
+                  'cursor-pointer',
+                  pushToGithub ? 'text-green-600' : ''
+                )}
+              >
+                {__('Push to Github')}
+              </Label>
             </div>
 
             {statusMessage && (

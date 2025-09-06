@@ -219,3 +219,59 @@ export function useSaveTranslations() {
     error?: string;
   }>('translation_tools.api.po_files.save_translations');
 }
+
+/**
+ * Delete multiple PO files
+ */
+export function useDeletePOFiles() {
+  return useFrappePostCall<{
+    success: boolean;
+    deleted_count: number;
+    total_requested: number;
+    message?: string;
+    failed_files?: Array<{file: string; error: string}>;
+    partial_success?: boolean;
+    error?: string;
+  }>('translation_tools.api.po_files.delete_po_files');
+}
+
+/**
+ * Force refresh PO file statistics from filesystem
+ */
+export function useForceRefreshPOStats() {
+  return useFrappePostCall<{
+    success: boolean;
+    message?: string;
+    updated_count: number;
+    failed_count: number;
+    error?: string;
+  }>('translation_tools.api.po_files.force_refresh_po_stats');
+}
+
+/**
+ * Debug PO file statistics comparison
+ */
+export function useDebugPOFileStats() {
+  return useFrappeGetCall<{
+    success: boolean;
+    files: Array<{
+      file_path: string;
+      app_name: string;
+      filename: string;
+      cached_stats: {
+        total: number;
+        translated: number;
+        percentage: number;
+      };
+      fresh_stats: {
+        total_entries: number;
+        translated_entries: number;
+        translation_status: number;
+      };
+      needs_update: boolean;
+      last_scanned: string;
+    }>;
+    total_files: number;
+    error?: string;
+  }>('translation_tools.api.po_files.debug_po_file_stats');
+}

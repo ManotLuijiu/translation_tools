@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useGetCachedPOFiles, useScanPOFiles, useEnhancedScanWithPOT } from '../api';
+import { useState, useMemo } from 'react';
+import { useGetCachedPOFiles, useScanPOFiles, useEnhancedScanWithPOT, useDeletePOFiles, useForceRefreshPOStats } from '../api';
 import { POFile } from '../types';
 import { formatPercentage, formatDate } from '../utils/helpers';
 import { Button } from '@/components/ui/button';
@@ -26,11 +26,22 @@ import {
 } from '@/components/ui/tooltip';
 
 import { Input } from '@/components/ui/input';
-import { Loader2, RefreshCw, Search, FileText, ChevronDown, Zap, Settings } from 'lucide-react';
+import { Loader2, RefreshCw, Search, FileText, ChevronDown, Zap, Settings, Trash2, CheckCircle, RotateCcw } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/context/TranslationContext';
 import POTGenerationDialog from './POTGenerationDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface FileExplorerProps {
   onFileSelect: (file: POFile) => void;
@@ -45,8 +56,15 @@ export default function FileExplorer({
   const { data, error, isLoading, mutate } = useGetCachedPOFiles();
   const scanFiles = useScanPOFiles();
   const enhancedScan = useEnhancedScanWithPOT();
+  const deletePOFiles = useDeletePOFiles();
+  const forceRefreshStats = useForceRefreshPOStats();
   const [isScanning, setIsScanning] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [showPOTDialog, setShowPOTDialog] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState<{ show: boolean; count: number }>({ show: false, count: 0 });
   const { translate: __, isReady } = useTranslation();
 
   // console.log('selectedFilePath', selectedFilePath);
@@ -71,10 +89,12 @@ export default function FileExplorer({
         force_regenerate: false
       });
       
+      console.log('Enhanced scan result:', result); // Debug log to understand the response structure
+      
       if (result?.success) {
         await mutate(); // Refresh the data
       } else {
-        console.error('Enhanced scan failed:', result?.error);
+        console.error('Enhanced scan failed:', result?.error || 'Unknown error');
       }
     } catch (error) {
       console.error('Error in POT generation scan:', error);
@@ -118,6 +138,98 @@ export default function FileExplorer({
 
   // console.log('sortedFiles', sortedFiles);
 
+  // Check if all files are selected
+  const allFilesSelected = useMemo(() => {
+    if (sortedFiles.length === 0) return false;
+    return sortedFiles.every(file => selectedFiles.has(file.file_path));
+  }, [sortedFiles, selectedFiles]);
+
+  // Check if some files are selected
+  const someFilesSelected = useMemo(() => {
+    if (sortedFiles.length === 0) return false;
+    return sortedFiles.some(file => selectedFiles.has(file.file_path)) && !allFilesSelected;
+  }, [sortedFiles, selectedFiles, allFilesSelected]);
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allPaths = new Set(sortedFiles.map(file => file.file_path));
+      setSelectedFiles(allPaths);
+    } else {
+      setSelectedFiles(new Set());
+    }
+  };
+
+  const handleFileSelect = (filePath: string, checked: boolean) => {
+    const newSelection = new Set(selectedFiles);
+    if (checked) {
+      newSelection.add(filePath);
+    } else {
+      newSelection.delete(filePath);
+    }
+    setSelectedFiles(newSelection);
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedFiles.size === 0) return;
+    
+    setIsDeleting(true);
+    try {
+      const result = await deletePOFiles.call({
+        file_paths: Array.from(selectedFiles)
+      });
+      
+      if (result?.success || result?.message?.success) {
+        const deletedCount = result?.deleted_count || result?.message?.deleted_count || selectedFiles.size;
+        
+        // Show success message
+        setDeleteSuccess({ show: true, count: deletedCount });
+        
+        // Clear selection
+        setSelectedFiles(new Set());
+        
+        // Close dialog
+        setShowDeleteDialog(false);
+        
+        // Force refresh the file list after a short delay
+        setTimeout(async () => {
+          await mutate();
+          // Also trigger a scan to ensure database is updated
+          await scanFiles.call();
+        }, 500);
+        
+        // Hide success message after 3 seconds
+        setTimeout(() => {
+          setDeleteSuccess({ show: false, count: 0 });
+        }, 3000);
+      } else {
+        console.error('Failed to delete files:', result?.error || 'Unknown error');
+      }
+    } catch (error) {
+      console.error('Error deleting files:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleForceRefreshStats = async () => {
+    setIsRefreshing(true);
+    try {
+      const result = await forceRefreshStats.call({});
+      
+      if (result?.message?.success) {
+        // Refresh the file list to show updated statistics
+        await mutate();
+        console.log(`✅ ${result.message.message}`);
+      } else {
+        console.error('Failed to refresh stats:', result?.message?.error || result?.error);
+      }
+    } catch (error) {
+      console.error('Error refreshing stats:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   if (!isReady) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -133,8 +245,24 @@ export default function FileExplorer({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">{__('PO Files')}</h2>
+        {deleteSuccess.show && (
+          <div className="flex items-center gap-2 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 px-3 py-2 rounded-lg">
+            <CheckCircle className="h-4 w-4" />
+            <span>{__('Successfully deleted {count} file(s)', { count: deleteSuccess.count })}</span>
+          </div>
+        )}
         <div className="flex items-center space-x-2">
-          <Button onClick={handleScan} disabled={isScanning} variant="outline">
+          {selectedFiles.size > 0 && (
+            <Button 
+              onClick={() => setShowDeleteDialog(true)} 
+              variant="destructive"
+              disabled={isDeleting}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              {__('Delete')} ({selectedFiles.size})
+            </Button>
+          )}
+          <Button onClick={handleScan} disabled={isScanning || isRefreshing} variant="outline">
             {isScanning ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -148,21 +276,40 @@ export default function FileExplorer({
             )}
           </Button>
           
+          <Button 
+            onClick={handleForceRefreshStats} 
+            disabled={isScanning || isRefreshing} 
+            variant="outline"
+            title={__('Force refresh translation statistics from files')}
+          >
+            {isRefreshing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {__('Refreshing...')}
+              </>
+            ) : (
+              <>
+                <RotateCcw className="mr-2 h-4 w-4" />
+                {__('Refresh Stats')}
+              </>
+            )}
+          </Button>
+          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" disabled={isScanning}>
+              <Button variant="outline" disabled={isScanning || isRefreshing}>
                 <Zap className="mr-2 h-4 w-4" />
                 {__('POT Generation')}
                 <ChevronDown className="ml-1 h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem onClick={handlePOTGenerationScan} disabled={isScanning}>
+              <DropdownMenuItem onClick={handlePOTGenerationScan} disabled={isScanning || isRefreshing}>
                 <Zap className="mr-2 h-4 w-4" />
                 {__('Generate POT & Scan')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleAdvancedPOTGeneration} disabled={isScanning}>
+              <DropdownMenuItem onClick={handleAdvancedPOTGeneration} disabled={isScanning || isRefreshing}>
                 <Settings className="mr-2 h-4 w-4" />
                 {__('Advanced POT Options...')}
               </DropdownMenuItem>
@@ -202,6 +349,15 @@ export default function FileExplorer({
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[50px]">
+                  <Checkbox
+                    checked={allFilesSelected}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="Select all files"
+                    className="data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground"
+                    {...(someFilesSelected && { 'data-state': 'indeterminate' })}
+                  />
+                </TableHead>
                 <TableHead>{__('App')}</TableHead>
                 <TableHead>Filename</TableHead>
                 <TableHead>Progress</TableHead>
@@ -217,6 +373,15 @@ export default function FileExplorer({
                     selectedFilePath === file.file_path ? 'bg-muted/50' : ''
                   }
                 >
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedFiles.has(file.file_path)}
+                      onCheckedChange={(checked) => 
+                        handleFileSelect(file.file_path, checked as boolean)
+                      }
+                      aria-label={`Select ${file.filename}`}
+                    />
+                  </TableCell>
                   <TableCell>{file.app}</TableCell>
                   <TableCell>
                     <div className="flex items-center">
@@ -306,6 +471,43 @@ export default function FileExplorer({
         onClose={() => setShowPOTDialog(false)}
         onComplete={handlePOTGenerationComplete}
       />
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{__('Confirm Deletion')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {__('Are you sure you want to delete {count} selected file(s)?', { count: selectedFiles.size })}
+              <br />
+              <span className="text-destructive font-semibold">
+                {__('This action cannot be undone. The files will be backed up but removed from the application.')}
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>
+              {__('Cancel')}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteSelected}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {__('Deleting...')}
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {__('Delete')}
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
