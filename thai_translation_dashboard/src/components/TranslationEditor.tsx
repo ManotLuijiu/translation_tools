@@ -342,12 +342,51 @@ export default function TranslationEditor({
 
       console.log('result in handleTranslate', result);
 
-      if (result.message.success && result.message.translation) {
-        setEditedTranslation(result.message.translation);
-        // setStatusMessage({
-        //   type: 'success',
-        //   message: 'Translation completed',
-        // });
+      // Handle the complex response structure with double-wrapped data
+      let translationData = null;
+      let errorMessage = null;
+
+      // First, check if there's a data field with JSON string
+      if (result.data && typeof result.data === 'string') {
+        try {
+          const parsedData = JSON.parse(result.data);
+          if (parsedData.message && parsedData.message.success && parsedData.message.translation) {
+            translationData = parsedData.message.translation;
+          }
+        } catch (e) {
+          console.log('Failed to parse data field:', e);
+        }
+      }
+      
+      // Fallback to direct message structure
+      if (!translationData && result.message && typeof result.message === 'object') {
+        if (result.message.success && result.message.translation) {
+          translationData = result.message.translation;
+        } else if (result.message.error) {
+          errorMessage = result.message.error;
+        }
+      }
+      
+      // Handle successful translation
+      if (translationData) {
+        // Decode Unicode escape sequences (handle double escaping)
+        let translation = translationData;
+        try {
+          // First decode JSON escape sequences
+          translation = JSON.parse(`"${translation.replace(/"/g, '\\"')}"`);
+          
+          // Handle double-escaped Unicode sequences like \\u0e01
+          if (translation.includes('\\u')) {
+            // Replace double backslashes with single backslashes for Unicode sequences
+            translation = translation.replace(/\\\\u([0-9a-fA-F]{4})/g, '\\u$1');
+            // Then decode the Unicode sequences
+            translation = JSON.parse(`"${translation}"`);
+          }
+        } catch (e) {
+          console.log('No additional Unicode decoding needed:', e);
+        }
+        
+        setEditedTranslation(translation);
         showMessage('Translation completed', 'success');
 
         // If auto-save is enabled, also save the translation
@@ -356,13 +395,18 @@ export default function TranslationEditor({
         }
         return;
       }
+      
+      // Handle error cases
+      if (errorMessage) {
+        console.error('Translation error:', errorMessage);
+        showMessage(errorMessage || 'Translation failed', 'error');
+        return;
+      }
 
-      console.error(result.error);
-      // setStatusMessage({
-      //   type: 'error',
-      //   message: result.error || 'Translation failed',
-      // });
-      showMessage('Translation Failed', 'error');
+      // Fallback error handling
+      const fallbackError = result?.error || result?.message?.error || 'Translation failed';
+      console.error('Translation error:', fallbackError);
+      showMessage(fallbackError, 'error');
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error

@@ -278,10 +278,15 @@ def get_glossary_terms():
 
 def get_glossary_terms_dict():
     """Get glossary terms as a dictionary for AI context"""
-    terms = get_glossary_terms()
-    return {
-        term.source_term: term.thai_translation for term in terms if term.is_approved
-    }
+    try:
+        terms = get_glossary_terms()
+        return {
+            term.source_term: term.thai_translation for term in terms if term.is_approved
+        }
+    except Exception as e:
+        logger.warning(f"Failed to fetch glossary terms: {e}")
+        # Return empty dict as fallback
+        return {}
 
 
 @frappe.whitelist()

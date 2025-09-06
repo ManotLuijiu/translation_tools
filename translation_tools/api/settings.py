@@ -38,7 +38,11 @@ def cast_to_float(value, default=0.0):
 
 @frappe.whitelist()
 def get_translation_settings():
-    """Get translation tools settings"""
+    """Get translation tools settings (sensitive fields are masked for security)"""
+    # Check permissions - only System Manager can access settings
+    if not frappe.has_permission("System Manager"):
+        frappe.throw(_("Insufficient permissions to access settings"))
+    
     # Get all settings in a single query to improve performance
     settings_doctype = "Translation Tools Settings"
 
@@ -49,78 +53,102 @@ def get_translation_settings():
             {
                 "default_model_provider": "openai",
                 "default_model": "gpt-4.1-mini-2025-04-14",
-                "openai_api_key": "",
-                "anthropic_api_key": "",
+                "openai_api_key_configured": False,
+                "anthropic_api_key_configured": False,
                 "batch_size": 10,
                 "temperature": 0.3,
                 "auto_save": 0,
                 "preserve_formatting": 1,
                 "github_enable": 0,
                 "github_repo": "",
-                "github_token": "",
+                "github_token_configured": False,
             }
         )
 
     doc = frappe.get_single(settings_doctype)
 
-    # Properly decrypt the password fields
+    # Check if password fields are configured (DO NOT return actual values)
     try:
-        openai_api_key = (
-            get_decrypted_password(
-                settings_doctype,
-                settings_doctype,
-                "openai_api_key",
-                raise_exception=False,
-            )
-            or ""
+        openai_api_key = get_decrypted_password(
+            settings_doctype,
+            settings_doctype,
+            "openai_api_key",
+            raise_exception=False,
         )
 
-        anthropic_api_key = (
-            get_decrypted_password(
-                settings_doctype,
-                settings_doctype,
-                "anthropic_api_key",
-                raise_exception=False,
-            )
-            or ""
+        anthropic_api_key = get_decrypted_password(
+            settings_doctype,
+            settings_doctype,
+            "anthropic_api_key",
+            raise_exception=False,
         )
 
-        github_token = (
-            get_decrypted_password(
-                settings_doctype,
-                settings_doctype,
-                "github_token",
-                raise_exception=False,
-            )
-            or ""
+        github_token = get_decrypted_password(
+            settings_doctype,
+            settings_doctype,
+            "github_token",
+            raise_exception=False,
         )
 
-        print(f"github_token from settings: {github_token}")
+        # Only return boolean indicators, never the actual keys
+        openai_configured = bool(openai_api_key and openai_api_key.strip())
+        anthropic_configured = bool(anthropic_api_key and anthropic_api_key.strip())
+        github_token_configured = bool(github_token and github_token.strip())
+
     except Exception as e:
-        frappe.log_error(f"Error decrypting password fields: {str(e)}")
-        openai_api_key = ""
-        anthropic_api_key = ""
-        github_token = ""
+        frappe.log_error(f"Error checking password fields: {str(e)}")
+        openai_configured = False
+        anthropic_configured = False
+        github_token_configured = False
 
     settings = frappe._dict(
         {
             "default_model_provider": doc.default_model_provider or "openai",  # type: ignore
             "default_model": doc.default_model or "gpt-4.1-mini-2025-04-14",  # type: ignore
-            "openai_api_key": openai_api_key,
-            "anthropic_api_key": anthropic_api_key,
+            "openai_api_key_configured": openai_configured,  # Security: Only return boolean
+            "anthropic_api_key_configured": anthropic_configured,  # Security: Only return boolean
             "batch_size": cint(doc.batch_size or 10),  # type: ignore
             "temperature": cast_to_float(doc.temperature, default=0.3),  # type: ignore
             "auto_save": cint(doc.auto_save or 0),  # type: ignore
             "preserve_formatting": cint(doc.preserve_formatting or 1),  # type: ignore
             "github_enable": cint(doc.github_enable or 0),  # type: ignore
             "github_repo": doc.github_repo or "",  # type: ignore
-            "github_token": github_token,
+            "github_token_configured": github_token_configured,  # Security: Only return boolean
         }
     )
 
-    print(f"settings in get_translation_settings {settings}")
-
     return settings
+
+
+def get_decrypted_api_keys():
+    """Internal function to get decrypted API keys - DO NOT expose as @frappe.whitelist()"""
+    # This function is for internal server-side use only, never exposed to web API
+    settings_doctype = "Translation Tools Settings"
+    
+    if not frappe.db.exists(settings_doctype):
+        return {"openai_api_key": "", "anthropic_api_key": "", "github_token": ""}
+    
+    try:
+        openai_api_key = get_decrypted_password(
+            settings_doctype, settings_doctype, "openai_api_key", raise_exception=False
+        ) or ""
+        
+        anthropic_api_key = get_decrypted_password(
+            settings_doctype, settings_doctype, "anthropic_api_key", raise_exception=False
+        ) or ""
+        
+        github_token = get_decrypted_password(
+            settings_doctype, settings_doctype, "github_token", raise_exception=False
+        ) or ""
+        
+        return {
+            "openai_api_key": openai_api_key,
+            "anthropic_api_key": anthropic_api_key,
+            "github_token": github_token
+        }
+    except Exception as e:
+        frappe.log_error(f"Error decrypting API keys: {str(e)}")
+        return {"openai_api_key": "", "anthropic_api_key": "", "github_token": ""}
 
 
 @frappe.whitelist()
@@ -135,7 +163,7 @@ def test_github_connection(github_repo=None, github_token=None):
         dict: Result of the connection test with success/error message
     """
 
-    print(f"github testing {github_repo} {github_token}")
+    # Security: Removed debug print to prevent token exposure
 
     try:
         # Fetch settings if parameters not provided
@@ -188,8 +216,6 @@ def test_github_connection(github_repo=None, github_token=None):
         #     repo_path = repo_path.split("github.com/")[1]
         # repo_path = repo_path.replace(".git", "")  # <-- Remove .git if present
 
-        print(f"repo_path {repo_path}")
-
         # Make an API call to test the connection
         api_url = f"https://api.github.com/repos/{repo_path}"
         headers = {
@@ -198,8 +224,6 @@ def test_github_connection(github_repo=None, github_token=None):
         }
 
         response = requests.get(api_url, headers=headers, timeout=10)
-
-        print(f"response from testing github {response}")
 
         if response.status_code == 200:
             repo_data = response.json()
@@ -232,7 +256,7 @@ def save_translation_settings(settings):
         else frappe._dict(json.loads(settings))
     )
 
-    print(f"settings_data: {settings_data}")
+    # Security: Removed debug print to prevent API key exposure
 
     # Check if Translation Tools Settings doctype exists, create if not
     if not frappe.db.exists("DocType", "Translation Tools Settings"):
