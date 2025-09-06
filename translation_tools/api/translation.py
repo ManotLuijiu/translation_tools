@@ -617,11 +617,7 @@ def translate_entry(file_path, msgid, entry_id):
             logger.info(f"Final translation being returned: {translation}")
             logger.info(f"Final translation repr: {repr(translation)}")
             
-            # Ensure proper UTF-8 encoding for Thai characters
-            if hasattr(frappe.response, 'charset'):
-                frappe.response.charset = 'utf-8'
-            if hasattr(frappe.response, 'headers') and frappe.response.headers is not None:
-                frappe.response.headers['Content-Type'] = 'application/json; charset=utf-8'
+            # Note: Frappe automatically handles UTF-8 encoding for API responses
             
             response_data = {"success": True, "translation": translation}
             logger.info(f"Response data: {response_data}")
