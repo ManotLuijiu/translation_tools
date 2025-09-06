@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
 "POT-Creation-Date: 2025-09-04 18:47+0642\n"
-"PO-Revision-Date: 2025-09-05 18:58\n"
+"PO-Revision-Date: 2025-09-07 06:21\n"
 "Last-Translator: moocoding@gmail.com\n"
 "Language-Team: moocoding@gmail.com\n"
 "MIME-Version: 1.0\n"
@@ -344,7 +344,7 @@ msgstr "ประเภทคำสั่ง"
 #. Label of a Link in the Integrations Workspace
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Company Retention Settings"
-msgstr "การตั้งค่าการเก็บรักษาบริษัท"
+msgstr "การตั้งค่า เงินประกันผลงาน"
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:126
 msgid "Compile PO files into binary MO files for runtime usage"
