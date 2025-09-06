@@ -1,12 +1,9 @@
 import json
 
 import frappe
-from frappe import _
 from frappe.utils import cint, now_datetime
 
 from .common import logger
-
-# from translation_tools.utils.json_logger import get_json_logger
 
 # logger = get_json_logger(console=True)
 
@@ -421,16 +418,13 @@ def sync_glossary_from_github():
     """Sync glossary terms from GitHub repository JSON file"""
     import requests
     import json
-    import tempfile
-    import os
     
     logger.info("Starting GitHub glossary sync from JSON")
     print("DEBUG: Starting sync_glossary_from_github()")
     
     try:
-        # Get GitHub settings from Translation Tools Settings
-        settings = frappe.get_single("Translation Tools Settings")
-        github_repo = settings.github_repo or ""
+        # Use static repository URL for reliability
+        github_repo = "https://github.com/ManotLuijiu/erpnext-thai-translation.git"
         
         # Get GitHub token
         from .settings import get_github_token
@@ -682,7 +676,10 @@ def push_glossary_to_github():
     try:
         logger.info("Starting push glossary to GitHub")
         
-        # Get GitHub settings
+        # Use static repository URL for reliability
+        github_repo = "https://github.com/ManotLuijiu/erpnext-thai-translation.git"
+        
+        # Get GitHub settings for enable check and token
         settings = frappe.get_single("Translation Tools Settings")
         if not settings.github_enable:
             return {
@@ -690,32 +687,21 @@ def push_glossary_to_github():
                 "message": "GitHub integration is disabled"
             }
         
-        github_repo = settings.github_repo or ""
         github_token = get_github_token()
         
-        if not github_repo or not github_token:
+        if not github_token:
             return {
                 "github_pushed": False,
-                "message": "GitHub repository or token not configured"
+                "message": "GitHub token not configured"
             }
         
-        # Parse repository owner and name
-        if github_repo.startswith("https://github.com/"):
-            repo_path = github_repo.replace("https://github.com/", "")
-        else:
-            repo_path = github_repo
-        
+        # Parse static repository URL
+        repo_path = github_repo.replace("https://github.com/", "")
         if repo_path.endswith('.git'):
             repo_path = repo_path[:-4]
             
         repo_parts = repo_path.strip("/").split("/")
-        if len(repo_parts) != 2:
-            return {
-                "github_pushed": False,
-                "message": f"Invalid repository format: {github_repo}"
-            }
-        
-        owner, repo = repo_parts
+        owner, repo = repo_parts[0], repo_parts[1]
         file_path = "glossary/thai_glossary.json"  # JSON file in glossary folder
         
         print(f"DEBUG: Repository owner: {owner}")
