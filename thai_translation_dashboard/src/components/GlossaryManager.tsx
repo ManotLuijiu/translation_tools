@@ -308,12 +308,22 @@ export default function GlossaryManager() {
 
       const result = await deleteTerm.call({
         term_name: selectedTerm.name,
+        push_to_github: pushToGithub,
       });
 
       if (result.success) {
+        let successMessage = 'Term deleted successfully';
+        if (pushToGithub && result.github) {
+          if (result.github.github_pushed) {
+            successMessage += ` and pushed to GitHub (${result.github.terms_count} terms)`;
+          } else {
+            successMessage += `. GitHub sync failed: ${result.github.message}`;
+          }
+        }
+        
         setStatusMessage({
           type: 'success',
-          message: 'Term deleted successfully',
+          message: successMessage,
         });
         resetForm();
         setIsDeleteDialogOpen(false);
