@@ -618,8 +618,10 @@ def translate_entry(file_path, msgid, entry_id):
             logger.info(f"Final translation repr: {repr(translation)}")
             
             # Ensure proper UTF-8 encoding for Thai characters
-            frappe.response.charset = 'utf-8'
-            frappe.response.headers['Content-Type'] = 'application/json; charset=utf-8'
+            if hasattr(frappe.response, 'charset'):
+                frappe.response.charset = 'utf-8'
+            if hasattr(frappe.response, 'headers') and frappe.response.headers is not None:
+                frappe.response.headers['Content-Type'] = 'application/json; charset=utf-8'
             
             response_data = {"success": True, "translation": translation}
             logger.info(f"Response data: {response_data}")
@@ -895,11 +897,38 @@ def call_ai_translation_api(source_text, provider, model, api_key, temperature=0
         # Handle mixed encoding: some Thai characters + some Unicode escape sequences
         try:
             if raw_translation and '\\u' in raw_translation:
-                import codecs
-                # Always decode if Unicode escape sequences are present, even if Thai characters exist
-                decoded_translation = codecs.decode(raw_translation, 'unicode_escape')
-                logger.info(f"Decoded mixed call_ai_translation_api Unicode escapes: {raw_translation[:100]}... → {decoded_translation[:100]}...")
-                return decoded_translation
+                # Check if we have both Thai characters and Unicode escapes (mixed encoding)
+                import re
+                thai_pattern = re.compile(r'[\u0E00-\u0E7F]')
+                unicode_escape_pattern = re.compile(r'\\u[0-9a-fA-F]{4}')
+                
+                has_thai = thai_pattern.search(raw_translation)
+                has_escapes = unicode_escape_pattern.search(raw_translation)
+                
+                if has_thai and has_escapes:
+                    # Mixed encoding: manually replace only the Unicode escape sequences
+                    def replace_unicode_escapes(match):
+                        unicode_str = match.group(0)  # e.g., "\\u0e01"
+                        try:
+                            # Convert \\u0e01 to the actual character
+                            import codecs
+                            return codecs.decode(unicode_str, 'unicode_escape')
+                        except:
+                            return unicode_str  # Return original if decode fails
+                    
+                    decoded_translation = unicode_escape_pattern.sub(replace_unicode_escapes, raw_translation)
+                    logger.info(f"Fixed mixed call_ai_translation_api encoding: {raw_translation[:100]}... → {decoded_translation[:100]}...")
+                    return decoded_translation
+                elif has_escapes and not has_thai:
+                    # Only Unicode escapes, safe to decode entire string
+                    import codecs
+                    decoded_translation = codecs.decode(raw_translation, 'unicode_escape')
+                    logger.info(f"Decoded pure call_ai_translation_api Unicode escapes: {raw_translation[:100]}... → {decoded_translation[:100]}...")
+                    return decoded_translation
+                else:
+                    # Has \\u but not proper Unicode escapes, return as-is
+                    logger.info(f"call_ai_translation_api contains \\u but no valid Unicode escapes: {raw_translation[:100]}...")
+                    return raw_translation
             else:
                 # No Unicode escape sequences, return as-is
                 logger.info(f"call_ai_translation_api response without escape sequences: {raw_translation[:100]}...")
@@ -955,11 +984,38 @@ def call_ai_translation_api(source_text, provider, model, api_key, temperature=0
         # Handle mixed encoding: some Thai characters + some Unicode escape sequences
         try:
             if raw_translation and '\\u' in raw_translation:
-                import codecs
-                # Always decode if Unicode escape sequences are present, even if Thai characters exist
-                decoded_translation = codecs.decode(raw_translation, 'unicode_escape')
-                logger.info(f"Decoded mixed call_ai_translation_api Claude Unicode escapes: {raw_translation[:100]}... → {decoded_translation[:100]}...")
-                return decoded_translation
+                # Check if we have both Thai characters and Unicode escapes (mixed encoding)
+                import re
+                thai_pattern = re.compile(r'[\u0E00-\u0E7F]')
+                unicode_escape_pattern = re.compile(r'\\u[0-9a-fA-F]{4}')
+                
+                has_thai = thai_pattern.search(raw_translation)
+                has_escapes = unicode_escape_pattern.search(raw_translation)
+                
+                if has_thai and has_escapes:
+                    # Mixed encoding: manually replace only the Unicode escape sequences
+                    def replace_unicode_escapes(match):
+                        unicode_str = match.group(0)  # e.g., "\\u0e01"
+                        try:
+                            # Convert \\u0e01 to the actual character
+                            import codecs
+                            return codecs.decode(unicode_str, 'unicode_escape')
+                        except:
+                            return unicode_str  # Return original if decode fails
+                    
+                    decoded_translation = unicode_escape_pattern.sub(replace_unicode_escapes, raw_translation)
+                    logger.info(f"Fixed mixed call_ai_translation_api Claude encoding: {raw_translation[:100]}... → {decoded_translation[:100]}...")
+                    return decoded_translation
+                elif has_escapes and not has_thai:
+                    # Only Unicode escapes, safe to decode entire string
+                    import codecs
+                    decoded_translation = codecs.decode(raw_translation, 'unicode_escape')
+                    logger.info(f"Decoded pure call_ai_translation_api Claude Unicode escapes: {raw_translation[:100]}... → {decoded_translation[:100]}...")
+                    return decoded_translation
+                else:
+                    # Has \\u but not proper Unicode escapes, return as-is
+                    logger.info(f"call_ai_translation_api Claude contains \\u but no valid Unicode escapes: {raw_translation[:100]}...")
+                    return raw_translation
             else:
                 # No Unicode escape sequences, return as-is
                 logger.info(f"call_ai_translation_api Claude response without escape sequences: {raw_translation[:100]}...")
@@ -1016,11 +1072,38 @@ Only respond with the translated text, nothing else.""",
         # Handle mixed encoding: some Thai characters + some Unicode escape sequences
         try:
             if raw_translation and '\\u' in raw_translation:
-                import codecs
-                # Always decode if Unicode escape sequences are present, even if Thai characters exist
-                decoded_translation = codecs.decode(raw_translation, 'unicode_escape')
-                logger.info(f"Decoded mixed OpenAI Unicode escapes: {raw_translation[:100]}... → {decoded_translation[:100]}...")
-                return decoded_translation
+                # Check if we have both Thai characters and Unicode escapes (mixed encoding)
+                import re
+                thai_pattern = re.compile(r'[\u0E00-\u0E7F]')
+                unicode_escape_pattern = re.compile(r'\\u[0-9a-fA-F]{4}')
+                
+                has_thai = thai_pattern.search(raw_translation)
+                has_escapes = unicode_escape_pattern.search(raw_translation)
+                
+                if has_thai and has_escapes:
+                    # Mixed encoding: manually replace only the Unicode escape sequences
+                    def replace_unicode_escapes(match):
+                        unicode_str = match.group(0)  # e.g., "\\u0e01"
+                        try:
+                            # Convert \\u0e01 to the actual character
+                            import codecs
+                            return codecs.decode(unicode_str, 'unicode_escape')
+                        except:
+                            return unicode_str  # Return original if decode fails
+                    
+                    decoded_translation = unicode_escape_pattern.sub(replace_unicode_escapes, raw_translation)
+                    logger.info(f"Fixed mixed encoding: {raw_translation[:100]}... → {decoded_translation[:100]}...")
+                    return decoded_translation
+                elif has_escapes and not has_thai:
+                    # Only Unicode escapes, safe to decode entire string
+                    import codecs
+                    decoded_translation = codecs.decode(raw_translation, 'unicode_escape')
+                    logger.info(f"Decoded pure Unicode escapes: {raw_translation[:100]}... → {decoded_translation[:100]}...")
+                    return decoded_translation
+                else:
+                    # Has \\u but not proper Unicode escapes, return as-is
+                    logger.info(f"Contains \\u but no valid Unicode escapes: {raw_translation[:100]}...")
+                    return raw_translation
             else:
                 # No Unicode escape sequences, return as-is
                 logger.info(f"OpenAI response without escape sequences: {raw_translation[:100]}...")
@@ -1074,11 +1157,38 @@ Text to translate: {text}""",
         # Handle mixed encoding: some Thai characters + some Unicode escape sequences
         try:
             if raw_translation and '\\u' in raw_translation:
-                import codecs
-                # Always decode if Unicode escape sequences are present, even if Thai characters exist
-                decoded_translation = codecs.decode(raw_translation, 'unicode_escape')
-                logger.info(f"Decoded mixed Claude Unicode escapes: {raw_translation[:100]}... → {decoded_translation[:100]}...")
-                return decoded_translation
+                # Check if we have both Thai characters and Unicode escapes (mixed encoding)
+                import re
+                thai_pattern = re.compile(r'[\u0E00-\u0E7F]')
+                unicode_escape_pattern = re.compile(r'\\u[0-9a-fA-F]{4}')
+                
+                has_thai = thai_pattern.search(raw_translation)
+                has_escapes = unicode_escape_pattern.search(raw_translation)
+                
+                if has_thai and has_escapes:
+                    # Mixed encoding: manually replace only the Unicode escape sequences
+                    def replace_unicode_escapes(match):
+                        unicode_str = match.group(0)  # e.g., "\\u0e01"
+                        try:
+                            # Convert \\u0e01 to the actual character
+                            import codecs
+                            return codecs.decode(unicode_str, 'unicode_escape')
+                        except:
+                            return unicode_str  # Return original if decode fails
+                    
+                    decoded_translation = unicode_escape_pattern.sub(replace_unicode_escapes, raw_translation)
+                    logger.info(f"Fixed mixed Claude encoding: {raw_translation[:100]}... → {decoded_translation[:100]}...")
+                    return decoded_translation
+                elif has_escapes and not has_thai:
+                    # Only Unicode escapes, safe to decode entire string
+                    import codecs
+                    decoded_translation = codecs.decode(raw_translation, 'unicode_escape')
+                    logger.info(f"Decoded pure Claude Unicode escapes: {raw_translation[:100]}... → {decoded_translation[:100]}...")
+                    return decoded_translation
+                else:
+                    # Has \\u but not proper Unicode escapes, return as-is
+                    logger.info(f"Claude contains \\u but no valid Unicode escapes: {raw_translation[:100]}...")
+                    return raw_translation
             else:
                 # No Unicode escape sequences, return as-is
                 logger.info(f"Claude response without escape sequences: {raw_translation[:100]}...")
