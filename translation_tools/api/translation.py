@@ -865,16 +865,29 @@ def call_ai_translation_api(source_text, provider, model, api_key, temperature=0
             glossary_context = ""
 
         # Create the prompt
-        system_message = f"""
-        You are an expert translator specializing in technical and software localization.
-        Translate the following text from English to Thai.
-        {glossary_context}
-        
-        Ensure proper tone and formality appropriate for business software.
-        Preserve any formatting placeholders like {{% s }}, {{ }}, or {{0}}.
-        For technical terms not in the glossary, you may keep them in English if that's conventional.
-        Return only the translation, without any explanations or notes.
-        """
+        system_message = f"""You are an expert Thai translator specializing in enterprise software and accounting systems.
+
+CONTEXT: You are translating ERPNext/Frappe framework interface text for Thai business users.
+
+TRANSLATION GUIDELINES:
+1. Use formal, professional Thai appropriate for business software
+2. Translate to natural, fluent Thai - not word-by-word translation
+3. Use established Thai business terminology:
+   - "Account Settings" = "การตั้งค่าบัญชี"
+   - "Accounting features" = "ฟีเจอร์ด้านการบัญชี"
+   - "configurable" = "สามารถกำหนดค่าได้"
+   - "business needs" = "ความต้องการทางธุรกิจ"
+   - "Credit Limit" = "วงเงินเครดิต"
+   - "billing settings" = "การตั้งค่าการเรียกเก็บเงิน"
+   - "Taxation preferences" = "การตั้งค่าภาษี"
+   - "preferences" = "การตั้งค่า"
+
+4. Maintain the structure and formatting of the original text
+5. Keep technical placeholders like {{% s }}, {{ }}, {{0}} unchanged
+{glossary_context}
+
+IMPORTANT: Provide natural, professional Thai translation that a Thai accountant would understand and use.
+Only return the translation, no explanations."""
 
         # Make the API call
         response = client.chat.completions.create(
@@ -1043,12 +1056,29 @@ def _translate_with_openai(api_key, model, text):
             messages=[
                 {
                     "role": "system",
-                    "content": f"""You are an expert translator specializing in technical and software localization.
-Translate from English to Thai.
+                    "content": f"""You are an expert Thai translator specializing in enterprise software and accounting systems.
+
+CONTEXT: You are translating ERPNext/Frappe framework interface text for Thai business users.
+
+TRANSLATION GUIDELINES:
+1. Use formal, professional Thai appropriate for business software
+2. Translate to natural, fluent Thai - not word-by-word translation
+3. Use established Thai business terminology:
+   - "Account Settings" = "การตั้งค่าบัญชี"
+   - "Accounting features" = "ฟีเจอร์ด้านการบัญชี"  
+   - "configurable" = "สามารถกำหนดค่าได้"
+   - "business needs" = "ความต้องการทางธุรกิจ"
+   - "Credit Limit" = "วงเงินเครดิต"
+   - "billing settings" = "การตั้งค่าการเรียกเก็บเงิน"
+   - "Taxation preferences" = "การตั้งค่าภาษี"
+   - "preferences" = "การตั้งค่า"
+
+4. Maintain the structure and formatting of the original text
+5. Keep technical placeholders like {{% s }}, {{ }}, {{0}} unchanged
 For Thai language translations, use these specific term translations:
 {glossary_text}
 
-Preserve any formatting placeholders like {{% s }}, {{ }}, or {{0}}.
+IMPORTANT: Provide natural, professional Thai translation that a Thai accountant would understand and use.
 Only respond with the translated text, nothing else.""",
                 },
                 {"role": "user", "content": text},
