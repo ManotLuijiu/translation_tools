@@ -69,4 +69,3 @@ GLOSSARY = {
     "Thai Translation": "แปลเป็นไทย",
     "Translation Dashboard": "กระดานข้อมูลแปลภาษา",
 }
-https://cdn.shopify.com/s/files/1/0862/6559/4144/files/1741242969995-331759376-GameOnSPECIALPRICEth_14eb4962-ad46-431f-bc72-c39c9281487e.jpg?v=1756094199
