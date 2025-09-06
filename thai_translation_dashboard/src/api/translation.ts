@@ -4,7 +4,9 @@ export type TranslationResult = {
   message: {
     success: boolean;
     translation?: string;
+    error?: string;
   };
+  data?: string;
   log_file?: string;
   translated_count?: number;
   error?: string;

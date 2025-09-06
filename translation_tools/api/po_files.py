@@ -647,12 +647,13 @@ def parse_po_file(file_path):
 @frappe.whitelist()
 @enhanced_error_handler
 def get_cached_po_files():
-    """Get a list of all PO files from the database"""
+    """Get a list of all PO files from the database with automatic stale detection"""
     logger.info("Fetching cached PO files from database")
     try:
         po_files = frappe.get_all(
             "PO File",
             fields=[
+                "name",
                 "file_path",
                 "app_name as app",
                 "filename",
@@ -665,23 +666,79 @@ def get_cached_po_files():
             ],
             order_by="app_name, filename",
         )
+        
+        # Check for stale files and auto-refresh them
+        bench_path = get_bench_path()
+        stale_files = []
+        refreshed_count = 0
+        
+        for po_file in po_files:
+            try:
+                # Build full path
+                full_path = os.path.join(bench_path, po_file.file_path)
+                
+                if os.path.exists(full_path):
+                    # Check if file is newer than last scan
+                    file_modified = datetime.fromtimestamp(os.path.getmtime(full_path))
+                    last_scanned = po_file.last_scanned
+                    
+                    if isinstance(last_scanned, str):
+                        last_scanned = datetime.fromisoformat(last_scanned.replace('Z', '+00:00'))
+                    
+                    # If file is newer than last scan, refresh its stats
+                    if file_modified > last_scanned:
+                        logger.info(f"Auto-refreshing stale file: {po_file.file_path}")
+                        fresh_stats = parse_po_file(full_path)
+                        
+                        # Update database record
+                        frappe.db.set_value("PO File", po_file.name, {
+                            "total_entries": fresh_stats["total_entries"],
+                            "translated_entries": fresh_stats["translated_entries"],
+                            "translation_status": fresh_stats["translation_status"],
+                            "last_scanned": frappe.utils.now_datetime()
+                        })
+                        
+                        # Update the returned data too
+                        po_file.total_entries = fresh_stats["total_entries"]
+                        po_file.translated_entries = fresh_stats["translated_entries"]
+                        po_file.translated_percentage = fresh_stats["translation_status"]
+                        
+                        refreshed_count += 1
+                        stale_files.append(po_file.file_path)
+            except Exception as e:
+                logger.warning(f"Error checking file {po_file.file_path}: {str(e)}")
+                continue
+        
+        if refreshed_count > 0:
+            frappe.db.commit()
+            logger.info(f"Auto-refreshed {refreshed_count} stale PO files: {stale_files}")
+        
         logger.debug(f"Found {len(po_files)} cached PO files")
-
         return po_files
+        
     except Exception as e:
         logger.error(f"Error fetching cached PO files: {str(e)}", exc_info=True)
         raise
 
 
-def process_po_file(file_path, apps_path):
+def process_po_file(file_path, bench_path):
     """Process individual PO file and return metadata"""
     try:
         if not os.path.isfile(file_path):
             logger.warning(f"Path is not a file: {file_path}")
             return None
 
-        rel_path = os.path.relpath(file_path, apps_path)
-        app_name = rel_path.split(os.path.sep)[0]
+        # Always use relative path from bench root (not apps root)
+        rel_path = os.path.relpath(file_path, bench_path)
+        
+        # Extract app name from path: apps/app_name/app_name/locale/th.po
+        path_parts = rel_path.split(os.path.sep)
+        if len(path_parts) >= 2 and path_parts[0] == 'apps':
+            app_name = path_parts[1]
+        else:
+            # Fallback for non-standard paths
+            app_name = path_parts[0] if path_parts else 'unknown'
+            
         filename = os.path.basename(file_path)
 
         # Get file stats
@@ -711,7 +768,7 @@ def process_po_file(file_path, apps_path):
             "translation_status": translation_status,
             "last_modified": last_modified_datetime,
             "last_scanned": frappe.utils.now_datetime(),
-            "file_path": file_path,
+            "file_path": rel_path,  # Use relative path consistently
         }
     except Exception as e:
         logger.error(f"Error processing {file_path} {e}", exc_info=True)
@@ -776,7 +833,7 @@ def scan_po_files():
             stats["total_files"] += 1
             logger.debug(f"Processing file {i + 1}/{len(matching_files)}: {file_path}")
 
-            file_data = process_po_file(file_path, apps_path)
+            file_data = process_po_file(file_path, bench_path)
             if not file_data:
                 stats["failed_files"] += 1
                 continue
@@ -1570,6 +1627,297 @@ def save_translations(file_path, translations):
 
 @frappe.whitelist()
 @enhanced_error_handler
+def delete_po_files(file_paths):
+    """
+    Delete multiple PO files from the filesystem and database
+    
+    Args:
+        file_paths: List of file paths to delete
+        
+    Returns:
+        dict: Result of deletion operation
+    """
+    if not file_paths:
+        return {"success": False, "error": "No files provided"}
+    
+    if isinstance(file_paths, str):
+        file_paths = [file_paths]
+    
+    deleted_count = 0
+    failed_files = []
+    
+    try:
+        for file_path in file_paths:
+            try:
+                # Validate and resolve path
+                resolved_path = validate_file_path(file_path)
+                
+                # Check if file exists
+                if os.path.exists(resolved_path):
+                    # Create backup first (in case of accidental deletion)
+                    backup_dir = os.path.join(get_bench_path(), "backups", "deleted_po_files")
+                    os.makedirs(backup_dir, exist_ok=True)
+                    
+                    # Generate unique backup filename with timestamp
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    backup_filename = f"{os.path.basename(file_path)}_{timestamp}.bak"
+                    backup_path = os.path.join(backup_dir, backup_filename)
+                    
+                    # Copy to backup
+                    shutil.copy2(resolved_path, backup_path)
+                    logger.info(f"Backed up {file_path} to {backup_path}")
+                    
+                    # Delete the file
+                    os.remove(resolved_path)
+                    logger.info(f"Deleted file: {file_path}")
+                    
+                    # Remove from database cache
+                    if frappe.db.exists("PO File", {"file_path": file_path}):
+                        frappe.delete_doc("PO File", frappe.get_value("PO File", {"file_path": file_path}, "name"))
+                        logger.info(f"Removed {file_path} from database cache")
+                    
+                    deleted_count += 1
+                else:
+                    # File doesn't exist on filesystem, but might be in database
+                    if frappe.db.exists("PO File", {"file_path": file_path}):
+                        frappe.delete_doc("PO File", frappe.get_value("PO File", {"file_path": file_path}, "name"))
+                        logger.info(f"Removed stale entry {file_path} from database cache")
+                        deleted_count += 1
+                    else:
+                        failed_files.append({"file": file_path, "error": "File not found"})
+                        
+            except Exception as e:
+                logger.error(f"Failed to delete {file_path}: {str(e)}")
+                failed_files.append({"file": file_path, "error": str(e)})
+        
+        frappe.db.commit()
+        
+        result = {
+            "success": True,
+            "deleted_count": deleted_count,
+            "total_requested": len(file_paths),
+            "message": f"Successfully deleted {deleted_count} file(s)"
+        }
+        
+        if failed_files:
+            result["failed_files"] = failed_files
+            result["partial_success"] = True
+            
+        return result
+        
+    except Exception as e:
+        frappe.db.rollback()
+        logger.error(f"Critical error during bulk delete: {str(e)}")
+        return {
+            "success": False,
+            "error": str(e),
+            "deleted_count": deleted_count
+        }
+
+
+@frappe.whitelist()
+@enhanced_error_handler  
+def debug_po_file_stats(file_path=None):
+    """
+    Debug function to check PO file statistics both from database cache and filesystem
+    """
+    try:
+        if not file_path:
+            # Get all cached files
+            cached_files = frappe.get_all(
+                "PO File",
+                fields=[
+                    "file_path",
+                    "app_name",
+                    "filename", 
+                    "total_entries",
+                    "translated_entries",
+                    "translation_status",
+                    "last_scanned"
+                ],
+                order_by="app_name, filename"
+            )
+            
+            results = []
+            for cached in cached_files:
+                # Get fresh stats from filesystem
+                try:
+                    full_path = validate_file_path(cached.file_path)
+                    if os.path.exists(full_path):
+                        fresh_stats = parse_po_file(full_path)
+                        results.append({
+                            "file_path": cached.file_path,
+                            "app_name": cached.app_name,
+                            "filename": cached.filename,
+                            "cached_stats": {
+                                "total": cached.total_entries,
+                                "translated": cached.translated_entries, 
+                                "percentage": cached.translation_status
+                            },
+                            "fresh_stats": fresh_stats,
+                            "needs_update": (
+                                cached.translated_entries != fresh_stats["translated_entries"] or
+                                cached.total_entries != fresh_stats["total_entries"]
+                            ),
+                            "last_scanned": cached.last_scanned
+                        })
+                    else:
+                        results.append({
+                            "file_path": cached.file_path,
+                            "error": "File not found on filesystem"
+                        })
+                except Exception as e:
+                    results.append({
+                        "file_path": cached.file_path,
+                        "error": str(e)
+                    })
+            
+            return {
+                "success": True,
+                "files": results,
+                "total_files": len(results)
+            }
+        else:
+            # Debug specific file
+            full_path = validate_file_path(file_path)
+            if not os.path.exists(full_path):
+                return {"success": False, "error": "File not found"}
+            
+            # Get cached data
+            cached = frappe.get_value(
+                "PO File",
+                {"file_path": file_path},
+                ["total_entries", "translated_entries", "translation_status", "last_scanned"],
+                as_dict=True
+            )
+            
+            # Get fresh stats
+            fresh_stats = parse_po_file(full_path)
+            
+            return {
+                "success": True,
+                "file_path": file_path,
+                "cached_stats": cached,
+                "fresh_stats": fresh_stats,
+                "file_exists": True
+            }
+            
+    except Exception as e:
+        logger.error(f"Debug error: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+
+@frappe.whitelist()
+@enhanced_error_handler
+def force_refresh_po_stats():
+    """
+    Force refresh all PO file statistics from filesystem
+    """
+    try:
+        # Get all cached PO files
+        po_files = frappe.get_all("PO File", fields=["name", "file_path"])
+        
+        updated_count = 0
+        failed_count = 0
+        
+        for po_file in po_files:
+            try:
+                # Get fresh stats from filesystem
+                full_path = validate_file_path(po_file.file_path)
+                if os.path.exists(full_path):
+                    fresh_stats = parse_po_file(full_path)
+                    
+                    # Update database record
+                    frappe.db.set_value("PO File", po_file.name, {
+                        "total_entries": fresh_stats["total_entries"],
+                        "translated_entries": fresh_stats["translated_entries"],
+                        "translation_status": fresh_stats["translation_status"],
+                        "last_scanned": frappe.utils.now_datetime()
+                    })
+                    updated_count += 1
+                else:
+                    # File doesn't exist, mark as failed
+                    failed_count += 1
+                    logger.warning(f"PO file not found: {po_file.file_path}")
+                    
+            except Exception as e:
+                logger.error(f"Error updating {po_file.file_path}: {str(e)}")
+                failed_count += 1
+        
+        frappe.db.commit()
+        
+        return {
+            "success": True,
+            "message": f"Force refreshed statistics for {updated_count} PO files",
+            "updated_count": updated_count,
+            "failed_count": failed_count
+        }
+        
+    except Exception as e:
+        logger.error(f"Force refresh error: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+
+def auto_refresh_stale_po_files():
+    """
+    Scheduled job to automatically refresh PO files that have been modified
+    since last scan. Runs hourly to ensure database stays in sync with filesystem.
+    """
+    try:
+        logger.info("Starting scheduled auto-refresh of stale PO files")
+        
+        # Get all cached PO files
+        po_files = frappe.get_all(
+            "PO File",
+            fields=["name", "file_path", "last_scanned"],
+        )
+        
+        bench_path = get_bench_path()
+        refreshed_count = 0
+        
+        for po_file in po_files:
+            try:
+                full_path = os.path.join(bench_path, po_file.file_path)
+                
+                if os.path.exists(full_path):
+                    # Check if file is newer than last scan
+                    file_modified = datetime.fromtimestamp(os.path.getmtime(full_path))
+                    last_scanned = po_file.last_scanned
+                    
+                    if isinstance(last_scanned, str):
+                        last_scanned = datetime.fromisoformat(last_scanned.replace('Z', '+00:00'))
+                    
+                    # If file is newer than last scan (with 5 minute buffer to avoid constant updates)
+                    time_diff = (file_modified - last_scanned).total_seconds()
+                    if time_diff > 300:  # 5 minutes buffer
+                        logger.info(f"Scheduled refresh of stale file: {po_file.file_path}")
+                        fresh_stats = parse_po_file(full_path)
+                        
+                        # Update database record
+                        frappe.db.set_value("PO File", po_file.name, {
+                            "total_entries": fresh_stats["total_entries"],
+                            "translated_entries": fresh_stats["translated_entries"],
+                            "translation_status": fresh_stats["translation_status"],
+                            "last_scanned": frappe.utils.now_datetime()
+                        })
+                        
+                        refreshed_count += 1
+            except Exception as e:
+                logger.warning(f"Error in scheduled refresh for {po_file.file_path}: {str(e)}")
+                continue
+        
+        if refreshed_count > 0:
+            frappe.db.commit()
+            logger.info(f"Scheduled auto-refresh completed: {refreshed_count} files updated")
+        else:
+            logger.debug("Scheduled auto-refresh: No stale files found")
+            
+    except Exception as e:
+        logger.error(f"Error in scheduled auto-refresh: {str(e)}")
+
+
+@frappe.whitelist()
+@enhanced_error_handler
 def repair_po_file(file_path):
     """
     Attempt to repair common issues in a PO file
@@ -1676,3 +2024,83 @@ def repair_po_file(file_path):
 
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+
+@frappe.whitelist()
+@enhanced_error_handler
+def standardize_existing_po_file_paths():
+    """
+    Update all existing PO File records to use consistent relative paths
+    This ensures database consistency after the path standardization fix
+    """
+    try:
+        bench_path = get_bench_path()
+        logger.info("Starting path standardization for existing PO File records")
+        
+        # Get all existing PO File records
+        existing_files = frappe.get_all("PO File", 
+            fields=["name", "file_path", "app_name", "language"],
+            filters={})
+        
+        updated_count = 0
+        skipped_count = 0
+        error_count = 0
+        
+        for po_file_record in existing_files:
+            try:
+                current_path = po_file_record.get("file_path", "")
+                
+                # Skip if already using relative path format
+                if not current_path.startswith("/"):
+                    logger.debug(f"Skipping already standardized path: {current_path}")
+                    skipped_count += 1
+                    continue
+                
+                # Convert absolute path to relative path from bench root
+                if current_path.startswith(bench_path):
+                    # Remove bench path prefix and leading slash
+                    relative_path = current_path[len(bench_path):].lstrip("/")
+                    
+                    # Verify the file actually exists
+                    full_path = os.path.join(bench_path, relative_path)
+                    if not os.path.exists(full_path):
+                        logger.warning(f"File no longer exists, skipping: {current_path}")
+                        continue
+                    
+                    # Update the database record
+                    frappe.db.set_value("PO File", po_file_record["name"], 
+                                      "file_path", relative_path, update_modified=True)
+                    
+                    logger.info(f"Updated path: {current_path} -> {relative_path}")
+                    updated_count += 1
+                    
+                else:
+                    logger.warning(f"Path not under bench directory, skipping: {current_path}")
+                    skipped_count += 1
+                    
+            except Exception as e:
+                logger.error(f"Error updating record {po_file_record['name']}: {str(e)}")
+                error_count += 1
+                continue
+        
+        # Commit the changes
+        frappe.db.commit()
+        
+        result = {
+            "success": True,
+            "message": f"Path standardization completed: {updated_count} updated, {skipped_count} skipped, {error_count} errors",
+            "updated_count": updated_count,
+            "skipped_count": skipped_count,
+            "error_count": error_count
+        }
+        
+        logger.info(result["message"])
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error in path standardization: {str(e)}", exc_info=True)
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Failed to standardize PO file paths"
+        }

@@ -161,7 +161,8 @@ scheduler_events = {
     ],
     # Hourly safety check for missed schedules
     "hourly": [
-        "translation_tools.tasks.translation_scheduler.run_missed_schedules"
+        "translation_tools.tasks.translation_scheduler.run_missed_schedules",
+        "translation_tools.api.po_files.auto_refresh_stale_po_files"
     ],
     # Daily long-running tasks
     "daily_long": [

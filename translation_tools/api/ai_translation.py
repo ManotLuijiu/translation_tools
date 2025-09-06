@@ -7,7 +7,7 @@ import openai
 import anthropic
 import logging
 import tempfile
-from .settings import get_translation_settings
+from .settings import get_translation_settings, get_decrypted_api_keys
 from .po_files import (
     push_translation_to_github,
     enhanced_error_handler,
@@ -97,7 +97,7 @@ def validate_po_file(file_path):
 
 
 @frappe.whitelist()
-@enhanced_error_handler
+@enhanced_error_handler  
 def translate_batch(file_path, entry_ids, model_provider="openai", model=None):
     """
     Translate a batch of entries at once
@@ -112,21 +112,28 @@ def translate_batch(file_path, entry_ids, model_provider="openai", model=None):
         dict: Dictionary with translation results
     """
 
+    # Add request start time for timeout tracking
+    import time
+    start_time = time.time()
+    
     # Validate path is within the bench directory
     full_path = validate_file_path(file_path)
-
-    print(f"full_path ai_translation.py {full_path}")
+    logger.info(f"Starting translation batch for file: {full_path}")
 
     if not os.path.exists(full_path):
         logger.error(f"File not found: {full_path}")
         return {"success": False, "error": f"File not found: {file_path}"}
 
+    # Validate PO file with timeout check
+    logger.info("Validating PO file...")
     is_valid, po_result = validate_po_file(file_path)
     if not is_valid:
+        logger.error(f"PO file validation failed: {po_result}")
         return {"success": False, "error": po_result}
 
     # po_result now contains the valid polib object
     po = po_result
+    logger.info(f"PO file loaded successfully with {len(po)} entries")
 
     try:
         # # Try reading the file as UTF-8
@@ -151,29 +158,35 @@ def translate_batch(file_path, entry_ids, model_provider="openai", model=None):
         #     if os.path.exists(temp_path):
         #         os.unlink(temp_path)
 
-        # Get settings
-        settings = get_translation_settings()
-        api_key = (
-            settings.get("openai_api_key")
-            if model_provider == "openai"
-            else settings.get("anthropic_api_key")
-        )
-        temperature = settings.get("temperature", 0.3)
+        # Use the SAME config method as the fast working single entry function
+        from .common import _get_translation_config
+        from .translation import _translate_with_openai, _translate_with_claude
+        
+        api_key, actual_provider, actual_model = _get_translation_config()
+        
+        # Use the working config values or fall back to parameters
+        final_provider = model_provider if model_provider else actual_provider
+        final_model = model if model else actual_model
 
         if not api_key:
             return {
                 "success": False,
-                "error": f"API key for {model_provider} not found",
+                "error": f"API key not found in configuration",
             }
+            
+        logger.info(f"Using config: {final_provider} with model {final_model}")
 
         # Parse entry_ids if it's a string
         if isinstance(entry_ids, str):
             entry_ids = json.loads(entry_ids)
+            
+        logger.info(f"Processing {len(entry_ids)} requested entry IDs")
 
         # Get entries to translate
         entries_dict = {}  # Dictionary for batch translation functions
         entries_to_translate = []  # List for result mapping
 
+        logger.info("Building entries list...")
         for po_index, entry in enumerate(po):
             if not isinstance(entry, polib.POEntry) or not entry.msgid:
                 continue
@@ -198,29 +211,49 @@ def translate_batch(file_path, entry_ids, model_provider="openai", model=None):
                 )
 
         if not entries_to_translate:
+            logger.error("No valid entries found for translation")
             return {"success": False, "error": "No valid entries found"}
+            
+        logger.info(f"Found {len(entries_to_translate)} entries to translate")
 
         # Create input for translation
         # entries_for_translation = [e["msgid"] for e in entries_to_translate]
 
-        # Get translations
-        translations = {}
-        if model_provider == "openai":
-            translations = _batch_translate_with_openai(
-                api_key, model, entries_dict, temperature
-            )
-        else:
-            translations = _batch_translate_with_claude(
-                api_key, model, entries_dict, temperature
-            )
-
-        # Map translations back to entries using entry_id
+        # Use the SAME translation method as the fast working single entry function
+        logger.info(f"Starting translation with {final_provider} using {final_model}")
+        translation_start_time = time.time()
+        
         results = {}
-        for entry_data in entries_to_translate:
-            po_index = entry_data["po_index"]
-            if po_index in translations:
-                results[entry_data["id"]] = translations[po_index]
+        try:
+            # Translate each entry individually using the SAME method as the working function
+            for entry_data in entries_to_translate:
+                entry_id = entry_data["id"]
+                msgid = entry_data["msgid"]
+                
+                logger.info(f"Translating entry {entry_id}: {msgid[:50]}...")
+                
+                # Use the EXACT SAME translation functions as the working single entry
+                if final_provider == "claude":
+                    translation = _translate_with_claude(api_key, final_model, msgid)
+                else:
+                    translation = _translate_with_openai(api_key, final_model, msgid)
+                
+                if translation:
+                    results[entry_id] = translation
+                    logger.info(f"Entry {entry_id} translated successfully")
+                else:
+                    results[entry_id] = ""
+                    logger.warning(f"Entry {entry_id} translation failed")
+                
+            translation_duration = time.time() - translation_start_time
+            logger.info(f"Batch translation completed in {translation_duration:.2f} seconds")
+            
+        except Exception as ai_error:
+            logger.error(f"Translation failed: {str(ai_error)}")
+            return {"success": False, "error": f"Translation failed: {str(ai_error)}"}
 
+        # Results are already built in the loop above
+        logger.info(f"Returning {len(results)} translations")
         return {"success": True, "translations": results}
 
     except Exception as e:
@@ -414,8 +447,9 @@ def push_batch_to_github(file_path, updated_entries):
     try:
         # Get settings
         settings = get_translation_settings()
+        api_keys = get_decrypted_api_keys()  # Get actual tokens from secure function
 
-        if not settings.get("github_enable") or not settings.get("github_token"):
+        if not settings.get("github_enable") or not api_keys.get("github_token"):
             return {
                 "success": False,
                 "error": "GitHub integration not enabled or token not provided",
@@ -490,18 +524,16 @@ def test_ai_connection(provider="openai"):
     Returns:
         dict: Connection test result
     """
-    # settings = frappe.get_single("Translation Tools Settings")
     # Get settings
     settings = get_translation_settings()
-
-    print(f"settings test_ai_connection {settings}")
+    api_keys = get_decrypted_api_keys()  # Get actual API keys from secure function
 
     # Use minimal prompt and request minimal tokens
     test_text = "Hello"
 
     try:
         if provider == "openai":
-            api_key = settings.openai_api_key  # type: ignore
+            api_key = api_keys.get("openai_api_key")
             if not api_key:
                 return {"success": False, "error": "OpenAI API key not configured"}
 
@@ -521,7 +553,7 @@ def test_ai_connection(provider="openai"):
             }
 
         elif provider == "anthropic":
-            api_key = settings.anthropic_api_key  # type: ignore
+            api_key = api_keys.get("anthropic_api_key")
             if not api_key:
                 return {"success": False, "error": "Anthropic API key not configured"}
 

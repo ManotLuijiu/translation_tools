@@ -15,13 +15,10 @@ __pycache__
 translation_tools/www/frontend.html
 translation_tools/www/thai_translation_dashboard.html
 /translation_tools/public/dist/
-"/translation_tools/public/thai_translation_dashboard/assets/index-*"
-"/translation_tools/public/thai_translation_dashboard/assets/*.map"
-"/translation_tools/public/thai_translation_dashboard/assets/tbs_logo-*.png"
-translation_tools/public/thai_translation_dashboard/assets/*.js
-translation_tools/public/thai_translation_dashboard/assets/*.js.map
 
-/apps/translation_tools/public/thai_translation_dashboard/assets/*
+# Build artifacts - exclude all bundled assets
+translation_tools/public/thai_translation_dashboard/assets/
+translation_tools/public/thai_translation_dashboard/index.html
 # Node.js
 npm-debug.log*
 yarn-debug.log*

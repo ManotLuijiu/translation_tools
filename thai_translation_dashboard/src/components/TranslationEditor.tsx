@@ -342,12 +342,86 @@ export default function TranslationEditor({
 
       console.log('result in handleTranslate', result);
 
-      if (result.message.success && result.message.translation) {
-        setEditedTranslation(result.message.translation);
-        // setStatusMessage({
-        //   type: 'success',
-        //   message: 'Translation completed',
-        // });
+      // Handle the complex response structure with double-wrapped data
+      let translationData = null;
+      let errorMessage = null;
+
+      // First, check if there's a data field with JSON string
+      if (result.data && typeof result.data === 'string') {
+        try {
+          const parsedData = JSON.parse(result.data);
+          if (parsedData.message && parsedData.message.success && parsedData.message.translation) {
+            translationData = parsedData.message.translation;
+          }
+        } catch (e) {
+          console.log('Failed to parse data field:', e);
+        }
+      }
+      
+      // Fallback to direct message structure
+      if (!translationData && result.message && typeof result.message === 'object') {
+        if (result.message.success && result.message.translation) {
+          translationData = result.message.translation;
+        } else if (result.message.error) {
+          errorMessage = result.message.error;
+        }
+      }
+      
+      // Handle successful translation
+      if (translationData) {
+        // Robust Unicode decode handling for multiple levels of escaping
+        let translation = translationData;
+        console.log('Raw translation data:', translation);
+        console.log('Raw translation repr:', JSON.stringify(translation));
+        
+        try {
+          // Handle multiple levels of Unicode escaping from OpenAI inconsistency
+          let iterations = 0;
+          const maxIterations = 5; // Prevent infinite loops
+          
+          while (translation.includes('\\u') && iterations < maxIterations) {
+            const beforeDecoding = translation;
+            
+            // First, handle quadruple backslashes (\\\\u) -> double backslashes (\\u)
+            if (translation.includes('\\\\\\\\u')) {
+              translation = translation.replace(/\\\\\\\\u([0-9a-fA-F]{4})/g, '\\\\u$1');
+              console.log(`Fixed quadruple escapes (iteration ${iterations}):`, translation);
+            }
+            
+            // Handle double backslashes (\\u) -> single backslashes (\u)  
+            if (translation.includes('\\\\u')) {
+              translation = translation.replace(/\\\\u([0-9a-fA-F]{4})/g, '\\u$1');
+              console.log(`Fixed double escapes (iteration ${iterations}):`, translation);
+            }
+            
+            // Decode Unicode escape sequences
+            if (translation.includes('\\u')) {
+              try {
+                // Use JSON.parse to decode Unicode sequences
+                translation = JSON.parse(`"${translation.replace(/"/g, '\\"')}"`);
+                console.log(`Decoded Unicode (iteration ${iterations}):`, translation);
+              } catch (parseError) {
+                console.log('Unicode decode failed, stopping:', parseError);
+                break;
+              }
+            }
+            
+            // If no change occurred, stop to avoid infinite loop
+            if (beforeDecoding === translation) {
+              console.log('No more changes, stopping decode loop');
+              break;
+            }
+            
+            iterations++;
+          }
+          
+          console.log(`Final decoded translation (${iterations} iterations):`, translation);
+        } catch (e) {
+          console.error('Unicode decoding error:', e);
+          console.log('Using original translation data');
+        }
+        
+        setEditedTranslation(translation);
         showMessage('Translation completed', 'success');
 
         // If auto-save is enabled, also save the translation
@@ -356,13 +430,18 @@ export default function TranslationEditor({
         }
         return;
       }
+      
+      // Handle error cases
+      if (errorMessage) {
+        console.error('Translation error:', errorMessage);
+        showMessage(errorMessage || 'Translation failed', 'error');
+        return;
+      }
 
-      console.error(result.error);
-      // setStatusMessage({
-      //   type: 'error',
-      //   message: result.error || 'Translation failed',
-      // });
-      showMessage('Translation Failed', 'error');
+      // Fallback error handling
+      const fallbackError = result?.error || result?.message?.error || 'Translation failed';
+      console.error('Translation error:', fallbackError);
+      showMessage(fallbackError, 'error');
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error

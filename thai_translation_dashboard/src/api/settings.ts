@@ -17,6 +17,14 @@ export type TestGithubConnection = {
   error: string;
 };
 
+export type TestAiConnection = {
+  success: boolean;
+  provider: string;
+  model?: string;
+  message?: string;
+  error?: string;
+};
+
 export type TranslationToolsSettings = {
   default_model_provider: 'openai' | 'anthropic';
   default_model: string;
@@ -108,4 +116,13 @@ export function useSaveTranslationSettingsFile() {
     message?: string;
     error?: string;
   }>('translation_tools.api.settings.save_translation_settings_file');
+}
+
+/**
+ * Test AI API connection (OpenAI or Anthropic)
+ */
+export function useTestAiConnection() {
+  return useFrappePostCall<{ message: TestAiConnection }>(
+    'translation_tools.api.ai_translation.test_ai_connection'
+  );
 }

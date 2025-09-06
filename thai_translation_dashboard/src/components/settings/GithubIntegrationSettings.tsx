@@ -11,8 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Check, AlertCircle, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useTranslation } from '@/context/TranslationContext';
 import PasswordVisibilityToggle from '../PasswordVisibilityToggle';
 
@@ -22,7 +21,6 @@ export default function GithubIntegrationSettings({
   onSwitchChange,
   onSave,
   onTest,
-  statusMessage,
   showPassword,
   setShowPassword,
   loading,
@@ -112,19 +110,6 @@ export default function GithubIntegrationSettings({
         >
           {__('Test Connect')}
         </Button>
-        {statusMessage && (
-          <Alert
-            variant={statusMessage.type === 'error' ? 'destructive' : 'default'}
-            className="ml-4"
-          >
-            {statusMessage.type === 'success' && <Check className="h-4 w-4" />}
-            {statusMessage.type === 'error' && (
-              <AlertCircle className="h-4 w-4" />
-            )}
-            <AlertTitle>{__(statusMessage.type)}</AlertTitle>
-            <AlertDescription>{statusMessage.message}</AlertDescription>
-          </Alert>
-        )}
       </CardFooter>
     </Card>
   );

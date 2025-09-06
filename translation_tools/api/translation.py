@@ -20,7 +20,7 @@ from translation_tools.utils.thai_glossary import GLOSSARY
 
 from .common import _get_translation_config, get_bench_path, logger
 from .glossary import get_glossary_terms_dict
-from .settings import get_translation_settings
+from .settings import get_translation_settings, get_decrypted_api_keys
 
 
 @frappe.whitelist()
@@ -239,24 +239,36 @@ def translate_single_entry(file_path, entry_id, model_provider="openai", model=N
             PO_FILES_CACHE = None
 
             # Update PO File record in database
-            if frappe.db.exists("PO File", {"file_path": file_path}):
-                file_doc = frappe.get_doc("PO File", {"file_path": file_path})  # type: ignore
-                if (
-                    entry is not None and not entry.msgstr and translation
-                ):  # If this was previously untranslated
-                    file_doc.translated_entries += 1  # type: ignore
-                    file_doc.translation_status = (  # type: ignore
-                        int(
-                            (file_doc.translated_entries / file_doc.total_entries) * 100  # type: ignore
-                        )
-                        if file_doc.total_entries > 0  # type: ignore
-                        else 0
-                    )
-                file_doc.modified = now()
-                file_doc.save()
+            try:
+                if frappe.db.exists("PO File", {"file_path": file_path}):
+                    file_doc = frappe.get_doc("PO File", {"file_path": file_path})  # type: ignore
+                    if file_doc and hasattr(file_doc, 'translated_entries'):
+                        if (
+                            entry is not None and not entry.msgstr and translation
+                        ):  # If this was previously untranslated
+                            # Ensure translated_entries is initialized
+                            if file_doc.translated_entries is None:
+                                file_doc.translated_entries = 0
+                            file_doc.translated_entries += 1  # type: ignore
+                            
+                            if hasattr(file_doc, 'translation_status') and hasattr(file_doc, 'total_entries'):
+                                total_entries = file_doc.total_entries or 0
+                                if total_entries > 0:
+                                    file_doc.translation_status = int((file_doc.translated_entries / total_entries) * 100)  # type: ignore
+                                else:
+                                    file_doc.translation_status = 0  # type: ignore
+                        file_doc.modified = now()
+                        file_doc.save()
+                    else:
+                        logger.warning("PO File document not found or missing required fields")
+            except Exception as doc_error:
+                logger.warning(f"Failed to update PO File document: {doc_error}")
+                # Continue without failing the translation
 
             logger.info("Translation automatically saved")
 
+        # Ensure translation is properly decoded and ready for JSON serialization
+        logger.info(f"Final translation before return: {repr(translation)}")
         return {"success": True, "translation": translation, "log_file": log_file}
     except Exception as e:
         logger.error(f"Error translating entry: {e}")
@@ -529,6 +541,35 @@ def translate_batch(file_path, indices):
 
 
 @frappe.whitelist()
+def test_translation_api():
+    """Test endpoint to check if translation API is working"""
+    try:
+        # Get API key and model from config
+        api_key, model_provider, model = _get_translation_config()
+        
+        if not api_key:
+            return {"error": "API key not configured"}
+            
+        # Test with a simple translation
+        test_text = "Hello World"
+        logger.info(f"Testing translation API with: {test_text}")
+        
+        if model_provider == "claude":
+            translation = _translate_with_claude(api_key, model, test_text)
+        else:
+            translation = _translate_with_openai(api_key, model, test_text)
+            
+        if translation:
+            return {"success": True, "test_text": test_text, "translation": translation, "provider": model_provider, "model": model}
+        else:
+            return {"error": "Translation failed"}
+            
+    except Exception as e:
+        logger.error(f"Test translation error: {str(e)}", exc_info=True)
+        return {"error": f"Test failed: {str(e)}"}
+
+
+@frappe.whitelist()
 def translate_entry(file_path, msgid, entry_id):
     """Translate a single entry using AI"""
     full_path = os.path.join(get_bench_path(), file_path)
@@ -543,12 +584,17 @@ def translate_entry(file_path, msgid, entry_id):
 
     try:
         logger.info(f"Translating single entry with {model_provider} ({model})")
+        logger.info(f"Text to translate: {msgid}")
 
-        # Use the appropriate translation service
+        # Use the appropriate translation service with timeout handling
         if model_provider == "claude":
             translation = _translate_with_claude(api_key, model, msgid)
         else:
             translation = _translate_with_openai(api_key, model, msgid)
+            
+        logger.info(f"Translation result: {translation}")
+        logger.info(f"Translation result repr: {repr(translation)}")
+        logger.info(f"Translation result type: {type(translation)}")
 
         if translation:
             # Update the PO file
@@ -567,18 +613,33 @@ def translate_entry(file_path, msgid, entry_id):
                 return {"error": "Entry not found"}
 
             logger.info("Single entry translation successful")
+            # Log the final translation being returned
+            logger.info(f"Final translation being returned: {translation}")
+            logger.info(f"Final translation repr: {repr(translation)}")
+            
+            # Note: Frappe automatically handles UTF-8 encoding for API responses
+            
             response_data = {"success": True, "translation": translation}
-            frappe.response.data = json.dumps({"message": response_data}, ensure_ascii=False)
-            frappe.response.headers["Content-Type"] = "application/json; charset=utf-8"
-            return frappe.response
+            logger.info(f"Response data: {response_data}")
+            logger.info(f"Response data repr: {repr(response_data)}")
+            
+            return response_data
         else:
             logger.error("Failed to get translation")
             return {"error": "Failed to get translation"}
 
     except Exception as e:
-        logger.error(f"Error translating entry: {str(e)}", exc_info=True)
-        frappe.log_error(f"Error translating entry: {str(e)}")
-        return {"error": str(e)}
+        error_msg = str(e)
+        logger.error(f"Error translating entry: {error_msg}", exc_info=True)
+        frappe.log_error(f"Error translating entry: {error_msg}")
+        
+        # Handle timeout errors specifically
+        if "timeout" in error_msg.lower() or "timed out" in error_msg.lower():
+            return {"error": "Translation request timed out. Please try again."}
+        elif "api" in error_msg.lower() and ("key" in error_msg.lower() or "auth" in error_msg.lower()):
+            return {"error": "API authentication failed. Please check your API key configuration."}
+        else:
+            return {"error": f"Translation failed: {error_msg}"}
 
 
 @frappe.whitelist()
@@ -791,25 +852,41 @@ def call_ai_translation_api(source_text, provider, model, api_key, temperature=0
 
         client = openai.OpenAI(api_key=api_key)
 
-        # Prepare glossary context
-        glossary_terms = get_glossary_terms_dict()
-        glossary_context = ""
-        if glossary_terms:
-            glossary_context = "Use these specific term translations:\n" + json.dumps(
-                glossary_terms, indent=2
-            )
+        # Prepare glossary context with timeout protection
+        try:
+            glossary_terms = get_glossary_terms_dict()
+            logger.info(f"Loaded glossary terms: {len(glossary_terms)} terms")
+            logger.info(f"Glossary terms: {list(glossary_terms.keys())[:10]}")  # First 10 terms
+            glossary_context = ""
+            if glossary_terms:
+                glossary_context = "Use these specific term translations:\n" + json.dumps(
+                    glossary_terms, indent=2
+                )
+            else:
+                logger.warning("No approved glossary terms found!")
+        except Exception as glossary_error:
+            logger.warning(f"Failed to load glossary for call_ai_translation_api: {glossary_error}")
+            glossary_context = ""
 
         # Create the prompt
-        system_message = f"""
-        You are an expert translator specializing in technical and software localization.
-        Translate the following text from English to Thai.
-        {glossary_context}
-        
-        Ensure proper tone and formality appropriate for business software.
-        Preserve any formatting placeholders like {{% s }}, {{ }}, or {{0}}.
-        For technical terms not in the glossary, you may keep them in English if that's conventional.
-        Return only the translation, without any explanations or notes.
-        """
+        system_message = f"""You are an expert Thai translator specializing in enterprise software and accounting systems.
+
+CONTEXT: You are translating ERPNext/Frappe framework interface text for Thai business users.
+
+TRANSLATION GUIDELINES:
+1. **ALWAYS USE PROVIDED GLOSSARY TERMS** - This is the most important rule
+2. Use formal, professional Thai appropriate for business software
+3. Translate to natural, fluent Thai - avoid literal word-by-word translation
+4. For terms not in glossary, use established Thai business terminology
+5. Maintain the structure and formatting of the original text
+6. Keep technical placeholders like {{% s }}, {{ }}, {{0}} unchanged
+
+{glossary_context}
+
+CRITICAL: If any English terms appear in the glossary above, you MUST use those exact Thai translations. Do not create alternative translations for glossary terms.
+
+Provide natural, professional Thai translation that Thai business users would understand.
+Only return the translation, no explanations."""
 
         # Make the API call
         response = client.chat.completions.create(
@@ -822,20 +899,68 @@ def call_ai_translation_api(source_text, provider, model, api_key, temperature=0
             timeout=60,
         )
 
-        return response.choices[0].message.content.strip()  # type: ignore
+        raw_translation = response.choices[0].message.content.strip()  # type: ignore
+        
+        # Fix OpenAI's inconsistent Unicode escape sequence output
+        # Handle mixed encoding: some Thai characters + some Unicode escape sequences
+        try:
+            if raw_translation and '\\u' in raw_translation:
+                # Check if we have both Thai characters and Unicode escapes (mixed encoding)
+                import re
+                thai_pattern = re.compile(r'[\u0E00-\u0E7F]')
+                unicode_escape_pattern = re.compile(r'\\u[0-9a-fA-F]{4}')
+                
+                has_thai = thai_pattern.search(raw_translation)
+                has_escapes = unicode_escape_pattern.search(raw_translation)
+                
+                if has_thai and has_escapes:
+                    # Mixed encoding: manually replace only the Unicode escape sequences
+                    def replace_unicode_escapes(match):
+                        unicode_str = match.group(0)  # e.g., "\\u0e01"
+                        try:
+                            # Convert \\u0e01 to the actual character
+                            import codecs
+                            return codecs.decode(unicode_str, 'unicode_escape')
+                        except:
+                            return unicode_str  # Return original if decode fails
+                    
+                    decoded_translation = unicode_escape_pattern.sub(replace_unicode_escapes, raw_translation)
+                    logger.info(f"Fixed mixed call_ai_translation_api encoding: {raw_translation[:100]}... → {decoded_translation[:100]}...")
+                    return decoded_translation
+                elif has_escapes and not has_thai:
+                    # Only Unicode escapes, safe to decode entire string
+                    import codecs
+                    decoded_translation = codecs.decode(raw_translation, 'unicode_escape')
+                    logger.info(f"Decoded pure call_ai_translation_api Unicode escapes: {raw_translation[:100]}... → {decoded_translation[:100]}...")
+                    return decoded_translation
+                else:
+                    # Has \\u but not proper Unicode escapes, return as-is
+                    logger.info(f"call_ai_translation_api contains \\u but no valid Unicode escapes: {raw_translation[:100]}...")
+                    return raw_translation
+            else:
+                # No Unicode escape sequences, return as-is
+                logger.info(f"call_ai_translation_api response without escape sequences: {raw_translation[:100]}...")
+                return raw_translation
+        except Exception as decode_error:
+            logger.warning(f"Failed to decode call_ai_translation_api Unicode escapes: {decode_error}")
+            return raw_translation
 
     elif provider == "claude":
         import anthropic
 
         client = anthropic.Anthropic(api_key=api_key)
 
-        # Prepare glossary context
-        glossary_terms = get_glossary_terms_dict()
-        glossary_context = ""
-        if glossary_terms:
-            glossary_context = "Use these specific term translations:\n" + json.dumps(
-                glossary_terms, indent=2
-            )
+        # Prepare glossary context with timeout protection
+        try:
+            glossary_terms = get_glossary_terms_dict()
+            glossary_context = ""
+            if glossary_terms:
+                glossary_context = "Use these specific term translations:\n" + json.dumps(
+                    glossary_terms, indent=2
+                )
+        except Exception as glossary_error:
+            logger.warning(f"Failed to load glossary for call_ai_translation_api: {glossary_error}")
+            glossary_context = ""
 
         # Create the prompt
         prompt = f"""
@@ -855,13 +980,57 @@ def call_ai_translation_api(source_text, provider, model, api_key, temperature=0
         # Make the API call
         response = client.messages.create(
             model=model,
-            max_tokens=1000,
+            max_tokens=2000,  # Increased to match OpenAI calls for consistency
             temperature=temperature,
             messages=[{"role": "user", "content": prompt}],
             timeout=60,
         )
 
-        return response.content[0].text.strip()  # type: ignore
+        raw_translation = response.content[0].text.strip()  # type: ignore
+        
+        # Fix Claude's inconsistent Unicode escape sequence output
+        # Handle mixed encoding: some Thai characters + some Unicode escape sequences
+        try:
+            if raw_translation and '\\u' in raw_translation:
+                # Check if we have both Thai characters and Unicode escapes (mixed encoding)
+                import re
+                thai_pattern = re.compile(r'[\u0E00-\u0E7F]')
+                unicode_escape_pattern = re.compile(r'\\u[0-9a-fA-F]{4}')
+                
+                has_thai = thai_pattern.search(raw_translation)
+                has_escapes = unicode_escape_pattern.search(raw_translation)
+                
+                if has_thai and has_escapes:
+                    # Mixed encoding: manually replace only the Unicode escape sequences
+                    def replace_unicode_escapes(match):
+                        unicode_str = match.group(0)  # e.g., "\\u0e01"
+                        try:
+                            # Convert \\u0e01 to the actual character
+                            import codecs
+                            return codecs.decode(unicode_str, 'unicode_escape')
+                        except:
+                            return unicode_str  # Return original if decode fails
+                    
+                    decoded_translation = unicode_escape_pattern.sub(replace_unicode_escapes, raw_translation)
+                    logger.info(f"Fixed mixed call_ai_translation_api Claude encoding: {raw_translation[:100]}... → {decoded_translation[:100]}...")
+                    return decoded_translation
+                elif has_escapes and not has_thai:
+                    # Only Unicode escapes, safe to decode entire string
+                    import codecs
+                    decoded_translation = codecs.decode(raw_translation, 'unicode_escape')
+                    logger.info(f"Decoded pure call_ai_translation_api Claude Unicode escapes: {raw_translation[:100]}... → {decoded_translation[:100]}...")
+                    return decoded_translation
+                else:
+                    # Has \\u but not proper Unicode escapes, return as-is
+                    logger.info(f"call_ai_translation_api Claude contains \\u but no valid Unicode escapes: {raw_translation[:100]}...")
+                    return raw_translation
+            else:
+                # No Unicode escape sequences, return as-is
+                logger.info(f"call_ai_translation_api Claude response without escape sequences: {raw_translation[:100]}...")
+                return raw_translation
+        except Exception as decode_error:
+            logger.warning(f"Failed to decode call_ai_translation_api Claude Unicode escapes: {decode_error}")
+            return raw_translation
 
     else:
         frappe.throw(_("Unsupported model provider: {0}").format(provider))
@@ -872,29 +1041,96 @@ def _translate_with_openai(api_key, model, text):
     try:
         client = openai.OpenAI(api_key=api_key)
 
-        # Format the glossary
-        glossary_terms = get_glossary_terms_dict()
-        glossary_text = json.dumps(glossary_terms, indent=2)
+        # Format the glossary with timeout protection
+        try:
+            glossary_terms = get_glossary_terms_dict()
+            glossary_text = json.dumps(glossary_terms, indent=2)
+        except Exception as glossary_error:
+            logger.warning(f"Failed to load glossary: {glossary_error}")
+            glossary_terms = {}
+            glossary_text = "{}"
 
         response = client.chat.completions.create(
             model=model,
             messages=[
                 {
                     "role": "system",
-                    "content": f"""You are an expert translator specializing in technical and software localization.
-Translate from English to Thai.
-For Thai language translations, use these specific term translations:
+                    "content": f"""You are an expert Thai translator specializing in enterprise software and accounting systems.
+
+CONTEXT: You are translating ERPNext/Frappe framework interface text for Thai business users.
+
+TRANSLATION GUIDELINES:
+1. **ALWAYS USE PROVIDED GLOSSARY TERMS** - This is the most important rule
+2. Use formal, professional Thai appropriate for business software
+3. Translate to natural, fluent Thai - avoid literal word-by-word translation
+4. For terms not in glossary, use established Thai business terminology
+5. Maintain the structure and formatting of the original text
+6. Keep technical placeholders like {{% s }}, {{ }}, {{0}} unchanged
+
+GLOSSARY - Use these exact translations:
 {glossary_text}
 
-Preserve any formatting placeholders like {{% s }}, {{ }}, or {{0}}.
+CRITICAL: If any English terms appear in the glossary above, you MUST use those exact Thai translations. Do not create alternative translations for glossary terms.
+
+Provide natural, professional Thai translation that Thai business users would understand.
 Only respond with the translated text, nothing else.""",
                 },
                 {"role": "user", "content": text},
             ],
             temperature=0.3,
+            max_tokens=2000,  # CRITICAL FIX: Allow enough tokens for long translations
+            timeout=60,
         )
 
-        return response.choices[0].message.content.strip()  # type: ignore
+        raw_translation = response.choices[0].message.content.strip()  # type: ignore
+        
+        # Log the raw response from OpenAI
+        logger.info(f"Raw OpenAI response: {raw_translation}")
+        logger.info(f"Raw OpenAI response repr: {repr(raw_translation)}")
+        
+        # Fix OpenAI's inconsistent Unicode escape sequence output
+        # Handle mixed encoding: some Thai characters + some Unicode escape sequences
+        try:
+            if raw_translation and '\\u' in raw_translation:
+                # Check if we have both Thai characters and Unicode escapes (mixed encoding)
+                import re
+                thai_pattern = re.compile(r'[\u0E00-\u0E7F]')
+                unicode_escape_pattern = re.compile(r'\\u[0-9a-fA-F]{4}')
+                
+                has_thai = thai_pattern.search(raw_translation)
+                has_escapes = unicode_escape_pattern.search(raw_translation)
+                
+                if has_thai and has_escapes:
+                    # Mixed encoding: manually replace only the Unicode escape sequences
+                    def replace_unicode_escapes(match):
+                        unicode_str = match.group(0)  # e.g., "\\u0e01"
+                        try:
+                            # Convert \\u0e01 to the actual character
+                            import codecs
+                            return codecs.decode(unicode_str, 'unicode_escape')
+                        except:
+                            return unicode_str  # Return original if decode fails
+                    
+                    decoded_translation = unicode_escape_pattern.sub(replace_unicode_escapes, raw_translation)
+                    logger.info(f"Fixed mixed encoding: {raw_translation[:100]}... → {decoded_translation[:100]}...")
+                    return decoded_translation
+                elif has_escapes and not has_thai:
+                    # Only Unicode escapes, safe to decode entire string
+                    import codecs
+                    decoded_translation = codecs.decode(raw_translation, 'unicode_escape')
+                    logger.info(f"Decoded pure Unicode escapes: {raw_translation[:100]}... → {decoded_translation[:100]}...")
+                    return decoded_translation
+                else:
+                    # Has \\u but not proper Unicode escapes, return as-is
+                    logger.info(f"Contains \\u but no valid Unicode escapes: {raw_translation[:100]}...")
+                    return raw_translation
+            else:
+                # No Unicode escape sequences, return as-is
+                logger.info(f"OpenAI response without escape sequences: {raw_translation[:100]}...")
+                return raw_translation
+        except Exception as decode_error:
+            logger.warning(f"Failed to decode OpenAI Unicode escapes: {decode_error}")
+            return raw_translation
     except Exception as e:
         logger.error(f"OpenAI translation error: {str(e)}", exc_info=True)
         frappe.log_error(f"OpenAI translation error: {str(e)}")
@@ -906,13 +1142,18 @@ def _translate_with_claude(api_key, model, text):
     try:
         client = anthropic.Anthropic(api_key=api_key)
 
-        # Format the glossary
-        glossary_terms = get_glossary_terms_dict()
-        glossary_text = json.dumps(glossary_terms, indent=2)
+        # Format the glossary with timeout protection
+        try:
+            glossary_terms = get_glossary_terms_dict()
+            glossary_text = json.dumps(glossary_terms, indent=2)
+        except Exception as glossary_error:
+            logger.warning(f"Failed to load glossary: {glossary_error}")
+            glossary_terms = {}
+            glossary_text = "{}"
 
         response = client.messages.create(
             model=model or "claude-3-haiku-20240307",
-            max_tokens=1000,
+            max_tokens=2000,  # Increased to match OpenAI fix
             temperature=0.3,
             messages=[
                 {
@@ -930,7 +1171,51 @@ Text to translate: {text}""",
             ],
         )
 
-        return response.content[0].text.strip()  # type: ignore
+        raw_translation = response.content[0].text.strip()  # type: ignore
+        
+        # Fix Claude's inconsistent Unicode escape sequence output
+        # Handle mixed encoding: some Thai characters + some Unicode escape sequences
+        try:
+            if raw_translation and '\\u' in raw_translation:
+                # Check if we have both Thai characters and Unicode escapes (mixed encoding)
+                import re
+                thai_pattern = re.compile(r'[\u0E00-\u0E7F]')
+                unicode_escape_pattern = re.compile(r'\\u[0-9a-fA-F]{4}')
+                
+                has_thai = thai_pattern.search(raw_translation)
+                has_escapes = unicode_escape_pattern.search(raw_translation)
+                
+                if has_thai and has_escapes:
+                    # Mixed encoding: manually replace only the Unicode escape sequences
+                    def replace_unicode_escapes(match):
+                        unicode_str = match.group(0)  # e.g., "\\u0e01"
+                        try:
+                            # Convert \\u0e01 to the actual character
+                            import codecs
+                            return codecs.decode(unicode_str, 'unicode_escape')
+                        except:
+                            return unicode_str  # Return original if decode fails
+                    
+                    decoded_translation = unicode_escape_pattern.sub(replace_unicode_escapes, raw_translation)
+                    logger.info(f"Fixed mixed Claude encoding: {raw_translation[:100]}... → {decoded_translation[:100]}...")
+                    return decoded_translation
+                elif has_escapes and not has_thai:
+                    # Only Unicode escapes, safe to decode entire string
+                    import codecs
+                    decoded_translation = codecs.decode(raw_translation, 'unicode_escape')
+                    logger.info(f"Decoded pure Claude Unicode escapes: {raw_translation[:100]}... → {decoded_translation[:100]}...")
+                    return decoded_translation
+                else:
+                    # Has \\u but not proper Unicode escapes, return as-is
+                    logger.info(f"Claude contains \\u but no valid Unicode escapes: {raw_translation[:100]}...")
+                    return raw_translation
+            else:
+                # No Unicode escape sequences, return as-is
+                logger.info(f"Claude response without escape sequences: {raw_translation[:100]}...")
+                return raw_translation
+        except Exception as decode_error:
+            logger.warning(f"Failed to decode Claude Unicode escapes, using raw: {decode_error}")
+            return raw_translation
     except Exception as e:
         logger.error(f"Claude translation error: {str(e)}", exc_info=True)
         frappe.log_error(f"Claude translation error: {str(e)}")
@@ -942,26 +1227,26 @@ def _batch_translate_with_openai(api_key, model, entries, temperature=0.3):
     try:
         client = openai.OpenAI(api_key=api_key)
 
-        # Format the glossary
-        glossary_terms = get_glossary_terms_dict()
-        glossary_text = json.dumps(glossary_terms, indent=2)
-
-        print(f"glossary_terms {glossary_terms}")
-        print(f"glossary_text {glossary_text}")
+        # Format the glossary with timeout protection
+        try:
+            glossary_terms = get_glossary_terms_dict()
+            glossary_text = json.dumps(glossary_terms, indent=2)
+        except Exception as glossary_error:
+            logger.warning(f"Failed to load glossary: {glossary_error}")
+            glossary_terms = {}
+            glossary_text = "{}"
 
         # Build a message with all entries
         entries_list = [f"Entry {idx}: {text}" for idx, text in entries.items()]
         entries_text = "\n\n".join(entries_list)
-
-        print(f"entries_list {entries_list}")
-        print(f"entries_text {entries_text}")
+        
+        # Log entry details for debugging
+        logger.info(f"Translating {len(entries)} entries via OpenAI")
+        logger.debug(f"Entries to translate: {entries_list}")
 
         # Get the temperature from settings if available
         settings = get_translation_settings()
         temp = settings.get("temperature", temperature)
-
-        print(f"settings from OpenAI {settings}")
-        print(f"temp from OpenAI {temp}")
 
         response = client.chat.completions.create(
             model=model,
@@ -974,33 +1259,49 @@ For Thai language translations, use these specific term translations:
 {glossary_text}
 
 Preserve any formatting placeholders like {{% s }}, {{ }}, or {{0}}.
-For each entry, respond with 'Entry X: [Thai translation]' where X is the entry number.""",
+For each entry, respond with 'Entry X: [Thai translation]' where X is the entry number.
+IMPORTANT: Translate the ENTIRE text for each entry, not just the first line or title.""",
                 },
                 {"role": "user", "content": entries_text},
             ],
             temperature=temp,
+            max_tokens=4000,  # Increase token limit for longer translations
+            timeout=120,  # Add 2-minute timeout to prevent hanging
         )
 
         # Parse the response to extract translations
-        print(f"response from OpenAI {response}")
         response_text = response.choices[0].message.content
         translations = {}
+        
+        # Log the full response for debugging
+        logger.info(f"Full OpenAI response: {response_text}")
 
-        for line in response_text.split("\n"):  # type: ignore
-            if line.startswith("Entry "):
+        # Improved parsing: handle multi-line translations
+        if response_text:
+            # Split by "Entry " to get each entry's response
+            entry_blocks = response_text.split("Entry ")[1:]  # Skip the first empty part
+            
+            for block in entry_blocks:
                 try:
-                    parts = line.split(":", 1)
-                    entry_part = parts[0].strip()
-                    translation = parts[1].strip() if len(parts) > 1 else ""
-
-                    print(f"parts OpenAI {parts}")
-                    print(f"entry_part OpenAI {entry_part}")
-                    print(f"translation OpenAI {translation}")
-
-                    idx = int(entry_part.replace("Entry ", ""))
-                    if idx in entries:
-                        translations[idx] = translation
-                except Exception:
+                    # Find the first colon to separate entry number from translation
+                    colon_index = block.find(":")
+                    if colon_index == -1:
+                        continue
+                        
+                    entry_part = block[:colon_index].strip()
+                    translation = block[colon_index + 1:].strip()
+                    
+                    # Extract entry index
+                    try:
+                        idx = int(entry_part)
+                        if idx in entries and translation:
+                            translations[idx] = translation
+                            logger.info(f"Parsed entry {idx}: {translation[:100]}...")
+                    except ValueError:
+                        continue
+                        
+                except Exception as e:
+                    logger.error(f"Error parsing OpenAI response block: {e}")
                     continue
 
         return translations
@@ -1015,9 +1316,14 @@ def _batch_translate_with_claude(api_key, model, entries, temperature=0.3):
     try:
         client = anthropic.Anthropic(api_key=api_key)
 
-        # Format the glossary
-        glossary_terms = get_glossary_terms_dict()
-        glossary_text = json.dumps(glossary_terms, indent=2)
+        # Format the glossary with timeout protection
+        try:
+            glossary_terms = get_glossary_terms_dict()
+            glossary_text = json.dumps(glossary_terms, indent=2)
+        except Exception as glossary_error:
+            logger.warning(f"Failed to load glossary: {glossary_error}")
+            glossary_terms = {}
+            glossary_text = "{}"
 
         # Build a message with all entries
         entries_list = [f"Entry {idx}: {text}" for idx, text in entries.items()]
@@ -1029,7 +1335,7 @@ def _batch_translate_with_claude(api_key, model, entries, temperature=0.3):
 
         response = client.messages.create(
             model=model or "claude-3-haiku-20240307",
-            max_tokens=2000,
+            max_tokens=4000,  # Increase token limit for longer translations
             temperature=temp,
             messages=[
                 {
@@ -1041,6 +1347,7 @@ For Thai language translations, use these specific term translations:
 
 Preserve any formatting placeholders like {{% s }}, {{ }}, or {{0}}.
 For each entry, respond with 'Entry X: [Thai translation]' where X is the entry number.
+IMPORTANT: Translate the ENTIRE text for each entry, not just the first line or title.
 
 {entries_text}""",
                 }
@@ -1050,21 +1357,36 @@ For each entry, respond with 'Entry X: [Thai translation]' where X is the entry 
         # Parse the response to extract translations
         response_text = response.content[0].text  # type: ignore
         translations = {}
+        
+        # Log the full response for debugging
+        logger.info(f"Full Claude response: {response_text}")
 
-        for line in response_text.split("\n"):
-            if line.startswith("Entry "):
+        # Improved parsing: handle multi-line translations
+        if response_text:
+            # Split by "Entry " to get each entry's response
+            entry_blocks = response_text.split("Entry ")[1:]  # Skip the first empty part
+            
+            for block in entry_blocks:
                 try:
-                    parts = line.split(":", 1)
-                    entry_part = parts[0].strip()
-                    translation = parts[1].strip() if len(parts) > 1 else ""
-
-                    idx = int(entry_part.replace("Entry ", ""))
-                    if idx in entries:
-                        translations[idx] = translation
+                    # Find the first colon to separate entry number from translation
+                    colon_index = block.find(":")
+                    if colon_index == -1:
+                        continue
+                        
+                    entry_part = block[:colon_index].strip()
+                    translation = block[colon_index + 1:].strip()
+                    
+                    # Extract entry index
+                    try:
+                        idx = int(entry_part)
+                        if idx in entries and translation:
+                            translations[idx] = translation
+                            logger.info(f"Parsed Claude entry {idx}: {translation[:100]}...")
+                    except ValueError:
+                        continue
+                        
                 except Exception as e:
-                    logger.error(
-                        f"Error parsing Claude response line: {line}, error: {str(e)}"
-                    )
+                    logger.error(f"Error parsing Claude response block: {e}")
                     continue
 
         logger.info(
