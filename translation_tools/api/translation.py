@@ -855,11 +855,15 @@ def call_ai_translation_api(source_text, provider, model, api_key, temperature=0
         # Prepare glossary context with timeout protection
         try:
             glossary_terms = get_glossary_terms_dict()
+            logger.info(f"Loaded glossary terms: {len(glossary_terms)} terms")
+            logger.info(f"Glossary terms: {list(glossary_terms.keys())[:10]}")  # First 10 terms
             glossary_context = ""
             if glossary_terms:
                 glossary_context = "Use these specific term translations:\n" + json.dumps(
                     glossary_terms, indent=2
                 )
+            else:
+                logger.warning("No approved glossary terms found!")
         except Exception as glossary_error:
             logger.warning(f"Failed to load glossary for call_ai_translation_api: {glossary_error}")
             glossary_context = ""
@@ -870,23 +874,18 @@ def call_ai_translation_api(source_text, provider, model, api_key, temperature=0
 CONTEXT: You are translating ERPNext/Frappe framework interface text for Thai business users.
 
 TRANSLATION GUIDELINES:
-1. Use formal, professional Thai appropriate for business software
-2. Translate to natural, fluent Thai - not word-by-word translation
-3. Use established Thai business terminology:
-   - "Account Settings" = "การตั้งค่าบัญชี"
-   - "Accounting features" = "ฟีเจอร์ด้านการบัญชี"
-   - "configurable" = "สามารถกำหนดค่าได้"
-   - "business needs" = "ความต้องการทางธุรกิจ"
-   - "Credit Limit" = "วงเงินเครดิต"
-   - "billing settings" = "การตั้งค่าการเรียกเก็บเงิน"
-   - "Taxation preferences" = "การตั้งค่าภาษี"
-   - "preferences" = "การตั้งค่า"
+1. **ALWAYS USE PROVIDED GLOSSARY TERMS** - This is the most important rule
+2. Use formal, professional Thai appropriate for business software
+3. Translate to natural, fluent Thai - avoid literal word-by-word translation
+4. For terms not in glossary, use established Thai business terminology
+5. Maintain the structure and formatting of the original text
+6. Keep technical placeholders like {{% s }}, {{ }}, {{0}} unchanged
 
-4. Maintain the structure and formatting of the original text
-5. Keep technical placeholders like {{% s }}, {{ }}, {{0}} unchanged
 {glossary_context}
 
-IMPORTANT: Provide natural, professional Thai translation that a Thai accountant would understand and use.
+CRITICAL: If any English terms appear in the glossary above, you MUST use those exact Thai translations. Do not create alternative translations for glossary terms.
+
+Provide natural, professional Thai translation that Thai business users would understand.
 Only return the translation, no explanations."""
 
         # Make the API call
@@ -1061,24 +1060,19 @@ def _translate_with_openai(api_key, model, text):
 CONTEXT: You are translating ERPNext/Frappe framework interface text for Thai business users.
 
 TRANSLATION GUIDELINES:
-1. Use formal, professional Thai appropriate for business software
-2. Translate to natural, fluent Thai - not word-by-word translation
-3. Use established Thai business terminology:
-   - "Account Settings" = "การตั้งค่าบัญชี"
-   - "Accounting features" = "ฟีเจอร์ด้านการบัญชี"  
-   - "configurable" = "สามารถกำหนดค่าได้"
-   - "business needs" = "ความต้องการทางธุรกิจ"
-   - "Credit Limit" = "วงเงินเครดิต"
-   - "billing settings" = "การตั้งค่าการเรียกเก็บเงิน"
-   - "Taxation preferences" = "การตั้งค่าภาษี"
-   - "preferences" = "การตั้งค่า"
+1. **ALWAYS USE PROVIDED GLOSSARY TERMS** - This is the most important rule
+2. Use formal, professional Thai appropriate for business software
+3. Translate to natural, fluent Thai - avoid literal word-by-word translation
+4. For terms not in glossary, use established Thai business terminology
+5. Maintain the structure and formatting of the original text
+6. Keep technical placeholders like {{% s }}, {{ }}, {{0}} unchanged
 
-4. Maintain the structure and formatting of the original text
-5. Keep technical placeholders like {{% s }}, {{ }}, {{0}} unchanged
-For Thai language translations, use these specific term translations:
+GLOSSARY - Use these exact translations:
 {glossary_text}
 
-IMPORTANT: Provide natural, professional Thai translation that a Thai accountant would understand and use.
+CRITICAL: If any English terms appear in the glossary above, you MUST use those exact Thai translations. Do not create alternative translations for glossary terms.
+
+Provide natural, professional Thai translation that Thai business users would understand.
 Only respond with the translated text, nothing else.""",
                 },
                 {"role": "user", "content": text},
