@@ -3,8 +3,10 @@ import {
   useGetTranslationSettings,
   useSaveTranslationSettings,
   useTestGithubConnection,
+  useTestAiConnection,
   useGetAiModels,
 } from '../api';
+import { toast } from 'sonner';
 import { TranslationPDFSettings, TranslationToolsSettings } from '../types';
 
 import AiModelsSettings from './settings/AiModelsSettings';
@@ -61,6 +63,7 @@ export default function SettingsPanel() {
   const { data, error, isLoading } = useGetTranslationSettings();
   const saveSettings = useSaveTranslationSettings();
   const testGithub = useTestGithubConnection();
+  const testAi = useTestAiConnection();
   const { modelData, modelLoading, modelError } = useGetAiModels();
   const { translate: __, isReady } = useTranslation();
 
@@ -131,7 +134,7 @@ export default function SettingsPanel() {
     github_repo: string,
     github_token: string
   ) => {
-    setStatusMessage({ type: 'info', message: 'Testing GitHub connection...' });
+    toast.info('Testing GitHub connection...');
 
     try {
       // Make an API call to test the GitHub connection
@@ -143,22 +146,52 @@ export default function SettingsPanel() {
       // console.log('message from github testing', message);
 
       if (message?.success) {
-        setStatusMessage({
-          type: 'success',
-          message: 'Successfully connected to GitHub!',
-        });
+        toast.success('Successfully connected to GitHub!');
       } else {
-        setStatusMessage({
-          type: 'error',
-          message: message?.error || 'Failed to connect to GitHub',
-        });
+        toast.error(message?.error || 'Failed to connect to GitHub');
       }
     } catch (err: any) {
-      setStatusMessage({
-        type: 'error',
-        message:
-          err.message || 'An error occurred while testing the connection',
+      toast.error(err.message || 'An error occurred while testing the connection');
+    }
+  };
+
+  const handleTestOpenAI = async () => {
+    toast.info('Testing OpenAI connection...');
+
+    try {
+      const { message } = await testAi.call({
+        provider: 'openai',
       });
+
+      // console.log('message from openai testing', message);
+
+      if (message?.success) {
+        toast.success(`Successfully connected to OpenAI! Model: ${message.model}`);
+      } else {
+        toast.error(message?.error || 'Failed to connect to OpenAI');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'An error occurred while testing OpenAI connection');
+    }
+  };
+
+  const handleTestAnthropic = async () => {
+    toast.info('Testing Anthropic connection...');
+
+    try {
+      const { message } = await testAi.call({
+        provider: 'anthropic',
+      });
+
+      // console.log('message from anthropic testing', message);
+
+      if (message?.success) {
+        toast.success(`Successfully connected to Anthropic! Model: ${message.model}`);
+      } else {
+        toast.error(message?.error || 'Failed to connect to Anthropic');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'An error occurred while testing Anthropic connection');
     }
   };
 
@@ -248,7 +281,8 @@ export default function SettingsPanel() {
             onInputChange={handleInputChange}
             onSelectChange={handleSelectChange}
             onSave={handleSaveSettings}
-            statusMessage={statusMessage}
+            onTestOpenAI={handleTestOpenAI}
+            onTestAnthropic={handleTestAnthropic}
             showOpenAi={showOpenAi}
             setShowOpenAi={setShowOpenAi}
             showClaudeAi={showClaudeAi}
@@ -280,7 +314,6 @@ export default function SettingsPanel() {
             onSwitchChange={handleSwitchChange}
             onSave={handleSaveSettings}
             onTest={handleTestGitHubConnection}
-            statusMessage={statusMessage}
             showPassword={showPassword}
             setShowPassword={setShowPassword}
             loading={saveSettings.loading}

@@ -667,7 +667,7 @@ def push_glossary_to_github():
             }
         
         owner, repo = repo_parts
-        file_path = "apps/translation_tools/translation_tools/utils/thai_glossary.py"
+        file_path = "translation_tools/thai_glossary.py"
         
         # Get all approved glossary terms from database
         terms = frappe.get_all(

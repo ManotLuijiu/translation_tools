@@ -19,8 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Check, AlertCircle, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useTranslation } from '@/context/TranslationContext';
 import PasswordVisibilityToggle from '../PasswordVisibilityToggle';
@@ -48,10 +47,8 @@ type Props = {
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSelectChange: (name: string, value: string) => void;
   onSave: () => void;
-  statusMessage: {
-    type: 'success' | 'error' | 'info' | 'warning';
-    message: string;
-  } | null;
+  onTestOpenAI: () => void;
+  onTestAnthropic: () => void;
   showOpenAi: boolean;
   setShowOpenAi: (val: boolean) => void;
   showClaudeAi: boolean;
@@ -72,7 +69,8 @@ export default function AiModelsSettings({
   onInputChange,
   onSelectChange,
   onSave,
-  statusMessage,
+  onTestOpenAI,
+  onTestAnthropic,
   showOpenAi,
   setShowOpenAi,
   showClaudeAi,
@@ -178,13 +176,16 @@ export default function AiModelsSettings({
               isVisible={showOpenAi}
               onToggle={() => setShowOpenAi(!showOpenAi)}
             />
-            {/* <button
-              type="button"
-              className="absolute right-2 top-0 transform translate-y-1/2"
-              onClick={() => setShowOpenAi(!showOpenAi)}
+          </div>
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onTestOpenAI}
+              disabled={!settings.openai_api_key || loading}
             >
-              {showOpenAi ? '🙈' : '👁️'}
-            </button> */}
+              {__('Test OpenAI Connection')}
+            </Button>
           </div>
 
           <Label htmlFor="anthropic_api_key">{__('Anthropic API Key')}</Label>
@@ -201,13 +202,16 @@ export default function AiModelsSettings({
               isVisible={showClaudeAi}
               onToggle={() => setShowClaudeAi(!showClaudeAi)}
             />
-            {/* <button
-              type="button"
-              className="absolute right-2 top-0 transform translate-y-1/2"
-              onClick={() => setShowClaudeAi(!showClaudeAi)}
+          </div>
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onTestAnthropic}
+              disabled={!settings.anthropic_api_key || loading}
             >
-              {showClaudeAi ? '🙈' : '👁️'}
-            </button> */}
+              {__('Test Anthropic Connection')}
+            </Button>
           </div>
         </div>
       </CardContent>
@@ -216,19 +220,6 @@ export default function AiModelsSettings({
           {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           {__('Save All Settings')}
         </Button>
-        {statusMessage && (
-          <Alert
-            variant={statusMessage.type === 'error' ? 'destructive' : 'default'}
-            className="ml-4"
-          >
-            {statusMessage.type === 'success' && <Check className="h-4 w-4" />}
-            {statusMessage.type === 'error' && (
-              <AlertCircle className="h-4 w-4" />
-            )}
-            <AlertTitle>{__(statusMessage.type)}</AlertTitle>
-            <AlertDescription>{statusMessage.message}</AlertDescription>
-          </Alert>
-        )}
       </CardFooter>
     </Card>
   );

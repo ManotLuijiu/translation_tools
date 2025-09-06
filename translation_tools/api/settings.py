@@ -10,12 +10,10 @@ import requests
 
 
 def save_github_token(github_token):
-    """Encrypt and save GitHub token"""
-    encrypted_token = encrypt(github_token)
-
+    """Save GitHub token (Frappe Password field handles encryption automatically)"""
     settings = frappe.get_single("Translation Tools Settings")
-    # Store the encrypted token
-    settings.github_token = encrypted_token  # type: ignore
+    # Store the token directly - Password field type handles encryption automatically
+    settings.github_token = github_token  # type: ignore
     settings.save()
 
 
@@ -23,7 +21,7 @@ def get_github_token():
     """Decrypt and get the GitHub token"""
     settings = frappe.get_single("Translation Tools Settings")
     decrypted_token = get_decrypted_password(
-        "Translation Tools Settings", "github_token", settings.name or ""
+        "Translation Tools Settings", settings.name, "github_token", raise_exception=False
     )
     return decrypted_token
 
@@ -90,7 +88,7 @@ def get_translation_settings():
             raise_exception=False,
         )
 
-        # Only return boolean indicators, never the actual keys
+        # Return masked values for frontend display, never the actual keys
         openai_configured = bool(openai_api_key and openai_api_key.strip())
         anthropic_configured = bool(anthropic_api_key and anthropic_api_key.strip())
         github_token_configured = bool(github_token and github_token.strip())
@@ -105,15 +103,18 @@ def get_translation_settings():
         {
             "default_model_provider": doc.default_model_provider or "openai",  # type: ignore
             "default_model": doc.default_model or "gpt-4.1-mini-2025-04-14",  # type: ignore
-            "openai_api_key_configured": openai_configured,  # Security: Only return boolean
-            "anthropic_api_key_configured": anthropic_configured,  # Security: Only return boolean
+            "openai_api_key": "****" if openai_configured else "",  # Masked value for frontend
+            "openai_api_key_configured": openai_configured,  # Boolean flag
+            "anthropic_api_key": "****" if anthropic_configured else "",  # Masked value for frontend
+            "anthropic_api_key_configured": anthropic_configured,  # Boolean flag
+            "github_token": "****" if github_token_configured else "",  # Masked value for frontend
+            "github_token_configured": github_token_configured,  # Boolean flag
             "batch_size": cint(doc.batch_size or 10),  # type: ignore
             "temperature": cast_to_float(doc.temperature, default=0.3),  # type: ignore
             "auto_save": cint(doc.auto_save or 0),  # type: ignore
             "preserve_formatting": cint(doc.preserve_formatting or 1),  # type: ignore
             "github_enable": cint(doc.github_enable or 0),  # type: ignore
             "github_repo": doc.github_repo or "",  # type: ignore
-            "github_token_configured": github_token_configured,  # Security: Only return boolean
         }
     )
 
@@ -274,11 +275,15 @@ def save_translation_settings(settings):
     doc.default_model_provider = settings_data.get("default_model_provider", "openai")  # type: ignore
     doc.default_model = settings_data.get("default_model", "gpt-4.1-mini-2025-04-14")  # type: ignore
 
-    if "openai_api_key" in settings_data:
-        doc.openai_api_key = settings_data.openai_api_key  # type: ignore
+    if "openai_api_key" in settings_data and settings_data.openai_api_key:
+        # Only update if key is provided and not just asterisks
+        if not set(settings_data.openai_api_key) == {"*"}:
+            doc.openai_api_key = settings_data.openai_api_key  # type: ignore
 
-    if "anthropic_api_key" in settings_data:
-        doc.anthropic_api_key = settings_data.anthropic_api_key  # type: ignore
+    if "anthropic_api_key" in settings_data and settings_data.anthropic_api_key:
+        # Only update if key is provided and not just asterisks
+        if not set(settings_data.anthropic_api_key) == {"*"}:
+            doc.anthropic_api_key = settings_data.anthropic_api_key  # type: ignore
 
     doc.batch_size = cint(settings_data.get("batch_size", 10))  # type: ignore
     doc.temperature = float(settings_data.get("temperature", 0.3))  # type: ignore
