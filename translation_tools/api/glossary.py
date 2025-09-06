@@ -2,7 +2,7 @@ import json
 
 import frappe
 from frappe import _
-from frappe.utils import cint
+from frappe.utils import cint, now_datetime
 
 from .common import logger
 
@@ -396,22 +396,36 @@ def update_glossary_term(term_name, updates, push_to_github=False):
 
 
 @frappe.whitelist()
-def delete_glossary_term(term_name):
+def delete_glossary_term(term_name, push_to_github=False):
     """Delete a glossary term"""
+    # Convert push_to_github to boolean if it's a string
+    if isinstance(push_to_github, str):
+        push_to_github = push_to_github.lower() == "true"
+    
     frappe.delete_doc("Translation Glossary Term", term_name)
     frappe.db.commit()
 
-    return {"success": True}
+    # Push to GitHub if requested
+    github_result = {"github_pushed": False}
+    if push_to_github:
+        github_result = push_glossary_to_github()
+
+    return {
+        "success": True,
+        "github": github_result
+    }
 
 
 @frappe.whitelist()
 def sync_glossary_from_github():
-    """Sync glossary terms from GitHub repository"""
+    """Sync glossary terms from GitHub repository JSON file"""
     import requests
+    import json
     import tempfile
     import os
     
-    logger.info("Starting GitHub glossary sync")
+    logger.info("Starting GitHub glossary sync from JSON")
+    print("DEBUG: Starting sync_glossary_from_github()")
     
     try:
         # Get GitHub settings from Translation Tools Settings
@@ -421,6 +435,9 @@ def sync_glossary_from_github():
         # Get GitHub token
         from .settings import get_github_token
         github_token = get_github_token()
+        
+        print(f"DEBUG: GitHub repo: {github_repo}")
+        print(f"DEBUG: GitHub token exists: {bool(github_token)}")
         
         if not github_repo:
             return {
@@ -436,12 +453,16 @@ def sync_glossary_from_github():
                 "stats": {"added": 0, "updated": 0, "skipped": 0, "errors": 1}
             }
         
-        # Build the raw GitHub URL for the thai_glossary.py file
-        # Extract owner/repo from the GitHub repo URL
-        if github_repo.endswith('.git'):
-            github_repo = github_repo[:-4]
+        # Parse repository owner and name
+        if github_repo.startswith("https://github.com/"):
+            repo_path = github_repo.replace("https://github.com/", "")
+        else:
+            repo_path = github_repo
         
-        repo_parts = github_repo.replace('https://github.com/', '').split('/')
+        if repo_path.endswith('.git'):
+            repo_path = repo_path[:-4]
+        
+        repo_parts = repo_path.strip("/").split("/")
         if len(repo_parts) != 2:
             return {
                 "success": False,
@@ -450,124 +471,146 @@ def sync_glossary_from_github():
             }
         
         owner, repo = repo_parts
-        github_url = f"https://raw.githubusercontent.com/{owner}/{repo}/main/apps/translation_tools/translation_tools/utils/thai_glossary.py"
+        file_path = "glossary/thai_glossary.json"  # JSON file in glossary folder
         
-        logger.info(f"Syncing glossary from: {github_url}")
+        # Build GitHub API URL to get the file
+        api_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
+        
+        print(f"DEBUG: Fetching from API URL: {api_url}")
+        logger.info(f"Syncing glossary from: {api_url}")
         
         # Download the file from GitHub with authentication
         headers = {
             "Authorization": f"token {github_token}",
-            "Accept": "application/vnd.github.v3.raw"
+            "Accept": "application/vnd.github.v3+json"
         }
-        response = requests.get(github_url, headers=headers, timeout=30)
+        
+        response = requests.get(api_url, headers=headers, timeout=30)
+        print(f"DEBUG: GitHub API response status: {response.status_code}")
+        
+        if response.status_code == 404:
+            return {
+                "success": False,
+                "message": f"Glossary file not found in GitHub repository at {file_path}",
+                "stats": {"added": 0, "updated": 0, "skipped": 0, "errors": 1}
+            }
+        
         response.raise_for_status()
         
-        # Create a temporary file to store the downloaded content
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as temp_file:
-            temp_file.write(response.text)
-            temp_file_path = temp_file.name
+        # Get the file content (it's base64 encoded)
+        file_data = response.json()
+        import base64
+        file_content = base64.b64decode(file_data['content']).decode('utf-8')
         
-        try:
-            # Import the GLOSSARY from the temporary file
-            import importlib.util
-            spec = importlib.util.spec_from_file_location("github_glossary", temp_file_path)
-            github_glossary_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(github_glossary_module)
-            
-            # Get the GLOSSARY dictionary
-            GITHUB_GLOSSARY = github_glossary_module.GLOSSARY
-            
-            # Get existing terms from database
-            existing_terms = frappe.get_all(
-                "Translation Glossary Term", 
-                fields=["name", "source_term", "thai_translation"], 
-                as_list=False
-            )
-            
-            # Convert to dictionary for easier lookup
-            existing_terms_dict = {
-                term.source_term: {"name": term.name, "translation": term.thai_translation} 
-                for term in existing_terms
-            }
-            
-            # Statistics for report
-            stats = {"added": 0, "updated": 0, "skipped": 0, "errors": 0}
-            
-            # Define categories mapping (same as in sync_glossary_from_file)
-            categories = {
-                # Business terms
-                "Invoice": "Business", "Sales Invoice": "Business", "Purchase Invoice": "Business",
-                "Quotation": "Business", "Customer": "Business", "Supplier": "Business",
-                "Item": "Business", "Account": "Business", "Journal Entry": "Business",
-                "Payment": "Business", "Purchase Order": "Business", "Sales Order": "Business",
-                "Delivery Note": "Business", "Receipt": "Business", "Sales": "Business",
-                "Purchases": "Business", "Inventory": "Business", "Accounting": "Business",
-                "Description": "Business", "Quantity": "Business", "Unit Price": "Business",
-                # Technical terms
-                "ERPNext Module": "Technical", "CRM": "Technical", "All": "Technical",
-                "Business": "Technical", "Category": "Technical", "Context": "Technical",
-                "Module": "Technical", "Module Name": "Technical",
-                # UI terms
-                "Loading translation dashboard...": "UI", "Print Message": "UI",
-                "Priority": "UI", "Refresh": "UI", "Source Term": "UI",
-                "Thai Translation": "UI", "Translation Dashboard": "UI",
-                # Date/Time terms
-                "Date/Time": "Date/Time", "Date and Time": "Date/Time", "Date": "Date/Time",
-                "Time": "Date/Time", "Year": "Date/Time", "Month": "Date/Time", "Day": "Date/Time",
-                # Status terms
-                "Pending": "Status", "Completed": "Status", "Cancelled": "Status",
-                "Draft": "Status", "Submitted": "Status", "Paid": "Status",
-                "Is Approved": "Status", "Is Rejected": "Status", "Status": "Status",
-            }
-            
-            # Process each term from GitHub
-            for source_term, thai_translation in GITHUB_GLOSSARY.items():
-                try:
-                    if source_term in existing_terms_dict:
-                        # Term exists - check if translation is different
-                        existing_translation = existing_terms_dict[source_term]["translation"]
-                        if existing_translation != thai_translation:
-                            # Update existing term
-                            doc = frappe.get_doc("Translation Glossary Term", existing_terms_dict[source_term]["name"])
-                            doc.thai_translation = thai_translation
-                            doc.save()
-                            stats["updated"] += 1
-                            logger.info(f"Updated term '{source_term}': '{existing_translation}' -> '{thai_translation}'")
-                        else:
-                            stats["skipped"] += 1
+        print(f"DEBUG: Downloaded file size: {len(file_content)} bytes")
+        
+        # Parse JSON content
+        glossary_data = json.loads(file_content)
+        
+        print(f"DEBUG: JSON parsed successfully")
+        print(f"DEBUG: Found {glossary_data.get('terms_count', 0)} terms in JSON")
+        print(f"DEBUG: JSON version: {glossary_data.get('version', 'unknown')}")
+        
+        # Get existing terms from database
+        existing_terms = frappe.get_all(
+            "Translation Glossary Term", 
+            fields=["name", "source_term", "thai_translation", "context", "category", "module", "is_approved"], 
+            as_list=False
+        )
+        
+        print(f"DEBUG: Found {len(existing_terms)} existing terms in database")
+        
+        # Convert to dictionary for easier lookup
+        existing_terms_dict = {
+            term.source_term: term 
+            for term in existing_terms
+        }
+        
+        # Statistics for report
+        stats = {"added": 0, "updated": 0, "skipped": 0, "errors": 0}
+        
+        # Process each term from GitHub JSON
+        github_terms = glossary_data.get("terms", {})
+        
+        for source_term, term_data in github_terms.items():
+            try:
+                print(f"DEBUG: Processing term: {source_term}")
+                
+                if source_term in existing_terms_dict:
+                    # Term exists - check if anything changed
+                    existing_term = existing_terms_dict[source_term]
+                    needs_update = False
+                    
+                    # Check each field for changes
+                    if existing_term.thai_translation != term_data.get("translation"):
+                        needs_update = True
+                    if existing_term.context != term_data.get("context", ""):
+                        needs_update = True
+                    if existing_term.category != term_data.get("category", "General"):
+                        needs_update = True
+                    if existing_term.module != term_data.get("module", ""):
+                        needs_update = True
+                    if existing_term.is_approved != term_data.get("is_approved", 1):
+                        needs_update = True
+                    
+                    if needs_update:
+                        # Update existing term
+                        doc = frappe.get_doc("Translation Glossary Term", existing_term.name)
+                        doc.thai_translation = term_data.get("translation")
+                        doc.context = term_data.get("context", "")
+                        doc.category = term_data.get("category", "General")
+                        doc.module = term_data.get("module", "")
+                        doc.is_approved = term_data.get("is_approved", 1)
+                        doc.save()
+                        stats["updated"] += 1
+                        print(f"DEBUG: Updated term '{source_term}'")
+                        logger.info(f"Updated term '{source_term}'")
                     else:
-                        # Add new term
-                        category = categories.get(source_term, "Business")
-                        doc = frappe.new_doc("Translation Glossary Term")
-                        doc.source_term = source_term
-                        doc.thai_translation = thai_translation
-                        doc.is_approved = 1
-                        doc.category = category
-                        doc.insert()
-                        stats["added"] += 1
-                        logger.info(f"Added new term '{source_term}': '{thai_translation}'")
-                        
-                except Exception as e:
-                    logger.error(f"Error processing term '{source_term}': {str(e)}")
-                    stats["errors"] += 1
-            
-            frappe.db.commit()
-            
-            message = f"GitHub sync completed: {stats['added']} added, {stats['updated']} updated, {stats['skipped']} skipped, {stats['errors']} errors"
-            logger.info(message)
-            
-            return {
-                "success": True,
-                "message": message,
-                "stats": stats
-            }
-            
-        finally:
-            # Clean up temporary file
-            os.unlink(temp_file_path)
-            
+                        stats["skipped"] += 1
+                        print(f"DEBUG: Skipped unchanged term '{source_term}'")
+                else:
+                    # Add new term
+                    doc = frappe.new_doc("Translation Glossary Term")
+                    doc.source_term = source_term
+                    doc.thai_translation = term_data.get("translation")
+                    doc.context = term_data.get("context", "")
+                    doc.category = term_data.get("category", "General")
+                    doc.module = term_data.get("module", "")
+                    doc.is_approved = term_data.get("is_approved", 1)
+                    doc.insert()
+                    stats["added"] += 1
+                    print(f"DEBUG: Added new term '{source_term}'")
+                    logger.info(f"Added new term '{source_term}': '{term_data.get('translation')}'")
+                    
+            except Exception as e:
+                print(f"DEBUG: Error processing term '{source_term}': {str(e)}")
+                logger.error(f"Error processing term '{source_term}': {str(e)}")
+                stats["errors"] += 1
+        
+        frappe.db.commit()
+        
+        message = f"GitHub sync completed: {stats['added']} added, {stats['updated']} updated, {stats['skipped']} skipped, {stats['errors']} errors"
+        print(f"DEBUG: {message}")
+        logger.info(message)
+        
+        return {
+            "success": True,
+            "message": message,
+            "stats": stats
+        }
+        
     except requests.RequestException as e:
         error_msg = f"Failed to fetch glossary from GitHub: {str(e)}"
+        print(f"DEBUG ERROR: {error_msg}")
+        logger.error(error_msg)
+        return {
+            "success": False,
+            "message": error_msg,
+            "stats": {"added": 0, "updated": 0, "skipped": 0, "errors": 1}
+        }
+    except json.JSONDecodeError as e:
+        error_msg = f"Failed to parse JSON from GitHub: {str(e)}"
+        print(f"DEBUG ERROR: {error_msg}")
         logger.error(error_msg)
         return {
             "success": False,
@@ -576,6 +619,7 @@ def sync_glossary_from_github():
         }
     except Exception as e:
         error_msg = f"Error syncing glossary from GitHub: {str(e)}"
+        print(f"DEBUG ERROR: {error_msg}")
         logger.error(error_msg)
         return {
             "success": False,
@@ -623,7 +667,7 @@ def test_github_push_integration():
 
 def push_glossary_to_github():
     """
-    Push glossary terms to GitHub repository by generating a new thai_glossary.py file
+    Push ALL glossary terms from database to GitHub repository as JSON file
     
     Returns:
         dict: Result with success status and GitHub push information
@@ -631,6 +675,8 @@ def push_glossary_to_github():
     import requests
     import base64
     import json
+    import tempfile
+    import os
     from .settings import get_github_token
     
     try:
@@ -659,6 +705,9 @@ def push_glossary_to_github():
         else:
             repo_path = github_repo
         
+        if repo_path.endswith('.git'):
+            repo_path = repo_path[:-4]
+            
         repo_parts = repo_path.strip("/").split("/")
         if len(repo_parts) != 2:
             return {
@@ -667,65 +716,113 @@ def push_glossary_to_github():
             }
         
         owner, repo = repo_parts
-        file_path = "translation_tools/thai_glossary.py"
+        file_path = "glossary/thai_glossary.json"  # JSON file in glossary folder
         
-        # Get all approved glossary terms from database
+        print(f"DEBUG: Repository owner: {owner}")
+        print(f"DEBUG: Repository name: {repo}")
+        print(f"DEBUG: File path: {file_path}")
+        
+        # Get ALL glossary terms from database (approved or not)
         terms = frappe.get_all(
             "Translation Glossary Term",
-            fields=["source_term", "thai_translation", "context", "category", "module"],
-            filters={"is_approved": 1},
+            fields=["source_term", "thai_translation", "context", "category", "module", "is_approved"],
             order_by="source_term"
         )
         
-        # Generate the glossary file content
-        file_content = generate_glossary_file_content(terms)
+        logger.info(f"Found {len(terms)} terms in database")
+        print(f"DEBUG: Found {len(terms)} terms in database")
         
-        # GitHub API headers
-        headers = {
-            "Authorization": f"token {github_token}",
-            "Accept": "application/vnd.github.v3+json",
-            "Content-Type": "application/json"
+        # Create JSON structure
+        glossary_data = {
+            "version": "1.0",
+            "language": "th",
+            "terms_count": len(terms),
+            "last_updated": now_datetime().isoformat(),
+            "terms": {}
         }
         
-        # Get current file SHA if it exists
-        get_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
-        get_response = requests.get(get_url, headers=headers)
-        
-        commit_data = {
-            "message": f"Update glossary terms - {len(terms)} terms",
-            "content": base64.b64encode(file_content.encode('utf-8')).decode('utf-8'),
-            "branch": "main"
-        }
-        
-        if get_response.status_code == 200:
-            # File exists, need to update it
-            current_file = get_response.json()
-            commit_data["sha"] = current_file["sha"]
-            logger.info(f"Updating existing file {file_path}")
-        else:
-            # File doesn't exist, create new one
-            logger.info(f"Creating new file {file_path}")
-        
-        # Push to GitHub
-        put_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
-        response = requests.put(put_url, headers=headers, json=commit_data)
-        
-        if response.status_code in [200, 201]:
-            logger.info(f"Successfully pushed glossary to GitHub: {len(terms)} terms")
-            return {
-                "github_pushed": True,
-                "message": f"Successfully pushed {len(terms)} glossary terms to GitHub",
-                "terms_count": len(terms),
-                "commit_url": response.json().get("commit", {}).get("html_url", "")
+        # Add all terms to JSON
+        for term in terms:
+            glossary_data["terms"][term.source_term] = {
+                "translation": term.thai_translation,
+                "context": term.context or "",
+                "category": term.category or "General",
+                "module": term.module or "",
+                "is_approved": term.is_approved
             }
-        else:
-            error_msg = f"Failed to push to GitHub: {response.status_code} - {response.text}"
-            logger.error(error_msg)
-            return {
-                "github_pushed": False,
-                "message": error_msg
+        
+        # Create temporary file with JSON content
+        temp_file_path = None
+        try:
+            # Create temp directory
+            temp_dir = tempfile.mkdtemp()
+            temp_file_path = os.path.join(temp_dir, "thai_glossary.json")
+            
+            # Write JSON to temp file
+            with open(temp_file_path, 'w', encoding='utf-8') as f:
+                json.dump(glossary_data, f, ensure_ascii=False, indent=2)
+            
+            # Read the file content for GitHub upload
+            with open(temp_file_path, 'r', encoding='utf-8') as f:
+                file_content = f.read()
+            
+            logger.info(f"Created temp JSON file with {len(terms)} terms")
+            
+            # GitHub API headers
+            headers = {
+                "Authorization": f"token {github_token}",
+                "Accept": "application/vnd.github.v3+json",
+                "Content-Type": "application/json"
             }
             
+            # Get current file SHA if it exists
+            get_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
+            get_response = requests.get(get_url, headers=headers)
+            
+            commit_data = {
+                "message": f"Update glossary terms - {len(terms)} terms",
+                "content": base64.b64encode(file_content.encode('utf-8')).decode('utf-8'),
+                "branch": "main"
+            }
+            
+            if get_response.status_code == 200:
+                # File exists, need to update it
+                current_file = get_response.json()
+                commit_data["sha"] = current_file["sha"]
+                logger.info(f"Updating existing file {file_path}")
+            else:
+                # File doesn't exist, create new one
+                logger.info(f"Creating new file {file_path}")
+            
+            # Push to GitHub
+            put_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
+            response = requests.put(put_url, headers=headers, json=commit_data)
+            
+            if response.status_code in [200, 201]:
+                logger.info(f"Successfully pushed glossary to GitHub: {len(terms)} terms")
+                return {
+                    "github_pushed": True,
+                    "message": f"Successfully pushed {len(terms)} glossary terms to GitHub",
+                    "terms_count": len(terms),
+                    "commit_url": response.json().get("commit", {}).get("html_url", "")
+                }
+            else:
+                error_msg = f"Failed to push to GitHub: {response.status_code} - {response.text}"
+                logger.error(error_msg)
+                return {
+                    "github_pushed": False,
+                    "message": error_msg
+                }
+                
+        finally:
+            # Clean up temp files
+            if temp_file_path and os.path.exists(temp_file_path):
+                os.remove(temp_file_path)
+                logger.info("Cleaned up temp file")
+            if temp_dir and os.path.exists(temp_dir):
+                os.rmdir(temp_dir)
+                logger.info("Cleaned up temp directory")
+                
     except Exception as e:
         error_msg = f"Error pushing glossary to GitHub: {str(e)}"
         logger.error(error_msg)
@@ -735,55 +832,4 @@ def push_glossary_to_github():
         }
 
 
-def generate_glossary_file_content(terms):
-    """
-    Generate the content for thai_glossary.py file
-    
-    Args:
-        terms (list): List of glossary terms from database
-        
-    Returns:
-        str: Generated Python file content
-    """
-    
-    # File header
-    content = '''# Thai Glossary Terms
-# Auto-generated from Translation Tools
-# This file contains Thai translations for common business terms
-
-thai_glossary = {
-'''
-    
-    # Add each term
-    for term in terms:
-        source = term.source_term.replace("'", "\\'").replace('"', '\\"')
-        translation = term.thai_translation.replace("'", "\\'").replace('"', '\\"')
-        
-        # Add comment with context and category if available
-        comment_parts = []
-        if term.context:
-            comment_parts.append(f"Context: {term.context}")
-        if term.category:
-            comment_parts.append(f"Category: {term.category}")
-        if term.module:
-            comment_parts.append(f"Module: {term.module}")
-        
-        if comment_parts:
-            content += f"    # {' | '.join(comment_parts)}\n"
-        
-        content += f"    '{source}': '{translation}',\n"
-    
-    # File footer
-    content += '''
-}
-
-def get_thai_translation(english_term):
-    """Get Thai translation for an English term"""
-    return thai_glossary.get(english_term, english_term)
-
-def get_all_terms():
-    """Get all glossary terms"""
-    return thai_glossary
-'''
-    
-    return content
+# Removed generate_glossary_file_content function - no longer needed with JSON format

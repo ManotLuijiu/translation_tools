@@ -108,9 +108,15 @@ export function useUpdateGlossaryTerm() {
  * Delete a glossary term
  */
 export function useDeleteGlossaryTerm() {
-  return useFrappePostCall<{ success: boolean }>(
-    'translation_tools.api.glossary.delete_glossary_term'
-  );
+  return useFrappePostCall<{ 
+    success: boolean;
+    github?: {
+      github_pushed: boolean;
+      message: string;
+      terms_count?: number;
+      commit_url?: string;
+    };
+  }>('translation_tools.api.glossary.delete_glossary_term');
 }
 
 /**
