@@ -267,6 +267,8 @@ def translate_single_entry(file_path, entry_id, model_provider="openai", model=N
 
             logger.info("Translation automatically saved")
 
+        # Ensure translation is properly decoded and ready for JSON serialization
+        logger.info(f"Final translation before return: {repr(translation)}")
         return {"success": True, "translation": translation, "log_file": log_file}
     except Exception as e:
         logger.error(f"Error translating entry: {e}")
@@ -890,23 +892,17 @@ def call_ai_translation_api(source_text, provider, model, api_key, temperature=0
         raw_translation = response.choices[0].message.content.strip()  # type: ignore
         
         # Fix OpenAI's inconsistent Unicode escape sequence output
-        # First check if response already contains Thai characters (Unicode range: \u0E00-\u0E7F)
-        import re
-        thai_pattern = re.compile(r'[\u0E00-\u0E7F]')
-        
-        # If already contains Thai characters, return as-is
-        if thai_pattern.search(raw_translation):
-            logger.info(f"call_ai_translation_api response already contains Thai: {raw_translation[:100]}...")
-            return raw_translation
-        
-        # If contains Unicode escape sequences, decode them
+        # Handle mixed encoding: some Thai characters + some Unicode escape sequences
         try:
             if raw_translation and '\\u' in raw_translation:
                 import codecs
+                # Always decode if Unicode escape sequences are present, even if Thai characters exist
                 decoded_translation = codecs.decode(raw_translation, 'unicode_escape')
-                logger.info(f"Decoded call_ai_translation_api Unicode escapes: {decoded_translation[:100]}...")
+                logger.info(f"Decoded mixed call_ai_translation_api Unicode escapes: {raw_translation[:100]}... → {decoded_translation[:100]}...")
                 return decoded_translation
             else:
+                # No Unicode escape sequences, return as-is
+                logger.info(f"call_ai_translation_api response without escape sequences: {raw_translation[:100]}...")
                 return raw_translation
         except Exception as decode_error:
             logger.warning(f"Failed to decode call_ai_translation_api Unicode escapes: {decode_error}")
@@ -956,23 +952,17 @@ def call_ai_translation_api(source_text, provider, model, api_key, temperature=0
         raw_translation = response.content[0].text.strip()  # type: ignore
         
         # Fix Claude's inconsistent Unicode escape sequence output
-        # First check if response already contains Thai characters (Unicode range: \u0E00-\u0E7F)
-        import re
-        thai_pattern = re.compile(r'[\u0E00-\u0E7F]')
-        
-        # If already contains Thai characters, return as-is
-        if thai_pattern.search(raw_translation):
-            logger.info(f"call_ai_translation_api Claude response already contains Thai: {raw_translation[:100]}...")
-            return raw_translation
-        
-        # If contains Unicode escape sequences, decode them
+        # Handle mixed encoding: some Thai characters + some Unicode escape sequences
         try:
             if raw_translation and '\\u' in raw_translation:
                 import codecs
+                # Always decode if Unicode escape sequences are present, even if Thai characters exist
                 decoded_translation = codecs.decode(raw_translation, 'unicode_escape')
-                logger.info(f"Decoded call_ai_translation_api Claude Unicode escapes: {decoded_translation[:100]}...")
+                logger.info(f"Decoded mixed call_ai_translation_api Claude Unicode escapes: {raw_translation[:100]}... → {decoded_translation[:100]}...")
                 return decoded_translation
             else:
+                # No Unicode escape sequences, return as-is
+                logger.info(f"call_ai_translation_api Claude response without escape sequences: {raw_translation[:100]}...")
                 return raw_translation
         except Exception as decode_error:
             logger.warning(f"Failed to decode call_ai_translation_api Claude Unicode escapes: {decode_error}")
@@ -1023,23 +1013,17 @@ Only respond with the translated text, nothing else.""",
         logger.info(f"Raw OpenAI response repr: {repr(raw_translation)}")
         
         # Fix OpenAI's inconsistent Unicode escape sequence output
-        # First check if response already contains Thai characters (Unicode range: \u0E00-\u0E7F)
-        import re
-        thai_pattern = re.compile(r'[\u0E00-\u0E7F]')
-        
-        # If already contains Thai characters, return as-is
-        if thai_pattern.search(raw_translation):
-            logger.info(f"OpenAI response already contains Thai characters: {raw_translation[:100]}...")
-            return raw_translation
-        
-        # If contains Unicode escape sequences, decode them
+        # Handle mixed encoding: some Thai characters + some Unicode escape sequences
         try:
             if raw_translation and '\\u' in raw_translation:
                 import codecs
+                # Always decode if Unicode escape sequences are present, even if Thai characters exist
                 decoded_translation = codecs.decode(raw_translation, 'unicode_escape')
-                logger.info(f"Decoded OpenAI Unicode escapes: {decoded_translation[:100]}...")
+                logger.info(f"Decoded mixed OpenAI Unicode escapes: {raw_translation[:100]}... → {decoded_translation[:100]}...")
                 return decoded_translation
             else:
+                # No Unicode escape sequences, return as-is
+                logger.info(f"OpenAI response without escape sequences: {raw_translation[:100]}...")
                 return raw_translation
         except Exception as decode_error:
             logger.warning(f"Failed to decode OpenAI Unicode escapes: {decode_error}")
@@ -1087,23 +1071,17 @@ Text to translate: {text}""",
         raw_translation = response.content[0].text.strip()  # type: ignore
         
         # Fix Claude's inconsistent Unicode escape sequence output
-        # First check if response already contains Thai characters (Unicode range: \u0E00-\u0E7F)
-        import re
-        thai_pattern = re.compile(r'[\u0E00-\u0E7F]')
-        
-        # If already contains Thai characters, return as-is
-        if thai_pattern.search(raw_translation):
-            logger.info(f"Claude response already contains Thai characters: {raw_translation[:100]}...")
-            return raw_translation
-        
-        # If contains Unicode escape sequences, decode them
+        # Handle mixed encoding: some Thai characters + some Unicode escape sequences
         try:
             if raw_translation and '\\u' in raw_translation:
                 import codecs
+                # Always decode if Unicode escape sequences are present, even if Thai characters exist
                 decoded_translation = codecs.decode(raw_translation, 'unicode_escape')
-                logger.info(f"Decoded Claude Unicode escapes: {decoded_translation[:100]}...")
+                logger.info(f"Decoded mixed Claude Unicode escapes: {raw_translation[:100]}... → {decoded_translation[:100]}...")
                 return decoded_translation
             else:
+                # No Unicode escape sequences, return as-is
+                logger.info(f"Claude response without escape sequences: {raw_translation[:100]}...")
                 return raw_translation
         except Exception as decode_error:
             logger.warning(f"Failed to decode Claude Unicode escapes, using raw: {decode_error}")

@@ -369,21 +369,56 @@ export default function TranslationEditor({
       
       // Handle successful translation
       if (translationData) {
-        // Decode Unicode escape sequences (handle double escaping)
+        // Robust Unicode decode handling for multiple levels of escaping
         let translation = translationData;
+        console.log('Raw translation data:', translation);
+        console.log('Raw translation repr:', JSON.stringify(translation));
+        
         try {
-          // First decode JSON escape sequences
-          translation = JSON.parse(`"${translation.replace(/"/g, '\\"')}"`);
+          // Handle multiple levels of Unicode escaping from OpenAI inconsistency
+          let iterations = 0;
+          const maxIterations = 5; // Prevent infinite loops
           
-          // Handle double-escaped Unicode sequences like \\u0e01
-          if (translation.includes('\\u')) {
-            // Replace double backslashes with single backslashes for Unicode sequences
-            translation = translation.replace(/\\\\u([0-9a-fA-F]{4})/g, '\\u$1');
-            // Then decode the Unicode sequences
-            translation = JSON.parse(`"${translation}"`);
+          while (translation.includes('\\u') && iterations < maxIterations) {
+            const beforeDecoding = translation;
+            
+            // First, handle quadruple backslashes (\\\\u) -> double backslashes (\\u)
+            if (translation.includes('\\\\\\\\u')) {
+              translation = translation.replace(/\\\\\\\\u([0-9a-fA-F]{4})/g, '\\\\u$1');
+              console.log(`Fixed quadruple escapes (iteration ${iterations}):`, translation);
+            }
+            
+            // Handle double backslashes (\\u) -> single backslashes (\u)  
+            if (translation.includes('\\\\u')) {
+              translation = translation.replace(/\\\\u([0-9a-fA-F]{4})/g, '\\u$1');
+              console.log(`Fixed double escapes (iteration ${iterations}):`, translation);
+            }
+            
+            // Decode Unicode escape sequences
+            if (translation.includes('\\u')) {
+              try {
+                // Use JSON.parse to decode Unicode sequences
+                translation = JSON.parse(`"${translation.replace(/"/g, '\\"')}"`);
+                console.log(`Decoded Unicode (iteration ${iterations}):`, translation);
+              } catch (parseError) {
+                console.log('Unicode decode failed, stopping:', parseError);
+                break;
+              }
+            }
+            
+            // If no change occurred, stop to avoid infinite loop
+            if (beforeDecoding === translation) {
+              console.log('No more changes, stopping decode loop');
+              break;
+            }
+            
+            iterations++;
           }
+          
+          console.log(`Final decoded translation (${iterations} iterations):`, translation);
         } catch (e) {
-          console.log('No additional Unicode decoding needed:', e);
+          console.error('Unicode decoding error:', e);
+          console.log('Using original translation data');
         }
         
         setEditedTranslation(translation);
