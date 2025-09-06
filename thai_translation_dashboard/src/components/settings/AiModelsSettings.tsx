@@ -163,55 +163,61 @@ export default function AiModelsSettings({
 
         <div className="space-y-4">
           <Label htmlFor="openai_api_key">{__('OpenAI API Key')}</Label>
-          <div className="relative">
-            <Input
-              id="openai_api_key"
-              type={showOpenAi ? 'text' : 'password'}
-              name="openai_api_key"
-              value={settings.openai_api_key || ''}
-              onChange={onInputChange}
-              placeholder={__('Enter OpenAI API Key')}
-            />
-            <PasswordVisibilityToggle
-              isVisible={showOpenAi}
-              onToggle={() => setShowOpenAi(!showOpenAi)}
-            />
-          </div>
-          <div className="flex justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onTestOpenAI}
-              disabled={!settings.openai_api_key || loading}
-            >
-              {__('Test OpenAI Connection')}
-            </Button>
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Input
+                id="openai_api_key"
+                type={showOpenAi ? 'text' : 'password'}
+                name="openai_api_key"
+                value={settings.openai_api_key || ''}
+                onChange={onInputChange}
+                placeholder={__('Enter OpenAI API Key')}
+              />
+              <PasswordVisibilityToggle
+                isVisible={showOpenAi}
+                onToggle={() => setShowOpenAi(!showOpenAi)}
+              />
+            </div>
+            <div className="flex flex-none justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onTestOpenAI}
+                disabled={!settings.openai_api_key || loading}
+                className="h-full"
+              >
+                {__('Test Connect')}
+              </Button>
+            </div>
           </div>
 
           <Label htmlFor="anthropic_api_key">{__('Anthropic API Key')}</Label>
-          <div className="relative">
-            <Input
-              id="anthropic_api_key"
-              type={showClaudeAi ? 'text' : 'password'}
-              name="anthropic_api_key"
-              value={settings.anthropic_api_key || ''}
-              onChange={onInputChange}
-              placeholder={__('Enter Anthropic API Key')}
-            />
-            <PasswordVisibilityToggle
-              isVisible={showClaudeAi}
-              onToggle={() => setShowClaudeAi(!showClaudeAi)}
-            />
-          </div>
-          <div className="flex justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onTestAnthropic}
-              disabled={!settings.anthropic_api_key || loading}
-            >
-              {__('Test Anthropic Connection')}
-            </Button>
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Input
+                id="anthropic_api_key"
+                type={showClaudeAi ? 'text' : 'password'}
+                name="anthropic_api_key"
+                value={settings.anthropic_api_key || ''}
+                onChange={onInputChange}
+                placeholder={__('Enter Anthropic API Key')}
+              />
+              <PasswordVisibilityToggle
+                isVisible={showClaudeAi}
+                onToggle={() => setShowClaudeAi(!showClaudeAi)}
+              />
+            </div>
+            <div className="flex flex-none justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onTestAnthropic}
+                disabled={!settings.anthropic_api_key || loading}
+                className="h-full"
+              >
+                {__('Test Connect')}
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>

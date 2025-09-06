@@ -11,6 +11,12 @@ def before_uninstall():
     print("Preparing to uninstall Translation Tools...")
     
     try:
+        # Clean up scheduled jobs
+        cleanup_scheduled_jobs()
+        
+        # Clean up GitHub Sync Settings
+        cleanup_github_sync_settings()
+        
         # Get the bench directory
         bench_dir = os.path.abspath(os.path.join(frappe.get_app_path("translation_tools"), '..', '..'))
         
@@ -39,10 +45,46 @@ def before_uninstall():
         print("Continuing with uninstallation...")
 
 
+def cleanup_scheduled_jobs():
+    """Clean up scheduled jobs related to auto-sync"""
+    try:
+        # Cancel any running background jobs related to auto-sync
+        from frappe.utils.background_jobs import get_jobs
+        from rq import Worker
+        
+        jobs = get_jobs()
+        sync_jobs = [job for job in jobs if 'sync_app_from_github' in str(job.func_name)]
+        
+        for job in sync_jobs:
+            job.cancel()
+            print(f"✓ Cancelled background sync job: {job.id}")
+            
+    except Exception as e:
+        print(f"Warning: Could not clean up background jobs: {str(e)}")
+
+
+def cleanup_github_sync_settings():
+    """Clean up GitHub Sync Settings and related data"""
+    try:
+        # Reset GitHub Sync Settings
+        if frappe.db.exists("DocType", "GitHub Sync Settings"):
+            settings = frappe.get_single("GitHub Sync Settings")
+            if hasattr(settings, 'app_sync_settings') and settings.app_sync_settings:
+                settings.app_sync_settings = "{}"
+                settings.enabled = 0
+                settings.auto_sync_enabled = 0
+                settings.save(ignore_permissions=True)
+                print("✓ Cleaned up GitHub Sync Settings")
+                
+    except Exception as e:
+        print(f"Warning: Could not clean up GitHub Sync Settings: {str(e)}")
+
+
 def after_uninstall():
     """Perform final cleanup after app is uninstalled"""
     try:
         print("\nTranslation Tools has been uninstalled.")
+        print("Note: GitHub Sync Settings DocType will remain but has been reset.")
         print("Thank you for using Translation Tools!")
     except Exception as e:
         print(f"Error in after_uninstall: {str(e)}")
