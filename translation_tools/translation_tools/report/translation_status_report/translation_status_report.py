@@ -67,13 +67,22 @@ def get_columns():
 
 def get_data(filters=None):
     data = []
+    site = frappe.local.site
 
+    # Get only apps installed on the current site
+    installed_apps = frappe.get_installed_apps()
+    
     bench_path = get_bench_path()
     apps_path = os.path.join(bench_path, "apps")
 
-    for app_dir in os.listdir(apps_path):
+    frappe.logger().info(f"Processing translation status report for site '{site}' - Installed apps: {installed_apps}")
+
+    for app_dir in installed_apps:
         app_path = os.path.join(apps_path, app_dir)
-        if not os.path.isdir(app_path):
+        
+        # Verify the app directory exists
+        if not os.path.exists(app_path):
+            frappe.log_error(f"App '{app_dir}' is installed but directory not found: {app_path}")
             continue
 
         # Look for th.po files in the app
@@ -118,6 +127,8 @@ def get_data(filters=None):
                         "untranslated": untranslated,
                         "percentage": percentage,
                         "last_updated": last_updated,
+                        "installed_on_site": True,
+                        "site": site,
                     }
                 )
             except Exception as e:
@@ -126,6 +137,8 @@ def get_data(filters=None):
 
     # Sort by app name and then by percentage (descending)
     data.sort(key=lambda x: (x["app"], -x["percentage"]))
+
+    frappe.logger().info(f"Translation status report for site '{site}' - Found {len(data)} PO files across {len(set([row['app'] for row in data]))} apps")
 
     return data
 

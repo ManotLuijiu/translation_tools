@@ -25,75 +25,97 @@ logger = logging.getLogger("translation_tools.api.pot_generation")
 @frappe.whitelist()
 def get_installed_apps():
     """
-    Get list of installed Frappe apps that can have POT files generated.
+    Get list of installed Frappe apps for the current site that can have POT files generated.
+    Uses Frappe's built-in method to get only site-specific installed apps.
     
     Returns:
         dict: List of apps with metadata
     """
     try:
+        # Get only apps installed on the current site (same as bench list-apps)
+        installed_apps = frappe.get_installed_apps()
+        
         bench_path = get_bench_path()
-        apps_path = os.path.join(bench_path, "apps")
-        
         apps = []
-        if os.path.exists(apps_path):
-            for app_name in os.listdir(apps_path):
-                app_path = os.path.join(apps_path, app_name)
-                if not os.path.isdir(app_path) or app_name.startswith('.'):
-                    continue
-                
-                # Check if it's a valid Frappe app
-                app_module_path = os.path.join(app_path, app_name)
-                hooks_py = os.path.join(app_path, app_name, "hooks.py")
-                
-                if os.path.exists(app_module_path) and os.path.exists(hooks_py):
-                    # Get existing POT file info
-                    pot_file = os.path.join(app_module_path, "locale", "main.pot")
-                    pot_exists = os.path.exists(pot_file)
-                    pot_modified = None
-                    pot_entries = 0
-                    
-                    if pot_exists:
-                        try:
-                            import polib
-                            pot = polib.pofile(pot_file)
-                            pot_entries = len(pot)
-                            pot_modified = datetime.fromtimestamp(os.path.getmtime(pot_file))
-                        except:
-                            pass
-                    
-                    apps.append({
-                        "name": app_name,
-                        "path": app_path,
-                        "has_pot": pot_exists,
-                        "pot_entries": pot_entries,
-                        "pot_last_modified": pot_modified.isoformat() if pot_modified else None,
-                        "is_frappe_app": True
-                    })
         
-        # Sort apps - common ones first
-        common_apps = ['frappe', 'erpnext', 'hrms', 'translation_tools']
+        for app_name in installed_apps:
+            app_path = os.path.join(bench_path, "apps", app_name)
+            
+            # Verify the app directory exists
+            if not os.path.exists(app_path):
+                logger.warning(f"App '{app_name}' is installed but directory not found: {app_path}")
+                continue
+                
+            # Check if it's a valid Frappe app
+            app_module_path = os.path.join(app_path, app_name)
+            hooks_py = os.path.join(app_path, app_name, "hooks.py")
+            
+            if os.path.exists(app_module_path) and os.path.exists(hooks_py):
+                # Get existing POT file info
+                pot_file = os.path.join(app_module_path, "locale", "main.pot")
+                pot_exists = os.path.exists(pot_file)
+                pot_modified = None
+                pot_entries = 0
+                
+                if pot_exists:
+                    try:
+                        import polib
+                        pot = polib.pofile(pot_file)
+                        pot_entries = len(pot)
+                        pot_modified = datetime.fromtimestamp(os.path.getmtime(pot_file))
+                    except Exception as e:
+                        logger.warning(f"Could not read POT file for {app_name}: {str(e)}")
+                
+                # Get app version if available
+                app_version = None
+                try:
+                    app_version = frappe.get_attr(f"{app_name}.__version__")
+                except:
+                    pass
+                
+                apps.append({
+                    "name": app_name,
+                    "path": app_path,
+                    "version": app_version,
+                    "has_pot": pot_exists,
+                    "pot_entries": pot_entries,
+                    "pot_last_modified": pot_modified.isoformat() if pot_modified else None,
+                    "is_frappe_app": True,
+                    "installed_on_site": True
+                })
+            else:
+                logger.warning(f"App '{app_name}' is installed but missing hooks.py or module directory")
+        
+        # Sort apps - frappe first, then erpnext, then others alphabetically
+        priority_apps = ['frappe', 'erpnext', 'hrms', 'translation_tools']
         sorted_apps = []
         
-        for common in common_apps:
-            app = next((a for a in apps if a['name'] == common), None)
+        for priority_app in priority_apps:
+            app = next((a for a in apps if a['name'] == priority_app), None)
             if app:
                 sorted_apps.append(app)
                 apps.remove(app)
         
+        # Add remaining apps alphabetically
         sorted_apps.extend(sorted(apps, key=lambda x: x['name']))
+        
+        logger.info(f"Found {len(sorted_apps)} installed apps for current site: {[app['name'] for app in sorted_apps]}")
         
         return {
             "success": True,
             "apps": sorted_apps,
-            "total_apps": len(sorted_apps)
+            "total_apps": len(sorted_apps),
+            "site": frappe.local.site,
+            "installed_apps_list": [app['name'] for app in sorted_apps]
         }
         
     except Exception as e:
-        logger.error(f"Error getting installed apps: {str(e)}")
+        logger.error(f"Error getting installed apps for site: {str(e)}")
         return {
             "success": False,
             "error": str(e),
-            "apps": []
+            "apps": [],
+            "site": getattr(frappe.local, 'site', 'unknown')
         }
 
 
@@ -417,7 +439,8 @@ def get_pot_generation_progress(**kwargs):
 @frappe.whitelist()
 def enhanced_scan_with_pot_generation(apps=None, generate_pot=True, force_regenerate=False):
     """
-    Enhanced scan that optionally generates POT files before scanning PO files.
+    Simple POT generation + scan workflow.
+    Runs bench commands for site-specific apps, then scans PO files.
     
     Args:
         apps: List of apps to process or None for all apps
@@ -427,44 +450,73 @@ def enhanced_scan_with_pot_generation(apps=None, generate_pot=True, force_regene
     Returns:
         dict: Combined result of POT generation and PO file scanning
     """
+    site = frappe.local.site
+    logger.info(f"🚀 SIMPLE POT GENERATION START - Site: {site}")
+    
     try:
-        result = {
-            "success": True,
-            "pot_generation": None,
-            "po_scan": None
-        }
+        # Get site-specific installed apps
+        installed_apps = frappe.get_installed_apps()
+        logger.info(f"📋 Site installed apps: {installed_apps}")
         
         if generate_pot:
-            # Generate POT files first
-            logger.info("Starting POT generation before scanning")
+            bench_path = get_bench_path()
+            logger.info(f"🔧 Processing {len(installed_apps)} apps with bench commands")
             
-            pot_result = generate_pot_files_batch(
-                apps if apps else "all",
-                force_regenerate=force_regenerate
-            )
-            
-            result["pot_generation"] = pot_result
-            
-            if not pot_result["success"]:
-                result["success"] = False
-                result["error"] = f"POT generation failed: {pot_result.get('error', 'Unknown error')}"
-                return result
+            # Run the 4 bench commands for each app
+            for app_name in installed_apps:
+                logger.info(f"🔨 Processing app: {app_name}")
+                
+                commands = [
+                    f"bench generate-pot-file --app {app_name}",
+                    f"bench migrate-csv-to-po --app {app_name} --locale th", 
+                    f"bench update-po-files --app {app_name} --locale th",
+                    f"bench compile-po-to-mo --app {app_name} --locale th"
+                ]
+                
+                for cmd in commands:
+                    try:
+                        full_cmd = f"cd {bench_path} && {cmd}"
+                        logger.info(f"▶️ Executing: {cmd}")
+                        
+                        process_result = subprocess.run(
+                            full_cmd,
+                            shell=True,
+                            capture_output=True,
+                            text=True,
+                            timeout=300
+                        )
+                        
+                        if process_result.returncode == 0:
+                            logger.info(f"✅ Success: {cmd}")
+                        else:
+                            logger.warning(f"⚠️ Failed: {cmd} - {process_result.stderr}")
+                            
+                    except Exception as e:
+                        logger.error(f"❌ Error executing {cmd}: {str(e)}")
+                
+                logger.info(f"✅ Completed app: {app_name}")
         
-        # Now scan for PO files
+        # Now do the same thing as "Scan Files" button - update database
         from .po_files import scan_po_files
-        logger.info("Starting PO file scan")
+        logger.info("📂 Starting PO file scan (same as Scan Files button)")
         
         po_result = scan_po_files()
-        result["po_scan"] = po_result
+        logger.info(f"📂 PO scan result: {po_result}")
         
-        if not po_result.get("success", True):
-            result["success"] = False
-            result["error"] = f"PO scan failed: {po_result.get('error', 'Unknown error')}"
+        # Return simple success result
+        result = {
+            "success": True,
+            "message": f"Generated POT files for {len(installed_apps)} site apps and updated database",
+            "apps_processed": installed_apps,
+            "apps_count": len(installed_apps),
+            "po_scan_result": po_result
+        }
         
+        logger.info(f"🎯 SIMPLE RESULT: {result}")
         return result
         
     except Exception as e:
-        logger.error(f"Error in enhanced scan: {str(e)}")
+        logger.error(f"❌ ERROR in simple POT generation: {str(e)}")
         return {
             "success": False,
             "error": str(e)

@@ -1,16 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useGetCachedPOFiles, useScanPOFiles, useEnhancedScanWithPOT, useDeletePOFiles, useForceRefreshPOStats, useGetAppSyncSettings, useToggleAppAutosync } from '../api';
+import { useGetCachedPOFiles, useScanPOFiles, useEnhancedScanWithPOT, useDeletePOFiles, useGetAppSyncSettings, useToggleAppAutosync } from '../api';
 import { POFile } from '../types';
 import { formatPercentage, formatDate } from '../utils/helpers';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -27,12 +20,11 @@ import {
 } from '@/components/ui/tooltip';
 
 import { Input } from '@/components/ui/input';
-import { Loader2, RefreshCw, Search, FileText, ChevronDown, Zap, Settings, Trash2, CheckCircle, RotateCcw, GitBranch } from 'lucide-react';
+import { Loader2, RefreshCw, Search, FileText, Zap, Trash2, CheckCircle, GitBranch } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/context/TranslationContext';
-import POTGenerationDialog from './POTGenerationDialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -58,10 +50,7 @@ export default function FileExplorer({
   const scanFiles = useScanPOFiles();
   const enhancedScan = useEnhancedScanWithPOT();
   const deletePOFiles = useDeletePOFiles();
-  const forceRefreshStats = useForceRefreshPOStats();
   const [isScanning, setIsScanning] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [showPOTDialog, setShowPOTDialog] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -119,38 +108,44 @@ export default function FileExplorer({
   };
 
   const handlePOTGenerationScan = async () => {
+    console.log('🚀 FRONTEND: Starting POT generation scan...');
     setIsScanning(true);
     try {
-      const result = await enhancedScan.call({
+      const requestData = {
         generate_pot: true,
         force_regenerate: false
-      });
+      };
+      console.log('📤 FRONTEND: Sending request data:', requestData);
       
-      console.log('Enhanced scan result:', result); // Debug log to understand the response structure
+      const result = await enhancedScan.call(requestData);
       
+      console.log('📥 FRONTEND: Raw API response:', JSON.stringify(result, null, 2));
+      console.log('📥 FRONTEND: Response type:', typeof result);
+      console.log('📥 FRONTEND: Response success field:', result?.success);
+      console.log('📥 FRONTEND: Response message field:', result?.message);
+      
+      // Check if the response has the expected structure
       if (result?.success) {
+        console.log('✅ FRONTEND: Direct success response');
         await mutate(); // Refresh the data
+      } else if (result?.message?.success !== undefined) {
+        console.log('🔍 FRONTEND: Success in message field:', result.message.success);
+        if (result.message.success) {
+          await mutate();
+        } else {
+          console.error('❌ FRONTEND: Enhanced scan failed in message:', result.message.error || 'Unknown error');
+        }
       } else {
-        console.error('Enhanced scan failed:', result?.error || 'Unknown error');
+        console.error('❌ FRONTEND: Enhanced scan failed - no success field:', result?.error || result?.message?.error || 'Unknown error');
       }
     } catch (error) {
-      console.error('Error in POT generation scan:', error);
+      console.error('💥 FRONTEND: Exception during POT generation scan:', error);
     } finally {
+      console.log('🏁 FRONTEND: POT generation scan completed');
       setIsScanning(false);
     }
   };
 
-  const handleAdvancedPOTGeneration = () => {
-    setShowPOTDialog(true);
-  };
-
-  const handlePOTGenerationComplete = async (success: boolean, message?: string) => {
-    if (success) {
-      // Refresh the PO files data after POT generation
-      await mutate();
-    }
-    console.log('POT Generation complete:', { success, message });
-  };
 
   // console.log('data', data);
 
@@ -248,24 +243,6 @@ export default function FileExplorer({
     }
   };
 
-  const handleForceRefreshStats = async () => {
-    setIsRefreshing(true);
-    try {
-      const result = await forceRefreshStats.call({});
-      
-      if (result?.message?.success) {
-        // Refresh the file list to show updated statistics
-        await mutate();
-        console.log(`✅ ${result.message.message}`);
-      } else {
-        console.error('Failed to refresh stats:', result?.message?.error || result?.error);
-      }
-    } catch (error) {
-      console.error('Error refreshing stats:', error);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
 
   if (!isReady) {
     return (
@@ -299,7 +276,7 @@ export default function FileExplorer({
               {__('Delete')} ({selectedFiles.size})
             </Button>
           )}
-          <Button onClick={handleScan} disabled={isScanning || isRefreshing} variant="outline">
+          <Button onClick={handleScan} disabled={isScanning} variant="outline">
             {isScanning ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -313,45 +290,19 @@ export default function FileExplorer({
             )}
           </Button>
           
-          <Button 
-            onClick={handleForceRefreshStats} 
-            disabled={isScanning || isRefreshing} 
-            variant="outline"
-            title={__('Force refresh translation statistics from files')}
-          >
-            {isRefreshing ? (
+          <Button onClick={handlePOTGenerationScan} disabled={isScanning} variant="outline">
+            {isScanning ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {__('Refreshing...')}
+                {__('Generating POT...')}
               </>
             ) : (
               <>
-                <RotateCcw className="mr-2 h-4 w-4" />
-                {__('Refresh Stats')}
+                <Zap className="mr-2 h-4 w-4" />
+                {__('Generate POT Files')}
               </>
             )}
           </Button>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" disabled={isScanning || isRefreshing}>
-                <Zap className="mr-2 h-4 w-4" />
-                {__('POT Generation')}
-                <ChevronDown className="ml-1 h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem onClick={handlePOTGenerationScan} disabled={isScanning || isRefreshing}>
-                <Zap className="mr-2 h-4 w-4" />
-                {__('Generate POT & Scan')}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleAdvancedPOTGeneration} disabled={isScanning || isRefreshing}>
-                <Settings className="mr-2 h-4 w-4" />
-                {__('Advanced POT Options...')}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
 
@@ -526,11 +477,6 @@ export default function FileExplorer({
         </div>
       )}
 
-      <POTGenerationDialog
-        isOpen={showPOTDialog}
-        onClose={() => setShowPOTDialog(false)}
-        onComplete={handlePOTGenerationComplete}
-      />
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>

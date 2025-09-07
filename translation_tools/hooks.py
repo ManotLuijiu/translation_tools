@@ -24,32 +24,25 @@ required_apps = ["payments", "print_designer"]
 modules = {
     "Translation Tools": {
         "color": "blue",
-        "icon": "assets/translation_tools/images/translation_icon.svg",
+        "icon": "/assets/translation_tools/images/translation_icon.svg",  # Consistent absolute path
         "type": "module",
         "label": "Translation Tools",
     }
 }
 
-# Desk page for Resend configuration
-desk_page = {
-    "name": "resend-settings",
-    "label": "Resend Settings",
-    "icon": "octicon octicon-mail",
-    "type": "module",
-}
+# Desk page configuration removed - redundant with desk_page definition below
 
 # Installation
 after_install = [
+    "translation_tools.install.after_install",
     # "translation_tools.patches.default.fix_fixtures_import",
-    # "translation_tools.patches.default.add_default_font_to_print_settings",
-    # "translation_tools.install.after_install",
+    # "translation_tools.patches.default.add_default_font_to_print_settings", 
     # "translation_tools.setup.install_custom_fields.install_custom_fields",
     # "translation_tools.setup.create_doctypes.create_signature_doctype",
     # "translation_tools.setup.create_doctypes.create_settings_page",
     # "translation_tools.patches.migrate_chat_data.execute",
 ]
 
-# after_migrate = "translation_tools.setup.update_workspace.update_icons"
 after_migrate = "translation_tools.setup.update_workspace.rebuild_workspace"
 
 # Uninstallation
@@ -98,7 +91,7 @@ get_desk_sidebar_items = [
     }
 ]
 
-# Add the desk page to the desk sidebar
+# Desk page configuration for Translation Tools
 desk_page = {
     "Translation Tools": {
         "category": "Tools",
@@ -108,7 +101,7 @@ desk_page = {
         "type": "module",
         "_doctype": "Translation Tools Settings",
         "link": "List/Translation Tools Settings",
-        "color": "#3498db",
+        "color": "#4183c4",  # Consistent with app_color
         "onboard": 0,
     }
 }

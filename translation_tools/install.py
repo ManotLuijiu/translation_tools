@@ -108,6 +108,38 @@ def after_install():
 
         # Generate PO file
         generate_po_file()
+        
+        # Sync glossary terms from GitHub to populate dashboard number cards
+        try:
+            logger.info("Syncing glossary terms from GitHub repository...")
+            print("Syncing glossary terms from GitHub repository...")
+            
+            from translation_tools.api.sync_public_glossary import sync_glossary_from_public_github
+            
+            sync_result = sync_glossary_from_public_github()
+            
+            if sync_result.get("success"):
+                stats = sync_result.get("stats", {})
+                success_msg = f"✅ Glossary sync successful: {stats.get('added', 0)} terms added, {stats.get('updated', 0)} updated"
+                print(success_msg)
+                logger.info(success_msg)
+                
+                # Get final counts for user
+                total_terms = stats.get('added', 0) + stats.get('updated', 0)
+                dashboard_msg = f"📊 Dashboard number cards will now display {total_terms} glossary terms"
+                print(dashboard_msg)
+                logger.info(dashboard_msg)
+            else:
+                error_msg = f"⚠️ Glossary sync failed: {sync_result.get('message', 'Unknown error')}"
+                print(error_msg)
+                print("   You can manually sync from GitHub using the 'Sync from GitHub' button in the dashboard")
+                logger.warning(error_msg)
+                
+        except Exception as sync_error:
+            error_msg = f"Glossary sync failed during installation: {str(sync_error)}"
+            logger.warning(error_msg)
+            print(f"⚠️ {error_msg}")
+            print("   You can manually sync from GitHub using the 'Sync from GitHub' button in the dashboard")
 
     except Exception as e:
         logger.error(f"Installation failed: {str(e)}")

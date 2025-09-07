@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
-"POT-Creation-Date: 2025-09-04 18:47+0642\n"
-"PO-Revision-Date: 2025-09-04 18:47+0642\n"
+"POT-Creation-Date: 2025-09-07 07:05+0642\n"
+"PO-Revision-Date: 2025-09-07 07:05+0642\n"
 "Last-Translator: moocoding@gmail.com\n"
 "Language-Team: moocoding@gmail.com\n"
 "MIME-Version: 1.0\n"
@@ -113,11 +113,11 @@ msgid "API key configuration file not found. Translation features may not work."
 msgstr ""
 
 #: translation_tools/api/translation.py:208
-#: translation_tools/api/translation.py:316
+#: translation_tools/api/translation.py:328
 msgid "API key not configured for {0}"
 msgstr ""
 
-#: translation_tools/api/translation.py:440
+#: translation_tools/api/translation.py:452
 msgid "API key not found in configuration. Please set it up first."
 msgstr ""
 
@@ -179,6 +179,11 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/po_file/po_file.json
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "App Name"
+msgstr ""
+
+#. Label of a Long Text field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "App Sync Settings (JSON)"
 msgstr ""
 
 #: translation_tools/translation_tools/page/translation_status/translation_status.js:47
@@ -655,10 +660,10 @@ msgstr ""
 msgid "File Path"
 msgstr ""
 
-#: translation_tools/api/po_files.py:840 translation_tools/api/po_files.py:902
-#: translation_tools/api/po_files.py:995
+#: translation_tools/api/po_files.py:897 translation_tools/api/po_files.py:959
+#: translation_tools/api/po_files.py:1052
 #: translation_tools/api/translation.py:152
-#: translation_tools/api/translation.py:274
+#: translation_tools/api/translation.py:286
 msgid "File not found: {0}"
 msgstr ""
 
@@ -737,7 +742,7 @@ msgstr ""
 msgid "GitHub Sync Settings"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1457
+#: translation_tools/api/po_files.py:1514
 msgid "GitHub token saved successfully"
 msgstr ""
 
@@ -818,6 +823,10 @@ msgstr ""
 msgid "Installing Translation Tools"
 msgstr ""
 
+#: translation_tools/api/settings.py:42
+msgid "Insufficient permissions to access settings"
+msgstr ""
+
 #: translation_tools/api/tokens.py:35
 msgid "Insufficient tokens. Please purchase more tokens to continue."
 msgstr ""
@@ -833,12 +842,12 @@ msgstr ""
 msgid "Invalid GitHub repository URL"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1030
-#: translation_tools/api/po_files.py:1040
+#: translation_tools/api/po_files.py:1087
+#: translation_tools/api/po_files.py:1097
 msgid "Invalid entry ID or entry not found"
 msgstr ""
 
-#: translation_tools/api/translation.py:369
+#: translation_tools/api/translation.py:381
 msgid "Invalid file name: {0}"
 msgstr ""
 
@@ -872,6 +881,12 @@ msgstr ""
 #. Label of a Attach field in DocType 'Translation Settings Custom Font'
 #: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
 msgid "Italics"
+msgstr ""
+
+#. Description of the 'App Sync Settings (JSON)' (Long Text) field in DocType
+#. 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "JSON storage for per-app auto-sync settings"
 msgstr ""
 
 #. Label of a Link in the Integrations Workspace
@@ -1033,7 +1048,7 @@ msgstr ""
 msgid "No API keys found in configuration file."
 msgstr ""
 
-#: translation_tools/api/po_files.py:1301
+#: translation_tools/api/po_files.py:1358
 msgid "No changes needed, translations are already up to date"
 msgstr ""
 
@@ -1152,7 +1167,7 @@ msgstr ""
 msgid "PO File"
 msgstr ""
 
-#: translation_tools/api/translation.py:365
+#: translation_tools/api/translation.py:377
 msgid "PO File not found for the given file path"
 msgstr ""
 
@@ -1160,7 +1175,7 @@ msgstr ""
 msgid "PO Translation Files"
 msgstr ""
 
-#: translation_tools/api/translation.py:434
+#: translation_tools/api/translation.py:446
 msgid "PO file not found: {0}"
 msgstr ""
 
@@ -1559,7 +1574,7 @@ msgstr ""
 msgid "Success! Model: {0}"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1361
+#: translation_tools/api/po_files.py:1418
 msgid "Successfully pushed translations to GitHub"
 msgstr ""
 
@@ -1956,7 +1971,7 @@ msgstr ""
 msgid "Translation Tools Settings"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1424
+#: translation_tools/api/po_files.py:1481
 msgid "Translation Tools Settings doctype does not exist. Please contact administrator."
 msgstr ""
 
@@ -2005,7 +2020,7 @@ msgstr ""
 msgid "Unchanged"
 msgstr ""
 
-#: translation_tools/api/translation.py:867
+#: translation_tools/api/translation.py:1036
 msgid "Unsupported model provider: {0}"
 msgstr ""
 
@@ -2104,15 +2119,15 @@ msgstr ""
 msgid "You do not have Read or Select Permissions for {}"
 msgstr ""
 
-#: translation_tools/api/settings.py:660
+#: translation_tools/api/settings.py:689
 msgid "You do not have permission to save API keys"
 msgstr ""
 
-#: translation_tools/api/translation.py:431
+#: translation_tools/api/translation.py:443
 msgid "You do not have permission to use the translation tools"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1415
+#: translation_tools/api/po_files.py:1472
 msgid "You don't have permission to modify Translation Tools Settings"
 msgstr ""
 

@@ -5,31 +5,69 @@ import polib
 from frappe.utils import get_bench_path
 
 
-@frappe.whitelist()
-def get_translation_stats(app=None):
-    """Get translation statistics for all apps or a specific app"""
-    data = []
-
+def get_site_apps_with_po_files():
+    """Get list of site-specific installed apps that have PO files"""
+    # Get only apps installed on the current site
+    installed_apps = frappe.get_installed_apps()
+    
     bench_path = get_bench_path()
     apps_path = os.path.join(bench_path, "apps")
-
-    app_dirs = [app] if app else os.listdir(apps_path)
-
-    for app_dir in app_dirs:
-        app_path = os.path.join(apps_path, app_dir)
-        if not os.path.isdir(app_path):
+    
+    apps_with_po = []
+    
+    for app_name in installed_apps:
+        app_path = os.path.join(apps_path, app_name)
+        
+        # Verify the app directory exists
+        if not os.path.exists(app_path):
+            frappe.log_error(f"App '{app_name}' is installed but directory not found: {app_path}")
             continue
-
+            
         # Look for th.po files in the app
         po_files = []
         for root, dirs, files in os.walk(app_path):
             for file in files:
                 if file == "th.po":
                     po_files.append(os.path.join(root, file))
+        
+        # Only include apps that have PO files
+        if po_files:
+            apps_with_po.append({
+                "name": app_name,
+                "path": app_path,
+                "po_files": po_files
+            })
+    
+    return apps_with_po
 
-        # If no th.po files found, skip to next app
-        if not po_files:
-            continue
+
+@frappe.whitelist()
+def get_translation_stats(app=None):
+    """Get translation statistics for site-specific installed apps or a specific app"""
+    data = []
+    site = frappe.local.site
+
+    bench_path = get_bench_path()
+    apps_path = os.path.join(bench_path, "apps")
+
+    if app:
+        # Check if the specific app is installed on this site
+        installed_apps = frappe.get_installed_apps()
+        if app not in installed_apps:
+            frappe.throw(_("App '{0}' is not installed on site '{1}'. Available apps: {2}").format(
+                app, site, ", ".join(installed_apps)
+            ))
+        apps_with_po = get_site_apps_with_po_files()
+        apps_with_po = [a for a in apps_with_po if a["name"] == app]
+    else:
+        # Get all site-specific apps with PO files
+        apps_with_po = get_site_apps_with_po_files()
+
+    frappe.logger().info(f"Processing translation stats for site '{site}' - Apps with PO files: {[a['name'] for a in apps_with_po]}")
+
+    for app_info in apps_with_po:
+        app_dir = app_info["name"]
+        po_files = app_info["po_files"]
 
         app_stats = {
             "app": app_dir,
@@ -37,6 +75,8 @@ def get_translation_stats(app=None):
             "translated": 0,
             "untranslated": 0,
             "files": [],
+            "installed_on_site": True,
+            "site": site
         }
 
         for po_file in po_files:
@@ -88,7 +128,21 @@ def get_translation_stats(app=None):
     # Sort by app name
     data.sort(key=lambda x: x["app"])
 
-    return data
+    frappe.logger().info(f"Returning translation stats for {len(data)} apps on site '{site}'")
+
+    # For backward compatibility, return just the data array by default
+    # But also include metadata for debugging/monitoring
+    result = data
+    
+    # Add metadata as a special property that won't break existing consumers
+    if hasattr(result, '__dict__'):
+        result.__dict__['_metadata'] = {
+            "site": site,
+            "total_apps": len(data),
+            "apps_processed": [app["app"] for app in data]
+        }
+    
+    return result
 
 
 @frappe.whitelist()

@@ -460,13 +460,20 @@ def find_next_untranslated_entry(file_path, current_page=1, page_size=20):
 @frappe.whitelist()
 @enhanced_error_handler
 def get_po_files():
-    """Get a list of all PO files, using cached data if available or scanning the filesystem if needed"""
-    logger.info("Fetching PO files")
+    """Get a list of PO files for site-specific installed apps, using cached data if available or scanning the filesystem if needed"""
+    site = frappe.local.site
+    installed_apps = frappe.get_installed_apps()
+    
+    logger.info(f"Fetching PO files for site '{site}' - installed apps: {installed_apps}")
+    
     try:
-        # Try to get cached files first
+        # Try to get cached files first, but only for installed apps
         po_files = frappe.get_all(
             "PO File",
-            filters=[["filename", "in", ["th.po"]]],
+            filters=[
+                ["filename", "in", ["th.po"]],
+                ["app_name", "in", installed_apps]  # Filter by site-specific installed apps
+            ],
             fields=[
                 "file_path",
                 "app_name as app",
@@ -483,10 +490,13 @@ def get_po_files():
 
         # If we have cached files and they're not too old, return them
         if po_files:
-            # Check if cache is fresh (less than 1 hour old)
+            # Check if cache is fresh (less than 1 hour old) for installed apps only
             newest_scan = frappe.get_all(
                 "PO File",
-                filters=[["filename", "in", ["th.po"]]],
+                filters=[
+                    ["filename", "in", ["th.po"]],
+                    ["app_name", "in", installed_apps]
+                ],
                 fields=["MAX(last_scanned) as last_scan"],
                 limit=1,
             )
@@ -496,16 +506,16 @@ def get_po_files():
                 cache_age = datetime.now() - last_scan_time
 
                 if cache_age.total_seconds() < 3600:  # Less than 1 hour old
-                    logger.debug(f"Using {len(po_files)} cached PO files")
+                    logger.debug(f"Using {len(po_files)} cached PO files for site '{site}'")
                     return po_files
 
         # If we got here, either no cache or cache is stale
-        # Scan the filesystem for PO files
-        logger.info("No fresh cache found, scanning filesystem for PO files")
+        # Scan the filesystem for PO files (this will also filter by installed apps)
+        logger.info(f"No fresh cache found, scanning filesystem for PO files on site '{site}'")
         return scan_and_cache_po_files(filename_patterns=["th.po"])
 
     except Exception as e:
-        logger.error(f"Error fetching PO files: {str(e)}", exc_info=True)
+        logger.error(f"Error fetching PO files for site '{site}': {str(e)}", exc_info=True)
         raise
 
 
@@ -778,14 +788,17 @@ def process_po_file(file_path, bench_path):
 @frappe.whitelist()
 @enhanced_error_handler
 def scan_po_files():
-    """Scan the filesystem for PO files and update the database"""
+    """Scan the filesystem for PO files in site-specific installed apps and update the database"""
     global SCAN_IN_PROGRESS
     if SCAN_IN_PROGRESS:
         logger.warning("Recursion detected in scan_po_files")
         return {"success": False, "error": "Scan already in progress"}
 
     SCAN_IN_PROGRESS = True
-    logger.info("Starting scan for PO files")
+    site = frappe.local.site
+    installed_apps = frappe.get_installed_apps()
+    
+    logger.info(f"Starting scan for PO files on site '{site}' - installed apps: {installed_apps}")
 
     try:
         # Get the bench path
@@ -804,13 +817,13 @@ def scan_po_files():
             "failed_files": 0,
         }
 
-        # Find all app directories
+        # Find only site-specific installed app directories
         app_dirs = [
-            d
-            for d in os.listdir(apps_path)
-            if os.path.isdir(os.path.join(apps_path, d))
+            app_name
+            for app_name in installed_apps
+            if os.path.isdir(os.path.join(apps_path, app_name))
         ]
-        logger.debug(f"Found {len(app_dirs)} app directories")
+        logger.debug(f"Found {len(app_dirs)} installed app directories for site '{site}': {app_dirs}")
 
         # Find all th.po files
         matching_files = []
@@ -838,21 +851,25 @@ def scan_po_files():
                 stats["failed_files"] += 1
                 continue
 
-            # Check if file already exists in database
-            existing_file = frappe.get_value(
-                "PO File", {"file_path": file_path}, "name"
-            )
-            if existing_file:
-                # Update existing record
-                frappe.db.set_value(
-                    "PO File", existing_file, file_data, update_modified=True
-                )
-                stats["updated_files"] += 1
-            else:
-                # Create new record
+            # Simple upsert: delete if exists, then create new
+            try:
+                # Always delete existing record first to avoid conflicts
+                existing_records = frappe.get_all("PO File", filters={"file_path": file_path}, pluck="name")
+                for record_name in existing_records:
+                    logger.info(f"🗑️ Deleting existing PO File record: {record_name} for {file_path}")
+                    frappe.delete_doc("PO File", record_name, force=True, ignore_permissions=True)
+                
+                # Now create new record
                 file_data.update({"doctype": "PO File"})
-                frappe.get_doc(file_data).insert(ignore_permissions=True)
+                new_doc = frappe.get_doc(file_data)
+                new_doc.insert(ignore_permissions=True)
                 stats["new_files"] += 1
+                logger.info(f"✅ Created new PO File record for: {file_path}")
+                
+            except Exception as e:
+                logger.error(f"❌ Failed to upsert PO File for {file_path}: {str(e)}")
+                stats["failed_files"] += 1
+                # Continue processing other files
 
             # Commit every BATCH_SIZE files to avoid long transactions
             # Commit periodically to avoid long transactions
