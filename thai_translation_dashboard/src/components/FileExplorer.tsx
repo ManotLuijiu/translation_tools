@@ -62,73 +62,48 @@ export default function FileExplorer({
   const { call: toggleAppSync } = useToggleAppAutosync();
   const [appSyncSettings, setAppSyncSettings] = useState<Record<string, boolean>>({});
   
-  console.log('🔍 Component render - appSyncData:', appSyncData);
-  console.log('🔍 Component render - appSyncSettings state:', appSyncSettings);
 
   // console.log('selectedFilePath', selectedFilePath);
 
   // Update local state when app sync data changes
   useEffect(() => {
-    console.log('📊 useEffect triggered - appSyncData changed:', appSyncData);
     // Handle both direct data and wrapped message response
-    const actualData = appSyncData?.message || appSyncData;
+    const actualData = (appSyncData as any)?.message || appSyncData;
     if (actualData?.success && actualData.app_settings) {
       const settings: Record<string, boolean> = {};
       Object.keys(actualData.app_settings).forEach(appName => {
         settings[appName] = actualData.app_settings[appName].enabled;
       });
-      console.log('📝 Updating appSyncSettings state to:', settings);
       setAppSyncSettings(settings);
     }
   }, [appSyncData]);
 
   const handleToggleAppSync = async (appName: string, enabled: boolean) => {
-    console.log(`🔄 Starting toggle for app: ${appName}, enabled: ${enabled}`);
-    console.log('📍 Current appSyncSettings before toggle:', appSyncSettings);
-    
     try {
-      console.log('🚀 Calling toggleAppSync API...');
       const result = await toggleAppSync(appName, enabled);
-      console.log('📨 API Response:', result);
       
       // Handle both direct result and wrapped message response
-      const actualResult = result?.message || result;
+      const actualResult = (result as any)?.message || result;
       if (actualResult?.success) {
         // Update local state immediately for UI responsiveness
-        console.log('✅ API success, updating local state');
-        setAppSyncSettings(prev => {
-          const newSettings = {
-            ...prev,
-            [appName]: enabled
-          };
-          console.log('🔄 Local state updated to:', newSettings);
-          return newSettings;
-        });
+        setAppSyncSettings(prev => ({
+          ...prev,
+          [appName]: enabled
+        }));
         
         // Small delay to ensure database commit completes
-        console.log('⏳ Waiting 100ms for DB commit...');
         await new Promise(resolve => setTimeout(resolve, 100));
         
         // Refetch data to ensure consistency
-        console.log('🔃 Refetching app sync data...');
-        const refetchResult = await refetchAppSyncData();
-        console.log('📥 Refetch result:', refetchResult);
-        
-        console.log(`✨ Auto-sync ${enabled ? 'enabled' : 'disabled'} for ${appName}`);
-      } else {
-        console.log('❌ API returned unsuccessful result:', result);
+        await refetchAppSyncData();
       }
     } catch (error) {
-      console.error('❌ Error toggling app sync:', error);
+      console.error('Error toggling app sync:', error);
       // Revert local state on error
-      setAppSyncSettings(prev => {
-        const revertedSettings = {
-          ...prev,
-          [appName]: !enabled
-        };
-        console.log('⚠️ Reverting state due to error:', revertedSettings);
-        return revertedSettings;
-      });
+      setAppSyncSettings(prev => ({
+        ...prev,
+        [appName]: !enabled
+      }));
     }
   };
 
@@ -209,8 +184,8 @@ export default function FileExplorer({
         file_paths: Array.from(selectedFiles)
       });
       
-      if (result?.success || result?.message?.success) {
-        const deletedCount = result?.deleted_count || result?.message?.deleted_count || selectedFiles.size;
+      if ((result as any)?.success || (result as any)?.message?.success) {
+        const deletedCount = (result as any)?.deleted_count || (result as any)?.message?.deleted_count || selectedFiles.size;
         
         // Show success message
         setDeleteSuccess({ show: true, count: deletedCount });
@@ -397,13 +372,8 @@ export default function FileExplorer({
                     {isFirstFileForApp ? (
                       <div className="flex items-center justify-center">
                         <Switch
-                          checked={(() => {
-                            const isChecked = appSyncSettings[file.app] || false;
-                            console.log(`🎨 Rendering switch for ${file.app}: checked=${isChecked}`);
-                            return isChecked;
-                          })()}
+                          checked={appSyncSettings[file.app] || false}
                           onCheckedChange={(checked) => {
-                            console.log(`👆 Switch clicked for ${file.app}: new value=${checked}`);
                             handleToggleAppSync(file.app, checked);
                           }}
                         />
