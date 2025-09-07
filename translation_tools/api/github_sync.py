@@ -370,6 +370,31 @@ def apply_sync(repo_url, branch, repo_files, local_file_path):
             f"apply_sync: Successfully saved PO file with {added} added, {updated} updated, and {unchanged} unchanged entries"
         )
 
+        # Update database cache to reflect new translation statistics
+        try:
+            from translation_tools.api.po_files import process_po_file
+            bench_path = get_bench_path()
+            
+            # Process the updated file to get new statistics
+            file_data = process_po_file(resolved_path, bench_path)
+            if file_data:
+                # Update the database cache with new translation stats
+                relative_path = os.path.relpath(resolved_path, bench_path)
+                po_doc_name = relative_path
+                
+                if frappe.db.exists("PO File", po_doc_name):
+                    existing_doc = frappe.get_doc("PO File", po_doc_name)
+                    existing_doc.translated_entries = file_data.get('translated_entries', existing_doc.translated_entries)
+                    existing_doc.total_entries = file_data.get('total_entries', existing_doc.total_entries) 
+                    existing_doc.translation_status = file_data.get('translated_percentage', existing_doc.translation_status)
+                    existing_doc.last_modified = file_data.get('last_modified', existing_doc.last_modified)
+                    existing_doc.save(ignore_permissions=True)
+                    frappe.db.commit()
+                    print(f"apply_sync: Updated database cache for {relative_path}")
+        except Exception as cache_error:
+            print(f"apply_sync: Warning - Could not update database cache: {str(cache_error)}")
+            # Don't fail the sync if cache update fails
+
         return {
             "success": True,
             "changes": {"added": added, "updated": updated, "unchanged": unchanged},
