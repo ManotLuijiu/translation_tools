@@ -48,6 +48,7 @@ def toggle_app_autosync(app_name, enabled=False):
         # Save back to settings (we'll need to add this field to the DocType)
         settings.app_sync_settings = json.dumps(app_settings)
         settings.save(ignore_permissions=True)
+        frappe.db.commit()  # Ensure the changes are committed immediately
         
         # If enabling, trigger an immediate sync for this app
         if enabled and settings.enabled:
