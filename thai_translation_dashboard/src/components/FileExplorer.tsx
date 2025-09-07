@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useGetCachedPOFiles, useScanPOFiles, useEnhancedScanWithPOT, useDeletePOFiles, useGetAppSyncSettings, useToggleAppAutosync, useForceRefreshPOStats } from '../api';
+import { useGetCachedPOFiles, useScanPOFiles, useDeletePOFiles, useGetAppSyncSettings, useToggleAppAutosync, useForceRefreshPOStats } from '../api';
 import { POFile } from '../types';
 import { formatPercentage, formatDate } from '../utils/helpers';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/tooltip';
 
 import { Input } from '@/components/ui/input';
-import { Loader2, RefreshCw, Search, FileText, Zap, Trash2, CheckCircle, GitBranch } from 'lucide-react';
+import { Loader2, RefreshCw, Search, FileText, Trash2, CheckCircle, GitBranch } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -48,11 +48,9 @@ export default function FileExplorer({
   const [searchTerm, setSearchTerm] = useState('');
   const { data, error, isLoading, mutate } = useGetCachedPOFiles();
   const scanFiles = useScanPOFiles();
-  const enhancedScan = useEnhancedScanWithPOT();
   const deletePOFiles = useDeletePOFiles();
   const forceRefreshStats = useForceRefreshPOStats();
   const [isScanningFiles, setIsScanningFiles] = useState(false);
-  const [isGeneratingPOT, setIsGeneratingPOT] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -109,52 +107,6 @@ export default function FileExplorer({
     }
   };
 
-  const handlePOTGenerationScan = async () => {
-    console.log('🚀 FRONTEND: Starting POT generation scan...');
-    setIsGeneratingPOT(true);
-    try {
-      const requestData = {
-        generate_pot: true,
-        force_regenerate: false
-      };
-      console.log('📤 FRONTEND: Sending request data:', requestData);
-      
-      const result = await enhancedScan.call(requestData);
-      
-      console.log('📥 FRONTEND: Raw API response:', JSON.stringify(result, null, 2));
-      console.log('📥 FRONTEND: Response type:', typeof result);
-      console.log('📥 FRONTEND: Response success field:', result?.success);
-      console.log('📥 FRONTEND: Response message field:', result?.message);
-      
-      // Handle the new response format (POT generation only, no database scan)
-      if (result?.success) {
-        console.log('✅ FRONTEND: POT files generated successfully');
-        console.log(`📦 Generated POT files for ${result.apps_count} apps:`, result.apps_processed);
-        
-        // Force refresh PO file statistics to update progress bars immediately
-        console.log('🔄 FRONTEND: Refreshing PO file statistics after POT generation...');
-        try {
-          const refreshResult = await forceRefreshStats.call({});
-          if (refreshResult?.success) {
-            console.log(`📊 FRONTEND: Successfully refreshed ${refreshResult.updated_count} file statistics`);
-            // Refresh the file list to show updated progress bars
-            await mutate();
-          } else {
-            console.warn('⚠️ FRONTEND: Failed to refresh statistics:', refreshResult?.error);
-          }
-        } catch (refreshError) {
-          console.error('💥 FRONTEND: Exception during statistics refresh:', refreshError);
-        }
-      } else {
-        console.error('❌ FRONTEND: POT generation failed:', result?.error || 'Unknown error');
-      }
-    } catch (error) {
-      console.error('💥 FRONTEND: Exception during POT generation scan:', error);
-    } finally {
-      console.log('🏁 FRONTEND: POT generation scan completed');
-      setIsGeneratingPOT(false);
-    }
-  };
 
 
   // console.log('data', data);
@@ -286,7 +238,7 @@ export default function FileExplorer({
               {__('Delete')} ({selectedFiles.size})
             </Button>
           )}
-          <Button onClick={handleScan} disabled={isScanningFiles || isGeneratingPOT} variant="outline">
+          <Button onClick={handleScan} disabled={isScanningFiles} variant="outline">
             {isScanningFiles ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -296,20 +248,6 @@ export default function FileExplorer({
               <>
                 <RefreshCw className="mr-2 h-4 w-4" />
                 {__('Scan Files')}
-              </>
-            )}
-          </Button>
-          
-          <Button onClick={handlePOTGenerationScan} disabled={isScanningFiles || isGeneratingPOT} variant="outline">
-            {isGeneratingPOT ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {__('Generating POT...')}
-              </>
-            ) : (
-              <>
-                <Zap className="mr-2 h-4 w-4" />
-                {__('Generate POT Files')}
               </>
             )}
           </Button>
