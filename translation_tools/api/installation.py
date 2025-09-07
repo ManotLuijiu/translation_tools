@@ -102,13 +102,23 @@ def generate_po_file():
             sync_result = sync_translation_files_from_github(installed_apps)
             if sync_result.get("success"):
                 stats = sync_result.get("stats", {})
-                print(f"✅ GitHub sync completed: {stats.get('synced_files', 0)} files synced, {stats.get('updated_apps', 0)} apps updated")
+                synced_count = stats.get('synced_files', 0)
+                failed_count = len(stats.get('failed_apps', []))
+                total_apps = len(installed_apps)
+                
+                if synced_count > 0:
+                    print(f"✅ GitHub sync completed: {synced_count}/{total_apps} apps updated with GitHub versions")
+                    if failed_count > 0:
+                        print(f"   📝 Note: {failed_count} apps using local versions (not available on GitHub)")
+                else:
+                    print(f"ℹ️ GitHub sync completed: 0/{total_apps} apps updated")
+                    print(f"   📝 All apps using local versions (none available on GitHub)")
             else:
                 print(f"⚠️ GitHub sync failed: {sync_result.get('message', 'Unknown error')}")
-                print("   Translation files from bench commands will be used")
+                print("   All apps will use local translation files")
         except Exception as e:
             print(f"⚠️ GitHub sync failed: {str(e)}")
-            print("   Translation files from bench commands will be used")
+            print("   All apps will use local translation files")
         
         print("\n🎉 Translation setup completed!")
         
@@ -141,33 +151,62 @@ def sync_translation_files_from_github(installed_apps):
                 github_file_url = f"{github_base_url}/{app_name}/locale/th.po"
                 
                 print(f"  📥 Checking GitHub for {app_name}/locale/th.po...")
-                response = requests.get(github_file_url, timeout=30)
                 
-                if response.status_code == 200:
-                    # File exists on GitHub, save it locally
-                    local_locale_dir = os.path.join(bench_path, "apps", app_name, app_name, "locale")
-                    local_th_po_path = os.path.join(local_locale_dir, "th.po")
+                try:
+                    response = requests.get(github_file_url, timeout=30)
                     
-                    # Create locale directory if it doesn't exist
-                    os.makedirs(local_locale_dir, exist_ok=True)
+                    if response.status_code == 200:
+                        # Validate that we got actual PO file content, not HTML error page
+                        content = response.text.strip()
+                        if content and ('msgid' in content or 'msgstr' in content or content.startswith('#')):
+                            # File exists on GitHub and contains valid PO content
+                            local_locale_dir = os.path.join(bench_path, "apps", app_name, app_name, "locale")
+                            local_th_po_path = os.path.join(local_locale_dir, "th.po")
+                            
+                            # Create locale directory if it doesn't exist
+                            os.makedirs(local_locale_dir, exist_ok=True)
+                            
+                            # Write the GitHub content to local file
+                            with open(local_th_po_path, 'w', encoding='utf-8') as f:
+                                f.write(content)
+                            
+                            stats["synced_files"] += 1
+                            stats["updated_apps"] += 1
+                            print(f"  ✅ Synced {app_name}/locale/th.po from GitHub ({len(content)} chars)")
+                        else:
+                            print(f"  ⚠️ GitHub returned invalid PO content for {app_name} - keeping local version")
                     
-                    # Write the GitHub content to local file
-                    with open(local_th_po_path, 'w', encoding='utf-8') as f:
-                        f.write(response.text)
+                    elif response.status_code == 404:
+                        print(f"  ℹ️ No th.po file available on GitHub for {app_name} - using local version")
                     
-                    stats["synced_files"] += 1
-                    stats["updated_apps"] += 1
-                    print(f"  ✅ Synced {app_name}/locale/th.po from GitHub")
-                else:
-                    print(f"  ℹ️ No th.po file found on GitHub for {app_name} (HTTP {response.status_code})")
+                    elif response.status_code == 403:
+                        print(f"  ⚠️ GitHub API rate limit or access denied for {app_name} - using local version")
+                    
+                    else:
+                        print(f"  ⚠️ GitHub error {response.status_code} for {app_name} - using local version")
+                        
+                except requests.exceptions.Timeout:
+                    print(f"  ⚠️ GitHub request timeout for {app_name} - using local version")
+                    
+                except requests.exceptions.ConnectionError:
+                    print(f"  ⚠️ GitHub connection error for {app_name} - using local version")
+                    
+                except requests.exceptions.RequestException as req_err:
+                    print(f"  ⚠️ GitHub request failed for {app_name}: {str(req_err)} - using local version")
                     
             except Exception as e:
                 stats["failed_apps"].append(app_name)
-                print(f"  ⚠️ Failed to sync {app_name}: {str(e)}")
+                print(f"  ❌ Unexpected error syncing {app_name}: {str(e)} - using local version")
+        
+        # Determine appropriate success message
+        if stats["synced_files"] > 0:
+            message = f"Synced {stats['synced_files']} files for {stats['updated_apps']} apps from GitHub"
+        else:
+            message = f"No files synced from GitHub - using local versions for {len(installed_apps)} apps"
         
         return {
             "success": True,
-            "message": f"Synced {stats['synced_files']} files for {stats['updated_apps']} apps",
+            "message": message,
             "stats": stats
         }
         
