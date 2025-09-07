@@ -10,67 +10,173 @@ from packaging import version
 
 
 def generate_po_file():
-    """Run setup operations after app installation"""
+    """Smart translation file setup for multi-tenant environment"""
+    import os
+    import subprocess
+    from frappe.utils import get_bench_path
+    
     try:
-        # Get current site name
+        # Get current site name and bench path
         site_name = frappe.local.site
-        app_name = "translation_tools"
+        bench_path = get_bench_path()
         installed_apps = frappe.get_installed_apps()
-
+        
         print(f"✅ Translation Tools installed successfully on {site_name}")
-        print("Setting up translation files...")
-
-        # Run translation commands for all apps
+        print("🔍 Checking translation files for multi-tenant optimization...")
+        
+        apps_needing_setup = []
+        apps_already_setup = []
+        
+        # Step 1: Check each app for existing translation files
         for current_app in installed_apps:
-            try:
-                print(f"Generating POT file for {current_app}...")
-                subprocess.run(
-                    f"bench --site {site_name} generate-pot-file --app {current_app}",
-                    shell=True,
-                    check=True,
-                )
-                print(f"✅ Generated POT file for {current_app}")
-            except Exception as e:
-                print(f"⚠️  Could not generate POT file for {current_app}: {str(e)}")
-
-            # Run Thai translation commands for each app
-            try:
-                print(f"Migrating CSV to PO for {current_app}...")
-                subprocess.run(
-                    f"bench --site {site_name} migrate-csv-to-po --app {current_app} --locale th",
-                    shell=True,
-                    check=True,
-                )
-                print(f"✅ Migrated CSV to PO for {current_app}")
-            except Exception as e:
-                print(f"⚠️ Could not migrate CSV to PO for {current_app}: {str(e)}")
-
-            try:
-                print(f"Updating PO files for {current_app}...")
-                subprocess.run(
-                    f"bench --site {site_name} update-po-files --app {current_app} --locale th",
-                    shell=True,
-                    check=True,
-                )
-                print(f"✅ Updated PO files for {current_app}")
-            except Exception as e:
-                print(f"⚠️ Could not update PO files for {current_app}: {str(e)}")
-
-            try:
-                print(f"Compiling PO to MO for {current_app}...")
-                subprocess.run(
-                    f"bench --site {site_name} compile-po-to-mo --app {current_app} --locale th",
-                    shell=True,
-                    check=True,
-                )
-                print(f"✅ Compiled PO to MO for {current_app}")
-            except Exception as e:
-                print(f"⚠️ Could not compile PO to MO for {current_app}: {str(e)}")
-
-        print("\nTranslation setup completed!")
-
+            app_locale_path = os.path.join(bench_path, "apps", current_app, current_app, "locale")
+            main_pot_path = os.path.join(app_locale_path, "main.pot")
+            th_po_path = os.path.join(app_locale_path, "th.po")
+            
+            # Check if both main.pot and th.po exist
+            if os.path.exists(main_pot_path) and os.path.exists(th_po_path):
+                apps_already_setup.append(current_app)
+                print(f"✅ {current_app}: Translation files already exist, skipping bench commands")
+            else:
+                apps_needing_setup.append(current_app)
+                print(f"🔄 {current_app}: Translation files missing, will run bench commands")
+        
+        print(f"\n📊 Summary: {len(apps_already_setup)} apps already setup, {len(apps_needing_setup)} apps need setup")
+        
+        # Step 2: Run bench commands only for apps that need them
+        if apps_needing_setup:
+            print(f"\n🚀 Running bench commands for {len(apps_needing_setup)} apps...")
+            
+            for current_app in apps_needing_setup:
+                print(f"\n📦 Setting up {current_app}...")
+                
+                try:
+                    print(f"  1/4 Generating POT file for {current_app}...")
+                    subprocess.run(
+                        f"bench --site {site_name} generate-pot-file --app {current_app}",
+                        shell=True,
+                        check=True,
+                    )
+                    print(f"  ✅ Generated POT file for {current_app}")
+                except Exception as e:
+                    print(f"  ⚠️ Could not generate POT file for {current_app}: {str(e)}")
+                
+                try:
+                    print(f"  2/4 Migrating CSV to PO for {current_app}...")
+                    subprocess.run(
+                        f"bench --site {site_name} migrate-csv-to-po --app {current_app} --locale th",
+                        shell=True,
+                        check=True,
+                    )
+                    print(f"  ✅ Migrated CSV to PO for {current_app}")
+                except Exception as e:
+                    print(f"  ⚠️ Could not migrate CSV to PO for {current_app}: {str(e)}")
+                
+                try:
+                    print(f"  3/4 Updating PO files for {current_app}...")
+                    subprocess.run(
+                        f"bench --site {site_name} update-po-files --app {current_app} --locale th",
+                        shell=True,
+                        check=True,
+                    )
+                    print(f"  ✅ Updated PO files for {current_app}")
+                except Exception as e:
+                    print(f"  ⚠️ Could not update PO files for {current_app}: {str(e)}")
+                
+                try:
+                    print(f"  4/4 Compiling PO to MO for {current_app}...")
+                    subprocess.run(
+                        f"bench --site {site_name} compile-po-to-mo --app {current_app} --locale th",
+                        shell=True,
+                        check=True,
+                    )
+                    print(f"  ✅ Compiled PO to MO for {current_app}")
+                except Exception as e:
+                    print(f"  ⚠️ Could not compile PO to MO for {current_app}: {str(e)}")
+        else:
+            print("\n🎉 All apps already have translation files - skipping bench commands!")
+        
+        # Step 3: GitHub Sync to get latest translated files
+        print(f"\n🔄 Syncing th.po files from GitHub repository...")
+        try:
+            sync_result = sync_translation_files_from_github(installed_apps)
+            if sync_result.get("success"):
+                stats = sync_result.get("stats", {})
+                print(f"✅ GitHub sync completed: {stats.get('synced_files', 0)} files synced, {stats.get('updated_apps', 0)} apps updated")
+            else:
+                print(f"⚠️ GitHub sync failed: {sync_result.get('message', 'Unknown error')}")
+                print("   Translation files from bench commands will be used")
+        except Exception as e:
+            print(f"⚠️ GitHub sync failed: {str(e)}")
+            print("   Translation files from bench commands will be used")
+        
+        print("\n🎉 Translation setup completed!")
+        
     except Exception as e:
         print(f"❌ Error during Translation Tools setup: {str(e)}")
+
+
+def sync_translation_files_from_github(installed_apps):
+    """
+    Sync th.po files from GitHub repository for better translations
+    GitHub repo: https://github.com/ManotLuijiu/erpnext-thai-translation.git
+    """
+    import requests
+    import os
+    from frappe.utils import get_bench_path
+    
+    try:
+        bench_path = get_bench_path()
+        github_base_url = "https://raw.githubusercontent.com/ManotLuijiu/erpnext-thai-translation/main"
+        
+        stats = {
+            "synced_files": 0,
+            "updated_apps": 0,
+            "failed_apps": []
+        }
+        
+        for app_name in installed_apps:
+            try:
+                # Try to download th.po file from GitHub for this app
+                github_file_url = f"{github_base_url}/{app_name}/locale/th.po"
+                
+                print(f"  📥 Checking GitHub for {app_name}/locale/th.po...")
+                response = requests.get(github_file_url, timeout=30)
+                
+                if response.status_code == 200:
+                    # File exists on GitHub, save it locally
+                    local_locale_dir = os.path.join(bench_path, "apps", app_name, app_name, "locale")
+                    local_th_po_path = os.path.join(local_locale_dir, "th.po")
+                    
+                    # Create locale directory if it doesn't exist
+                    os.makedirs(local_locale_dir, exist_ok=True)
+                    
+                    # Write the GitHub content to local file
+                    with open(local_th_po_path, 'w', encoding='utf-8') as f:
+                        f.write(response.text)
+                    
+                    stats["synced_files"] += 1
+                    stats["updated_apps"] += 1
+                    print(f"  ✅ Synced {app_name}/locale/th.po from GitHub")
+                else:
+                    print(f"  ℹ️ No th.po file found on GitHub for {app_name} (HTTP {response.status_code})")
+                    
+            except Exception as e:
+                stats["failed_apps"].append(app_name)
+                print(f"  ⚠️ Failed to sync {app_name}: {str(e)}")
+        
+        return {
+            "success": True,
+            "message": f"Synced {stats['synced_files']} files for {stats['updated_apps']} apps",
+            "stats": stats
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"GitHub sync failed: {str(e)}",
+            "stats": {"synced_files": 0, "updated_apps": 0, "failed_apps": []}
+        }
 
 
 def get_bench_dir():
