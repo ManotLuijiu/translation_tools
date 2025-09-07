@@ -68,7 +68,8 @@ export function useSyncGlossaryFromGitHub() {
     success: boolean; 
     message: string;
     stats: { added: number; updated: number; skipped: number; errors: number };
-  }>('translation_tools.api.glossary.sync_glossary_from_github');
+    site?: string;
+  }>('translation_tools.api.sync_public_glossary.sync_glossary_from_public_github');
 }
 
 /**

@@ -40,11 +40,13 @@ import {
 interface FileExplorerProps {
   onFileSelect: (file: POFile) => void;
   selectedFilePath: string | null;
+  onRefreshFunctionReady?: (refreshFn: () => void) => void;
 }
 
 export default function FileExplorer({
   onFileSelect,
   selectedFilePath,
+  onRefreshFunctionReady,
 }: FileExplorerProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<string>('th'); // Default to Thai
@@ -88,6 +90,17 @@ export default function FileExplorer({
       setAppSyncSettings(settings);
     }
   }, [appSyncData]);
+
+  // Provide refresh function to parent component
+  useEffect(() => {
+    console.log('📁 FileExplorer: Setting up refresh function');
+    console.log('📁 onRefreshFunctionReady exists:', !!onRefreshFunctionReady);
+    console.log('📁 mutate function exists:', !!mutate);
+    if (onRefreshFunctionReady) {
+      console.log('📁 FileExplorer: Calling onRefreshFunctionReady with mutate function');
+      onRefreshFunctionReady(mutate);
+    }
+  }, [onRefreshFunctionReady, mutate]);
 
   const handleToggleAppSync = async (appName: string, enabled: boolean) => {
     try {

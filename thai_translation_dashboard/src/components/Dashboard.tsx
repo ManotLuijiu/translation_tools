@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -30,12 +30,36 @@ export default function Dashboard() {
     'manual'
   );
   const { data: settingsData } = useGetTranslationSettings();
+  
+  // Ref to store FileExplorer's refresh function
+  const fileExplorerRefreshRef = useRef<(() => void) | null>(null);
+  
+  // Ref to store TranslationEditor's refresh function (more reliable)
+  const translationEditorRefreshRef = useRef<(() => void) | null>(null);
 
   // console.log('selectedFile', selectedFile);
   // console.log(__('Print Message'));
 
   const refreshTranslations = () => {
-    console.info('refreshTranslations clicked');
+    console.log('🔄 refreshTranslations: GitHub sync completed, starting refresh process');
+    console.log('🔍 fileExplorerRefreshRef.current exists:', !!fileExplorerRefreshRef.current);
+    console.log('🔍 translationEditorRefreshRef.current exists:', !!translationEditorRefreshRef.current);
+    
+    // FileExplorer's mutate function refreshes the progress bars (useGetCachedPOFiles)
+    if (fileExplorerRefreshRef.current) {
+      console.log('✅ Calling FileExplorer refresh function');
+      fileExplorerRefreshRef.current();
+    } else {
+      console.log('❌ FileExplorer refresh function not available');
+    }
+    
+    // Also refresh TranslationEditor if available (for translation entries)
+    if (translationEditorRefreshRef.current) {
+      console.log('✅ Also calling TranslationEditor refresh function');
+      translationEditorRefreshRef.current();
+    } else {
+      console.log('❌ TranslationEditor refresh function not available');
+    }
   };
 
   // Check setup status
@@ -204,6 +228,9 @@ export default function Dashboard() {
             <FileExplorer
               onFileSelect={handleFileSelect}
               selectedFilePath={selectedFile?.file_path || null}
+              onRefreshFunctionReady={(refreshFn) => {
+                fileExplorerRefreshRef.current = refreshFn;
+              }}
             />
           </TabsContent>
 
@@ -213,6 +240,9 @@ export default function Dashboard() {
                 translationMode={translationMode}
                 selectedFile={selectedFile}
                 settings={settingsData.message}
+                onRefreshFunctionReady={(refreshFn) => {
+                  translationEditorRefreshRef.current = refreshFn;
+                }}
               />
             )}
           </TabsContent>

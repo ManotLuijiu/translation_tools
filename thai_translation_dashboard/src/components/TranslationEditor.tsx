@@ -66,12 +66,14 @@ interface TranslationEditorProps {
   translationMode: string;
   selectedFile: POFile | null;
   settings: TranslationToolsSettings;
+  onRefreshFunctionReady?: (refreshFn: () => void) => void;
 }
 
 export default function TranslationEditor({
   translationMode,
   selectedFile,
   settings,
+  onRefreshFunctionReady,
 }: TranslationEditorProps) {
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
   const [entryFilter, setEntryFilter] = useState<
@@ -143,6 +145,17 @@ export default function TranslationEditor({
     entryFilter,
     searchTerm
   );
+
+  // Provide refresh function to parent component
+  useEffect(() => {
+    console.log('📝 TranslationEditor: Setting up refresh function');
+    console.log('📝 onRefreshFunctionReady exists:', !!onRefreshFunctionReady);
+    console.log('📝 mutate function exists:', !!mutate);
+    if (onRefreshFunctionReady) {
+      console.log('📝 TranslationEditor: Calling onRefreshFunctionReady with mutate function');
+      onRefreshFunctionReady(mutate);
+    }
+  }, [onRefreshFunctionReady, mutate]);
 
   // console.log('data paginated', data);
   // console.log('stats paginated', stats);

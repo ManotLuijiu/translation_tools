@@ -200,12 +200,30 @@ export default function GithubSync({
         local_file_path: selectedFile.file_path,
       });
 
-      if (response?.message?.success) {
+      console.log('GitHub sync response:', response);
+
+      // Handle both direct success and wrapped message response
+      const isSuccess = response?.success || response?.message?.success;
+      const error = response?.error || response?.message?.error;
+
+      if (isSuccess) {
+        console.log('🚀 GitHub sync successful, calling onSyncComplete');
+        console.log('🚀 onSyncComplete function exists:', !!onSyncComplete);
+        
+        // Call the callback for refresh logic
+        console.log('🚀 About to call onSyncComplete...');
         onSyncComplete();
+        console.log('🚀 onSyncComplete called successfully');
+        
         setIsOpen(false);
+        showMessage('GitHub sync completed successfully!', 'success');
+      } else {
+        console.error('GitHub sync failed:', error);
+        showMessage(`GitHub sync failed: ${error || 'Unknown error'}`, 'error');
       }
     } catch (err) {
       console.error('Error applying sync:', err);
+      showMessage(`Error applying sync: ${err}`, 'error');
     }
   };
 

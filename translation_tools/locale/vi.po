@@ -1,4 +1,4 @@
-# English translations for Translation Tools.
+# Vietnamese translations for Translation Tools.
 # Copyright (C) 2025 Manot Luijiu
 # This file is distributed under the same license as the Translation Tools project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
@@ -8,11 +8,11 @@ msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
 "POT-Creation-Date: 2025-09-07 07:05+0642\n"
-"PO-Revision-Date: 2025-09-07 16:59+0642\n"
+"PO-Revision-Date: 2025-09-07 18:00+0642\n"
 "Last-Translator: moocoding@gmail.com\n"
-"Language: en\n"
+"Language: vi\n"
 "Language-Team: moocoding@gmail.com\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"

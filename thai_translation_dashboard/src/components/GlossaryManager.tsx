@@ -417,10 +417,18 @@ export default function GlossaryManager() {
 
   const handleSyncFromGitHub = async () => {
     try {
-      const result = await syncFromGitHub.call({});
+      const response = await syncFromGitHub.call({});
+      
+      // Frappe wraps the response in a message property
+      const result = response?.message || response;
+      
+      // Ensure result is properly structured
+      if (!result || typeof result !== 'object') {
+        throw new Error('Invalid response from server');
+      }
 
       if (result.success) {
-        const { stats } = result;
+        const stats = result.stats || { added: 0, updated: 0, skipped: 0 };
         const message = `GitHub sync completed: ${stats.added} added, ${stats.updated} updated, ${stats.skipped} unchanged`;
         
         setStatusMessage({
@@ -430,13 +438,15 @@ export default function GlossaryManager() {
         toast.success(message);
         refreshTerms();
       } else {
+        const errorMessage = typeof result.message === 'string' ? result.message : 'Failed to sync from GitHub';
         setStatusMessage({
           type: 'error',
-          message: result.message || 'Failed to sync from GitHub',
+          message: errorMessage,
         });
-        toast.error(result.message);
+        toast.error(errorMessage);
       }
     } catch (err) {
+      console.error('GitHub sync error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to sync from GitHub';
       setStatusMessage({
         type: 'error',

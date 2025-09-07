@@ -35,6 +35,7 @@ modules = {
 # Installation
 after_install = [
     "translation_tools.install.after_install",
+    "translation_tools.setup.github_sync_defaults.check_and_setup_if_needed",
     # "translation_tools.patches.default.fix_fixtures_import",
     # "translation_tools.patches.default.add_default_font_to_print_settings", 
     # "translation_tools.setup.install_custom_fields.install_custom_fields",
@@ -145,9 +146,10 @@ scheduler_events = {
         "* * * * *": [
             "translation_tools.tasks.translation_scheduler.check_and_run_scheduled_tasks"
         ],
-        # MO compilation at midnight Bangkok time (17:00 UTC)
+        # Midnight Bangkok time operations (17:00 UTC)
         "0 17 * * *": [
-            "translation_tools.tasks.mo_compiler.compile_mo_files_for_all_apps"
+            "translation_tools.tasks.mo_compiler.compile_mo_files_for_all_apps",
+            "translation_tools.tasks.github_auto_sync.check_and_run_auto_sync"
         ]
     },
     # Daily tasks (keeping others for backward compatibility)

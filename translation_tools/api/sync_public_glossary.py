@@ -17,7 +17,7 @@ def sync_glossary_from_public_github():
     
     try:
         # Use the public raw GitHub URL you provided
-        public_url = "https://raw.githubusercontent.com/ManotLuijiu/erpnext-thai-translation/refs/heads/main/glossary/thai_glossary.json"
+        public_url = "https://raw.githubusercontent.com/ManotLuijiu/erpnext-thai-translation/main/glossary/thai_glossary.json"
         
         logger.info(f"Syncing glossary from: {public_url}")
         
