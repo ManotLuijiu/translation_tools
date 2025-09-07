@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useGetCachedPOFiles, useScanPOFiles, useEnhancedScanWithPOT, useDeletePOFiles, useGetAppSyncSettings, useToggleAppAutosync } from '../api';
+import { useGetCachedPOFiles, useScanPOFiles, useEnhancedScanWithPOT, useDeletePOFiles, useGetAppSyncSettings, useToggleAppAutosync, useForceRefreshPOStats } from '../api';
 import { POFile } from '../types';
 import { formatPercentage, formatDate } from '../utils/helpers';
 import { Button } from '@/components/ui/button';
@@ -50,6 +50,7 @@ export default function FileExplorer({
   const scanFiles = useScanPOFiles();
   const enhancedScan = useEnhancedScanWithPOT();
   const deletePOFiles = useDeletePOFiles();
+  const forceRefreshStats = useForceRefreshPOStats();
   const [isScanning, setIsScanning] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -128,8 +129,21 @@ export default function FileExplorer({
       if (result?.success) {
         console.log('✅ FRONTEND: POT files generated successfully');
         console.log(`📦 Generated POT files for ${result.apps_count} apps:`, result.apps_processed);
-        // Note: No mutate() call since Generate POT Files doesn't update database
-        // User needs to click "Scan Files" to update File Explorer
+        
+        // Force refresh PO file statistics to update progress bars immediately
+        console.log('🔄 FRONTEND: Refreshing PO file statistics after POT generation...');
+        try {
+          const refreshResult = await forceRefreshStats.call({});
+          if (refreshResult?.success) {
+            console.log(`📊 FRONTEND: Successfully refreshed ${refreshResult.updated_count} file statistics`);
+            // Refresh the file list to show updated progress bars
+            await mutate();
+          } else {
+            console.warn('⚠️ FRONTEND: Failed to refresh statistics:', refreshResult?.error);
+          }
+        } catch (refreshError) {
+          console.error('💥 FRONTEND: Exception during statistics refresh:', refreshError);
+        }
       } else {
         console.error('❌ FRONTEND: POT generation failed:', result?.error || 'Unknown error');
       }
