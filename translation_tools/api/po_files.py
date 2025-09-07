@@ -835,6 +835,8 @@ def scan_po_files():
     
     # Suppress validation messages for duplicate entries during scan
     frappe.flags.ignore_validation_messages = True
+    frappe.flags.ignore_validate = True
+    frappe.flags.ignore_links = True
     
     site = frappe.local.site
     installed_apps = frappe.get_installed_apps()
@@ -925,7 +927,7 @@ def scan_po_files():
                                 if key != "doctype" and hasattr(existing_doc, key):
                                     setattr(existing_doc, key, value)
                             
-                            existing_doc.save(ignore_permissions=True)
+                            existing_doc.save(ignore_permissions=True, ignore_validate=True)
                             stats["updated_files"] += 1
                             logger.info(f"🔄 Updated existing th.po in database: {file_path}")
                             print(f"   ✅ UPDATE SUCCESS - Document updated in database")
@@ -1005,8 +1007,10 @@ def scan_po_files():
         }
     finally:
         SCAN_IN_PROGRESS = False
-        # Reset the validation message suppression flag
+        # Reset all validation suppression flags
         frappe.flags.ignore_validation_messages = False
+        frappe.flags.ignore_validate = False
+        frappe.flags.ignore_links = False
         logger.info("Scan completed, reset SCAN_IN_PROGRESS flag")
 
 
