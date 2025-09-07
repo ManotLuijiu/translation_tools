@@ -53,10 +53,9 @@ after_uninstall = "translation_tools.uninstall.after_uninstall"
 
 # Custom bench commands
 # --------------------
-# commands = [
-#     "translation_tools.commands.repair_translation_tools",
-#     "translation_tools.commands.open_translation_dashboard",
-# ]
+commands = [
+    "translation_tools.commands.compile_mo_files"
+]
 
 website_route_rules = [
     {
@@ -145,9 +144,13 @@ scheduler_events = {
     "cron": {
         "* * * * *": [
             "translation_tools.tasks.translation_scheduler.check_and_run_scheduled_tasks"
+        ],
+        # MO compilation at midnight Bangkok time (17:00 UTC)
+        "0 17 * * *": [
+            "translation_tools.tasks.mo_compiler.compile_mo_files_for_all_apps"
         ]
     },
-    # Daily tasks
+    # Daily tasks (keeping others for backward compatibility)
     "daily": [
         "translation_tools.api.ai_models.get_available_ai_models",
         "translation_tools.tasks.translation_scheduler.cleanup_old_logs",
