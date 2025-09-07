@@ -376,6 +376,11 @@ export default function FileExplorer({
                           onCheckedChange={(checked) => {
                             handleToggleAppSync(file.app, checked);
                           }}
+                          className={
+                            appSyncSettings[file.app] 
+                              ? "data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500" 
+                              : ""
+                          }
                         />
                       </div>
                     ) : (

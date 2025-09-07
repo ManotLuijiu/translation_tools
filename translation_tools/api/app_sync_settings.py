@@ -51,13 +51,53 @@ def toggle_app_autosync(app_name, enabled=False):
         frappe.db.commit()  # Ensure the changes are committed immediately
         
         # If enabling, trigger an immediate sync for this app
-        if enabled and settings.enabled:
-            frappe.enqueue(
-                'translation_tools.api.app_sync_settings.sync_app_from_github',
-                app_name=app_name,
-                queue='short',
-                timeout=300
-            )
+        if enabled:
+            # Call apply_sync directly for immediate execution (like manual sync button)
+            from translation_tools.api.github_sync import apply_sync
+            from translation_tools.api.po_files import get_cached_po_files
+            
+            try:
+                # Get app-specific repository URL if available
+                repo_result = get_app_github_repo_url(app_name)
+                repo_url = repo_result.get('repo_url') if repo_result.get('success') else settings.repository_url
+                
+                if repo_url:
+                    # Get PO files for this app
+                    po_files_result = get_cached_po_files()
+                    if po_files_result and 'message' in po_files_result:
+                        app_po_files = [f for f in po_files_result['message'] if f['app'] == app_name]
+                        
+                        if app_po_files:
+                            # Find translation files in GitHub
+                            from translation_tools.api.github_sync import find_translation_files
+                            github_files_result = find_translation_files(
+                                repo_url=repo_url,
+                                branch=settings.branch or 'main',
+                                target_language=settings.target_language or 'th'
+                            )
+                            
+                            if github_files_result.get('success') and github_files_result.get('files'):
+                                best_match = github_files_result['files'][0]
+                                
+                                # Apply sync for first PO file (like manual sync)
+                                first_po_file = app_po_files[0]
+                                apply_sync(
+                                    repo_url=repo_url,
+                                    branch=settings.branch or 'main',
+                                    repo_files=[best_match['path']],
+                                    local_file_path=first_po_file['file_path']
+                                )
+                                
+                                frappe.logger().info(f"Auto-sync applied immediately for {app_name}")
+            except Exception as e:
+                frappe.log_error(f"Error in immediate auto-sync for {app_name}: {str(e)}")
+                # Fallback to background job if direct sync fails
+                frappe.enqueue(
+                    'translation_tools.api.app_sync_settings.sync_app_from_github',
+                    app_name=app_name,
+                    queue='short',
+                    timeout=300
+                )
         
         return {
             "success": True,
