@@ -53,7 +53,7 @@ def generate_po_file():
                 try:
                     print(f"  1/4 Generating POT file for {current_app}...")
                     subprocess.run(
-                        f"bench --site {site_name} generate-pot-file --app {current_app}",
+                        f"bench generate-pot-file --app {current_app}",
                         shell=True,
                         check=True,
                     )
@@ -64,7 +64,7 @@ def generate_po_file():
                 try:
                     print(f"  2/4 Migrating CSV to PO for {current_app}...")
                     subprocess.run(
-                        f"bench --site {site_name} migrate-csv-to-po --app {current_app} --locale th",
+                        f"bench migrate-csv-to-po --app {current_app} --locale th",
                         shell=True,
                         check=True,
                     )
@@ -75,7 +75,7 @@ def generate_po_file():
                 try:
                     print(f"  3/4 Updating PO files for {current_app}...")
                     subprocess.run(
-                        f"bench --site {site_name} update-po-files --app {current_app} --locale th",
+                        f"bench update-po-files --app {current_app} --locale th",
                         shell=True,
                         check=True,
                     )
@@ -86,7 +86,7 @@ def generate_po_file():
                 try:
                     print(f"  4/4 Compiling PO to MO for {current_app}...")
                     subprocess.run(
-                        f"bench --site {site_name} compile-po-to-mo --app {current_app} --locale th",
+                        f"bench compile-po-to-mo --app {current_app} --locale th",
                         shell=True,
                         check=True,
                     )
