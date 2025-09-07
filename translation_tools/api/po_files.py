@@ -832,6 +832,10 @@ def scan_po_files():
         return {"success": False, "error": "Scan already in progress"}
 
     SCAN_IN_PROGRESS = True
+    
+    # Suppress validation messages for duplicate entries during scan
+    frappe.flags.ignore_validation_messages = True
+    
     site = frappe.local.site
     installed_apps = frappe.get_installed_apps()
     
@@ -896,7 +900,8 @@ def scan_po_files():
                 file_data.update({"doctype": "PO File"})
                 
                 # Method 1: Check if document already exists by name (primary key)
-                po_doc_name = file_path  # PO File uses file_path as the name/primary key
+                # Use the relative path from file_data as the document name, not the absolute file_path
+                po_doc_name = file_data["file_path"]  # This is the relative path that serves as the primary key
                 print(f"   📋 Checking if exists in database: {po_doc_name}")
                 
                 if frappe.db.exists("PO File", po_doc_name):
@@ -1000,6 +1005,8 @@ def scan_po_files():
         }
     finally:
         SCAN_IN_PROGRESS = False
+        # Reset the validation message suppression flag
+        frappe.flags.ignore_validation_messages = False
         logger.info("Scan completed, reset SCAN_IN_PROGRESS flag")
 
 
