@@ -597,34 +597,69 @@ def update_po_file_cache(
     translation_status,
 ):
     """Create or update a PO file cache entry"""
-    existing = frappe.db.exists("PO File", {"file_path": file_path})
+    try:
+        existing = frappe.db.exists("PO File", {"file_path": file_path})
 
-    if existing:
-        frappe.db.set_value(
-            "PO File",
-            existing,
-            {
-                "total_entries": total_entries,
-                "translated_entries": translated_entries,
-                "translation_status": translation_status,
-                "last_scanned": datetime.now(),
-            },
-        )
-    else:
-        doc = frappe.get_doc(
-            {
-                "doctype": "PO File",
-                "file_path": file_path,
-                "app_name": app_name,
-                "filename": filename,
-                "language": language,
-                "total_entries": total_entries,
-                "translated_entries": translated_entries,
-                "translation_status": translation_status,
-                "last_scanned": datetime.now(),
-            }
-        )
-        doc.insert()
+        if existing:
+            frappe.db.set_value(
+                "PO File",
+                existing,
+                {
+                    "total_entries": total_entries,
+                    "translated_entries": translated_entries,
+                    "translation_status": translation_status,
+                    "last_scanned": datetime.now(),
+                },
+            )
+        else:
+            doc = frappe.get_doc(
+                {
+                    "doctype": "PO File",
+                    "file_path": file_path,
+                    "app_name": app_name,
+                    "filename": filename,
+                    "language": language,
+                    "total_entries": total_entries,
+                    "translated_entries": translated_entries,
+                    "translation_status": translation_status,
+                    "last_scanned": datetime.now(),
+                }
+            )
+            doc.insert(ignore_permissions=True, ignore_if_duplicate=True)
+    except frappe.DuplicateEntryError:
+        # Race condition - another process inserted the record, update it instead
+        logger.debug(f"Duplicate entry detected for {file_path}, updating instead")
+        existing = frappe.db.exists("PO File", {"file_path": file_path})
+        if existing:
+            frappe.db.set_value(
+                "PO File",
+                existing,
+                {
+                    "total_entries": total_entries,
+                    "translated_entries": translated_entries,
+                    "translation_status": translation_status,
+                    "last_scanned": datetime.now(),
+                },
+            )
+    except Exception as e:
+        # Handle any other duplicate errors from MySQL
+        if "Duplicate entry" in str(e) or "1062" in str(e):
+            logger.debug(f"MySQL duplicate entry for {file_path}, updating instead")
+            existing = frappe.db.exists("PO File", {"file_path": file_path})
+            if existing:
+                frappe.db.set_value(
+                    "PO File",
+                    existing,
+                    {
+                        "total_entries": total_entries,
+                        "translated_entries": translated_entries,
+                        "translation_status": translation_status,
+                        "last_scanned": datetime.now(),
+                    },
+                )
+        else:
+            # Re-raise if it's not a duplicate error
+            raise
 
 
 def parse_po_file(file_path):
@@ -856,7 +891,7 @@ def scan_po_files():
                 continue
 
             # Bulletproof duplicate handling to prevent SQL IntegrityError
-            print(f"🔍 Processing PO file [{i+1}/{total_files}]: {file_path}")
+            print(f"🔍 Processing PO file [{i+1}/{len(matching_files)}]: {file_path}")
             try:
                 file_data.update({"doctype": "PO File"})
                 
