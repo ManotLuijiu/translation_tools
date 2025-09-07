@@ -20,8 +20,9 @@ import {
 } from '@/components/ui/tooltip';
 
 import { Input } from '@/components/ui/input';
-import { Loader2, RefreshCw, Search, FileText, Trash2, CheckCircle, GitBranch } from 'lucide-react';
+import { Loader2, RefreshCw, Search, FileText, Trash2, CheckCircle, GitBranch, Globe } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/context/TranslationContext';
@@ -46,16 +47,26 @@ export default function FileExplorer({
   selectedFilePath,
 }: FileExplorerProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState<string>('th'); // Default to Thai
   const { data, error, isLoading, mutate } = useGetCachedPOFiles();
   const scanFiles = useScanPOFiles();
   const deletePOFiles = useDeletePOFiles();
   const forceRefreshStats = useForceRefreshPOStats();
   const [isScanningFiles, setIsScanningFiles] = useState(false);
+  const [isGeneratingAsean, setIsGeneratingAsean] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteSuccess, setDeleteSuccess] = useState<{ show: boolean; count: number }>({ show: false, count: 0 });
   const { translate: __, isReady } = useTranslation();
+
+  // ASEAN languages configuration
+  const aseanLanguages = [
+    { code: 'th', name: 'Thai', flag: '🇹🇭' },
+    { code: 'vi', name: 'Vietnamese', flag: '🇻🇳' },
+    { code: 'lo', name: 'Lao', flag: '🇱🇦' },
+    { code: 'km', name: 'Khmer', flag: '🇰🇭' },
+  ];
   
   // App sync settings
   const { data: appSyncData, mutate: refetchAppSyncData } = useGetAppSyncSettings();
@@ -119,19 +130,65 @@ export default function FileExplorer({
     }
   };
 
+  const handleGenerateAseanTranslations = async () => {
+    setIsGeneratingAsean(true);
+    try {
+      // Call our bulk ASEAN translation API
+      const response = await fetch('/api/method/translation_tools.api.bulk_translation.generate_all_apps_asean_translations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Frappe-CSRF-Token': (window as any).csrf_token || ''
+        },
+        body: JSON.stringify({
+          force_regenerate_pot: false // Don't regenerate POT files by default
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.message?.success) {
+        const summary = result.message;
+        console.log('ASEAN translation generation completed:', summary);
+        
+        // Show success message with summary
+        const successMessage = `🌏 ASEAN translations generated for ${summary.processed_apps}/${summary.total_apps} apps. ` +
+          `${summary.skipped_apps} skipped, ${summary.error_apps} errors.`;
+        
+        // You can add a proper toast notification here
+        alert(successMessage);
+        
+        // Refresh the data to show new files
+        await mutate();
+      } else {
+        throw new Error(result.message?.error || 'Failed to generate ASEAN translations');
+      }
+    } catch (error) {
+      console.error('Error generating ASEAN translations:', error);
+      alert(`Error generating ASEAN translations: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsGeneratingAsean(false);
+    }
+  };
+
 
 
   // console.log('data', data);
 
   const filteredFiles =
     data?.message?.filter((file) => {
-      if (!searchTerm) return true;
+      // Filter by language (based on filename ending, e.g., th.po, en.po, etc.)
+      const languageMatch = file.filename.endsWith(`${activeTab}.po`);
+      
+      // Filter by search term
+      if (!searchTerm) return languageMatch;
 
       const searchLower = searchTerm.toLowerCase();
-      return (
+      const searchMatch = 
         file.filename.toLowerCase().includes(searchLower) ||
-        file.app.toLowerCase().includes(searchLower)
-      );
+        file.app.toLowerCase().includes(searchLower);
+      
+      return languageMatch && searchMatch;
     }) || [];
 
   // console.log('filteredFiles', filteredFiles);
@@ -232,7 +289,7 @@ export default function FileExplorer({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">{__('PO Files')}</h2>
+        <h2 className="text-2xl font-bold">{__('ASEAN Translation Files')}</h2>
         {deleteSuccess.show && (
           <div className="flex items-center gap-2 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 px-3 py-2 rounded-lg">
             <CheckCircle className="h-4 w-4" />
@@ -263,6 +320,24 @@ export default function FileExplorer({
               </>
             )}
           </Button>
+          <Button 
+            onClick={handleGenerateAseanTranslations} 
+            disabled={isGeneratingAsean} 
+            variant="default"
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            {isGeneratingAsean ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {__('Generating...')}
+              </>
+            ) : (
+              <>
+                <Globe className="mr-2 h-4 w-4" />
+                {__('Generate ASEAN Translations')}
+              </>
+            )}
+          </Button>
         </div>
       </div>
 
@@ -276,173 +351,193 @@ export default function FileExplorer({
         />
       </div>
 
-      {isLoading ? (
-        <div className="flex justify-center py-8">
-          <Loader2 className="text-primary h-8 w-8 animate-spin" />
-        </div>
-      ) : error ? (
-        <div className="text-destructive p-4 text-center">
-          {__('Error loading files:, {error}', {
-            error: error.message || 'Unknown error',
-          })}
-        </div>
-      ) : sortedFiles.length === 0 ? (
-        <div className="text-muted-foreground p-8 text-center">
-          {searchTerm
-            ? 'No files matching your search'
-            : 'No PO files found. Click "Scan Files" to discover translation files.'}
-        </div>
-      ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]">
-                  <Checkbox
-                    checked={allFilesSelected}
-                    onCheckedChange={handleSelectAll}
-                    aria-label="Select all files"
-                    className="data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground"
-                    {...(someFilesSelected && { 'data-state': 'indeterminate' })}
-                  />
-                </TableHead>
-                <TableHead>{__('App')}</TableHead>
-                <TableHead>Filename</TableHead>
-                <TableHead>Progress</TableHead>
-                <TableHead>Last Modified</TableHead>
-                <TableHead className="w-[120px]">
-                  <div className="flex items-center gap-1">
-                    <GitBranch className="h-4 w-4" />
-                    Auto Sync
-                  </div>
-                </TableHead>
-                <TableHead className="w-[100px]">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedFiles.map((file, index) => {
-                // Check if this is the first file for this app (to show the toggle only once)
-                const isFirstFileForApp = index === 0 || sortedFiles[index - 1].app !== file.app;
-                
-                return (
-                <TableRow
-                  key={file.file_path}
-                  className={
-                    selectedFilePath === file.file_path ? 'bg-muted/50' : ''
-                  }
-                >
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedFiles.has(file.file_path)}
-                      onCheckedChange={(checked) => 
-                        handleFileSelect(file.file_path, checked as boolean)
-                      }
-                      aria-label={`Select ${file.filename}`}
-                    />
-                  </TableCell>
-                  <TableCell>{file.app}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <FileText className="text-muted-foreground mr-2 h-4 w-4" />
-                      {file.filename}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="bg-muted h-2 w-28 rounded-full">
-                        <div
-                          className="h-full rounded-full bg-blue-600"
-                          style={{
-                            width: `${file.translated_percentage}%`,
-                          }}
+      {/* ASEAN Language Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          {aseanLanguages.map((lang) => (
+            <TabsTrigger 
+              key={lang.code} 
+              value={lang.code}
+              className="flex items-center gap-2"
+            >
+              <span>{lang.flag}</span>
+              {lang.name}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        {aseanLanguages.map((lang) => (
+          <TabsContent key={lang.code} value={lang.code} className="mt-4">
+            {isLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="text-primary h-8 w-8 animate-spin" />
+              </div>
+            ) : error ? (
+              <div className="text-destructive p-4 text-center">
+                {__('Error loading files:, {error}', {
+                  error: error.message || 'Unknown error',
+                })}
+              </div>
+            ) : sortedFiles.length === 0 ? (
+              <div className="text-muted-foreground p-8 text-center">
+                {searchTerm
+                  ? `No ${lang.name} files matching your search`
+                  : `No ${lang.name} PO files found. Click "Generate ASEAN Translations" to create ${lang.name} translation files for all apps.`}
+              </div>
+            ) : (
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[50px]">
+                        <Checkbox
+                          checked={allFilesSelected}
+                          onCheckedChange={handleSelectAll}
+                          aria-label="Select all files"
+                          className="data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground"
+                          {...(someFilesSelected && { 'data-state': 'indeterminate' })}
                         />
-                      </div>
-                      <span className="text-muted-foreground text-xs">
-                        {formatPercentage(file.translated_percentage)}
-                      </span>
-                      <Badge variant="outline" className="text-xs">
-                        {file.translated_entries}/{file.total_entries}
-                      </Badge>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground text-sm">
-                    {formatDate(file.last_modified)}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {isFirstFileForApp ? (
-                      <div className="flex items-center justify-center">
-                        <Switch
-                          checked={appSyncSettings[file.app] || false}
-                          onCheckedChange={(checked) => {
-                            handleToggleAppSync(file.app, checked);
-                          }}
-                          className={
-                            appSyncSettings[file.app] 
-                              ? "data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500" 
-                              : ""
-                          }
-                        />
-                      </div>
-                    ) : (
-                      <div className="h-5" />
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <TooltipProvider>
-                      <div className="relative inline-block">
-                        <Button
-                          variant={
-                            selectedFilePath === file.file_path
-                              ? 'secondary'
-                              : 'ghost'
-                          }
-                          size="sm"
-                          onClick={() => onFileSelect(file)}
-                          disabled={file.filename.includes('translated')}
-                          className={cn(
-                            'cursor-pointer',
-                            selectedFilePath === file.file_path
-                              ? 'bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-800 dark:hover:bg-indigo-700'
-                              : 'bg-sky-200 hover:bg-sky-300 dark:bg-blue-600 dark:hover:bg-blue-700'
-                          )}
-                        >
-                          {selectedFilePath === file.file_path
-                            ? 'Selected'
-                            : 'Select'}
-                        </Button>
-                        {file.filename.includes('translated') && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button
-                                type="button"
-                                className="absolute -top-1 -right-1 bg-orange-200 text-gray-900 dark:bg-orange-400 rounded-full p-1 hover:bg-orange-300 dark:hover:bg-orange-500 transition-colors"
+                      </TableHead>
+                      <TableHead>{__('App')}</TableHead>
+                      <TableHead>Filename</TableHead>
+                      <TableHead>Progress</TableHead>
+                      <TableHead>Last Modified</TableHead>
+                      <TableHead className="w-[120px]">
+                        <div className="flex items-center gap-1">
+                          <GitBranch className="h-4 w-4" />
+                          Auto Sync
+                        </div>
+                      </TableHead>
+                      <TableHead className="w-[100px]">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedFiles.map((file, index) => {
+                      // Check if this is the first file for this app (to show the toggle only once)
+                      const isFirstFileForApp = index === 0 || sortedFiles[index - 1].app !== file.app;
+                      
+                      return (
+                      <TableRow
+                        key={file.file_path}
+                        className={
+                          selectedFilePath === file.file_path ? 'bg-muted/50' : ''
+                        }
+                      >
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedFiles.has(file.file_path)}
+                            onCheckedChange={(checked) => 
+                              handleFileSelect(file.file_path, checked as boolean)
+                            }
+                            aria-label={`Select ${file.filename}`}
+                          />
+                        </TableCell>
+                        <TableCell>{file.app}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <FileText className="text-muted-foreground mr-2 h-4 w-4" />
+                            {file.filename}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <div className="bg-muted h-2 w-28 rounded-full">
+                              <div
+                                className="h-full rounded-full bg-blue-600"
                                 style={{
-                                  width: '18px',
-                                  height: '18px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
+                                  width: `${file.translated_percentage}%`,
                                 }}
-                                aria-label="Why disabled?"
+                              />
+                            </div>
+                            <span className="text-muted-foreground text-xs">
+                              {formatPercentage(file.translated_percentage)}
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              {file.translated_entries}/{file.total_entries}
+                            </Badge>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {formatDate(file.last_modified)}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {isFirstFileForApp ? (
+                            <div className="flex items-center justify-center">
+                              <Switch
+                                checked={appSyncSettings[file.app] || false}
+                                onCheckedChange={(checked) => {
+                                  handleToggleAppSync(file.app, checked);
+                                }}
+                                className={
+                                  appSyncSettings[file.app] 
+                                    ? "data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500" 
+                                    : ""
+                                }
+                              />
+                            </div>
+                          ) : (
+                            <div className="h-5" />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <TooltipProvider>
+                            <div className="relative inline-block">
+                              <Button
+                                variant={
+                                  selectedFilePath === file.file_path
+                                    ? 'secondary'
+                                    : 'ghost'
+                                }
+                                size="sm"
+                                onClick={() => onFileSelect(file)}
+                                disabled={file.filename.includes('translated')}
+                                className={cn(
+                                  'cursor-pointer',
+                                  selectedFilePath === file.file_path
+                                    ? 'bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-800 dark:hover:bg-indigo-700'
+                                    : 'bg-sky-200 hover:bg-sky-300 dark:bg-blue-600 dark:hover:bg-blue-700'
+                                )}
                               >
-                                <span className="text-xs font-bold">?</span>
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>For AI only</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
-                      </div>
-                    </TooltipProvider>
-                  </TableCell>
-                </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+                                {selectedFilePath === file.file_path
+                                  ? 'Selected'
+                                  : 'Select'}
+                              </Button>
+                              {file.filename.includes('translated') && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      type="button"
+                                      className="absolute -top-1 -right-1 bg-orange-200 text-gray-900 dark:bg-orange-400 rounded-full p-1 hover:bg-orange-300 dark:hover:bg-orange-500 transition-colors"
+                                      style={{
+                                        width: '18px',
+                                        height: '18px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                      }}
+                                      aria-label="Why disabled?"
+                                    >
+                                      <span className="text-xs font-bold">?</span>
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>For AI only</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
+                            </div>
+                          </TooltipProvider>
+                        </TableCell>
+                      </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </TabsContent>
+        ))}
+      </Tabs>
 
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

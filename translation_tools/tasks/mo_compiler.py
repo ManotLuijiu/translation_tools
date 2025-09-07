@@ -2,27 +2,31 @@
 # For license information, please see license.txt
 
 """
-MO File Compiler
-Handles compilation of PO files to MO files for runtime translation usage
+MO File Compiler - ASEAN Languages Focus
+Integrates with Frappe's native i18n system for efficient translation compilation
+Focuses on ASEAN countries: Thailand, Laos, Cambodia, with English support
 """
 
 import os
-import subprocess
 import frappe
 import logging
 from frappe.utils import now_datetime, get_bench_path
+from frappe.gettext.translate import compile_translations, get_locales
 from datetime import datetime, timedelta
 import pytz
 
 # Configure logging
 logger = logging.getLogger("translation_tools.mo_compiler")
 
+# ASEAN-focused language support
+SUPPORTED_ASEAN_LOCALES = ["th", "en", "lo", "km"]  # Thai, English, Lao, Khmer (Cambodia)
+
 
 def compile_mo_files_for_all_apps():
     """
-    Daily task to compile PO files to MO files for all installed apps
-    Scheduled to run at midnight Bangkok time (17:00 UTC)
-    This ensures translations are up-to-date even when PO files are modified externally
+    Daily task to compile PO files to MO files using Frappe's native system
+    Focuses on ASEAN language support with improved performance
+    Uses Frappe's multiprocessing compilation instead of subprocess calls
     """
     try:
         # Log the execution time in Bangkok timezone
@@ -30,9 +34,8 @@ def compile_mo_files_for_all_apps():
         bangkok_time = datetime.now(bangkok_tz)
         
         installed_apps = frappe.get_installed_apps()
-        bench_path = get_bench_path()
         
-        logger.info(f"Starting daily MO compilation at {bangkok_time.strftime('%Y-%m-%d %H:%M:%S %Z')} for {len(installed_apps)} apps")
+        logger.info(f"Starting ASEAN-focused MO compilation at {bangkok_time.strftime('%Y-%m-%d %H:%M:%S %Z')} for {len(installed_apps)} apps")
         
         compiled_count = 0
         failed_count = 0
@@ -40,39 +43,42 @@ def compile_mo_files_for_all_apps():
         
         for app_name in installed_apps:
             try:
-                result = compile_mo_files_for_app(app_name, force=False)
+                # Use Frappe's native compilation for ASEAN locales
+                result = compile_asean_translations_for_app(app_name)
+                
                 if result["compiled"]:
                     compiled_count += 1
-                    logger.info(f"Compiled MO files for {app_name}")
+                    logger.info(f"Compiled ASEAN translations for {app_name}: {result['locales_compiled']}")
                 elif result["skipped"]:
                     skipped_count += 1
-                    logger.debug(f"Skipped {app_name} - MO files up to date")
+                    logger.debug(f"Skipped {app_name} - no ASEAN translations found or up to date")
                 else:
                     failed_count += 1
-                    logger.warning(f"Failed to compile MO files for {app_name}: {result.get('error', 'Unknown error')}")
+                    logger.warning(f"Failed to compile ASEAN translations for {app_name}: {result.get('error', 'Unknown error')}")
                     
             except Exception as e:
                 failed_count += 1
-                logger.error(f"Error compiling MO files for {app_name}: {str(e)}")
+                logger.error(f"Error compiling ASEAN translations for {app_name}: {str(e)}")
         
         # Log summary
-        summary_msg = f"MO compilation completed: {compiled_count} compiled, {skipped_count} skipped, {failed_count} failed"
+        summary_msg = f"ASEAN MO compilation completed: {compiled_count} compiled, {skipped_count} skipped, {failed_count} failed"
         logger.info(summary_msg)
         
         # Only print to console if there were actual changes or errors
         if compiled_count > 0 or failed_count > 0:
-            print(f"🔄 {summary_msg}")
+            print(f"🇹🇭 {summary_msg}")
         
         return {
             "success": True,
             "compiled_count": compiled_count,
             "skipped_count": skipped_count,
             "failed_count": failed_count,
-            "total_apps": len(installed_apps)
+            "total_apps": len(installed_apps),
+            "asean_locales": SUPPORTED_ASEAN_LOCALES
         }
         
     except Exception as e:
-        error_msg = f"Failed to run daily MO compilation: {str(e)}"
+        error_msg = f"Failed to run ASEAN MO compilation: {str(e)}"
         logger.error(error_msg)
         return {
             "success": False,
@@ -80,9 +86,9 @@ def compile_mo_files_for_all_apps():
         }
 
 
-def compile_mo_files_for_app(app_name, force=False):
+def compile_asean_translations_for_app(app_name, force=False):
     """
-    Compile MO files for a specific app
+    Compile MO files for ASEAN languages using Frappe's native system
     
     Args:
         app_name (str): Name of the app to compile
@@ -92,63 +98,63 @@ def compile_mo_files_for_app(app_name, force=False):
         dict: Result with success status and details
     """
     try:
-        bench_path = get_bench_path()
-        app_locale_path = os.path.join(bench_path, "apps", app_name, app_name, "locale")
+        # Get available locales for the app using Frappe's native function
+        available_locales = get_locales(app_name)
         
-        # Check if locale directory exists
-        if not os.path.exists(app_locale_path):
+        if not available_locales:
             return {
                 "success": True,
                 "compiled": False,
                 "skipped": True,
-                "reason": "No locale directory found"
+                "reason": "No locale files found",
+                "locales_compiled": []
             }
         
-        # Look for PO files
-        po_files = []
-        for filename in os.listdir(app_locale_path):
-            if filename.endswith('.po'):
-                po_files.append(os.path.join(app_locale_path, filename))
+        # Filter for ASEAN locales only
+        asean_locales = [locale for locale in available_locales if locale in SUPPORTED_ASEAN_LOCALES]
         
-        if not po_files:
+        if not asean_locales:
             return {
                 "success": True,
                 "compiled": False,
                 "skipped": True,
-                "reason": "No PO files found"
+                "reason": "No ASEAN locale files found",
+                "available_locales": available_locales,
+                "locales_compiled": []
             }
         
-        # Check if compilation is needed (unless forced)
-        if not force and not needs_mo_compilation(app_name, po_files):
-            return {
-                "success": True,
-                "compiled": False,
-                "skipped": True,
-                "reason": "MO files are up to date"
-            }
+        compiled_locales = []
+        failed_locales = []
         
-        # Run the bench command to compile MO files
-        cmd = f"bench compile-po-to-mo --app {app_name} --locale th"
-        if force:
-            cmd += " --force"
+        # Use Frappe's native compilation for each ASEAN locale
+        for locale in asean_locales:
+            try:
+                # Use Frappe's native compile_translations function
+                compile_translations(target_app=app_name, locale=locale, force=force)
+                compiled_locales.append(locale)
+                logger.debug(f"Successfully compiled {locale} for {app_name}")
+                
+            except Exception as e:
+                failed_locales.append({"locale": locale, "error": str(e)})
+                logger.error(f"Failed to compile {locale} for {app_name}: {str(e)}")
         
-        logger.debug(f"Running: {cmd}")
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=bench_path)
-        
-        if result.returncode == 0:
+        if compiled_locales:
             return {
                 "success": True,
                 "compiled": True,
                 "skipped": False,
-                "reason": f"Compiled {len(po_files)} PO files to MO"
+                "reason": f"Compiled {len(compiled_locales)} ASEAN locales",
+                "locales_compiled": compiled_locales,
+                "locales_failed": failed_locales
             }
         else:
-            error_msg = result.stderr or result.stdout or "Unknown error"
             return {
                 "success": False,
                 "compiled": False,
                 "skipped": False,
-                "error": error_msg.strip()
+                "error": f"All ASEAN locales failed compilation",
+                "locales_failed": failed_locales,
+                "locales_compiled": []
             }
             
     except Exception as e:
@@ -156,8 +162,17 @@ def compile_mo_files_for_app(app_name, force=False):
             "success": False,
             "compiled": False,
             "skipped": False,
-            "error": str(e)
+            "error": str(e),
+            "locales_compiled": []
         }
+
+
+def compile_mo_files_for_app(app_name, force=False):
+    """
+    Legacy function - now uses ASEAN-focused compilation
+    Maintained for backward compatibility with existing code
+    """
+    return compile_asean_translations_for_app(app_name, force)
 
 
 def needs_mo_compilation(app_name, po_files):
@@ -232,32 +247,82 @@ def force_compile_mo_files():
 
 def compile_mo_files_for_all_apps_force():
     """
-    Force compile MO files for all apps (used by API endpoint)
+    Force compile ASEAN translations for all apps using Frappe's native system
     """
     try:
         installed_apps = frappe.get_installed_apps()
         
         compiled_count = 0
         failed_count = 0
+        total_locales_compiled = []
         
         for app_name in installed_apps:
             try:
-                result = compile_mo_files_for_app(app_name, force=True)
+                result = compile_asean_translations_for_app(app_name, force=True)
                 if result["compiled"]:
                     compiled_count += 1
+                    if result.get("locales_compiled"):
+                        total_locales_compiled.extend([
+                            f"{app_name}:{locale}" for locale in result["locales_compiled"]
+                        ])
                 else:
                     failed_count += 1
                     
             except Exception as e:
                 failed_count += 1
-                logger.error(f"Error force compiling MO files for {app_name}: {str(e)}")
+                logger.error(f"Error force compiling ASEAN translations for {app_name}: {str(e)}")
         
         return {
             "success": True,
             "compiled_count": compiled_count,
             "failed_count": failed_count,
+            "total_apps": len(installed_apps),
+            "asean_locales": SUPPORTED_ASEAN_LOCALES,
+            "locales_compiled": total_locales_compiled
+        }
+        
+    except Exception as e:
+        raise Exception(f"Failed to force compile ASEAN translations: {str(e)}")
+
+
+@frappe.whitelist()
+def get_asean_translation_status():
+    """
+    API endpoint to get ASEAN translation status for all apps
+    """
+    try:
+        installed_apps = frappe.get_installed_apps()
+        status_data = []
+        
+        for app_name in installed_apps:
+            try:
+                available_locales = get_locales(app_name)
+                asean_locales = [locale for locale in available_locales if locale in SUPPORTED_ASEAN_LOCALES]
+                
+                app_status = {
+                    "app": app_name,
+                    "available_locales": available_locales,
+                    "asean_locales": asean_locales,
+                    "has_asean_translations": len(asean_locales) > 0
+                }
+                status_data.append(app_status)
+                
+            except Exception as e:
+                status_data.append({
+                    "app": app_name,
+                    "error": str(e),
+                    "has_asean_translations": False
+                })
+        
+        return {
+            "success": True,
+            "supported_locales": SUPPORTED_ASEAN_LOCALES,
+            "apps_status": status_data,
             "total_apps": len(installed_apps)
         }
         
     except Exception as e:
-        raise Exception(f"Failed to force compile MO files: {str(e)}")
+        return {
+            "success": False,
+            "error": str(e)
+        }

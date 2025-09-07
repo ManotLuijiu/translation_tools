@@ -5,7 +5,7 @@ from frappe import _
 app_name = "translation_tools"
 app_title = "Translation Tools"
 app_publisher = "Manot Luijiu"
-app_description = "Translate English to Thai in Frappe/ERPNext ecosystem"
+app_description = "Translate text to ASEAN languages in Frappe/ERPNext ecosystem"
 app_email = "moocoding@gmail.com"
 app_license = "mit"
 app_icon = "/assets/translation_tools/images/translation_icon.svg"
@@ -59,8 +59,8 @@ commands = [
 
 website_route_rules = [
     {
-        "from_route": "/thai_translation_dashboard/<path:app_path>",
-        "to_route": "thai_translation_dashboard",
+        "from_route": "/asean_translation_dashboard/<path:app_path>",
+        "to_route": "asean_translation_dashboard",
     }
 ]
 
@@ -84,7 +84,7 @@ get_desk_sidebar_items = [
                 "name": "translation-tools",  # This must match the Page doctype name
                 "label": "Translation Tools",
                 "icon": "tool",  # Optional: use Frappe icon names
-                "description": "AI-powered Thai translation dashboard",
+                "description": "AI-powered ASEAN translation dashboard",
             }
         ],
     }

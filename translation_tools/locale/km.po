@@ -1,0 +1,2372 @@
+# Khmer translations for Translation Tools.
+# Copyright (C) 2025 Manot Luijiu
+# This file is distributed under the same license as the Translation Tools project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Translation Tools VERSION\n"
+"Report-Msgid-Bugs-To: moocoding@gmail.com\n"
+"POT-Creation-Date: 2025-09-07 07:05+0642\n"
+"PO-Revision-Date: 2025-09-07 16:59+0642\n"
+"Last-Translator: moocoding@gmail.com\n"
+"Language: km\n"
+"Language-Team: moocoding@gmail.com\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.13.1\n"
+
+#: translation_tools/api/notifications.py:41
+msgid ""
+"\n"
+"        <div style=\"text-align: center;\">\n"
+"            <h4 style=\"color: #38A169;\">Translation Tools Installed Successfully!</h4>\n"
+"            <p>You can access the Thai Translation Dashboard from the sidebar under <strong>Thai Translation</strong>.</p>\n"
+"            <p>For help, please refer to the README.md file in the app directory.</p>\n"
+"        </div>\n"
+"        "
+msgstr ""
+
+#: translation_tools/translation_tools/page/translation_status/translation_status.js:113
+#: translation_tools/translation_tools/page/translation_status/translation_status.js:225
+msgid "<div class=\"text-center text-muted\">No data available</div>"
+msgstr ""
+
+#: translation_tools/translation_tools/page/translation_status/translation_status.js:80
+msgid "<div class=\"text-center\">Loading chart...</div>"
+msgstr ""
+
+#: translation_tools/translation_tools/page/translation_status/translation_status.js:83
+msgid "<div class=\"text-center\">Loading data...</div>"
+msgstr ""
+
+#. Header text in the Translation Tools Workspace
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "<h3 style='margin-bottom:15px;'>Translation Tools for Frappe/ERPNext Ecosystem</h3><p style='margin-bottom:15px;'>AI-powered utilities for translating English to Thai language and other localization tools</p>"
+msgstr ""
+
+#. Content of the 'Signature Preview' (HTML) field in DocType 'User Signature'
+#: translation_tools/translation_tools/doctype/user_signature/user_signature.json
+msgid "<img src=\"{{ doc.signature_image }}\" style=\"max-height: 100px;\">"
+msgstr ""
+
+#. Content of the 'help_html' (HTML) field in DocType 'Translation PDF
+#. Settings'
+#: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
+msgid "<p>The GitHub integration allows translations to be automatically shared to a central repository.</p><p>To set up GitHub integration:</p><ol><li>Create a GitHub account if you don't have one</li><li>Create a Personal Access Token (Classic) at <a href=\"https://github.com/settings/tokens\" target=\"_blank\">GitHub Settings</a></li><li>Give it the 'repo' permission</li><li>Copy the token and paste it above</li></ol>"
+msgstr ""
+
+#. Header text in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "<span class=\"h4\"><b>Reports &amp; Masters</b></span>"
+msgstr ""
+
+#. Header text in the Translation Tools Workspace
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "<span class=\"h4\"><b>Reports &amp; Tools</b></span>"
+msgstr ""
+
+#. Header text in the Translation Tools Workspace
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "<span class=\"h4\"><b>Your Shortcuts</b></span>"
+msgstr ""
+
+#: translation_tools/api/resend_integration.py:98
+msgid "A sample Email Account for Resend has been created. Please update it with your Resend API key and settings."
+msgstr ""
+
+#: translation_tools/api/message.py:54
+msgid "AI Bookkeeping features require you to log in to your ERPNext account."
+msgstr ""
+
+#: translation_tools/translation_tools/page/tax_consultant/tax_consultant.js:4
+msgid "AI Thai Tax Consultant"
+msgstr ""
+
+#. Label of a Link in the Translation Tools Workspace
+#. Label of a shortcut in the Translation Tools Workspace
+#: translation_tools/translation_tools/page/ai_translator/ai_translator.js:4
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "AI Translator"
+msgstr ""
+
+#: translation_tools/setup/create_workspace.py:68
+msgid "AI-powered Translation Dashboard"
+msgstr ""
+
+#: translation_tools/config/desktop.py:13
+msgid "AI-powered tools for translating English to Thai"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "API Keys"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "API Settings"
+msgstr ""
+
+#: translation_tools/api/components.py:146
+msgid "API key configuration file not found. Translation features may not work."
+msgstr ""
+
+#: translation_tools/api/translation.py:208
+#: translation_tools/api/translation.py:328
+msgid "API key not configured for {0}"
+msgstr ""
+
+#: translation_tools/api/translation.py:452
+msgid "API key not found in configuration. Please set it up first."
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:16
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:22
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:34
+msgid "Actions"
+msgstr ""
+
+#. Label of a Check field in DocType 'Token Package'
+#. Option for the 'Status' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/token_package/token_package.json
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:293
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Active"
+msgstr ""
+
+#. Label of a Int field in DocType 'GitHub Sync History Entry'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+msgid "Added"
+msgstr ""
+
+#. Name of a role
+#: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+#: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
+#: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
+msgid "All"
+msgstr ""
+
+#. Label of a Currency field in DocType 'Token Purchase'
+#: translation_tools/templates/pages/token_management.html:72
+#: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
+msgid "Amount"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:155
+msgid "An error occurred while running the command"
+msgstr ""
+
+#. Label of a Password field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Anthropic API Key"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Anthropic Configuration"
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Anthropic Model"
+msgstr ""
+
+#. Label of a Data field in DocType 'PO File'
+#. Label of a Data field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "App Name"
+msgstr ""
+
+#. Label of a Long Text field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "App Sync Settings (JSON)"
+msgstr ""
+
+#: translation_tools/translation_tools/page/translation_status/translation_status.js:47
+#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:25
+msgid "Application"
+msgstr ""
+
+#. Label of a number card in the Translation Tools Workspace
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "Approved Translations"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:29
+msgid "Are you sure you want to clear the execution log?"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:11
+msgid "Are you sure you want to run this translation command now?"
+msgstr ""
+
+#. Label of a Card Break in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Authentication"
+msgstr ""
+
+#. Label of a Check field in DocType 'Translation PDF Settings'
+#: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
+msgid "Auto Attach PDF"
+msgstr ""
+
+#. Label of a Check field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Auto Save"
+msgstr ""
+
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
+#. Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Auto-imported"
+msgstr ""
+
+#. Option for the 'Sync Type' (Select) field in DocType 'GitHub Sync History
+#. Entry'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+msgid "Automatic"
+msgstr ""
+
+#. Label of a Card Break in the Translation Tools Workspace
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "Automation"
+msgstr ""
+
+#. Label of a Card Break in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Backup"
+msgstr ""
+
+#. Label of a Check field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Backup Before Sync"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Basic Settings"
+msgstr ""
+
+#: translation_tools/templates/pages/token_management.html:26
+msgid "Basic questions"
+msgstr ""
+
+#. Label of a Int field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Batch Size"
+msgstr ""
+
+#. Label of a Attach field in DocType 'Translation Settings Custom Font'
+#: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
+msgid "Bold"
+msgstr ""
+
+#. Label of a Attach field in DocType 'Translation Settings Custom Font'
+#: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
+msgid "Bold Italics"
+msgstr ""
+
+#. Label of a Data field in DocType 'GitHub Sync History Entry'
+#. Label of a Data field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Branch"
+msgstr ""
+
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
+#. Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Business"
+msgstr ""
+
+#: translation_tools/override/client.py:86
+msgid "Cannot Fetch Values"
+msgstr ""
+
+#. Label of a Select field in DocType 'Translation Glossary Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Category"
+msgstr ""
+
+#: translation_tools/public/js/language_toggle.js:61
+msgid "Changing language to "
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:67
+msgid "Claude API connection failed: {0}"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:58
+msgid "Claude API connection successful! Translation: {0}"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:27
+msgid "Clear Log"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:199
+msgid "Close"
+msgstr ""
+
+#. Label of a Select field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Command Type"
+msgstr ""
+
+#. Label of a Link in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Company Retention Settings"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:126
+msgid "Compile PO files into binary MO files for runtime usage"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Token Purchase'
+#. Option for the 'Status' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Completed"
+msgstr ""
+
+#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:55
+msgid "Completion %"
+msgstr ""
+
+#: translation_tools/translation_tools/page/translation_status/translation_status.js:55
+msgid "Completion Threshold (%)"
+msgstr ""
+
+#: translation_tools/templates/pages/token_management.html:28
+msgid "Complex consultations"
+msgstr ""
+
+#. Label of a Card Break in the Translation Tools Workspace
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "Configuration"
+msgstr ""
+
+#: translation_tools/api/components.py:189
+msgid "Configuration Warning"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Conflict Resolution"
+msgstr ""
+
+#. Label of a Select field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Conflict Resolution Strategy"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:118
+msgid "Connection Test Results"
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
+msgid "Content"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'Translation Glossary Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Context"
+msgstr ""
+
+#. Description of the 'GitHub Personal Access Token (Classic)' (Password) field
+#. in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Create a token with 'repo' scope at https://github.com/settings/tokens"
+msgstr ""
+
+#. Option for the 'Schedule Type' (Select) field in DocType 'Translation
+#. Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Cron"
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Cron Expression"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:225
+msgid "Cron Expression Examples:"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:241
+msgid "Cron expression should have 5 parts: minute hour day month weekday"
+msgstr ""
+
+#. Label of a Link field in DocType 'Token Package'
+#. Label of a Link field in DocType 'Token Purchase'
+#: translation_tools/translation_tools/doctype/token_package/token_package.json
+#: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
+msgid "Currency"
+msgstr ""
+
+#. Label of a Data field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Custom Cron Expression"
+msgstr ""
+
+#. Label of a Table field in DocType 'Translation PDF Settings'
+#: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
+msgid "Custom Fonts"
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Customer Name"
+msgstr ""
+
+#. Option for the 'Schedule Type' (Select) field in DocType 'Translation
+#. Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Daily"
+msgstr ""
+
+#: translation_tools/templates/pages/token_management.html:74
+msgid "Date"
+msgstr ""
+
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
+#. Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Date/Time"
+msgstr ""
+
+#. Label of a Int field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Day of Month"
+msgstr ""
+
+#. Label of a Select field in DocType 'PDF Settings'
+#: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
+msgid "Default Font"
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Default Model"
+msgstr ""
+
+#. Label of a Select field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Default Model Provider"
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Default Source Language"
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Default Target Language"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'ERPNext Module'
+#. Label of a Text Editor field in DocType 'Token Package'
+#: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
+#: translation_tools/translation_tools/doctype/token_package/token_package.json
+msgid "Description"
+msgstr ""
+
+#: translation_tools/api/room.py:112
+msgid "Direct Room already exists!"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:291
+msgid "Disabled"
+msgstr ""
+
+#: translation_tools/override/client.py:10
+msgid "DocType and Document Name must be strings"
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
+msgid "Document Title"
+msgstr ""
+
+#: translation_tools/override/client.py:47
+msgid "Document {0} {1} does not exist"
+msgstr ""
+
+#. Label of a Link in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Dropbox Settings"
+msgstr ""
+
+#. Name of a DocType
+#: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
+msgid "ERPNext Module"
+msgstr ""
+
+#. Label of a Check field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Enable Auto Sync"
+msgstr ""
+
+#. Label of a Check field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Enable Chat Features"
+msgstr ""
+
+#. Label of a Check field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Enable GitHub Integration"
+msgstr ""
+
+#. Label of a Check field in DocType 'Translation User Settings'
+#: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
+msgid "Enable Message Tone"
+msgstr ""
+
+#. Label of a Check field in DocType 'Translation User Settings'
+#: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
+msgid "Enable Notifications"
+msgstr ""
+
+#. Label of a Check field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Enable Scheduled Auto Sync"
+msgstr ""
+
+#. Label of a Check field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Enable Translation Service"
+msgstr ""
+
+#. Label of a Check field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Enabled"
+msgstr ""
+
+#. Description of the 'Custom Cron Expression' (Data) field in DocType 'GitHub
+#. Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Enter a valid cron expression (e.g., '0 2 * * *' for daily at 2 AM)"
+msgstr ""
+
+#. Description of the 'Day of Month' (Int) field in DocType 'Translation
+#. Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Enter day of month (1-31)"
+msgstr ""
+
+#: translation_tools/api/translation.py:181
+msgid "Entry not found"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:289
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Error"
+msgstr ""
+
+#. Label of a Text field in DocType 'GitHub Sync History Entry'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+msgid "Error Message"
+msgstr ""
+
+#: translation_tools/api/github_sync.py:52
+msgid "Error accessing GitHub repository: {0}"
+msgstr ""
+
+#: translation_tools/utils/thai_in_words.py:30
+msgid "Error converting amount to Thai words: {0}"
+msgstr ""
+
+#: translation_tools/api/stripe_payment.py:66
+msgid "Error creating payment session. Please try again."
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:236
+msgid "Error loading fonts ครับ: {0}"
+msgstr ""
+
+#: translation_tools/api/stripe_payment.py:150
+msgid "Error verifying payment. Please contact support."
+msgstr ""
+
+#: translation_tools/public/js/app.js:76
+msgid "Error: "
+msgstr ""
+
+#: translation_tools/utils/thai_in_words.py:31
+msgid "Error: Cannot convert to Thai words"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:154
+msgid "Execution Error"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Translation Schedule'
+#. Label of a Long Text field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:188
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Execution Log"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Execution Status"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:124
+msgid "Extract all translatable strings from the app into a POT template file"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'GitHub Sync History
+#. Entry'
+#. Option for the 'Last Sync Status' (Select) field in DocType 'GitHub Sync
+#. Settings'
+#. Option for the 'Status' (Select) field in DocType 'Token Purchase'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+#: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
+msgid "Failed"
+msgstr ""
+
+#: translation_tools/api/message.py:202
+msgid "Failed to create checkout session. Please try again."
+msgstr ""
+
+#: translation_tools/override/custom_sales_invoice.py:78
+msgid "Failed to generate PDF. Please check the error log."
+msgstr ""
+
+#: translation_tools/public/js/language_toggle.js:82
+msgid "Failed to update language."
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:102
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:114
+msgid "Failed: {0}"
+msgstr ""
+
+#: translation_tools/override/client.py:69
+msgid "Fieldname must be a string"
+msgstr ""
+
+#. Label of a Data field in DocType 'PO File'
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
+#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:31
+msgid "File Path"
+msgstr ""
+
+#: translation_tools/api/po_files.py:897 translation_tools/api/po_files.py:959
+#: translation_tools/api/po_files.py:1052
+#: translation_tools/api/translation.py:152
+#: translation_tools/api/translation.py:286
+msgid "File not found: {0}"
+msgstr ""
+
+#. Label of a Data field in DocType 'PO File'
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
+msgid "Filename"
+msgstr ""
+
+#. Label of a Text field in DocType 'GitHub Sync History Entry'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+msgid "Files Processed"
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
+msgid "Font"
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation Settings Custom Font'
+#: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
+msgid "Font Name"
+msgstr ""
+
+#. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Friday"
+msgstr ""
+
+#: translation_tools/api/user.py:12
+msgid "Full Name is required"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'GitHub Sync Settings'
+#. Label of a Section Break field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "General Settings"
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
+msgid "Generate PDF"
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
+msgid "Generate PDFs with Thai language support."
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:64
+msgid "Generate Test PDF"
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
+msgid "Generate from Document"
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:185
+msgid "Generating PDF..."
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "GitHub Integration"
+msgstr ""
+
+#. Label of a Password field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "GitHub Personal Access Token (Classic)"
+msgstr ""
+
+#. Name of a DocType
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+msgid "GitHub Sync History Entry"
+msgstr ""
+
+#. Name of a DocType
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "GitHub Sync Settings"
+msgstr ""
+
+#: translation_tools/api/po_files.py:1514
+msgid "GitHub token saved successfully"
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Github Branch"
+msgstr ""
+
+#: translation_tools/config/translation_tools.py:20
+msgid "Glossary Term"
+msgstr ""
+
+#. Label of a Link in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Google Calendar"
+msgstr ""
+
+#. Label of a Link in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Google Contacts"
+msgstr ""
+
+#. Label of a Link in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Google Drive"
+msgstr ""
+
+#. Label of a Card Break in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Google Services"
+msgstr ""
+
+#. Label of a Link in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Google Settings"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Translation PDF Settings'
+#: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
+msgid "Help"
+msgstr ""
+
+#. Option for the 'Default Font' (Select) field in DocType 'PDF Settings'
+#: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
+msgid "IBM Plex Thai"
+msgstr ""
+
+#: translation_tools/api/components.py:83
+msgid "Importing default Thai glossary..."
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'GitHub Sync History
+#. Entry'
+#. Option for the 'Last Sync Status' (Select) field in DocType 'GitHub Sync
+#. Settings'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "In Progress"
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
+msgid "Include Company Logo"
+msgstr ""
+
+#: translation_tools/api/notifications.py:50
+msgid "Installation Complete"
+msgstr ""
+
+#: translation_tools/api/notifications.py:16
+msgid "Installation complete!"
+msgstr ""
+
+#: translation_tools/api/components.py:51
+#: translation_tools/api/components.py:82
+#: translation_tools/api/components.py:103
+#: translation_tools/api/installation.py:228
+#: translation_tools/api/notifications.py:15
+msgid "Installing Translation Tools"
+msgstr ""
+
+#: translation_tools/api/settings.py:42
+msgid "Insufficient permissions to access settings"
+msgstr ""
+
+#: translation_tools/api/tokens.py:35
+msgid "Insufficient tokens. Please purchase more tokens to continue."
+msgstr ""
+
+#. Name of a Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Integrations"
+msgstr ""
+
+#: translation_tools/api/github_sync.py:31
+#: translation_tools/api/github_sync.py:105
+#: translation_tools/api/github_sync.py:248
+msgid "Invalid GitHub repository URL"
+msgstr ""
+
+#: translation_tools/api/po_files.py:1087
+#: translation_tools/api/po_files.py:1097
+msgid "Invalid entry ID or entry not found"
+msgstr ""
+
+#: translation_tools/api/translation.py:381
+msgid "Invalid file name: {0}"
+msgstr ""
+
+#: translation_tools/api/stripe_payment.py:83
+msgid "Invalid signature"
+msgstr ""
+
+#: translation_tools/api/message.py:180
+msgid "Invalid token package"
+msgstr ""
+
+#: translation_tools/utils/__init__.py:37
+#: translation_tools/utils/__init__.py:41
+#: translation_tools/utils/__init__.py:45
+msgid "Invalid token."
+msgstr ""
+
+#: translation_tools/api/payment.py:20
+msgid "Invalid transaction"
+msgstr ""
+
+#: translation_tools/override/custom_sales_invoice.py:71
+msgid "Invoice PDF has been attached to this document"
+msgstr ""
+
+#. Label of a Check field in DocType 'Translation Glossary Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Is Approved"
+msgstr ""
+
+#. Label of a Attach field in DocType 'Translation Settings Custom Font'
+#: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
+msgid "Italics"
+msgstr ""
+
+#. Description of the 'App Sync Settings (JSON)' (Long Text) field in DocType
+#. 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "JSON storage for per-app auto-sync settings"
+msgstr ""
+
+#. Label of a Link in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "LDAP Settings"
+msgstr ""
+
+#. Label of a Data field in DocType 'PO File'
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
+msgid "Language"
+msgstr ""
+
+#: translation_tools/public/js/language_toggle.js:75
+msgid "Language updated. Reloading..."
+msgstr ""
+
+#. Label of a Datetime field in DocType 'PO File'
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
+msgid "Last Modified"
+msgstr ""
+
+#. Label of a Datetime field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Last Run"
+msgstr ""
+
+#. Label of a Datetime field in DocType 'PO File'
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
+msgid "Last Scanned"
+msgstr ""
+
+#. Label of a Text field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Last Sync Changes"
+msgstr ""
+
+#. Label of a Datetime field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Last Sync Date/Time"
+msgstr ""
+
+#. Label of a Select field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Last Sync Status"
+msgstr ""
+
+#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:61
+msgid "Last Updated"
+msgstr ""
+
+#: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.js:73
+#: translation_tools/translation_tools/page/translation_dashboard/translation_dashboard.js:22
+msgid "Loading translation dashboard..."
+msgstr ""
+
+#: translation_tools/api/github_sync.py:133
+#: translation_tools/api/github_sync.py:276
+msgid "Local PO file not found"
+msgstr ""
+
+#. Label of a Select field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Locale"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:193
+msgid "Log"
+msgstr ""
+
+#: translation_tools/config/translation_tools.py:21
+msgid "Manage Glossary Term"
+msgstr ""
+
+#: translation_tools/api/workspace.py:26
+msgid "Manage Tokens"
+msgstr ""
+
+#. Option for the 'Sync Type' (Select) field in DocType 'GitHub Sync History
+#. Entry'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+msgid "Manual"
+msgstr ""
+
+#. Label of a Int field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Max Retries"
+msgstr ""
+
+#: translation_tools/api/user.py:14
+msgid "Message is too short"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:127
+msgid "Migrate legacy CSV translations to the PO format"
+msgstr ""
+
+#: translation_tools/api/components.py:172
+msgid "Missing required DocTypes: {0}"
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation History Entry'
+#: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
+msgid "Model"
+msgstr ""
+
+#. Label of a Link field in DocType 'Translation Glossary Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Module"
+msgstr ""
+
+#. Label of a Data field in DocType 'ERPNext Module'
+#: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
+msgid "Module Name"
+msgstr ""
+
+#. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Monday"
+msgstr ""
+
+#. Option for the 'Schedule Type' (Select) field in DocType 'Translation
+#. Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Monthly"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:126
+msgid "More Actions"
+msgstr ""
+
+#. Label of a Data field in DocType 'User Tokens'
+#: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
+msgid "Name"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:256
+msgid "Next 5 runs:"
+msgstr ""
+
+#. Label of a Datetime field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Next Run"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:62
+msgid "Next Run: {0}"
+msgstr ""
+
+#. Label of a Datetime field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Next Scheduled Sync"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:275
+msgid "Next run time will be calculated when you save the document"
+msgstr ""
+
+#: translation_tools/api/components.py:159
+msgid "No API keys found in configuration file."
+msgstr ""
+
+#: translation_tools/api/po_files.py:1358
+msgid "No changes needed, translations are already up to date"
+msgstr ""
+
+#: translation_tools/api/resend_provider.py:91
+msgid "No sender email address found. Please set a default from address."
+msgstr ""
+
+#. Label of a Attach field in DocType 'Translation Settings Custom Font'
+#: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
+msgid "Normal"
+msgstr ""
+
+#: translation_tools/api/pdfmake_generator.py:13
+msgid "Not permitted to read this document"
+msgstr ""
+
+#. Option for the 'Default Font' (Select) field in DocType 'PDF Settings'
+#: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
+msgid "Noto Sans Thai"
+msgstr ""
+
+#. Label of a Link in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "OAuth Client"
+msgstr ""
+
+#. Label of a Link in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "OAuth Provider Settings"
+msgstr ""
+
+#. Option for the 'Schedule Type' (Select) field in DocType 'Translation
+#. Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Once"
+msgstr ""
+
+#: translation_tools/api/github_sync.py:23
+#: translation_tools/api/github_sync.py:100
+#: translation_tools/api/github_sync.py:243
+msgid "Only GitHub repositories are supported"
+msgstr ""
+
+#. Label of a Password field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "OpenAI API Key"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:32
+msgid "OpenAI API connection failed: {0}"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:23
+msgid "OpenAI API connection successful! Translation: {0}"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "OpenAI Configuration"
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "OpenAI Model"
+msgstr ""
+
+#. Label of a Select field in DocType 'Translation PDF Settings'
+#: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
+msgid "PDF Generation Method"
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_generator/pdf_generator.js:4
+msgid "PDF Generator"
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
+msgid "PDF Library loaded successfully ✓"
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
+msgid "PDF Library not loaded ✗"
+msgstr ""
+
+#. Name of a DocType
+#. Label of a Section Break field in DocType 'PDF Settings'
+#. Label of a Section Break field in DocType 'Translation PDF Settings'
+#: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
+#: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:383
+msgid "PDF Settings"
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:135
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:165
+msgid "PDF library not loaded properly"
+msgstr ""
+
+#. Option for the 'PDF Generation Method' (Select) field in DocType
+#. 'Translation PDF Settings'
+#: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
+msgid "PDFMake"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Translation PDF Settings'
+#: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
+msgid "PDFMake Settings"
+msgstr ""
+
+#: translation_tools/override/print_format.py:120
+msgid "PDFMake is a client-side library. This server-side function is a placeholder."
+msgstr ""
+
+#. Name of a DocType
+#: translation_tools/setup/create_workspace.py:76
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
+msgid "PO File"
+msgstr ""
+
+#: translation_tools/api/translation.py:377
+msgid "PO File not found for the given file path"
+msgstr ""
+
+#: translation_tools/setup/create_workspace.py:79
+msgid "PO Translation Files"
+msgstr ""
+
+#: translation_tools/api/translation.py:446
+msgid "PO file not found: {0}"
+msgstr ""
+
+#: translation_tools/templates/pages/token_management.html:71
+msgid "Package"
+msgstr ""
+
+#. Label of a Data field in DocType 'Token Package'
+#: translation_tools/translation_tools/doctype/token_package/token_package.json
+msgid "Package Name"
+msgstr ""
+
+#. Description of the 'Signature Storage Path' (Data) field in DocType 'PDF
+#. Settings'
+#: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
+msgid "Path where signature files will be stored (relative to site public folder)"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Paused"
+msgstr ""
+
+#. Label of a Datetime field in DocType 'Token Purchase'
+#: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
+msgid "Payment Date"
+msgstr ""
+
+#: translation_tools/templates/pages/token_management.html:128
+msgid "Payment canceled. You can try again whenever you're ready."
+msgstr ""
+
+#: translation_tools/api/payment.py:29
+msgid "Payment details not provided"
+msgstr ""
+
+#: translation_tools/api/payment.py:59
+msgid "Payment failed. Please try again."
+msgstr ""
+
+#: translation_tools/api/stripe_payment.py:143
+msgid "Payment has not been completed yet. Please try again."
+msgstr ""
+
+#: translation_tools/api/payment.py:67
+msgid "Payment processing error. Please try again or contact support."
+msgstr ""
+
+#: translation_tools/api/payment.py:51
+msgid "Payment successful! Tokens have been added to your account."
+msgstr ""
+
+#: translation_tools/api/stripe_payment.py:138
+msgid "Payment verified successfully! Tokens have been added to your account."
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'GitHub Sync History
+#. Entry'
+#. Option for the 'Last Sync Status' (Select) field in DocType 'GitHub Sync
+#. Settings'
+#. Option for the 'Status' (Select) field in DocType 'Token Purchase'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+#: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
+msgid "Pending"
+msgstr ""
+
+#. Label of a number card in the Translation Tools Workspace
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "Pending Translations"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:43
+msgid "Please enter an Anthropic API key first"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:8
+msgid "Please enter an OpenAI API key first"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:81
+msgid "Please enter at least one API key first"
+msgstr ""
+
+#: translation_tools/api/config.py:126
+msgid "Please log in to save settings."
+msgstr ""
+
+#: translation_tools/api/message.py:149
+msgid "Please sign in or provide your email to check token balance"
+msgstr ""
+
+#: translation_tools/api/payment.py:16
+msgid "Please sign in to complete payment"
+msgstr ""
+
+#: translation_tools/api/message.py:176
+msgid "Please sign in to purchase tokens"
+msgstr ""
+
+#. Label of a Select field in DocType 'Translation User Settings'
+#: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
+msgid "Preferred Language"
+msgstr ""
+
+#. Label of a Check field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Preserve Formatting"
+msgstr ""
+
+#. Label of a Currency field in DocType 'Token Package'
+#: translation_tools/translation_tools/doctype/token_package/token_package.json
+msgid "Price"
+msgstr ""
+
+#. Label of a Int field in DocType 'ERPNext Module'
+#: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
+msgid "Priority"
+msgstr ""
+
+#. Label of a Select field in DocType 'Translation History Entry'
+#: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
+msgid "Provider"
+msgstr ""
+
+#. Label of a Check field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Pull Request"
+msgstr ""
+
+#: translation_tools/templates/pages/token_management.html:57
+msgid "Purchase"
+msgstr ""
+
+#: translation_tools/templates/pages/token_management.html:38
+msgid "Purchase Token Packages"
+msgstr ""
+
+#. Label of a Link in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Push Notification Settings"
+msgstr ""
+
+#. Label of a Card Break in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Push Notifications"
+msgstr ""
+
+#: translation_tools/override/client.py:82
+msgid "Read"
+msgstr ""
+
+#: translation_tools/templates/pages/token_management.html:67
+msgid "Recent Purchases"
+msgstr ""
+
+#: translation_tools/translation_tools/page/ai_translator/ai_translator.js:18
+msgid "Redirecting to Thai Translation Dashboard..."
+msgstr ""
+
+#: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.js:10
+#: translation_tools/translation_tools/page/translation_dashboard/translation_dashboard.js:9
+#: translation_tools/translation_tools/page/translation_status/translation_status.js:35
+msgid "Refresh"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Token Purchase'
+#: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
+msgid "Refunded"
+msgstr ""
+
+#. Label of a Data field in DocType 'GitHub Sync History Entry'
+#. Label of a Data field in DocType 'GitHub Sync Settings'
+#. Label of a Data field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Repository URL"
+msgstr ""
+
+#: translation_tools/api/resend_provider.py:24
+msgid "Resend API Key not provided. Please set it in site_config.json as resend_api_key."
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:20
+msgid "Reset Status"
+msgstr ""
+
+#. Label of a Int field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Retry Count"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:9
+msgid "Run Now"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:128
+msgid "Run complete translation workflow: Generate POT → Update PO → Compile MO"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:287
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Running"
+msgstr ""
+
+#: translation_tools/api/installation.py:229
+msgid "Running setup script..."
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:142
+msgid "Running translation command..."
+msgstr ""
+
+#. Label of a Link in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "S3 Backup Settings"
+msgstr ""
+
+#. Label of a Link in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "SMS Settings"
+msgstr ""
+
+#. Option for the 'Default Font' (Select) field in DocType 'PDF Settings'
+#: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
+msgid "Sarabun"
+msgstr ""
+
+#. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Saturday"
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:384
+msgid "Save"
+msgstr ""
+
+#: translation_tools/api/components.py:104
+msgid "Scanning PO files..."
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Schedule Name"
+msgstr ""
+
+#. Label of a Select field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Schedule Type"
+msgstr ""
+
+#. Option for the 'Sync Type' (Select) field in DocType 'GitHub Sync History
+#. Entry'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+msgid "Scheduled"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Scheduling"
+msgstr ""
+
+#. Label of a Card Break in the Integrations Workspace
+#: translation_tools/config/translation_tools.py:13
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:68
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Settings"
+msgstr ""
+
+#: translation_tools/config/translation_tools.py:14
+msgid "Settings AI API Key"
+msgstr ""
+
+#: translation_tools/api/config.py:132
+msgid "Settings not provided."
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:379
+msgid "Settings saved"
+msgstr ""
+
+#: translation_tools/api/config.py:161
+msgid "Settings updated successfully."
+msgstr ""
+
+#: translation_tools/api/installation.py:295
+msgid "Setup Error"
+msgstr ""
+
+#: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.js:40
+msgid "Setup Required"
+msgstr ""
+
+#: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.js:48
+msgid "Setup completed successfully. Refreshing page..."
+msgstr ""
+
+#: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.js:56
+msgid "Setup failed: "
+msgstr ""
+
+#. Label of a Section Break field in DocType 'User Signature'
+#: translation_tools/translation_tools/doctype/user_signature/user_signature.json
+msgid "Signature"
+msgstr ""
+
+#. Label of a Attach Image field in DocType 'User Signature'
+#: translation_tools/translation_tools/doctype/user_signature/user_signature.json
+msgid "Signature Image"
+msgstr ""
+
+#. Label of a HTML field in DocType 'User Signature'
+#: translation_tools/translation_tools/doctype/user_signature/user_signature.json
+msgid "Signature Preview"
+msgstr ""
+
+#. Label of a Data field in DocType 'PDF Settings'
+#: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
+msgid "Signature Storage Path"
+msgstr ""
+
+#. Label of a Data field in DocType 'User Signature'
+#: translation_tools/translation_tools/doctype/user_signature/user_signature.json
+msgid "Signature URL"
+msgstr ""
+
+#. Label of a Link in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Slack Webhook URL"
+msgstr ""
+
+#. Label of a Link in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Social Login Key"
+msgstr ""
+
+#: translation_tools/api/installation.py:202
+msgid "Some dependencies are missing. The setup script will attempt to install them."
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation History Entry'
+#: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
+msgid "Source Language"
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation Glossary Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Source Term"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'Translation History Entry'
+#: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
+msgid "Source Text"
+msgstr ""
+
+#: translation_tools/templates/pages/token_management.html:27
+msgid "Standard advice"
+msgstr ""
+
+#. Label of a Select field in DocType 'GitHub Sync History Entry'
+#. Label of a Select field in DocType 'Token Purchase'
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
+#. Term'
+#. Label of a Select field in DocType 'Translation Schedule'
+#: translation_tools/templates/pages/token_management.html:73
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+#: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
+msgid "Status"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:56
+msgid "Status: {0}"
+msgstr ""
+
+#. Label of a Data field in DocType 'Token Purchase'
+#: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
+msgid "Stripe Session ID"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'GitHub Sync History
+#. Entry'
+#. Option for the 'Last Sync Status' (Select) field in DocType 'GitHub Sync
+#. Settings'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Success"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:101
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:113
+msgid "Success! Model: {0}"
+msgstr ""
+
+#: translation_tools/api/po_files.py:1418
+msgid "Successfully pushed translations to GitHub"
+msgstr ""
+
+#. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Sunday"
+msgstr ""
+
+#. Label of a Datetime field in DocType 'GitHub Sync History Entry'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+msgid "Sync Date/Time"
+msgstr ""
+
+#. Label of a Float field in DocType 'GitHub Sync History Entry'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+msgid "Sync Duration (seconds)"
+msgstr ""
+
+#. Label of a Select field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Sync Frequency"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'GitHub Sync Settings'
+#. Label of a Table field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Sync History"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.js:4
+msgid "Sync Now"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Sync Schedule"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "Sync Status"
+msgstr ""
+
+#. Label of a Select field in DocType 'GitHub Sync History Entry'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+msgid "Sync Type"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.js:10
+msgid "Sync failed: "
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.js:7
+msgid "Sync triggered successfully"
+msgstr ""
+
+#. Name of a role
+#: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+#: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
+#: translation_tools/translation_tools/doctype/token_package/token_package.json
+#: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+#: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
+#: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+#: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
+#: translation_tools/translation_tools/doctype/user_signature/user_signature.json
+#: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
+msgid "System Manager"
+msgstr ""
+
+#. Label of a Data field in DocType 'GitHub Sync Settings'
+#. Label of a Data field in DocType 'Translation History Entry'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+#: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
+msgid "Target Language"
+msgstr ""
+
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
+#. Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Technical"
+msgstr ""
+
+#. Label of a Float field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Temperature"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:78
+msgid "Test All Connections"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:41
+msgid "Test Anthropic AI"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:30
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:65
+msgid "Test Failed"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:6
+msgid "Test OpenAI"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:21
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:56
+msgid "Test Successful"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:89
+msgid "Testing AI connections..."
+msgstr ""
+
+#. Label of a Card Break in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Thai Business Suite"
+msgstr ""
+
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:4
+#: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
+msgid "Thai PDF Generator"
+msgstr ""
+
+#. Label of a Password field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Thai Tax Consultant License Key"
+msgstr ""
+
+#: translation_tools/api/workspace.py:14
+#: translation_tools/templates/pages/token_management.html:5
+msgid "Thai Tax Consultant Tokens"
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation Glossary Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "Thai Translation"
+msgstr ""
+
+#: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.js:5
+#: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.py:6
+#: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.py:7
+msgid "Thai Translation Dashboard"
+msgstr ""
+
+#: translation_tools/setup/create_workspace.py:85
+msgid "Thai Translation Glossary"
+msgstr ""
+
+#: translation_tools/translation_tools/page/thai_translator/thai_translator.js:6
+msgid "Thai Translator"
+msgstr ""
+
+#. Description of the 'Anthropic Model' (Data) field in DocType 'Translation
+#. Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "The Anthropic Claude model to use for translations"
+msgstr ""
+
+#. Description of the 'OpenAI Model' (Data) field in DocType 'Translation Tools
+#. Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "The OpenAI model to use for translations"
+msgstr ""
+
+#: translation_tools/templates/pages/token_management.html:147
+msgid "There was an error initiating your payment. Please try again."
+msgstr ""
+
+#: translation_tools/www/thai_translation_dashboard.py:63
+#: translation_tools/www/translation_tools.py:19
+msgid "This method is only meant for developer mode"
+msgstr ""
+
+#: translation_tools/api/payment.py:23
+msgid "This transaction is already processed"
+msgstr ""
+
+#. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Thursday"
+msgstr ""
+
+#. Label of a Time field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Time"
+msgstr ""
+
+#. Label of a Int field in DocType 'Token Package'
+#: translation_tools/translation_tools/doctype/token_package/token_package.json
+msgid "Token Amount"
+msgstr ""
+
+#. Label of a Int field in DocType 'User Tokens'
+#: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
+msgid "Token Balance"
+msgstr ""
+
+#. Name of a DocType
+#. Label of a Link field in DocType 'Token Purchase'
+#: translation_tools/translation_tools/doctype/token_package/token_package.json
+#: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
+msgid "Token Package"
+msgstr ""
+
+#. Name of a DocType
+#: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
+msgid "Token Purchase"
+msgstr ""
+
+#: translation_tools/api/tokens.py:166
+msgid "Token Purchase Confirmation"
+msgstr ""
+
+#: translation_tools/templates/pages/token_management.html:24
+msgid "Token Usage Guide:"
+msgstr ""
+
+#: translation_tools/utils/__init__.py:32
+msgid "Token is required."
+msgstr ""
+
+#: translation_tools/api/token_config.py:43
+msgid "Token packages have been created successfully!"
+msgstr ""
+
+#: translation_tools/templates/pages/token_management.html:47
+msgid "Tokens"
+msgstr ""
+
+#. Label of a Int field in DocType 'PO File'
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
+msgid "Total Entries"
+msgstr ""
+
+#. Label of a number card in the Translation Tools Workspace
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "Total Glossary Terms"
+msgstr ""
+
+#: translation_tools/templates/pages/token_management.html:21
+msgid "Total Purchased"
+msgstr ""
+
+#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:37
+msgid "Total Strings"
+msgstr ""
+
+#. Label of a Int field in DocType 'User Tokens'
+#: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
+msgid "Total Tokens Purchased"
+msgstr ""
+
+#. Label of a Int field in DocType 'User Tokens'
+#: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
+msgid "Total Tokens Used"
+msgstr ""
+
+#: translation_tools/templates/pages/token_management.html:20
+msgid "Total Used"
+msgstr ""
+
+#. Label of a Data field in DocType 'Token Purchase'
+#: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
+msgid "Transaction ID"
+msgstr ""
+
+#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:43
+#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:165
+msgid "Translated"
+msgstr ""
+
+#. Label of a Int field in DocType 'PO File'
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
+msgid "Translated Entries"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'Translation History Entry'
+#: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
+msgid "Translated Text"
+msgstr ""
+
+#. Label of a Card Break in the Translation Tools Workspace
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "Translation"
+msgstr ""
+
+#: translation_tools/setup/create_workspace.py:65
+#: translation_tools/translation_tools/page/translation_dashboard/translation_dashboard.js:4
+msgid "Translation Dashboard"
+msgstr ""
+
+#. Label of a Datetime field in DocType 'Translation History Entry'
+#: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
+msgid "Translation Date"
+msgstr ""
+
+#. Name of a DocType
+#. Label of a Link in the Translation Tools Workspace
+#: translation_tools/setup/create_workspace.py:82
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "Translation Glossary Term"
+msgstr ""
+
+#. Label of a Table field in DocType 'Translation User Settings'
+#: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
+msgid "Translation History"
+msgstr ""
+
+#. Name of a DocType
+#: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
+msgid "Translation History Entry"
+msgstr ""
+
+#: translation_tools/setup/create_workspace.py:73
+msgid "Translation Management"
+msgstr ""
+
+#. Name of a role
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Translation Manager"
+msgstr ""
+
+#. Name of a DocType
+#: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
+msgid "Translation PDF Settings"
+msgstr ""
+
+#. Label of a number card in the Translation Tools Workspace
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "Translation Progress"
+msgstr ""
+
+#. Name of a DocType
+#. Label of a Link in the Translation Tools Workspace
+#. Label of a shortcut in the Translation Tools Workspace
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "Translation Schedule"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "Translation Settings"
+msgstr ""
+
+#. Name of a DocType
+#: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
+msgid "Translation Settings Custom Font"
+msgstr ""
+
+#. Label of a Percent field in DocType 'PO File'
+#. Label of a chart in the Translation Tools Workspace
+#. Label of a Link in the Translation Tools Workspace
+#. Label of a shortcut in the Translation Tools Workspace
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
+#: translation_tools/translation_tools/page/translation_status/translation_status.js:4
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "Translation Status"
+msgstr ""
+
+#. Name of a report
+#. Label of a Link in the Translation Tools Workspace
+#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.json
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "Translation Status Report"
+msgstr ""
+
+#. Label of a Link in the Integrations Workspace
+#. Name of a Workspace
+#: translation_tools/config/desktop.py:11
+#: translation_tools/config/translation_tools.py:7
+#: translation_tools/desktop/config.py:9
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "Translation Tools"
+msgstr ""
+
+#: translation_tools/api/notifications.py:26
+msgid "Translation Tools Installed"
+msgstr ""
+
+#. Name of a DocType
+#. Label of a Link in the Integrations Workspace
+#. Label of a Link in the Translation Tools Workspace
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+#: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
+msgid "Translation Tools Settings"
+msgstr ""
+
+#: translation_tools/api/po_files.py:1481
+msgid "Translation Tools Settings doctype does not exist. Please contact administrator."
+msgstr ""
+
+#: translation_tools/public/js/app.js:57
+msgid "Translation Tools link added successfully!"
+msgstr ""
+
+#: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.js:36
+msgid ""
+"Translation Tools needs to be set up before use. The following DocTypes are missing: \n"
+"\t\t\t${missing_doctypes.join(\", \")}.\n"
+"\t\t\t\n"
+"\t\t\tDo you want to complete the setup now?"
+msgstr ""
+
+#: translation_tools/api/components.py:187
+msgid "Translation Tools was installed, but with some configuration issues:"
+msgstr ""
+
+#. Name of a DocType
+#: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
+msgid "Translation User Settings"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:146
+msgid "Translation command executed successfully"
+msgstr ""
+
+#: translation_tools/api/request_trial.py:64
+msgid "Trial request submitted successfully."
+msgstr ""
+
+#. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Tuesday"
+msgstr ""
+
+#. Option for the 'Category' (Select) field in DocType 'Translation Glossary
+#. Term'
+#: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
+msgid "UI"
+msgstr ""
+
+#. Label of a Int field in DocType 'GitHub Sync History Entry'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+msgid "Unchanged"
+msgstr ""
+
+#: translation_tools/api/translation.py:1036
+msgid "Unsupported model provider: {0}"
+msgstr ""
+
+#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:49
+#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:166
+msgid "Untranslated"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:125
+msgid "Update PO translation files with new strings from the POT template"
+msgstr ""
+
+#. Label of a Int field in DocType 'GitHub Sync History Entry'
+#: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
+msgid "Updated"
+msgstr ""
+
+#. Description of the 'Signature Image' (Attach Image) field in DocType 'User
+#. Signature'
+#: translation_tools/translation_tools/doctype/user_signature/user_signature.json
+msgid "Upload your signature image (PNG format recommended)"
+msgstr ""
+
+#. Label of a Link field in DocType 'Token Purchase'
+#. Label of a Link field in DocType 'Translation User Settings'
+#. Label of a Link field in DocType 'User Signature'
+#. Label of a Link field in DocType 'User Tokens'
+#: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
+#: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
+#: translation_tools/translation_tools/doctype/user_signature/user_signature.json
+#: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
+msgid "User"
+msgstr ""
+
+#. Label of a Data field in DocType 'User Signature'
+#: translation_tools/translation_tools/doctype/user_signature/user_signature.json
+msgid "User Full Name"
+msgstr ""
+
+#. Name of a DocType
+#: translation_tools/translation_tools/doctype/user_signature/user_signature.json
+msgid "User Signature"
+msgstr ""
+
+#. Name of a DocType
+#: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
+msgid "User Tokens"
+msgstr ""
+
+#: translation_tools/api/request_trial.py:12
+#: translation_tools/api/request_trial.py:26
+msgid "User is not logged in."
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:39
+msgid "View Full Log"
+msgstr ""
+
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.js:15
+msgid "View Sync History"
+msgstr ""
+
+#. Option for the 'PDF Generation Method' (Select) field in DocType
+#. 'Translation PDF Settings'
+#: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
+msgid "WeasyPrint"
+msgstr ""
+
+#. Label of a Data field in DocType 'Translation PDF Settings'
+#: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
+msgid "WeasyPrint Path"
+msgstr ""
+
+#. Label of a Link in the Integrations Workspace
+#: translation_tools/translation_tools/workspace/integrations/integrations.json
+msgid "Webhook"
+msgstr ""
+
+#. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Wednesday"
+msgstr ""
+
+#. Label of a Select field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Weekday"
+msgstr ""
+
+#. Option for the 'Schedule Type' (Select) field in DocType 'Translation
+#. Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "Weekly"
+msgstr ""
+
+#: translation_tools/override/client.py:33
+msgid "You do not have Read or Select Permissions for {}"
+msgstr ""
+
+#: translation_tools/api/settings.py:689
+msgid "You do not have permission to save API keys"
+msgstr ""
+
+#: translation_tools/api/translation.py:443
+msgid "You do not have permission to use the translation tools"
+msgstr ""
+
+#: translation_tools/api/po_files.py:1472
+msgid "You don't have permission to modify Translation Tools Settings"
+msgstr ""
+
+#: translation_tools/api/request_trial.py:19
+msgid "You have already requested a trial."
+msgstr ""
+
+#: translation_tools/override/client.py:81
+msgid "You need {0} permission to fetch values from {1} {2}"
+msgstr ""
+
+#: translation_tools/api/message.py:45
+msgid "You've used all your free tokens. Please purchase more to continue using the Thai Tax Consultant."
+msgstr ""
+
+#: translation_tools/templates/pages/token_management.html:17
+msgid "Your Token Balance"
+msgstr ""
+
+#. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "all"
+msgstr ""
+
+#. Option for the 'Default Model Provider' (Select) field in DocType
+#. 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "anthropic"
+msgstr ""
+
+#. Option for the 'Provider' (Select) field in DocType 'Translation History
+#. Entry'
+#: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
+msgid "claude"
+msgstr ""
+
+#. Option for the 'Command Type' (Select) field in DocType 'Translation
+#. Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "compile_mo"
+msgstr ""
+
+#. Option for the 'Sync Frequency' (Select) field in DocType 'GitHub Sync
+#. Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "custom"
+msgstr ""
+
+#. Option for the 'Sync Frequency' (Select) field in DocType 'GitHub Sync
+#. Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "daily"
+msgstr ""
+
+#. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
+#. Option for the 'Preferred Language' (Select) field in DocType 'Translation
+#. User Settings'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+#: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
+msgid "de"
+msgstr ""
+
+#: translation_tools/api/components.py:52
+msgid "description"
+msgstr ""
+
+#. Description of the 'Cron Expression' (Data) field in DocType 'Translation
+#. Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "e.g., '0 2 * * *' for 2 AM daily, '0 0 * * 1' for Monday midnight"
+msgstr ""
+
+#. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "en"
+msgstr ""
+
+#. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
+#. Option for the 'Preferred Language' (Select) field in DocType 'Translation
+#. User Settings'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+#: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
+msgid "es"
+msgstr ""
+
+#. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
+#. Option for the 'Preferred Language' (Select) field in DocType 'Translation
+#. User Settings'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+#: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
+msgid "fr"
+msgstr ""
+
+#. Option for the 'Command Type' (Select) field in DocType 'Translation
+#. Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "full_workflow"
+msgstr ""
+
+#. Option for the 'Command Type' (Select) field in DocType 'Translation
+#. Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "generate_pot"
+msgstr ""
+
+#. Option for the 'Conflict Resolution Strategy' (Select) field in DocType
+#. 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "github_wins"
+msgstr ""
+
+#. Option for the 'Sync Frequency' (Select) field in DocType 'GitHub Sync
+#. Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "hourly"
+msgstr ""
+
+#. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "it"
+msgstr ""
+
+#. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
+#. Option for the 'Preferred Language' (Select) field in DocType 'Translation
+#. User Settings'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+#: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
+msgid "ja"
+msgstr ""
+
+#. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
+#. Option for the 'Preferred Language' (Select) field in DocType 'Translation
+#. User Settings'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+#: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
+msgid "ko"
+msgstr ""
+
+#. Option for the 'Conflict Resolution Strategy' (Select) field in DocType
+#. 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "local_wins"
+msgstr ""
+
+#. Option for the 'Conflict Resolution Strategy' (Select) field in DocType
+#. 'GitHub Sync Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "manual_review"
+msgstr ""
+
+#. Option for the 'Command Type' (Select) field in DocType 'Translation
+#. Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "migrate_csv_to_po"
+msgstr ""
+
+#. Option for the 'Provider' (Select) field in DocType 'Translation History
+#. Entry'
+#. Option for the 'Default Model Provider' (Select) field in DocType
+#. 'Translation Tools Settings'
+#: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
+#: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
+msgid "openai"
+msgstr ""
+
+#. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "pt"
+msgstr ""
+
+#: translation_tools/translation_tools/page/resend_integration/resend_integration.js:4
+msgid "resend-integration"
+msgstr ""
+
+#. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "ru"
+msgstr ""
+
+#. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
+#. Option for the 'Preferred Language' (Select) field in DocType 'Translation
+#. User Settings'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+#: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
+msgid "th"
+msgstr ""
+
+#: translation_tools/templates/pages/token_management.html:26
+#: translation_tools/templates/pages/token_management.html:27
+#: translation_tools/templates/pages/token_management.html:28
+msgid "tokens"
+msgstr ""
+
+#: translation_tools/translation_tools/page/translation_tools/translation_tools.js:11
+msgid "translation-tools"
+msgstr ""
+
+#: translation_tools/translation_tools/page/translator/translator.js:4
+msgid "translator"
+msgstr ""
+
+#. Option for the 'Command Type' (Select) field in DocType 'Translation
+#. Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "update_po"
+msgstr ""
+
+#. Option for the 'Preferred Language' (Select) field in DocType 'Translation
+#. User Settings'
+#: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
+msgid "vi"
+msgstr ""
+
+#. Option for the 'Sync Frequency' (Select) field in DocType 'GitHub Sync
+#. Settings'
+#: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
+msgid "weekly"
+msgstr ""
+
+#. Option for the 'PDF Generation Method' (Select) field in DocType
+#. 'Translation PDF Settings'
+#: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
+msgid "wkhtmltopdf"
+msgstr ""
+
+#. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
+msgid "zh"
+msgstr ""
+
+#. Option for the 'Preferred Language' (Select) field in DocType 'Translation
+#. User Settings'
+#: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
+msgid "zh-CN"
+msgstr ""
+
+#: translation_tools/translation_tools/page/ai_translator/ai_translator.js:15
+msgid "กำลังเปลี่ยนเส้นทางไปยังแดชบอร์ดการแปลภาษาไทย..."
+msgstr ""
+
