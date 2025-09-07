@@ -124,19 +124,14 @@ export default function FileExplorer({
       console.log('📥 FRONTEND: Response success field:', result?.success);
       console.log('📥 FRONTEND: Response message field:', result?.message);
       
-      // Check if the response has the expected structure
+      // Handle the new response format (POT generation only, no database scan)
       if (result?.success) {
-        console.log('✅ FRONTEND: Direct success response');
-        await mutate(); // Refresh the data
-      } else if (result?.message?.success !== undefined) {
-        console.log('🔍 FRONTEND: Success in message field:', result.message.success);
-        if (result.message.success) {
-          await mutate();
-        } else {
-          console.error('❌ FRONTEND: Enhanced scan failed in message:', result.message.error || 'Unknown error');
-        }
+        console.log('✅ FRONTEND: POT files generated successfully');
+        console.log(`📦 Generated POT files for ${result.apps_count} apps:`, result.apps_processed);
+        // Note: No mutate() call since Generate POT Files doesn't update database
+        // User needs to click "Scan Files" to update File Explorer
       } else {
-        console.error('❌ FRONTEND: Enhanced scan failed - no success field:', result?.error || result?.message?.error || 'Unknown error');
+        console.error('❌ FRONTEND: POT generation failed:', result?.error || 'Unknown error');
       }
     } catch (error) {
       console.error('💥 FRONTEND: Exception during POT generation scan:', error);

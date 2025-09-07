@@ -851,25 +851,22 @@ def scan_po_files():
                 stats["failed_files"] += 1
                 continue
 
-            # Simple upsert: delete if exists, then create new
-            try:
-                # Always delete existing record first to avoid conflicts
-                existing_records = frappe.get_all("PO File", filters={"file_path": file_path}, pluck="name")
-                for record_name in existing_records:
-                    logger.info(f"🗑️ Deleting existing PO File record: {record_name} for {file_path}")
-                    frappe.delete_doc("PO File", record_name, force=True, ignore_permissions=True)
-                
-                # Now create new record
-                file_data.update({"doctype": "PO File"})
-                new_doc = frappe.get_doc(file_data)
-                new_doc.insert(ignore_permissions=True)
-                stats["new_files"] += 1
-                logger.info(f"✅ Created new PO File record for: {file_path}")
-                
-            except Exception as e:
-                logger.error(f"❌ Failed to upsert PO File for {file_path}: {str(e)}")
-                stats["failed_files"] += 1
-                # Continue processing other files
+            # Check if th.po file already exists in database first
+            existing_file = frappe.get_value("PO File", {"file_path": file_path}, "name")
+            if existing_file:
+                # File already exists in database - do nothing to avoid SQL error
+                logger.info(f"⏭️ Skipping - th.po already in database: {file_path}")
+                stats["updated_files"] += 1
+            else:
+                # File not in database - add it
+                try:
+                    file_data.update({"doctype": "PO File"})
+                    frappe.get_doc(file_data).insert(ignore_permissions=True)
+                    stats["new_files"] += 1
+                    logger.info(f"✅ Added new th.po to database: {file_path}")
+                except Exception as e:
+                    logger.error(f"❌ Failed to add th.po to database: {file_path} - {str(e)}")
+                    stats["failed_files"] += 1
 
             # Commit every BATCH_SIZE files to avoid long transactions
             # Commit periodically to avoid long transactions

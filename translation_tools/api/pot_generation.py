@@ -496,20 +496,12 @@ def enhanced_scan_with_pot_generation(apps=None, generate_pot=True, force_regene
                 
                 logger.info(f"✅ Completed app: {app_name}")
         
-        # Now do the same thing as "Scan Files" button - update database
-        from .po_files import scan_po_files
-        logger.info("📂 Starting PO file scan (same as Scan Files button)")
-        
-        po_result = scan_po_files()
-        logger.info(f"📂 PO scan result: {po_result}")
-        
-        # Return simple success result
+        # Return simple success result (no scanning - user can click "Scan Files" separately)
         result = {
             "success": True,
-            "message": f"Generated POT files for {len(installed_apps)} site apps and updated database",
+            "message": f"Generated POT files for {len(installed_apps)} site apps",
             "apps_processed": installed_apps,
-            "apps_count": len(installed_apps),
-            "po_scan_result": po_result
+            "apps_count": len(installed_apps)
         }
         
         logger.info(f"🎯 SIMPLE RESULT: {result}")
