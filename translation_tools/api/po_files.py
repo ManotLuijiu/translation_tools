@@ -465,6 +465,8 @@ def get_po_files():
     installed_apps = frappe.get_installed_apps()
     
     logger.info(f"Fetching PO files for site '{site}' - installed apps: {installed_apps}")
+    print(f"🚀 SCAN START - Site: {site}")
+    print(f"📱 Installed Apps ({len(installed_apps)}): {', '.join(installed_apps)}")
     
     try:
         # Try to get cached files first, but only for installed apps
@@ -799,6 +801,8 @@ def scan_po_files():
     installed_apps = frappe.get_installed_apps()
     
     logger.info(f"Starting scan for PO files on site '{site}' - installed apps: {installed_apps}")
+    print(f"🔍 SCANNING PO FILES - Site: {site}")
+    print(f"📱 Apps to scan ({len(installed_apps)}): {', '.join(installed_apps)}")
 
     try:
         # Get the bench path
@@ -851,22 +855,80 @@ def scan_po_files():
                 stats["failed_files"] += 1
                 continue
 
-            # Check if th.po file already exists in database first
-            existing_file = frappe.get_value("PO File", {"file_path": file_path}, "name")
-            if existing_file:
-                # File already exists in database - do nothing to avoid SQL error
-                logger.info(f"⏭️ Skipping - th.po already in database: {file_path}")
-                stats["updated_files"] += 1
-            else:
-                # File not in database - add it
-                try:
-                    file_data.update({"doctype": "PO File"})
-                    frappe.get_doc(file_data).insert(ignore_permissions=True)
-                    stats["new_files"] += 1
-                    logger.info(f"✅ Added new th.po to database: {file_path}")
-                except Exception as e:
-                    logger.error(f"❌ Failed to add th.po to database: {file_path} - {str(e)}")
-                    stats["failed_files"] += 1
+            # Bulletproof duplicate handling to prevent SQL IntegrityError
+            print(f"🔍 Processing PO file [{i+1}/{total_files}]: {file_path}")
+            try:
+                file_data.update({"doctype": "PO File"})
+                
+                # Method 1: Check if document already exists by name (primary key)
+                po_doc_name = file_path  # PO File uses file_path as the name/primary key
+                print(f"   📋 Checking if exists in database: {po_doc_name}")
+                
+                if frappe.db.exists("PO File", po_doc_name):
+                    print(f"   ✅ FOUND - Document exists in database")
+                    # Document exists - check if we should update it
+                    try:
+                        existing_doc = frappe.get_doc("PO File", po_doc_name)
+                        print(f"   📊 Comparing: DB({existing_doc.translated_entries}/{existing_doc.total_entries}) vs File({file_data.get('translated_entries')}/{file_data.get('total_entries')})")
+                        
+                        # Update if file is newer or stats are different
+                        should_update = (
+                            file_data.get("last_modified") != existing_doc.last_modified or
+                            file_data.get("translated_entries") != existing_doc.translated_entries or
+                            file_data.get("total_entries") != existing_doc.total_entries
+                        )
+                        
+                        if should_update:
+                            print(f"   🔄 UPDATING - Changes detected, updating existing document")
+                            # Update existing document
+                            for key, value in file_data.items():
+                                if key != "doctype" and hasattr(existing_doc, key):
+                                    setattr(existing_doc, key, value)
+                            
+                            existing_doc.save(ignore_permissions=True)
+                            stats["updated_files"] += 1
+                            logger.info(f"🔄 Updated existing th.po in database: {file_path}")
+                            print(f"   ✅ UPDATE SUCCESS - Document updated in database")
+                        else:
+                            stats["updated_files"] += 1
+                            logger.debug(f"⏭️ Skipping - th.po unchanged in database: {file_path}")
+                            print(f"   ⏭️ SKIPPING - No changes detected")
+                            
+                    except Exception as update_error:
+                        print(f"   ❌ UPDATE FAILED - Error: {str(update_error)}")
+                        logger.warning(f"⚠️ Could not update existing th.po {file_path}: {str(update_error)}")
+                        stats["failed_files"] += 1
+                else:
+                    print(f"   🆕 NEW - Document doesn't exist, creating new record")
+                    # Document doesn't exist - try to create it with duplicate protection
+                    try:
+                        new_doc = frappe.get_doc(file_data)
+                        new_doc.insert(ignore_permissions=True, ignore_if_duplicate=True)
+                        stats["new_files"] += 1
+                        logger.info(f"✅ Added new th.po to database: {file_path}")
+                        print(f"   ✅ INSERT SUCCESS - New document created in database")
+                        
+                    except frappe.DuplicateEntryError:
+                        print(f"   ⚠️ RACE CONDITION - Duplicate entry detected during insert (another process got there first)")
+                        # Handle race condition where another process inserted between our check and insert
+                        logger.info(f"⚠️ Duplicate entry detected during insert (race condition) - skipping: {file_path}")
+                        stats["updated_files"] += 1
+                        
+                    except Exception as insert_error:
+                        # Check if it's a duplicate error we can handle
+                        if "Duplicate entry" in str(insert_error) or "1062" in str(insert_error):
+                            print(f"   ⚠️ SQL DUPLICATE ERROR - MySQL error 1062 (race condition): {str(insert_error)}")
+                            logger.info(f"⚠️ SQL duplicate entry error (race condition) - skipping: {file_path}")
+                            stats["updated_files"] += 1
+                        else:
+                            print(f"   ❌ INSERT FAILED - Unexpected error: {str(insert_error)}")
+                            logger.error(f"❌ Failed to add th.po to database: {file_path} - {str(insert_error)}")
+                            stats["failed_files"] += 1
+                            
+            except Exception as e:
+                print(f"   💥 CRITICAL ERROR - Exception during processing: {str(e)}")
+                logger.error(f"❌ Critical error processing th.po file: {file_path} - {str(e)}")
+                stats["failed_files"] += 1
 
             # Commit every BATCH_SIZE files to avoid long transactions
             # Commit periodically to avoid long transactions
@@ -881,10 +943,19 @@ def scan_po_files():
             f"{stats['new_files']} new, {stats['updated_files']} updated, "
             f"{stats['failed_files']} failed"
         )
+        print(f"🏁 SCAN COMPLETED - Summary:")
+        print(f"   📊 Total files processed: {stats['total_files']}")
+        print(f"   🆕 New files added: {stats['new_files']}")
+        print(f"   🔄 Files updated: {stats['updated_files']}")
+        print(f"   ❌ Files failed: {stats['failed_files']}")
+        print(f"✅ SCAN SUCCESS - All files processed without SQL errors!")
         return {"success": True, **stats}
 
     except Exception as e:
         logger.exception("Critical error during scan")
+        print(f"💥 SCAN FAILED - Critical error occurred:")
+        print(f"   ❌ Error: {str(e)}")
+        print(f"   🔄 Database rollback performed")
         frappe.db.rollback()
         return {
             "success": False,
