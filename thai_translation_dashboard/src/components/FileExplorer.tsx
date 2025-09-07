@@ -51,7 +51,8 @@ export default function FileExplorer({
   const enhancedScan = useEnhancedScanWithPOT();
   const deletePOFiles = useDeletePOFiles();
   const forceRefreshStats = useForceRefreshPOStats();
-  const [isScanning, setIsScanning] = useState(false);
+  const [isScanningFiles, setIsScanningFiles] = useState(false);
+  const [isGeneratingPOT, setIsGeneratingPOT] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -97,20 +98,20 @@ export default function FileExplorer({
   };
 
   const handleScan = async () => {
-    setIsScanning(true);
+    setIsScanningFiles(true);
     try {
       await scanFiles.call();
       await mutate(); // Refresh the data
     } catch (error) {
       console.error('Error scanning files:', error);
     } finally {
-      setIsScanning(false);
+      setIsScanningFiles(false);
     }
   };
 
   const handlePOTGenerationScan = async () => {
     console.log('🚀 FRONTEND: Starting POT generation scan...');
-    setIsScanning(true);
+    setIsGeneratingPOT(true);
     try {
       const requestData = {
         generate_pot: true,
@@ -151,7 +152,7 @@ export default function FileExplorer({
       console.error('💥 FRONTEND: Exception during POT generation scan:', error);
     } finally {
       console.log('🏁 FRONTEND: POT generation scan completed');
-      setIsScanning(false);
+      setIsGeneratingPOT(false);
     }
   };
 
@@ -285,8 +286,8 @@ export default function FileExplorer({
               {__('Delete')} ({selectedFiles.size})
             </Button>
           )}
-          <Button onClick={handleScan} disabled={isScanning} variant="outline">
-            {isScanning ? (
+          <Button onClick={handleScan} disabled={isScanningFiles || isGeneratingPOT} variant="outline">
+            {isScanningFiles ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {__('Scanning...')}
@@ -299,8 +300,8 @@ export default function FileExplorer({
             )}
           </Button>
           
-          <Button onClick={handlePOTGenerationScan} disabled={isScanning} variant="outline">
-            {isScanning ? (
+          <Button onClick={handlePOTGenerationScan} disabled={isScanningFiles || isGeneratingPOT} variant="outline">
+            {isGeneratingPOT ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {__('Generating POT...')}
