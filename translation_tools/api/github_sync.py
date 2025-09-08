@@ -112,7 +112,12 @@ def preview_sync(repo_url, branch, repo_files, local_file_path):
             repo = repo[:-4]  # Remove .git suffix
 
         # Extract app name from the path
-        app_name = local_file_path.split("/")[0]
+        # local_file_path format: "apps/app_name/app_name/locale/th.po"
+        path_parts = local_file_path.split("/")
+        if len(path_parts) >= 2 and path_parts[0] == "apps":
+            app_name = path_parts[1]  # Second part is the actual app name
+        else:
+            app_name = path_parts[0]  # Fallback for other formats
 
         # Correct the path format to match [app_name]/locale/th.po
         corrected_path = f"apps/{app_name}/{app_name}/locale/th.po"
@@ -255,7 +260,12 @@ def apply_sync(repo_url, branch, repo_files, local_file_path):
             repo = repo[:-4]  # Remove .git suffix
 
         # Extract app name from the path
-        app_name = local_file_path.split("/")[0]
+        # local_file_path format: "apps/app_name/app_name/locale/th.po"
+        path_parts = local_file_path.split("/")
+        if len(path_parts) >= 2 and path_parts[0] == "apps":
+            app_name = path_parts[1]  # Second part is the actual app name
+        else:
+            app_name = path_parts[0]  # Fallback for other formats
 
         # Correct the path format to match [app_name]/locale/th.po
         corrected_path = f"apps/{app_name}/{app_name}/locale/th.po"

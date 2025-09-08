@@ -81,14 +81,24 @@ export default function FileExplorer({
 
   // Update local state when app sync data changes
   useEffect(() => {
-    // Handle both direct data and wrapped message response
-    const actualData = (appSyncData as any)?.message || appSyncData;
+    // Frappe's @frappe.whitelist() decorator wraps response in 'message' field
+    const actualData = appSyncData?.message;
+    console.log('🔄 App Sync Data Update:', { 
+      rawData: appSyncData, 
+      actualData,
+      success: actualData?.success,
+      hasAppSettings: !!actualData?.app_settings 
+    });
+    
     if (actualData?.success && actualData.app_settings) {
       const settings: Record<string, boolean> = {};
-      Object.keys(actualData.app_settings).forEach(appName => {
-        settings[appName] = actualData.app_settings[appName].enabled;
-      });
+      for (const appName in actualData.app_settings) {
+        settings[appName] = actualData.app_settings[appName].enabled || false;
+      }
+      console.log('📊 Extracted App Sync Settings:', settings);
       setAppSyncSettings(settings);
+    } else if (actualData && !actualData.success) {
+      console.error('❌ App Sync API returned error:', (actualData as any).error);
     }
   }, [appSyncData]);
 

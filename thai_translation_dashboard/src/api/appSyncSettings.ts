@@ -4,15 +4,22 @@ export interface AppSyncSettings {
   [appName: string]: {
     enabled: boolean;
     last_updated?: string;
+    locale?: string;
+    source_path?: string;
+    target_path?: string;
   };
 }
 
-export interface AppSyncSettingsResponse {
+export interface AppSyncSettingsData {
   success: boolean;
   app_settings: AppSyncSettings;
   global_enabled: boolean;
   repository_url?: string;
   branch?: string;
+}
+
+export interface AppSyncSettingsResponse {
+  message: AppSyncSettingsData;
 }
 
 export interface ToggleAppSyncResponse {
