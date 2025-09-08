@@ -45,10 +45,19 @@ export function useToggleAppAutosync() {
 
   return {
     call: async (appName: string, enabled: boolean) => {
-      return await call({
+      console.log('=== API Call Debug ===');
+      console.log('Calling toggle_app_autosync with:');
+      console.log('  app_name:', appName);
+      console.log('  enabled:', enabled);
+      
+      const result = await call({
         app_name: appName,
         enabled: enabled
       });
+      
+      console.log('API Call Result:', result);
+      console.log('=== End API Call Debug ===');
+      return result;
     },
     loading,
     error,

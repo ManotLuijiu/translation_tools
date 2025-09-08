@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/tooltip';
 
 import { Input } from '@/components/ui/input';
-import { Loader2, RefreshCw, Search, FileText, Trash2, CheckCircle, GitBranch, Globe } from 'lucide-react';
+import { Loader2, RefreshCw, Search, FileText, Trash2, CheckCircle, GitBranch, Globe, AlertCircle } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -74,6 +74,7 @@ export default function FileExplorer({
   const { data: appSyncData, mutate: refetchAppSyncData } = useGetAppSyncSettings();
   const { call: toggleAppSync } = useToggleAppAutosync();
   const [appSyncSettings, setAppSyncSettings] = useState<Record<string, boolean>>({});
+  const [syncStatus, setSyncStatus] = useState<{ app: string; status: 'idle' | 'syncing' | 'success' | 'error'; message?: string } | null>(null);
   
 
   // console.log('selectedFilePath', selectedFilePath);
@@ -103,32 +104,91 @@ export default function FileExplorer({
   }, [onRefreshFunctionReady, mutate]);
 
   const handleToggleAppSync = async (appName: string, enabled: boolean) => {
+    console.log('=== Auto Sync Toggle Debug ===');
+    console.log('App Name:', appName);
+    console.log('Enabled:', enabled);
+    console.log('Current appSyncSettings:', appSyncSettings);
+    
+    // Set sync status to show it's processing
+    setSyncStatus({ 
+      app: appName, 
+      status: 'syncing', 
+      message: enabled ? `Enabling auto-sync for ${appName}...` : `Disabling auto-sync for ${appName}...` 
+    });
+    
     try {
+      console.log('Calling toggleAppSync API...');
       const result = await toggleAppSync(appName, enabled);
+      console.log('API Response:', result);
       
       // Handle both direct result and wrapped message response
       const actualResult = (result as any)?.message || result;
+      console.log('Actual Result:', actualResult);
+      
       if (actualResult?.success) {
+        console.log('Success! Updating local state...');
         // Update local state immediately for UI responsiveness
-        setAppSyncSettings(prev => ({
-          ...prev,
-          [appName]: enabled
-        }));
+        setAppSyncSettings(prev => {
+          const newSettings = {
+            ...prev,
+            [appName]: enabled
+          };
+          console.log('New appSyncSettings:', newSettings);
+          return newSettings;
+        });
+        
+        // Show success status
+        setSyncStatus({ 
+          app: appName, 
+          status: 'success', 
+          message: actualResult.message || `Auto-sync ${enabled ? 'enabled' : 'disabled'} for ${appName}` 
+        });
         
         // Small delay to ensure database commit completes
+        console.log('Waiting 100ms for database commit...');
         await new Promise(resolve => setTimeout(resolve, 100));
         
         // Refetch data to ensure consistency
+        console.log('Refetching app sync data...');
         await refetchAppSyncData();
+        console.log('Refetch complete');
+        
+        // Clear status after 3 seconds
+        setTimeout(() => setSyncStatus(null), 3000);
+      } else {
+        console.error('API call was not successful:', actualResult);
+        setSyncStatus({ 
+          app: appName, 
+          status: 'error', 
+          message: actualResult?.error || 'Failed to toggle auto-sync' 
+        });
+        setTimeout(() => setSyncStatus(null), 5000);
       }
     } catch (error) {
       console.error('Error toggling app sync:', error);
+      console.error('Error details:', {
+        message: (error as any)?.message,
+        stack: (error as any)?.stack
+      });
+      
+      // Show error status
+      setSyncStatus({ 
+        app: appName, 
+        status: 'error', 
+        message: `Error: ${(error as any)?.message || 'Failed to toggle auto-sync'}` 
+      });
+      
       // Revert local state on error
       setAppSyncSettings(prev => ({
         ...prev,
         [appName]: !enabled
       }));
+      console.log('Reverted appSyncSettings due to error');
+      
+      // Clear status after 5 seconds
+      setTimeout(() => setSyncStatus(null), 5000);
     }
+    console.log('=== End Auto Sync Toggle Debug ===');
   };
 
   const handleScan = async () => {
@@ -301,6 +361,35 @@ export default function FileExplorer({
 
   return (
     <div className="space-y-4">
+      {/* Sync Status Display */}
+      {syncStatus && (
+        <div className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-300 ${
+          syncStatus.status === 'syncing' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200' :
+          syncStatus.status === 'success' ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200' :
+          syncStatus.status === 'error' ? 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200' :
+          'bg-gray-100 dark:bg-gray-900/20 text-gray-800 dark:text-gray-200'
+        }`}>
+          {syncStatus.status === 'syncing' && (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
+              <span className="font-medium">Syncing {syncStatus.app}...</span>
+            </>
+          )}
+          {syncStatus.status === 'success' && (
+            <>
+              <CheckCircle className="h-4 w-4" />
+              <span className="font-medium">{syncStatus.message}</span>
+            </>
+          )}
+          {syncStatus.status === 'error' && (
+            <>
+              <AlertCircle className="h-4 w-4" />
+              <span className="font-medium">{syncStatus.message}</span>
+            </>
+          )}
+        </div>
+      )}
+      
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">{__('ASEAN Translation Files')}</h2>
         {deleteSuccess.show && (

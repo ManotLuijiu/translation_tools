@@ -6,22 +6,32 @@ import json
 @frappe.whitelist()
 def get_app_sync_settings():
     """Get auto-sync settings for all apps"""
+    print(f"\n=== Get App Sync Settings Debug ===")
     try:
         # Get or create the settings document
+        print(f"Getting GitHub Sync Settings...")
         settings = frappe.get_single("GitHub Sync Settings")
+        print(f"Settings document: {settings.name}")
         
         # Get per-app settings from custom field or create empty dict
         app_settings = {}
         if hasattr(settings, 'app_sync_settings') and settings.app_sync_settings:
+            print(f"Raw app_sync_settings: {settings.app_sync_settings}")
             app_settings = json.loads(settings.app_sync_settings)
+            print(f"Parsed app_settings: {app_settings}")
+        else:
+            print(f"No app_sync_settings found, using empty dict")
         
-        return {
+        result = {
             "success": True,
             "app_settings": app_settings,
             "global_enabled": settings.enabled,
             "repository_url": settings.repository_url,
             "branch": settings.branch
         }
+        print(f"Returning result: {result}")
+        print(f"=== End Get App Sync Settings Debug ===\n")
+        return result
     except Exception as e:
         frappe.log_error(f"Error getting app sync settings: {str(e)}")
         return {"success": False, "error": str(e)}
@@ -30,14 +40,31 @@ def get_app_sync_settings():
 @frappe.whitelist()
 def toggle_app_autosync(app_name, enabled=False):
     """Toggle auto-sync for a specific app"""
+    print(f"\n=== Auto Sync Toggle Debug (Python) ===")
+    print(f"App Name: {app_name}")
+    print(f"Enabled: {enabled}")
+    print(f"Enabled Type: {type(enabled)}")
+    
+    # Convert string to boolean if needed
+    if isinstance(enabled, str):
+        enabled = enabled.lower() in ['true', '1', 'yes']
+        print(f"Converted enabled to boolean: {enabled}")
+    
     try:
         # Get the settings document
+        print(f"Getting GitHub Sync Settings...")
         settings = frappe.get_single("GitHub Sync Settings")
+        print(f"Settings retrieved: {settings.name}")
         
         # Get existing app settings or create new
         app_settings = {}
         if hasattr(settings, 'app_sync_settings') and settings.app_sync_settings:
+            print(f"Existing app_sync_settings: {settings.app_sync_settings}")
             app_settings = json.loads(settings.app_sync_settings)
+        else:
+            print(f"No existing app_sync_settings, creating new")
+        
+        print(f"Current app_settings: {app_settings}")
         
         # Update the specific app setting
         app_settings[app_name] = {
@@ -45,21 +72,29 @@ def toggle_app_autosync(app_name, enabled=False):
             "last_updated": frappe.utils.now_datetime().isoformat()
         }
         
+        print(f"Updated app_settings: {app_settings}")
+        
         # Save back to settings (we'll need to add this field to the DocType)
         settings.app_sync_settings = json.dumps(app_settings)
+        print(f"Saving settings...")
         settings.save(ignore_permissions=True)
         frappe.db.commit()  # Ensure the changes are committed immediately
+        print(f"Settings saved and committed")
         
         # If enabling, trigger an immediate sync for this app
         if enabled:
+            print(f"Auto-sync enabled, triggering immediate sync for {app_name}")
             # Call apply_sync directly for immediate execution (like manual sync button)
             from translation_tools.api.github_sync import apply_sync
             from translation_tools.api.po_files import get_cached_po_files
             
             try:
                 # Get app-specific repository URL if available
+                print(f"Getting app-specific repository URL...")
                 repo_result = get_app_github_repo_url(app_name)
+                print(f"Repository result: {repo_result}")
                 repo_url = repo_result.get('repo_url') if repo_result.get('success') else settings.repository_url
+                print(f"Using repository URL: {repo_url}")
                 
                 if repo_url:
                     # Get PO files for this app
@@ -99,12 +134,17 @@ def toggle_app_autosync(app_name, enabled=False):
                     timeout=300
                 )
         
-        return {
+        result = {
             "success": True,
             "message": f"Auto-sync {'enabled' if enabled else 'disabled'} for {app_name}"
         }
+        print(f"Returning result: {result}")
+        print(f"=== End Auto Sync Toggle Debug (Python) ===\n")
+        return result
     except Exception as e:
         frappe.log_error(f"Error toggling app autosync: {str(e)}")
+        print(f"Error occurred: {str(e)}")
+        print(f"=== End Auto Sync Toggle Debug (Python) with Error ===\n")
         return {"success": False, "error": str(e)}
 
 
