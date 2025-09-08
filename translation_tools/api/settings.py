@@ -37,9 +37,7 @@ def cast_to_float(value, default=0.0):
 @frappe.whitelist()
 def get_translation_settings():
     """Get translation tools settings (sensitive fields are masked for security)"""
-    # Check permissions - only System Manager can access settings
-    if not frappe.has_permission("System Manager"):
-        frappe.throw(_("Insufficient permissions to access settings"))
+    # No permission check needed for reading settings (they're masked anyway)
     
     # Get all settings in a single query to improve performance
     settings_doctype = "Translation Tools Settings"
@@ -684,18 +682,39 @@ def save_translation_tools_settings_file(
 
 @frappe.whitelist()
 def save_api_key(api_key, model_provider="openai"):
-    """Save the API key in the configuration file."""
-    if not frappe.has_permission("Translation Tools", "write"):
-        frappe.throw(_("You do not have permission to save API keys"))
+    """Save the API key to Translation Tools Settings (secure storage)."""
+    # Check if user has permission to manage settings
+    if "System Manager" not in frappe.get_roles():
+        frappe.throw(_("You need System Manager role to save API keys"))
 
-    bench_path = get_bench_path()
-    config_file = os.path.join(bench_path, ".erpnext_translate_config")
+    # Get or create Translation Tools Settings
+    if not frappe.db.exists("Translation Tools Settings", "Translation Tools Settings"):
+        doc = frappe.new_doc("Translation Tools Settings")
+        doc.name = "Translation Tools Settings"
+    else:
+        doc = frappe.get_single("Translation Tools Settings")
 
-    with open(config_file, "w") as f:
-        f.write(f'OPENAI_API_KEY="{api_key}"\n')
-        f.write(f'MODEL_PROVIDER="{model_provider}"\n')
-
-    # Set proper permissions
-    os.chmod(config_file, 0o600)
+    # Set the API key based on provider
+    if model_provider == "openai":
+        doc.openai_api_key = api_key
+        doc.default_model_provider = "openai"
+        doc.default_model = "gpt-4o-mini"
+    elif model_provider in ["anthropic", "claude"]:
+        doc.anthropic_api_key = api_key
+        doc.default_model_provider = "anthropic"
+        doc.default_model = "claude-3-haiku-20240307"
+    
+    # Set default values if not already set
+    if not doc.batch_size:
+        doc.batch_size = 10
+    if not doc.temperature:
+        doc.temperature = 0.3
+    if not doc.auto_save:
+        doc.auto_save = 0
+    if not doc.preserve_formatting:
+        doc.preserve_formatting = 1
+    
+    doc.save()
+    frappe.db.commit()
 
     return {"message": "API key saved successfully", "status": "success"}

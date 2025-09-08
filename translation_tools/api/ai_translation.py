@@ -158,20 +158,28 @@ def translate_batch(file_path, entry_ids, model_provider="openai", model=None):
         #     if os.path.exists(temp_path):
         #         os.unlink(temp_path)
 
-        # Use the SAME config method as the fast working single entry function
-        from .common import _get_translation_config
+        # Get API keys from secure Translation Tools Settings
         from .translation import _translate_with_openai, _translate_with_claude
         
-        api_key, actual_provider, actual_model = _get_translation_config()
+        api_keys = get_decrypted_api_keys()
+        settings = get_translation_settings()
         
         # Use the working config values or fall back to parameters
-        final_provider = model_provider if model_provider else actual_provider
-        final_model = model if model else actual_model
+        final_provider = model_provider if model_provider else settings.get("default_model_provider", "openai")
+        final_model = model if model else settings.get("default_model", "gpt-4o-mini")
+        
+        # Get the appropriate API key based on provider
+        if final_provider == "openai":
+            api_key = api_keys.get("openai_api_key")
+        elif final_provider in ["anthropic", "claude"]:
+            api_key = api_keys.get("anthropic_api_key")
+        else:
+            api_key = None
 
         if not api_key:
             return {
                 "success": False,
-                "error": f"API key not found in configuration",
+                "error": f"API key not found in configuration. Please configure it in Translation Tools Settings.",
             }
             
         logger.info(f"Using config: {final_provider} with model {final_model}")

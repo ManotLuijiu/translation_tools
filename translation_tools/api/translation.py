@@ -576,8 +576,20 @@ def translate_entry(file_path, msgid, entry_id):
     if not os.path.exists(full_path):
         return {"error": "File not found"}
 
-    # Get API key and model from config
-    api_key, model_provider, model = _get_translation_config()
+    # Get API key and model from Translation Tools Settings
+    api_keys = get_decrypted_api_keys()
+    settings = get_translation_settings()
+    
+    model_provider = settings.get("default_model_provider", "openai")
+    model = settings.get("default_model", "gpt-4.1-mini-2025-04-14")
+    
+    # Get the appropriate API key based on provider
+    if model_provider == "openai":
+        api_key = api_keys.get("openai_api_key")
+    elif model_provider == "anthropic" or model_provider == "claude":
+        api_key = api_keys.get("anthropic_api_key")
+    else:
+        api_key = None
 
     if not api_key:
         return {"error": "API key not configured"}
