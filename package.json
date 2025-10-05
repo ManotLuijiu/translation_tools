@@ -4,7 +4,7 @@
   "description": "An AI-powered translation utility for ERPNext that helps translate PO files using advanced language models like OpenAI GPT and Anthropic Claude.",
   "main": "index.js",
   "scripts": {
-    "install-pwa-deps": "cd thai_translation_dashboard && yarn install --check-files",
+    "install-pwa-deps": "cd thai_translation_dashboard && yarn install",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "yarn install-pwa-deps",
     "dev-pwa": "cd thai_translation_dashboard && yarn dev",
