@@ -44,7 +44,10 @@ after_install = [
     # "translation_tools.patches.migrate_chat_data.execute",
 ]
 
-after_migrate = "translation_tools.setup.update_workspace.rebuild_workspace"
+after_migrate = [
+    "translation_tools.setup.update_workspace.rebuild_workspace",
+    "translation_tools.utils.migration_translations.run_translation_commands_after_migrate"
+]
 
 # Uninstallation
 # ------------
@@ -55,7 +58,8 @@ after_uninstall = "translation_tools.uninstall.after_uninstall"
 # Custom bench commands
 # --------------------
 commands = [
-    "translation_tools.commands.compile_mo_files"
+    "translation_tools.commands.compile_mo_files",
+    "translation_tools.commands.update_translations"
 ]
 
 website_route_rules = [
