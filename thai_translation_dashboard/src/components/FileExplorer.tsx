@@ -24,6 +24,7 @@ import { Loader2, RefreshCw, Search, FileText, Trash2, CheckCircle, GitBranch, G
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/context/TranslationContext';
 import {
@@ -50,12 +51,19 @@ export default function FileExplorer({
 }: FileExplorerProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<string>('th'); // Default to Thai
-  const { data, error, isLoading, mutate } = useGetCachedPOFiles();
+  const { data, error, isLoading, mutate } = useGetCachedPOFiles(activeTab);
   const scanFiles = useScanPOFiles();
   const deletePOFiles = useDeletePOFiles();
   const forceRefreshStats = useForceRefreshPOStats();
   const [isScanningFiles, setIsScanningFiles] = useState(false);
   const [isGeneratingAsean, setIsGeneratingAsean] = useState(false);
+  const [jobProgress, setJobProgress] = useState<{
+    progress: number;
+    current_app: string;
+    current_locale: string;
+    processed_apps: number;
+    total_apps: number;
+  } | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -68,6 +76,7 @@ export default function FileExplorer({
     { code: 'vi', name: 'Vietnamese', flag: '🇻🇳' },
     { code: 'lo', name: 'Lao', flag: '🇱🇦' },
     { code: 'km', name: 'Khmer', flag: '🇰🇭' },
+    { code: 'my', name: 'Myanmar', flag: '🇲🇲' },
   ];
   
   // App sync settings
@@ -112,6 +121,12 @@ export default function FileExplorer({
       onRefreshFunctionReady(mutate);
     }
   }, [onRefreshFunctionReady, mutate]);
+
+  // Log when active tab changes to verify API refetch
+  useEffect(() => {
+    console.log(`🌐 Language tab changed to: ${activeTab}`);
+    console.log(`📡 API will fetch files for language: ${activeTab}`);
+  }, [activeTab]);
 
   const handleToggleAppSync = async (appName: string, enabled: boolean) => {
     console.log('=== Auto Sync Toggle Debug ===');
@@ -215,8 +230,9 @@ export default function FileExplorer({
 
   const handleGenerateAseanTranslations = async () => {
     setIsGeneratingAsean(true);
+    setJobProgress(null); // Reset progress
     try {
-      // Call our bulk ASEAN translation API
+      // Step 1: Start background job
       const response = await fetch('/api/method/translation_tools.api.bulk_translation.generate_all_apps_asean_translations', {
         method: 'POST',
         headers: {
@@ -224,33 +240,74 @@ export default function FileExplorer({
           'X-Frappe-CSRF-Token': (window as any).csrf_token || ''
         },
         body: JSON.stringify({
-          force_regenerate_pot: false // Don't regenerate POT files by default
+          force_regenerate_pot: false
         })
       });
-      
+
       const result = await response.json();
-      
-      if (result.message?.success) {
-        const summary = result.message;
-        console.log('ASEAN translation generation completed:', summary);
-        
-        // Show success message with summary
-        const successMessage = `🌏 ASEAN translations generated for ${summary.processed_apps}/${summary.total_apps} apps. ` +
-          `${summary.skipped_apps} skipped, ${summary.error_apps} errors.`;
-        
-        // You can add a proper toast notification here
-        alert(successMessage);
-        
-        // Refresh the data to show new files
-        await mutate();
-      } else {
-        throw new Error(result.message?.error || 'Failed to generate ASEAN translations');
+
+      if (!result.message?.success) {
+        throw new Error(result.message?.error || 'Failed to start translation job');
       }
+
+      const jobId = result.message.job_id;
+      console.log('Translation job started:', jobId);
+
+      // Step 2: Poll for job status
+      const pollInterval = setInterval(async () => {
+        try {
+          const statusResponse = await fetch(
+            `/api/method/translation_tools.api.bulk_translation.get_bulk_translation_job_status?job_id=${jobId}`,
+            {
+              headers: {
+                'X-Frappe-CSRF-Token': (window as any).csrf_token || ''
+              }
+            }
+          );
+
+          const statusResult = await statusResponse.json();
+
+          if (statusResult.message?.success) {
+            const jobStatus = statusResult.message;
+            console.log('Job progress:', jobStatus.progress, '%', jobStatus.current_app);
+
+            // Update progress state
+            setJobProgress({
+              progress: jobStatus.progress || 0,
+              current_app: jobStatus.current_app || '',
+              current_locale: jobStatus.current_locale || '',
+              processed_apps: jobStatus.processed_apps || 0,
+              total_apps: jobStatus.total_apps || 0,
+            });
+
+            // Check if job completed
+            if (jobStatus.status === 'Completed') {
+              clearInterval(pollInterval);
+
+              const results = jobStatus.results;
+              const successMessage = `🌏 ASEAN translations completed! ${results.processed_apps}/${results.total_apps} apps processed. ` +
+                `${results.skipped_apps} skipped, ${results.error_apps} errors.`;
+
+              alert(successMessage);
+              await mutate();
+              setIsGeneratingAsean(false);
+              setJobProgress(null); // Clear progress
+            } else if (jobStatus.status === 'Failed' || jobStatus.status === 'Cancelled') {
+              clearInterval(pollInterval);
+              setJobProgress(null); // Clear progress on error
+              throw new Error(jobStatus.error_log || `Job ${jobStatus.status.toLowerCase()}`);
+            }
+          }
+        } catch (pollError) {
+          console.error('Error polling job status:', pollError);
+        }
+      }, 2000); // Poll every 2 seconds
+
     } catch (error) {
       console.error('Error generating ASEAN translations:', error);
-      alert(`Error generating ASEAN translations: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
+      alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsGeneratingAsean(false);
+      setJobProgress(null); // Clear progress on error
     }
   };
 
@@ -453,6 +510,25 @@ export default function FileExplorer({
         </div>
       </div>
 
+      {/* Progress indicator for ASEAN translation job */}
+      {isGeneratingAsean && jobProgress && (
+        <div className="space-y-2 rounded-lg border bg-muted/50 p-4">
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-medium">
+              {jobProgress.current_app}
+              {jobProgress.current_locale && ` (${jobProgress.current_locale})`}
+            </span>
+            <span className="text-muted-foreground">
+              {jobProgress.processed_apps}/{jobProgress.total_apps} apps
+            </span>
+          </div>
+          <Progress value={jobProgress.progress} className="h-2" />
+          <div className="text-xs text-muted-foreground text-right">
+            {Math.round(jobProgress.progress)}% complete
+          </div>
+        </div>
+      )}
+
       <div className="relative">
         <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
         <Input
@@ -465,7 +541,7 @@ export default function FileExplorer({
 
       {/* ASEAN Language Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           {aseanLanguages.map((lang) => (
             <TabsTrigger 
               key={lang.code} 

@@ -19,41 +19,108 @@ import pytz
 logger = logging.getLogger("translation_tools.bulk_translation")
 
 # ASEAN-focused language support
-SUPPORTED_ASEAN_LOCALES = ["th", "vi", "lo", "km"]  # Thai, Vietnamese, Lao, Khmer (Cambodia)
+SUPPORTED_ASEAN_LOCALES = ["th", "vi", "lo", "km", "my"]  # Thai, Vietnamese, Lao, Khmer (Cambodia), Myanmar (Burma)
 
 
 @frappe.whitelist()
 def generate_all_apps_asean_translations(force_regenerate_pot=False):
     """
-    One-click ASEAN translation generation for ALL installed apps
-    Supports: Thai (th), Vietnamese (vi), Lao (lo), Khmer (km)
-    
-    Workflow using official Frappe bench commands:
-    1. bench generate-pot-file --app {app} (if force_regenerate_pot=True)
-    2. bench update-po-files --app {app} --locale {locale}
-    3. bench compile-po-to-mo --app {app} --locale {locale}
-    
+    Enqueue bulk ASEAN translation generation as a background job
+
     Args:
         force_regenerate_pot (bool): Whether to regenerate POT files first
-        
+
     Returns:
-        dict: Results with app-by-app status
+        dict: Job information including job_id for tracking progress
     """
     try:
-        # Log the execution time in Bangkok timezone
-        bangkok_tz = pytz.timezone('Asia/Bangkok')
-        bangkok_time = datetime.now(bangkok_tz)
-        
-        logger.info(f"Starting bulk ASEAN translation generation at {bangkok_time.strftime('%Y-%m-%d %H:%M:%S %Z')}")
-        
+        # Create Bulk Translation Job document
+        job_doc = frappe.get_doc({
+            "doctype": "Bulk Translation Job",
+            "status": "Queued",
+            "force_regenerate_pot": int(force_regenerate_pot),
+            "total_apps": len(frappe.get_installed_apps()),
+            "total_locales": len(SUPPORTED_ASEAN_LOCALES),
+            "started_at": now_datetime()
+        })
+        job_doc.insert()
+        frappe.db.commit()
+
+        # Enqueue background job - pass arguments directly (not as kwargs)
+        frappe.enqueue(
+            "translation_tools.api.bulk_translation.process_bulk_translation_job",
+            queue="long",
+            timeout=7200,  # 2 hours timeout
+            job_name=f"bulk_translation_{job_doc.job_id}",
+            job_id=job_doc.job_id,
+            force_regenerate_pot=force_regenerate_pot
+        )
+
+        logger.info(f"Bulk translation job {job_doc.job_id} enqueued")
+
+        return {
+            "success": True,
+            "job_id": job_doc.job_id,
+            "message": "Bulk translation job started. Check progress via job status API."
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to enqueue bulk translation job: {str(e)}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+def process_bulk_translation_job(job_id, force_regenerate_pot=False):
+    """
+    Background worker function for processing bulk translation job
+
+    Args:
+        job_id (str): UUID of the Bulk Translation Job (stored in job_id field, not document name)
+        force_regenerate_pot (bool): Whether to regenerate POT files first
+    """
+    try:
+        # Get job document by job_id field (not document name)
+        job_doc = frappe.get_all(
+            "Bulk Translation Job",
+            filters={"job_id": job_id},
+            fields=["name"],
+            limit=1
+        )
+
+        if not job_doc:
+            logger.error(f"Bulk Translation Job with job_id {job_id} not found")
+            return
+
+        job_doc = frappe.get_doc("Bulk Translation Job", job_doc[0].name)
+        job_doc.status = "In Progress"
+        job_doc.save()
+        frappe.db.commit()
+
         installed_apps = frappe.get_installed_apps()
+        total_apps = len(installed_apps)
         results = []
-        
-        for app_name in installed_apps:
+
+        for app_index, app_name in enumerate(installed_apps):
+            # Check if job was cancelled
+            job_doc.reload()
+            if job_doc.status == "Cancelled":
+                logger.info(f"Job {job_id} was cancelled")
+                return
+
             try:
+                # Update progress
+                job_doc.current_app = app_name
+                job_doc.processed_apps = app_index
+                job_doc.progress = (app_index / total_apps) * 100
+                job_doc.save()
+                frappe.db.commit()
+
+                # Process app translations
                 app_result = process_app_asean_translations(app_name, force_regenerate_pot)
                 results.append(app_result)
-                
+
             except Exception as e:
                 logger.error(f"Error processing {app_name}: {str(e)}")
                 results.append({
@@ -63,34 +130,41 @@ def generate_all_apps_asean_translations(force_regenerate_pot=False):
                     "has_pot": False,
                     "asean_translations": []
                 })
-        
-        # Summary statistics
+
+        # Job completed - update final status
         total_apps = len(results)
         processed_apps = len([r for r in results if r["status"] == "completed"])
         skipped_apps = len([r for r in results if r["status"] == "skipped_no_pot"])
         error_apps = len([r for r in results if r["status"] == "error"])
-        
-        summary = {
-            "success": True,
-            "timestamp": bangkok_time.isoformat(),
+
+        import json
+        job_doc.status = "Completed"
+        job_doc.progress = 100
+        job_doc.processed_apps = total_apps
+        job_doc.completed_at = now_datetime()
+        job_doc.results = json.dumps({
             "total_apps": total_apps,
             "processed_apps": processed_apps,
             "skipped_apps": skipped_apps,
             "error_apps": error_apps,
             "apps_results": results,
             "asean_locales": SUPPORTED_ASEAN_LOCALES
-        }
-        
-        logger.info(f"Bulk ASEAN translation completed: {processed_apps}/{total_apps} apps processed")
-        return summary
-        
+        }, indent=2)
+        job_doc.save()
+        frappe.db.commit()
+
+        logger.info(f"Bulk translation job {job_id} completed: {processed_apps}/{total_apps} apps processed")
+
     except Exception as e:
-        logger.error(f"Bulk ASEAN translation failed: {str(e)}")
-        return {
-            "success": False,
-            "error": str(e),
-            "timestamp": datetime.now().isoformat()
-        }
+        logger.error(f"Bulk translation job {job_id} failed: {str(e)}")
+
+        # Update job as failed
+        job_doc = frappe.get_doc("Bulk Translation Job", job_id)
+        job_doc.status = "Failed"
+        job_doc.error_log = str(e)
+        job_doc.completed_at = now_datetime()
+        job_doc.save()
+        frappe.db.commit()
 
 
 def process_app_asean_translations(app_name, force_regenerate_pot=False):
@@ -311,46 +385,169 @@ def get_apps_translation_status():
         }
 
 
-@frappe.whitelist() 
+@frappe.whitelist()
+def get_bulk_translation_job_status(job_id):
+    """
+    Get real-time status of a bulk translation job
+
+    Args:
+        job_id (str): UUID of the Bulk Translation Job (stored in job_id field)
+
+    Returns:
+        dict: Job status including progress, current app, and results
+    """
+    try:
+        # Find job by job_id field (UUID), not document name
+        job_doc = frappe.get_all(
+            "Bulk Translation Job",
+            filters={"job_id": job_id},
+            fields=["name"],
+            limit=1
+        )
+
+        if not job_doc:
+            return {
+                "success": False,
+                "error": f"Job {job_id} not found"
+            }
+
+        job_doc = frappe.get_doc("Bulk Translation Job", job_doc[0].name)
+
+        import json
+        results = None
+        if job_doc.results:
+            try:
+                results = json.loads(job_doc.results)
+            except:
+                results = None
+
+        return {
+            "success": True,
+            "job_id": job_doc.job_id,
+            "status": job_doc.status,
+            "progress": job_doc.progress or 0,
+            "current_app": job_doc.current_app,
+            "current_locale": job_doc.current_locale,
+            "processed_apps": job_doc.processed_apps or 0,
+            "total_apps": job_doc.total_apps,
+            "processed_locales": job_doc.processed_locales or 0,
+            "total_locales": job_doc.total_locales,
+            "started_at": job_doc.started_at,
+            "completed_at": job_doc.completed_at,
+            "results": results,
+            "error_log": job_doc.error_log
+        }
+
+    except frappe.DoesNotExistError:
+        return {
+            "success": False,
+            "error": f"Job {job_id} not found"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+@frappe.whitelist()
+def cancel_bulk_translation_job(job_id):
+    """
+    Cancel a running bulk translation job
+
+    Args:
+        job_id (str): UUID of the Bulk Translation Job (stored in job_id field)
+
+    Returns:
+        dict: Cancellation status
+    """
+    try:
+        # Find job by job_id field (UUID), not document name
+        job_doc = frappe.get_all(
+            "Bulk Translation Job",
+            filters={"job_id": job_id},
+            fields=["name"],
+            limit=1
+        )
+
+        if not job_doc:
+            return {
+                "success": False,
+                "error": f"Job {job_id} not found"
+            }
+
+        job_doc = frappe.get_doc("Bulk Translation Job", job_doc[0].name)
+
+        if job_doc.status in ["Completed", "Failed", "Cancelled"]:
+            return {
+                "success": False,
+                "error": f"Cannot cancel job with status: {job_doc.status}"
+            }
+
+        job_doc.status = "Cancelled"
+        job_doc.completed_at = now_datetime()
+        job_doc.save()
+        frappe.db.commit()
+
+        logger.info(f"Bulk translation job {job_id} cancelled")
+
+        return {
+            "success": True,
+            "message": f"Job {job_id} has been cancelled"
+        }
+
+    except frappe.DoesNotExistError:
+        return {
+            "success": False,
+            "error": f"Job {job_id} not found"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+@frappe.whitelist()
 def migrate_csv_to_po_bulk(csv_source_path=None):
     """
     Bulk migrate CSV files to PO format for all apps (if CSV files exist)
     Official command: bench migrate-csv-to-po --app {app_name} --locale {locale}
-    
+
     Note: This is for legacy systems that used CSV translation files
     """
     try:
         installed_apps = frappe.get_installed_apps()
         results = []
-        
+
         for app_name in installed_apps:
             app_result = {
                 "app": app_name,
                 "csv_migrations": []
             }
-            
+
             for locale in SUPPORTED_ASEAN_LOCALES:
                 # Check if CSV file exists
                 bench_path = get_bench_path()
                 csv_path = os.path.join(bench_path, "apps", app_name, app_name, "translations", f"{locale}.csv")
-                
+
                 if os.path.exists(csv_path):
                     try:
                         cmd = ["bench", "migrate-csv-to-po", "--app", app_name, "--locale", locale]
                         result = subprocess.run(
-                            cmd, 
-                            cwd=bench_path, 
-                            capture_output=True, 
-                            text=True, 
+                            cmd,
+                            cwd=bench_path,
+                            capture_output=True,
+                            text=True,
                             timeout=60
                         )
-                        
+
                         migration_result = {
                             "locale": locale,
                             "success": result.returncode == 0,
                             "output": result.stdout if result.returncode == 0 else result.stderr
                         }
-                        
+
                     except Exception as e:
                         migration_result = {
                             "locale": locale,
@@ -363,16 +560,16 @@ def migrate_csv_to_po_bulk(csv_source_path=None):
                         "success": False,
                         "error": "No CSV file found"
                     }
-                
+
                 app_result["csv_migrations"].append(migration_result)
-            
+
             results.append(app_result)
-        
+
         return {
             "success": True,
             "apps_results": results
         }
-        
+
     except Exception as e:
         return {
             "success": False,

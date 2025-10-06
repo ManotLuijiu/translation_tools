@@ -459,21 +459,36 @@ def find_next_untranslated_entry(file_path, current_page=1, page_size=20):
 
 @frappe.whitelist()
 @enhanced_error_handler
-def get_po_files():
-    """Get a list of PO files for site-specific installed apps, using cached data if available or scanning the filesystem if needed"""
+def get_po_files(language=None):
+    """
+    Get a list of PO files for site-specific installed apps, using cached data if available or scanning the filesystem if needed
+
+    Args:
+        language (str, optional): Language code to filter (e.g., 'th', 'vi', 'lo', 'km', 'my'). If None, returns all ASEAN languages.
+    """
     site = frappe.local.site
     installed_apps = frappe.get_installed_apps()
-    
-    logger.info(f"Fetching PO files for site '{site}' - installed apps: {installed_apps}")
-    print(f"🚀 SCAN START - Site: {site}")
+
+    # Define ASEAN language patterns
+    ASEAN_LANGUAGES = ["th", "vi", "lo", "km", "my"]
+
+    # Determine which language files to fetch
+    if language and language in ASEAN_LANGUAGES:
+        filename_patterns = [f"{language}.po"]
+        logger.info(f"Fetching PO files for language '{language}' on site '{site}'")
+    else:
+        filename_patterns = [f"{lang}.po" for lang in ASEAN_LANGUAGES]
+        logger.info(f"Fetching all ASEAN PO files for site '{site}' - languages: {ASEAN_LANGUAGES}")
+
+    print(f"🚀 SCAN START - Site: {site}, Languages: {filename_patterns}")
     print(f"📱 Installed Apps ({len(installed_apps)}): {', '.join(installed_apps)}")
-    
+
     try:
         # Try to get cached files first, but only for installed apps
         po_files = frappe.get_all(
             "PO File",
             filters=[
-                ["filename", "in", ["th.po"]],
+                ["filename", "in", filename_patterns],
                 ["app_name", "in", installed_apps]  # Filter by site-specific installed apps
             ],
             fields=[
@@ -496,7 +511,7 @@ def get_po_files():
             newest_scan = frappe.get_all(
                 "PO File",
                 filters=[
-                    ["filename", "in", ["th.po"]],
+                    ["filename", "in", filename_patterns],
                     ["app_name", "in", installed_apps]
                 ],
                 fields=["MAX(last_scanned) as last_scan"],
@@ -514,7 +529,7 @@ def get_po_files():
         # If we got here, either no cache or cache is stale
         # Scan the filesystem for PO files (this will also filter by installed apps)
         logger.info(f"No fresh cache found, scanning filesystem for PO files on site '{site}'")
-        return scan_and_cache_po_files(filename_patterns=["th.po"])
+        return scan_and_cache_po_files(filename_patterns=filename_patterns)
 
     except Exception as e:
         logger.error(f"Error fetching PO files for site '{site}': {str(e)}", exc_info=True)

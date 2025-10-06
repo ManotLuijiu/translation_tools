@@ -5,12 +5,136 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "section_break_n0me"
+  "section_break_n0me",
+  "job_id",
+  "status",
+  "progress",
+  "column_break_1",
+  "started_at",
+  "completed_at",
+  "section_break_2",
+  "current_app",
+  "current_locale",
+  "column_break_2",
+  "processed_apps",
+  "total_apps",
+  "processed_locales",
+  "total_locales",
+  "section_break_3",
+  "force_regenerate_pot",
+  "section_break_4",
+  "results",
+  "error_log"
  ],
  "fields": [
   {
    "fieldname": "section_break_n0me",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Job Information"
+  },
+  {
+   "fieldname": "job_id",
+   "fieldtype": "Data",
+   "label": "Job ID",
+   "unique": 1,
+   "reqd": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Queued\nIn Progress\nCompleted\nFailed\nCancelled",
+   "default": "Queued",
+   "reqd": 1
+  },
+  {
+   "fieldname": "progress",
+   "fieldtype": "Percent",
+   "label": "Progress"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "started_at",
+   "fieldtype": "Datetime",
+   "label": "Started At"
+  },
+  {
+   "fieldname": "completed_at",
+   "fieldtype": "Datetime",
+   "label": "Completed At"
+  },
+  {
+   "fieldname": "section_break_2",
+   "fieldtype": "Section Break",
+   "label": "Current Status"
+  },
+  {
+   "fieldname": "current_app",
+   "fieldtype": "Data",
+   "label": "Current App",
+   "read_only": 1
+  },
+  {
+   "fieldname": "current_locale",
+   "fieldtype": "Data",
+   "label": "Current Locale",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "processed_apps",
+   "fieldtype": "Int",
+   "label": "Processed Apps",
+   "default": 0
+  },
+  {
+   "fieldname": "total_apps",
+   "fieldtype": "Int",
+   "label": "Total Apps"
+  },
+  {
+   "fieldname": "processed_locales",
+   "fieldtype": "Int",
+   "label": "Processed Locales",
+   "default": 0
+  },
+  {
+   "fieldname": "total_locales",
+   "fieldtype": "Int",
+   "label": "Total Locales",
+   "default": 5
+  },
+  {
+   "fieldname": "section_break_3",
+   "fieldtype": "Section Break",
+   "label": "Options"
+  },
+  {
+   "fieldname": "force_regenerate_pot",
+   "fieldtype": "Check",
+   "label": "Force Regenerate POT"
+  },
+  {
+   "fieldname": "section_break_4",
+   "fieldtype": "Section Break",
+   "label": "Results & Logs"
+  },
+  {
+   "fieldname": "results",
+   "fieldtype": "Long Text",
+   "label": "Results"
+  },
+  {
+   "fieldname": "error_log",
+   "fieldtype": "Long Text",
+   "label": "Error Log"
   }
  ],
  "grid_page_length": 50,

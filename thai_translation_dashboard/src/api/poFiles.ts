@@ -67,11 +67,12 @@ export type POFileContentsPaginated = {
 
 /**
  * Get list of all PO files from database
+ * @param language - Optional language code to filter (e.g., 'th', 'vi', 'lo', 'km', 'my'). Returns all ASEAN languages if not specified.
  */
-export function useGetCachedPOFiles() {
+export function useGetCachedPOFiles(language?: string) {
   return useFrappeGetCall<{ message: POFile[] }>(
     'translation_tools.api.po_files.get_po_files',
-    {},
+    language ? { language } : {},
   );
 }
 
