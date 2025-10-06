@@ -1,4 +1,4 @@
-# Lao translations for Translation Tools.
+# Translations template for Translation Tools.
 # Copyright (C) 2025 Manot Luijiu
 # This file is distributed under the same license as the Translation Tools project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
@@ -7,12 +7,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
-"POT-Creation-Date: 2025-09-07 07:05+0642\n"
-"PO-Revision-Date: 2025-09-07 16:59+0642\n"
+"POT-Creation-Date: 2025-10-06 22:53+0642\n"
+"PO-Revision-Date: 2025-10-06 22:21+0642\n"
 "Last-Translator: moocoding@gmail.com\n"
-"Language: lo\n"
 "Language-Team: moocoding@gmail.com\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -127,7 +125,7 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:22
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:34
 msgid "Actions"
-msgstr ""
+msgstr "ການກະທໍາ"
 
 #. Label of a Check field in DocType 'Token Package'
 #. Option for the 'Status' (Select) field in DocType 'Translation Schedule'
@@ -135,12 +133,12 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:293
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Active"
-msgstr ""
+msgstr "ການເຄື່ອນໄຫວ"
 
 #. Label of a Int field in DocType 'GitHub Sync History Entry'
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Added"
-msgstr ""
+msgstr "ເພີ່ມ"
 
 #. Name of a role
 #: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
@@ -149,13 +147,17 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
 #: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
 msgid "All"
+msgstr "ທັງ ໝົດ"
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34238
+msgid "All Applications"
 msgstr ""
 
 #. Label of a Currency field in DocType 'Token Purchase'
 #: translation_tools/templates/pages/token_management.html:72
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Amount"
-msgstr ""
+msgstr "ຈໍານວນ"
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:155
 msgid "An error occurred while running the command"
@@ -176,21 +178,38 @@ msgstr ""
 msgid "Anthropic Model"
 msgstr ""
 
+#: translation_tools/api/translation_status.py:57
+msgid "App '{0}' is not installed on site '{1}'. Available apps: {2}"
+msgstr ""
+
+#: translation_tools/utils/migration_translations.py:189
+msgid "App '{}' not found in this bench"
+msgstr ""
+
 #. Label of a Data field in DocType 'PO File'
 #. Label of a Data field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/po_file/po_file.json
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "App Name"
-msgstr ""
+msgstr "ຊື່ App"
 
 #. Label of a Long Text field in DocType 'GitHub Sync Settings'
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "App Sync Settings (JSON)"
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34344
 #: translation_tools/translation_tools/page/translation_status/translation_status.js:47
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:25
 msgid "Application"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34233
+msgid "Application Filter"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34272
+msgid "Applications"
 msgstr ""
 
 #. Label of a number card in the Translation Tools Workspace
@@ -238,6 +257,10 @@ msgstr ""
 msgid "Automation"
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34308
+msgid "Average Completion"
+msgstr ""
+
 #. Label of a Card Break in the Integrations Workspace
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Backup"
@@ -260,12 +283,12 @@ msgstr ""
 #. Label of a Int field in DocType 'Translation Tools Settings'
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Batch Size"
-msgstr ""
+msgstr "ຂະ ໜາດ ຊຸດ"
 
 #. Label of a Attach field in DocType 'Translation Settings Custom Font'
 #: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
 msgid "Bold"
-msgstr ""
+msgstr "ກ້າຫານ"
 
 #. Label of a Attach field in DocType 'Translation Settings Custom Font'
 #: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
@@ -277,7 +300,7 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Branch"
-msgstr ""
+msgstr "ສາຂາ"
 
 #. Option for the 'Category' (Select) field in DocType 'Translation Glossary
 #. Term'
@@ -292,8 +315,9 @@ msgstr ""
 #. Label of a Select field in DocType 'Translation Glossary Term'
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Category"
-msgstr ""
+msgstr "ປະເພດ"
 
+#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:132
 #: translation_tools/public/js/language_toggle.js:61
 msgid "Changing language to "
 msgstr ""
@@ -312,7 +336,7 @@ msgstr ""
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:199
 msgid "Close"
-msgstr ""
+msgstr "ປິດ"
 
 #. Label of a Select field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
@@ -333,10 +357,18 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Completed"
+msgstr "ສໍາເລັດ"
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34350
+msgid "Completion"
 msgstr ""
 
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:55
 msgid "Completion %"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34243
+msgid "Completion Threshold"
 msgstr ""
 
 #: translation_tools/translation_tools/page/translation_status/translation_status.js:55
@@ -377,7 +409,7 @@ msgstr ""
 #. Label of a Small Text field in DocType 'Translation Glossary Term'
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Context"
-msgstr ""
+msgstr "ສະພາບການ"
 
 #. Description of the 'GitHub Personal Access Token (Classic)' (Password) field
 #. in DocType 'Translation Tools Settings'
@@ -389,7 +421,7 @@ msgstr ""
 #. Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Cron"
-msgstr ""
+msgstr "Cron"
 
 #. Label of a Data field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
@@ -409,7 +441,7 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/token_package/token_package.json
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Currency"
-msgstr ""
+msgstr "ສະກຸນເງິນ"
 
 #. Label of a Data field in DocType 'GitHub Sync Settings'
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
@@ -424,13 +456,13 @@ msgstr ""
 #. Label of a Data field in DocType 'Translation Tools Settings'
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Customer Name"
-msgstr ""
+msgstr "ຊື່ຂອງລູກຄ້າ"
 
 #. Option for the 'Schedule Type' (Select) field in DocType 'Translation
 #. Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Daily"
-msgstr ""
+msgstr "ປະຈໍາວັນ"
 
 #: translation_tools/templates/pages/token_management.html:74
 msgid "Date"
@@ -477,7 +509,7 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
 #: translation_tools/translation_tools/doctype/token_package/token_package.json
 msgid "Description"
-msgstr ""
+msgstr "ລາຍລະອຽດ"
 
 #: translation_tools/api/room.py:112
 msgid "Direct Room already exists!"
@@ -547,7 +579,7 @@ msgstr ""
 #. Label of a Check field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Enabled"
-msgstr ""
+msgstr "ເປີດການໃຊ້ງານ"
 
 #. Description of the 'Custom Cron Expression' (Data) field in DocType 'GitHub
 #. Sync Settings'
@@ -569,12 +601,12 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:289
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Error"
-msgstr ""
+msgstr "Error"
 
 #. Label of a Text field in DocType 'GitHub Sync History Entry'
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Error Message"
-msgstr ""
+msgstr "ຂໍ້ຄວາມຜິດພາດ"
 
 #: translation_tools/api/github_sync.py:52
 msgid "Error accessing GitHub repository: {0}"
@@ -596,6 +628,7 @@ msgstr ""
 msgid "Error verifying payment. Please contact support."
 msgstr ""
 
+#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:42
 #: translation_tools/public/js/app.js:76
 msgid "Error: "
 msgstr ""
@@ -620,6 +653,14 @@ msgstr ""
 msgid "Execution Status"
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34400
+msgid "Export as CSV"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34405
+msgid "Export as PDF"
+msgstr ""
+
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:124
 msgid "Extract all translatable strings from the app into a POT template file"
 msgstr ""
@@ -633,7 +674,7 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Failed"
-msgstr ""
+msgstr "ສົບຜົນສໍາເລັດ"
 
 #: translation_tools/api/message.py:202
 msgid "Failed to create checkout session. Please try again."
@@ -643,6 +684,7 @@ msgstr ""
 msgid "Failed to generate PDF. Please check the error log."
 msgstr ""
 
+#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:152
 #: translation_tools/public/js/language_toggle.js:82
 msgid "Failed to update language."
 msgstr ""
@@ -662,8 +704,9 @@ msgstr ""
 msgid "File Path"
 msgstr ""
 
-#: translation_tools/api/po_files.py:897 translation_tools/api/po_files.py:959
-#: translation_tools/api/po_files.py:1052
+#: translation_tools/api/po_files.py:1028
+#: translation_tools/api/po_files.py:1090
+#: translation_tools/api/po_files.py:1183
 #: translation_tools/api/translation.py:152
 #: translation_tools/api/translation.py:286
 msgid "File not found: {0}"
@@ -672,6 +715,10 @@ msgstr ""
 #. Label of a Data field in DocType 'PO File'
 #: translation_tools/translation_tools/doctype/po_file/po_file.json
 msgid "Filename"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34352
+msgid "Files"
 msgstr ""
 
 #. Label of a Text field in DocType 'GitHub Sync History Entry'
@@ -691,7 +738,7 @@ msgstr ""
 #. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Friday"
-msgstr ""
+msgstr "ສຸກ"
 
 #: translation_tools/api/user.py:12
 msgid "Full Name is required"
@@ -702,7 +749,7 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "General Settings"
-msgstr ""
+msgstr "ການຕັ້ງຄ່າທົ່ວໄປ"
 
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
 msgid "Generate PDF"
@@ -718,6 +765,10 @@ msgstr ""
 
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
 msgid "Generate from Document"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34205
+msgid "Generating PDF report..."
 msgstr ""
 
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:185
@@ -744,7 +795,7 @@ msgstr ""
 msgid "GitHub Sync Settings"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1514
+#: translation_tools/api/po_files.py:1645
 msgid "GitHub token saved successfully"
 msgstr ""
 
@@ -783,9 +834,10 @@ msgid "Google Settings"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'Translation PDF Settings'
+#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21398
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 msgid "Help"
-msgstr ""
+msgstr "ຊ່ວຍເຫຼືອ"
 
 #. Option for the 'Default Font' (Select) field in DocType 'PDF Settings'
 #: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
@@ -803,7 +855,7 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "In Progress"
-msgstr ""
+msgstr "ໃນຄວາມຄືບຫນ້າ"
 
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
 msgid "Include Company Logo"
@@ -820,13 +872,9 @@ msgstr ""
 #: translation_tools/api/components.py:51
 #: translation_tools/api/components.py:82
 #: translation_tools/api/components.py:103
-#: translation_tools/api/installation.py:228
+#: translation_tools/api/installation.py:373
 #: translation_tools/api/notifications.py:15
 msgid "Installing Translation Tools"
-msgstr ""
-
-#: translation_tools/api/settings.py:42
-msgid "Insufficient permissions to access settings"
 msgstr ""
 
 #: translation_tools/api/tokens.py:35
@@ -840,12 +888,12 @@ msgstr ""
 
 #: translation_tools/api/github_sync.py:31
 #: translation_tools/api/github_sync.py:105
-#: translation_tools/api/github_sync.py:248
+#: translation_tools/api/github_sync.py:253
 msgid "Invalid GitHub repository URL"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1087
-#: translation_tools/api/po_files.py:1097
+#: translation_tools/api/po_files.py:1218
+#: translation_tools/api/po_files.py:1228
 msgid "Invalid entry ID or entry not found"
 msgstr ""
 
@@ -899,8 +947,9 @@ msgstr ""
 #. Label of a Data field in DocType 'PO File'
 #: translation_tools/translation_tools/doctype/po_file/po_file.json
 msgid "Language"
-msgstr ""
+msgstr "ພາສາ"
 
+#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:145
 #: translation_tools/public/js/language_toggle.js:75
 msgid "Language updated. Reloading..."
 msgstr ""
@@ -939,13 +988,17 @@ msgstr ""
 msgid "Last Updated"
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34258
+msgid "Loading data..."
+msgstr ""
+
 #: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.js:73
 #: translation_tools/translation_tools/page/translation_dashboard/translation_dashboard.js:22
 msgid "Loading translation dashboard..."
 msgstr ""
 
-#: translation_tools/api/github_sync.py:133
-#: translation_tools/api/github_sync.py:276
+#: translation_tools/api/github_sync.py:138
+#: translation_tools/api/github_sync.py:286
 msgid "Local PO file not found"
 msgstr ""
 
@@ -970,7 +1023,7 @@ msgstr ""
 #. Entry'
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Manual"
-msgstr ""
+msgstr "ຄູ່ມື"
 
 #. Label of a Int field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
@@ -992,28 +1045,28 @@ msgstr ""
 #. Label of a Data field in DocType 'Translation History Entry'
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
 msgid "Model"
-msgstr ""
+msgstr "ຮູບແບບ"
 
 #. Label of a Link field in DocType 'Translation Glossary Term'
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Module"
-msgstr ""
+msgstr "ໂມດູນ"
 
 #. Label of a Data field in DocType 'ERPNext Module'
 #: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
 msgid "Module Name"
-msgstr ""
+msgstr "ຊື່ Module"
 
 #. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Monday"
-msgstr ""
+msgstr "ຈັນ"
 
 #. Option for the 'Schedule Type' (Select) field in DocType 'Translation
 #. Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Monthly"
-msgstr ""
+msgstr "ປະຈໍາເດືອນ"
 
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:126
 msgid "More Actions"
@@ -1022,7 +1075,7 @@ msgstr ""
 #. Label of a Data field in DocType 'User Tokens'
 #: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
 msgid "Name"
-msgstr ""
+msgstr "ຊື່"
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:256
 msgid "Next 5 runs:"
@@ -1050,7 +1103,7 @@ msgstr ""
 msgid "No API keys found in configuration file."
 msgstr ""
 
-#: translation_tools/api/po_files.py:1358
+#: translation_tools/api/po_files.py:1489
 msgid "No changes needed, translations are already up to date"
 msgstr ""
 
@@ -1058,10 +1111,14 @@ msgstr ""
 msgid "No sender email address found. Please set a default from address."
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34262
+msgid "No translation data found. Try adjusting your filters."
+msgstr ""
+
 #. Label of a Attach field in DocType 'Translation Settings Custom Font'
 #: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
 msgid "Normal"
-msgstr ""
+msgstr "Normal"
 
 #: translation_tools/api/pdfmake_generator.py:13
 msgid "Not permitted to read this document"
@@ -1090,7 +1147,7 @@ msgstr ""
 
 #: translation_tools/api/github_sync.py:23
 #: translation_tools/api/github_sync.py:100
-#: translation_tools/api/github_sync.py:243
+#: translation_tools/api/github_sync.py:248
 msgid "Only GitHub repositories are supported"
 msgstr ""
 
@@ -1117,6 +1174,10 @@ msgstr ""
 msgid "OpenAI Model"
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34217
+msgid "PDF Generated Successfully"
+msgstr ""
+
 #. Label of a Select field in DocType 'Translation PDF Settings'
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 msgid "PDF Generation Method"
@@ -1141,7 +1202,7 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:383
 msgid "PDF Settings"
-msgstr ""
+msgstr "ການຕັ້ງຄ່າ PDF"
 
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:135
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:165
@@ -1204,7 +1265,7 @@ msgstr ""
 #. Label of a Datetime field in DocType 'Token Purchase'
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Payment Date"
-msgstr ""
+msgstr "ວັນທີ່ສະຫມັກການຊໍາລະເງິນ"
 
 #: translation_tools/templates/pages/token_management.html:128
 msgid "Payment canceled. You can try again whenever you're ready."
@@ -1243,7 +1304,7 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Pending"
-msgstr ""
+msgstr "ທີ່ຍັງຄ້າງ"
 
 #. Label of a number card in the Translation Tools Workspace
 #: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
@@ -1264,6 +1325,10 @@ msgstr ""
 
 #: translation_tools/api/config.py:126
 msgid "Please log in to save settings."
+msgstr ""
+
+#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21432
+msgid "Please select a file to translate"
 msgstr ""
 
 #: translation_tools/api/message.py:149
@@ -1291,17 +1356,22 @@ msgstr ""
 #. Label of a Currency field in DocType 'Token Package'
 #: translation_tools/translation_tools/doctype/token_package/token_package.json
 msgid "Price"
+msgstr "ລາຄາ"
+
+#: translation_tools/public/dist/ai_translator.bundle.AWTVKUXP.js:19597
+#: translation_tools/public/dist/translation_tools.bundle.FYQK3ZDJ.js:19604
+msgid "Print Message"
 msgstr ""
 
 #. Label of a Int field in DocType 'ERPNext Module'
 #: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
 msgid "Priority"
-msgstr ""
+msgstr "ບູລິມະສິດ"
 
 #. Label of a Select field in DocType 'Translation History Entry'
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
 msgid "Provider"
-msgstr ""
+msgstr "ຜູ້ໃຫ້ບໍລິການ"
 
 #. Label of a Check field in DocType 'Translation Tools Settings'
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
@@ -1326,6 +1396,10 @@ msgstr ""
 msgid "Push Notifications"
 msgstr ""
 
+#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21371
+msgid "React Version"
+msgstr ""
+
 #: translation_tools/override/client.py:82
 msgid "Read"
 msgstr ""
@@ -1338,11 +1412,12 @@ msgstr ""
 msgid "Redirecting to Thai Translation Dashboard..."
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34395
 #: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.js:10
 #: translation_tools/translation_tools/page/translation_dashboard/translation_dashboard.js:9
 #: translation_tools/translation_tools/page/translation_status/translation_status.js:35
 msgid "Refresh"
-msgstr ""
+msgstr "ໂຫຼດຫນ້າຈໍຄືນ"
 
 #. Option for the 'Status' (Select) field in DocType 'Token Purchase'
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
@@ -1385,7 +1460,7 @@ msgstr ""
 msgid "Running"
 msgstr ""
 
-#: translation_tools/api/installation.py:229
+#: translation_tools/api/installation.py:374
 msgid "Running setup script..."
 msgstr ""
 
@@ -1411,7 +1486,7 @@ msgstr ""
 #. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Saturday"
-msgstr ""
+msgstr "ວັນເສົາ"
 
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:384
 msgid "Save"
@@ -1424,7 +1499,7 @@ msgstr ""
 #. Label of a Data field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Schedule Name"
-msgstr ""
+msgstr "ຊື່ຕາຕະລາງ"
 
 #. Label of a Select field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
@@ -1435,7 +1510,7 @@ msgstr ""
 #. Entry'
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Scheduled"
-msgstr ""
+msgstr "ກໍານົດ"
 
 #. Label of a Section Break field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
@@ -1444,6 +1519,7 @@ msgstr ""
 
 #. Label of a Card Break in the Integrations Workspace
 #: translation_tools/config/translation_tools.py:13
+#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21384
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:68
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Settings"
@@ -1465,7 +1541,7 @@ msgstr ""
 msgid "Settings updated successfully."
 msgstr ""
 
-#: translation_tools/api/installation.py:295
+#: translation_tools/api/installation.py:440
 msgid "Setup Error"
 msgstr ""
 
@@ -1484,7 +1560,7 @@ msgstr ""
 #. Label of a Section Break field in DocType 'User Signature'
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
 msgid "Signature"
-msgstr ""
+msgstr "ລາຍເຊັນ"
 
 #. Label of a Attach Image field in DocType 'User Signature'
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
@@ -1516,7 +1592,7 @@ msgstr ""
 msgid "Social Login Key"
 msgstr ""
 
-#: translation_tools/api/installation.py:202
+#: translation_tools/api/installation.py:347
 msgid "Some dependencies are missing. The setup script will attempt to install them."
 msgstr ""
 
@@ -1533,7 +1609,7 @@ msgstr ""
 #. Label of a Small Text field in DocType 'Translation History Entry'
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
 msgid "Source Text"
-msgstr ""
+msgstr "ຂໍ້ຄວາມແຫຼ່ງຂໍ້ມູນ"
 
 #: translation_tools/templates/pages/token_management.html:27
 msgid "Standard advice"
@@ -1551,7 +1627,7 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
 msgid "Status"
-msgstr ""
+msgstr "ສະຖານະພາບ"
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:56
 msgid "Status: {0}"
@@ -1569,21 +1645,21 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Success"
-msgstr ""
+msgstr "ຄວາມສໍາເລັດ"
 
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:101
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:113
 msgid "Success! Model: {0}"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1418
+#: translation_tools/api/po_files.py:1549
 msgid "Successfully pushed translations to GitHub"
 msgstr ""
 
 #. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Sunday"
-msgstr ""
+msgstr "ວັນອາທິດ"
 
 #. Label of a Datetime field in DocType 'GitHub Sync History Entry'
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
@@ -1649,7 +1725,7 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
 #: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
 msgid "System Manager"
-msgstr ""
+msgstr "ຈັດການລະບົບ"
 
 #. Label of a Data field in DocType 'GitHub Sync Settings'
 #. Label of a Data field in DocType 'Translation History Entry'
@@ -1750,7 +1826,7 @@ msgstr ""
 msgid "There was an error initiating your payment. Please try again."
 msgstr ""
 
-#: translation_tools/www/thai_translation_dashboard.py:63
+#: translation_tools/www/thai_translation_dashboard.py:66
 #: translation_tools/www/translation_tools.py:19
 msgid "This method is only meant for developer mode"
 msgstr ""
@@ -1762,12 +1838,12 @@ msgstr ""
 #. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Thursday"
-msgstr ""
+msgstr "ວັນພະຫັດ"
 
 #. Label of a Time field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Time"
-msgstr ""
+msgstr "ເວລາ"
 
 #. Label of a Int field in DocType 'Token Package'
 #: translation_tools/translation_tools/doctype/token_package/token_package.json
@@ -1821,10 +1897,16 @@ msgstr ""
 msgid "Total Glossary Terms"
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34282
+msgid "Total PO Files"
+msgstr ""
+
 #: translation_tools/templates/pages/token_management.html:21
 msgid "Total Purchased"
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34298
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34346
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:37
 msgid "Total Strings"
 msgstr ""
@@ -1846,11 +1928,20 @@ msgstr ""
 #. Label of a Data field in DocType 'Token Purchase'
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Transaction ID"
+msgstr "ID Transaction"
+
+#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21377
+msgid "Translate File"
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34348
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:43
-#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:165
+#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:178
 msgid "Translated"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34067
+msgid "Translated (%)"
 msgstr ""
 
 #. Label of a Int field in DocType 'PO File'
@@ -1861,7 +1952,7 @@ msgstr ""
 #. Label of a Small Text field in DocType 'Translation History Entry'
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
 msgid "Translated Text"
-msgstr ""
+msgstr "ແປຂໍ້ຄວາມ"
 
 #. Label of a Card Break in the Translation Tools Workspace
 #: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
@@ -1973,10 +2064,11 @@ msgstr ""
 msgid "Translation Tools Settings"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1481
+#: translation_tools/api/po_files.py:1612
 msgid "Translation Tools Settings doctype does not exist. Please contact administrator."
 msgstr ""
 
+#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:29
 #: translation_tools/public/js/app.js:57
 msgid "Translation Tools link added successfully!"
 msgstr ""
@@ -2009,7 +2101,7 @@ msgstr ""
 #. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Tuesday"
-msgstr ""
+msgstr "ວັນອັງຄານ"
 
 #. Option for the 'Category' (Select) field in DocType 'Translation Glossary
 #. Term'
@@ -2020,15 +2112,19 @@ msgstr ""
 #. Label of a Int field in DocType 'GitHub Sync History Entry'
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Unchanged"
-msgstr ""
+msgstr "ບໍ່ປ່ຽນແປງ"
 
-#: translation_tools/api/translation.py:1036
+#: translation_tools/api/translation.py:1048
 msgid "Unsupported model provider: {0}"
 msgstr ""
 
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:49
-#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:166
+#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:179
 msgid "Untranslated"
+msgstr "ບໍ່ຖືກປັບປຸງ"
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34073
+msgid "Untranslated (%)"
 msgstr ""
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:125
@@ -2038,7 +2134,7 @@ msgstr ""
 #. Label of a Int field in DocType 'GitHub Sync History Entry'
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Updated"
-msgstr ""
+msgstr "ການປັບປຸງ"
 
 #. Description of the 'Signature Image' (Attach Image) field in DocType 'User
 #. Signature'
@@ -2055,7 +2151,7 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
 #: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
 msgid "User"
-msgstr ""
+msgstr "ຜູ້ໃຊ້"
 
 #. Label of a Data field in DocType 'User Signature'
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
@@ -2081,6 +2177,10 @@ msgstr ""
 msgid "View Full Log"
 msgstr ""
 
+#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21391
+msgid "View Glossary"
+msgstr ""
+
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.js:15
 msgid "View Sync History"
 msgstr ""
@@ -2104,37 +2204,37 @@ msgstr ""
 #. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Wednesday"
-msgstr ""
+msgstr "ວັນພຸດ"
 
 #. Label of a Select field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Weekday"
-msgstr ""
+msgstr "ວັນອາທິດ"
 
 #. Option for the 'Schedule Type' (Select) field in DocType 'Translation
 #. Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Weekly"
-msgstr ""
+msgstr "ປະຈໍາອາທິດ"
 
 #: translation_tools/override/client.py:33
 msgid "You do not have Read or Select Permissions for {}"
-msgstr ""
-
-#: translation_tools/api/settings.py:689
-msgid "You do not have permission to save API keys"
 msgstr ""
 
 #: translation_tools/api/translation.py:443
 msgid "You do not have permission to use the translation tools"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1472
+#: translation_tools/api/po_files.py:1603
 msgid "You don't have permission to modify Translation Tools Settings"
 msgstr ""
 
 #: translation_tools/api/request_trial.py:19
 msgid "You have already requested a trial."
+msgstr ""
+
+#: translation_tools/api/settings.py:688
+msgid "You need System Manager role to save API keys"
 msgstr ""
 
 #: translation_tools/override/client.py:81
@@ -2315,7 +2415,7 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
 msgid "th"
-msgstr ""
+msgstr "th"
 
 #: translation_tools/templates/pages/token_management.html:26
 #: translation_tools/templates/pages/token_management.html:27

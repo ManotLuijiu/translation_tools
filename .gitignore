@@ -14,10 +14,10 @@ __pycache__
 # /translation_tools/public/css/styles.css
 # translation_tools/www/frontend.html
 # translation_tools/www/thai_translation_dashboard.html
-# /translation_tools/public/dist/
+translation_tools/public/dist/
 
 # Build artifacts - exclude all bundled assets
-# translation_tools/public/thai_translation_dashboard/assets/
+translation_tools/public/thai_translation_dashboard/assets/
 # translation_tools/public/thai_translation_dashboard/index.html
 # Node.js
 npm-debug.log*
@@ -33,4 +33,4 @@ yarn-error.log*
 .serena
 CLAUDE.md
 
-translation_tools/locale/th.po
+# translation_tools/locale/th.po

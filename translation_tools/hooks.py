@@ -32,18 +32,23 @@ modules = {
 
 # Desk page configuration removed - redundant with desk_page definition below
 
+# Boot session for client-side data injection
+boot_session = "translation_tools.boot.boot_session"
+
 # Installation
 after_install = [
     "translation_tools.install.after_install",
     "translation_tools.setup.github_sync_defaults.check_and_setup_if_needed",
+    "translation_tools.overrides.setup_translation_override",  # Install SPA translation support
     # "translation_tools.patches.default.fix_fixtures_import",
-    # "translation_tools.patches.default.add_default_font_to_print_settings", 
+    # "translation_tools.patches.default.add_default_font_to_print_settings",
     # "translation_tools.setup.install_custom_fields.install_custom_fields",
     # "translation_tools.setup.create_doctypes.create_signature_doctype",
     # "translation_tools.setup.create_doctypes.create_settings_page",
     # "translation_tools.patches.migrate_chat_data.execute",
 ]
 
+# Migration
 after_migrate = [
     "translation_tools.setup.update_workspace.rebuild_workspace",
     "translation_tools.utils.migration_translations.run_translation_commands_after_migrate"
@@ -66,6 +71,14 @@ website_route_rules = [
     {
         "from_route": "/asean_translation_dashboard/<path:app_path>",
         "to_route": "asean_translation_dashboard",
+    },
+    {
+        "from_route": "/thai_translation_dashboard/<path:app_path>",
+        "to_route": "thai_translation_dashboard",
+    },
+    {
+        "from_route": "/thai_translation_dashboard",
+        "to_route": "thai_translation_dashboard",
     }
 ]
 
@@ -151,16 +164,16 @@ scheduler_events = {
             "translation_tools.tasks.translation_scheduler.check_and_run_scheduled_tasks"
         ],
         # Midnight Bangkok time operations (17:00 UTC)
+        # Note: MO compilation removed - redundant with Frappe's native bench build-message-files
         "0 17 * * *": [
-            "translation_tools.tasks.mo_compiler.compile_mo_files_for_all_apps",
             "translation_tools.tasks.github_auto_sync.check_and_run_auto_sync"
         ]
     },
-    # Daily tasks (keeping others for backward compatibility)
+    # Daily tasks
     "daily": [
         "translation_tools.api.ai_models.get_available_ai_models",
         "translation_tools.tasks.translation_scheduler.cleanup_old_logs",
-        "translation_tools.tasks.github_auto_sync.check_and_run_auto_sync"
+        # GitHub sync runs via cron at specific time, not needed here
     ],
     # Hourly safety check for missed schedules
     "hourly": [

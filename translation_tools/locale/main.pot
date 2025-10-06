@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
-"POT-Creation-Date: 2025-09-07 07:05+0642\n"
-"PO-Revision-Date: 2025-09-07 07:05+0642\n"
+"POT-Creation-Date: 2025-10-06 22:53+0642\n"
+"PO-Revision-Date: 2025-10-06 22:53+0642\n"
 "Last-Translator: moocoding@gmail.com\n"
 "Language-Team: moocoding@gmail.com\n"
 "MIME-Version: 1.0\n"
@@ -149,6 +149,10 @@ msgstr ""
 msgid "All"
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34238
+msgid "All Applications"
+msgstr ""
+
 #. Label of a Currency field in DocType 'Token Purchase'
 #: translation_tools/templates/pages/token_management.html:72
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
@@ -174,6 +178,14 @@ msgstr ""
 msgid "Anthropic Model"
 msgstr ""
 
+#: translation_tools/api/translation_status.py:57
+msgid "App '{0}' is not installed on site '{1}'. Available apps: {2}"
+msgstr ""
+
+#: translation_tools/utils/migration_translations.py:189
+msgid "App '{}' not found in this bench"
+msgstr ""
+
 #. Label of a Data field in DocType 'PO File'
 #. Label of a Data field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/po_file/po_file.json
@@ -186,9 +198,18 @@ msgstr ""
 msgid "App Sync Settings (JSON)"
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34344
 #: translation_tools/translation_tools/page/translation_status/translation_status.js:47
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:25
 msgid "Application"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34233
+msgid "Application Filter"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34272
+msgid "Applications"
 msgstr ""
 
 #. Label of a number card in the Translation Tools Workspace
@@ -234,6 +255,10 @@ msgstr ""
 #. Label of a Card Break in the Translation Tools Workspace
 #: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
 msgid "Automation"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34308
+msgid "Average Completion"
 msgstr ""
 
 #. Label of a Card Break in the Integrations Workspace
@@ -292,6 +317,7 @@ msgstr ""
 msgid "Category"
 msgstr ""
 
+#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:132
 #: translation_tools/public/js/language_toggle.js:61
 msgid "Changing language to "
 msgstr ""
@@ -333,8 +359,16 @@ msgstr ""
 msgid "Completed"
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34350
+msgid "Completion"
+msgstr ""
+
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:55
 msgid "Completion %"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34243
+msgid "Completion Threshold"
 msgstr ""
 
 #: translation_tools/translation_tools/page/translation_status/translation_status.js:55
@@ -594,6 +628,7 @@ msgstr ""
 msgid "Error verifying payment. Please contact support."
 msgstr ""
 
+#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:42
 #: translation_tools/public/js/app.js:76
 msgid "Error: "
 msgstr ""
@@ -616,6 +651,14 @@ msgstr ""
 #. Label of a Section Break field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Execution Status"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34400
+msgid "Export as CSV"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34405
+msgid "Export as PDF"
 msgstr ""
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:124
@@ -641,6 +684,7 @@ msgstr ""
 msgid "Failed to generate PDF. Please check the error log."
 msgstr ""
 
+#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:152
 #: translation_tools/public/js/language_toggle.js:82
 msgid "Failed to update language."
 msgstr ""
@@ -660,8 +704,9 @@ msgstr ""
 msgid "File Path"
 msgstr ""
 
-#: translation_tools/api/po_files.py:897 translation_tools/api/po_files.py:959
-#: translation_tools/api/po_files.py:1052
+#: translation_tools/api/po_files.py:1028
+#: translation_tools/api/po_files.py:1090
+#: translation_tools/api/po_files.py:1183
 #: translation_tools/api/translation.py:152
 #: translation_tools/api/translation.py:286
 msgid "File not found: {0}"
@@ -670,6 +715,10 @@ msgstr ""
 #. Label of a Data field in DocType 'PO File'
 #: translation_tools/translation_tools/doctype/po_file/po_file.json
 msgid "Filename"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34352
+msgid "Files"
 msgstr ""
 
 #. Label of a Text field in DocType 'GitHub Sync History Entry'
@@ -718,6 +767,10 @@ msgstr ""
 msgid "Generate from Document"
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34205
+msgid "Generating PDF report..."
+msgstr ""
+
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:185
 msgid "Generating PDF..."
 msgstr ""
@@ -742,7 +795,7 @@ msgstr ""
 msgid "GitHub Sync Settings"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1514
+#: translation_tools/api/po_files.py:1645
 msgid "GitHub token saved successfully"
 msgstr ""
 
@@ -781,6 +834,7 @@ msgid "Google Settings"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'Translation PDF Settings'
+#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21398
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 msgid "Help"
 msgstr ""
@@ -818,13 +872,9 @@ msgstr ""
 #: translation_tools/api/components.py:51
 #: translation_tools/api/components.py:82
 #: translation_tools/api/components.py:103
-#: translation_tools/api/installation.py:228
+#: translation_tools/api/installation.py:373
 #: translation_tools/api/notifications.py:15
 msgid "Installing Translation Tools"
-msgstr ""
-
-#: translation_tools/api/settings.py:42
-msgid "Insufficient permissions to access settings"
 msgstr ""
 
 #: translation_tools/api/tokens.py:35
@@ -838,12 +888,12 @@ msgstr ""
 
 #: translation_tools/api/github_sync.py:31
 #: translation_tools/api/github_sync.py:105
-#: translation_tools/api/github_sync.py:248
+#: translation_tools/api/github_sync.py:253
 msgid "Invalid GitHub repository URL"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1087
-#: translation_tools/api/po_files.py:1097
+#: translation_tools/api/po_files.py:1218
+#: translation_tools/api/po_files.py:1228
 msgid "Invalid entry ID or entry not found"
 msgstr ""
 
@@ -899,6 +949,7 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
+#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:145
 #: translation_tools/public/js/language_toggle.js:75
 msgid "Language updated. Reloading..."
 msgstr ""
@@ -937,13 +988,17 @@ msgstr ""
 msgid "Last Updated"
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34258
+msgid "Loading data..."
+msgstr ""
+
 #: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.js:73
 #: translation_tools/translation_tools/page/translation_dashboard/translation_dashboard.js:22
 msgid "Loading translation dashboard..."
 msgstr ""
 
-#: translation_tools/api/github_sync.py:133
-#: translation_tools/api/github_sync.py:276
+#: translation_tools/api/github_sync.py:138
+#: translation_tools/api/github_sync.py:286
 msgid "Local PO file not found"
 msgstr ""
 
@@ -1048,12 +1103,16 @@ msgstr ""
 msgid "No API keys found in configuration file."
 msgstr ""
 
-#: translation_tools/api/po_files.py:1358
+#: translation_tools/api/po_files.py:1489
 msgid "No changes needed, translations are already up to date"
 msgstr ""
 
 #: translation_tools/api/resend_provider.py:91
 msgid "No sender email address found. Please set a default from address."
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34262
+msgid "No translation data found. Try adjusting your filters."
 msgstr ""
 
 #. Label of a Attach field in DocType 'Translation Settings Custom Font'
@@ -1088,7 +1147,7 @@ msgstr ""
 
 #: translation_tools/api/github_sync.py:23
 #: translation_tools/api/github_sync.py:100
-#: translation_tools/api/github_sync.py:243
+#: translation_tools/api/github_sync.py:248
 msgid "Only GitHub repositories are supported"
 msgstr ""
 
@@ -1113,6 +1172,10 @@ msgstr ""
 #. Label of a Data field in DocType 'Translation Tools Settings'
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "OpenAI Model"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34217
+msgid "PDF Generated Successfully"
 msgstr ""
 
 #. Label of a Select field in DocType 'Translation PDF Settings'
@@ -1264,6 +1327,10 @@ msgstr ""
 msgid "Please log in to save settings."
 msgstr ""
 
+#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21432
+msgid "Please select a file to translate"
+msgstr ""
+
 #: translation_tools/api/message.py:149
 msgid "Please sign in or provide your email to check token balance"
 msgstr ""
@@ -1289,6 +1356,11 @@ msgstr ""
 #. Label of a Currency field in DocType 'Token Package'
 #: translation_tools/translation_tools/doctype/token_package/token_package.json
 msgid "Price"
+msgstr ""
+
+#: translation_tools/public/dist/ai_translator.bundle.AWTVKUXP.js:19597
+#: translation_tools/public/dist/translation_tools.bundle.FYQK3ZDJ.js:19604
+msgid "Print Message"
 msgstr ""
 
 #. Label of a Int field in DocType 'ERPNext Module'
@@ -1324,6 +1396,10 @@ msgstr ""
 msgid "Push Notifications"
 msgstr ""
 
+#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21371
+msgid "React Version"
+msgstr ""
+
 #: translation_tools/override/client.py:82
 msgid "Read"
 msgstr ""
@@ -1336,6 +1412,7 @@ msgstr ""
 msgid "Redirecting to Thai Translation Dashboard..."
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34395
 #: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.js:10
 #: translation_tools/translation_tools/page/translation_dashboard/translation_dashboard.js:9
 #: translation_tools/translation_tools/page/translation_status/translation_status.js:35
@@ -1383,7 +1460,7 @@ msgstr ""
 msgid "Running"
 msgstr ""
 
-#: translation_tools/api/installation.py:229
+#: translation_tools/api/installation.py:374
 msgid "Running setup script..."
 msgstr ""
 
@@ -1442,6 +1519,7 @@ msgstr ""
 
 #. Label of a Card Break in the Integrations Workspace
 #: translation_tools/config/translation_tools.py:13
+#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21384
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:68
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Settings"
@@ -1463,7 +1541,7 @@ msgstr ""
 msgid "Settings updated successfully."
 msgstr ""
 
-#: translation_tools/api/installation.py:295
+#: translation_tools/api/installation.py:440
 msgid "Setup Error"
 msgstr ""
 
@@ -1514,7 +1592,7 @@ msgstr ""
 msgid "Social Login Key"
 msgstr ""
 
-#: translation_tools/api/installation.py:202
+#: translation_tools/api/installation.py:347
 msgid "Some dependencies are missing. The setup script will attempt to install them."
 msgstr ""
 
@@ -1574,7 +1652,7 @@ msgstr ""
 msgid "Success! Model: {0}"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1418
+#: translation_tools/api/po_files.py:1549
 msgid "Successfully pushed translations to GitHub"
 msgstr ""
 
@@ -1748,7 +1826,7 @@ msgstr ""
 msgid "There was an error initiating your payment. Please try again."
 msgstr ""
 
-#: translation_tools/www/thai_translation_dashboard.py:63
+#: translation_tools/www/thai_translation_dashboard.py:66
 #: translation_tools/www/translation_tools.py:19
 msgid "This method is only meant for developer mode"
 msgstr ""
@@ -1819,10 +1897,16 @@ msgstr ""
 msgid "Total Glossary Terms"
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34282
+msgid "Total PO Files"
+msgstr ""
+
 #: translation_tools/templates/pages/token_management.html:21
 msgid "Total Purchased"
 msgstr ""
 
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34298
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34346
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:37
 msgid "Total Strings"
 msgstr ""
@@ -1846,9 +1930,18 @@ msgstr ""
 msgid "Transaction ID"
 msgstr ""
 
+#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21377
+msgid "Translate File"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34348
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:43
-#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:165
+#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:178
 msgid "Translated"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34067
+msgid "Translated (%)"
 msgstr ""
 
 #. Label of a Int field in DocType 'PO File'
@@ -1971,10 +2064,11 @@ msgstr ""
 msgid "Translation Tools Settings"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1481
+#: translation_tools/api/po_files.py:1612
 msgid "Translation Tools Settings doctype does not exist. Please contact administrator."
 msgstr ""
 
+#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:29
 #: translation_tools/public/js/app.js:57
 msgid "Translation Tools link added successfully!"
 msgstr ""
@@ -2020,13 +2114,17 @@ msgstr ""
 msgid "Unchanged"
 msgstr ""
 
-#: translation_tools/api/translation.py:1036
+#: translation_tools/api/translation.py:1048
 msgid "Unsupported model provider: {0}"
 msgstr ""
 
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:49
-#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:166
+#: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:179
 msgid "Untranslated"
+msgstr ""
+
+#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34073
+msgid "Untranslated (%)"
 msgstr ""
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:125
@@ -2079,6 +2177,10 @@ msgstr ""
 msgid "View Full Log"
 msgstr ""
 
+#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21391
+msgid "View Glossary"
+msgstr ""
+
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.js:15
 msgid "View Sync History"
 msgstr ""
@@ -2119,20 +2221,20 @@ msgstr ""
 msgid "You do not have Read or Select Permissions for {}"
 msgstr ""
 
-#: translation_tools/api/settings.py:689
-msgid "You do not have permission to save API keys"
-msgstr ""
-
 #: translation_tools/api/translation.py:443
 msgid "You do not have permission to use the translation tools"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1472
+#: translation_tools/api/po_files.py:1603
 msgid "You don't have permission to modify Translation Tools Settings"
 msgstr ""
 
 #: translation_tools/api/request_trial.py:19
 msgid "You have already requested a trial."
+msgstr ""
+
+#: translation_tools/api/settings.py:688
+msgid "You need System Manager role to save API keys"
 msgstr ""
 
 #: translation_tools/override/client.py:81

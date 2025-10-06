@@ -8,12 +8,12 @@ const Footer = () => {
         <div>
           © {new Date().getFullYear()}{' '}
           <a
-            href="https://moo-ai.online"
+            href="https://www.bunchee.online"
             target="_blank"
             rel="noopener noreferrer"
             className="font-medium underline underline-offset-4 hover:text-primary"
           >
-            MooCoding
+            Bunchee Online
           </a>
         </div>
         {/* <div className="mt-4 md:mt-0 flex gap-4">

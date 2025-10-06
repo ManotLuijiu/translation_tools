@@ -16,7 +16,6 @@ CLOSING_SCRIPT_TAG_PATTERN = re.compile(r"</script\>")
 
 def get_context(context):
     if frappe.session.user == "Guest":
-        # boot = frappe.website.utils.get_boot_data()
         boot = frappe.website.utils.get_boot_data()
     else:
         try:
@@ -24,8 +23,13 @@ def get_context(context):
         except Exception as e:
             raise frappe.SessionBootFailed from e
 
-    frappe.local.response["type"] = "redirect"
-    frappe.local.response["location"] = "/thai_translation_dashboard"
+    # Load translations into boot context (critical for SPA i18n)
+    from frappe.boot import load_translations
+    load_translations(boot)
+
+    # Remove redirect - it causes inconsistent refresh behavior
+    # frappe.local.response["type"] = "redirect"
+    # frappe.local.response["location"] = "/thai_translation_dashboard"
 
     boot_json = frappe.as_json(boot, indent=None, separators=(",", ":"))  # type: ignore
     boot_json = SCRIPT_TAG_PATTERN.sub("", boot_json)
@@ -69,6 +73,10 @@ def get_boot():
         boot = frappe.sessions.get()
     except Exception as e:
         raise frappe.SessionBootFailed from e
+
+    # Load translations into boot context (critical for SPA i18n)
+    from frappe.boot import load_translations
+    load_translations(boot)
 
     boot_json = frappe.as_json(boot, indent=None, separators=(",", ":"))  # type: ignore
     boot_json = SCRIPT_TAG_PATTERN.sub("", boot_json)

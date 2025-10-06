@@ -108,7 +108,40 @@ def after_install():
 
         # Generate PO file
         generate_po_file()
-        
+
+        # Complete translation setup (POT/PO/MO) - only runs during install
+        try:
+            logger.info("Setting up complete translation workflow (CSV, POT, PO, MO)...")
+            print("\n🌍 Setting up complete translation workflow...")
+
+            # Step 1: Ensure our override is installed before rebuilding
+            from translation_tools.overrides import setup_translation_override
+            setup_translation_override()
+
+            # Step 2: Rebuild CSV files (with SPA support and ASEAN filtering)
+            from frappe.translate import rebuild_all_translation_files
+            rebuild_all_translation_files()
+
+            print("✅ CSV files generated successfully (ASEAN languages)")
+
+            # Step 3: Run full PO/MO compilation for custom apps
+            from translation_tools.utils.migration_translations import run_full_translation_setup
+            run_full_translation_setup()
+
+            success_msg = "✅ Translation system setup complete (CSV, POT, PO, MO)"
+            print(success_msg)
+            logger.info(success_msg)
+            print("   📁 CSV files: apps/*/translations/*.csv")
+            print("   📁 PO files: apps/*/locale/*.po")
+            print("   📁 MO files: sites/assets/locale/*/LC_MESSAGES/*.mo")
+            print("   📝 Next: Review translation files and add translations where needed")
+
+        except Exception as csv_error:
+            error_msg = f"Translation setup failed during installation: {str(csv_error)}"
+            logger.warning(error_msg)
+            print(f"⚠️ {error_msg}")
+            print("   You can manually rebuild later with: bench build-message-files")
+
         # Sync glossary terms from GitHub to populate dashboard number cards
         try:
             logger.info("Syncing glossary terms from GitHub repository...")
