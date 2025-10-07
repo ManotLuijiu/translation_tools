@@ -195,9 +195,9 @@ export default function GlossaryManager() {
         return;
       }
 
-      const result = await addTerm.call({ 
+      const result = await addTerm.call({
         term: formData,
-        push_to_github: pushToGithub 
+        push_to_github: pushToGithub,
       });
       const { message } = result;
 
@@ -206,7 +206,7 @@ export default function GlossaryManager() {
 
       if (message && message.success) {
         let successMessage = 'Term added successfully';
-        
+
         // Add GitHub status to success message
         if (pushToGithub && message.github) {
           if (message.github.github_pushed) {
@@ -215,7 +215,7 @@ export default function GlossaryManager() {
             successMessage += ` (GitHub: ${message.github.message})`;
           }
         }
-        
+
         setStatusMessage({
           type: 'success',
           message: successMessage,
@@ -268,7 +268,7 @@ export default function GlossaryManager() {
 
       if (result.success) {
         let successMessage = 'Term updated successfully';
-        
+
         // Add GitHub status to success message
         if (pushToGithub && result.github) {
           if (result.github.github_pushed) {
@@ -277,7 +277,7 @@ export default function GlossaryManager() {
             successMessage += ` (GitHub: ${result.github.message})`;
           }
         }
-        
+
         setStatusMessage({
           type: 'success',
           message: successMessage,
@@ -320,7 +320,7 @@ export default function GlossaryManager() {
             successMessage += `. GitHub sync failed: ${result.github.message}`;
           }
         }
-        
+
         setStatusMessage({
           type: 'success',
           message: successMessage,
@@ -406,7 +406,8 @@ export default function GlossaryManager() {
         refreshTerms();
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to sync from file';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to sync from file';
       setStatusMessage({
         type: 'error',
         message: errorMessage,
@@ -418,10 +419,10 @@ export default function GlossaryManager() {
   const handleSyncFromGitHub = async () => {
     try {
       const response = await syncFromGitHub.call({});
-      
+
       // Frappe wraps the response in a message property
       const result = response?.message || response;
-      
+
       // Ensure result is properly structured
       if (!result || typeof result !== 'object') {
         throw new Error('Invalid response from server');
@@ -430,7 +431,7 @@ export default function GlossaryManager() {
       if (result.success) {
         const stats = result.stats || { added: 0, updated: 0, skipped: 0 };
         const message = `GitHub sync completed: ${stats.added} added, ${stats.updated} updated, ${stats.skipped} unchanged`;
-        
+
         setStatusMessage({
           type: 'success',
           message: message,
@@ -438,7 +439,10 @@ export default function GlossaryManager() {
         toast.success(message);
         refreshTerms();
       } else {
-        const errorMessage = typeof result.message === 'string' ? result.message : 'Failed to sync from GitHub';
+        const errorMessage =
+          typeof result.message === 'string'
+            ? result.message
+            : 'Failed to sync from GitHub';
         setStatusMessage({
           type: 'error',
           message: errorMessage,
@@ -447,7 +451,8 @@ export default function GlossaryManager() {
       }
     } catch (err) {
       console.error('GitHub sync error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to sync from GitHub';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to sync from GitHub';
       setStatusMessage({
         type: 'error',
         message: errorMessage,
@@ -1013,7 +1018,7 @@ export default function GlossaryManager() {
                   {addTerm.loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      __{'Adding...'}
+                      __('Adding...')
                     </>
                   ) : (
                     __('Save Term')
