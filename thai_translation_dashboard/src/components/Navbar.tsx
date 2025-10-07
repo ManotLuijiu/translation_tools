@@ -69,7 +69,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab }) => {
                   <span className="font-medium">{currentUser}</span>
                 </div>
               )} */}
-              {/* <LanguageToggle /> */}
+              <LanguageToggle />
               <ModeToggle />
             </div>
           </div>

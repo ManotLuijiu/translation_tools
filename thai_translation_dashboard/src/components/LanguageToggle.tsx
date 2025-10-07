@@ -1,58 +1,127 @@
+import { useFrappeUpdateDoc } from 'frappe-react-sdk';
+import { Languages } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useFrappePostCall } from 'frappe-react-sdk';
-import { Switch } from './ui/switch';
-import { Label } from './ui/label';
+import { Button } from './ui/button';
+import { Skeleton } from './ui/skeleton';
 
 export function LanguageToggle() {
-  const [currentLang, setCurrentLang] = useState('en');
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentLang, setCurrentLang] = useState<string>(() => {
+    const lang = window?.frappe?.boot?.lang || 'th';
+    return lang?.toLowerCase()?.startsWith('en') ? 'en' : 'th';
+  });
+  const [optimisticLang, setOptimisticLang] = useState<string | null>(null);
 
-  // Get initial language from frappe.boot.lang when component mounts
+  let updateUser: any = null;
+  try {
+    const { updateDoc } = useFrappeUpdateDoc();
+    updateUser = updateDoc;
+  } catch (error) {
+    console.warn('FrappeProvider context not available, using fallback method');
+  }
+
+  const getCurrentLanguageFromBoot = () => {
+    const lang = window?.frappe?.boot?.lang || 'th';
+    return lang?.toLowerCase()?.startsWith('en') ? 'en' : 'th';
+  };
+
+  const getCurrentUserId = () => {
+    return window?.frappe?.session?.user || 'Administrator';
+  };
+
   useEffect(() => {
-    // console.log('access lang toggle', window.frappe.boot?.lang);
-    // Access the global frappe object for the initial language
-    if (window.frappe?.boot?.lang) {
-      setCurrentLang(window.frappe.boot.lang);
-    }
-  }, []);
+    const checkLanguageSync = () => {
+      const bootLang = getCurrentLanguageFromBoot();
+      if (bootLang !== currentLang && !optimisticLang) {
+        setCurrentLang(bootLang);
+      }
+    };
 
-  const { call: setLanguage, loading: apiLoading } = useFrappePostCall(
-    'translation_tools.utils.language_utils.set_language'
-  );
+    checkLanguageSync();
+    const handleFocus = () => checkLanguageSync();
+    window.addEventListener('focus', handleFocus);
+
+    const interval = import.meta.env.DEV
+      ? setInterval(checkLanguageSync, 2000)
+      : null;
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      if (interval) clearInterval(interval);
+    };
+  }, [currentLang, optimisticLang]);
 
   const toggleLanguage = async () => {
-    const newLang = currentLang === 'en' ? 'th' : 'en';
-    setLoading(true);
+    if (isLoading) return;
+
+    const current = optimisticLang || currentLang;
+    const newLang = current === 'en' ? 'th' : 'en';
+    const userId = getCurrentUserId();
+
+    setOptimisticLang(newLang);
+    setIsLoading(true);
 
     try {
-      await setLanguage({
-        language: newLang,
-      });
+      if (updateUser) {
+        await updateUser('User', userId, {
+          language: newLang,
+        });
+      } else {
+        const response = await fetch('/api/method/frappe.client.set_value', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            doctype: 'User',
+            name: userId,
+            fieldname: 'language',
+            value: newLang,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update language preference');
+        }
+      }
 
       setCurrentLang(newLang);
-      // Reload the page to apply language changes
-      window.location.reload();
+
+      setTimeout(() => {
+        const cleanUrl = window.location.pathname + window.location.hash;
+        window.location.href = cleanUrl;
+      }, 500);
     } catch (error) {
-      console.error('Failed to switch language:', error);
-      setLoading(false);
+      console.error('Language toggle error:', error);
+      setOptimisticLang(null);
+      setIsLoading(false);
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 300);
     }
   };
 
+  const displayLanguage = optimisticLang || currentLang;
+  const nextLanguageDisplay = displayLanguage === 'en' ? 'ไทย' : 'EN';
+
+  // Show skeleton during loading/switching
+  if (isLoading) {
+    return (
+      <Skeleton className="h-9 w-24" />
+    );
+  }
+
   return (
-    <div className="flex items-center space-x-2">
-      <Switch
-        id="language-toggle"
-        checked={currentLang === 'th'}
-        disabled={loading || apiLoading}
-        onCheckedChange={toggleLanguage}
-      />
-      <Label
-        htmlFor="language-toggle"
-        className="cursor-pointer text-gray-900 dark:text-gray-50"
-      >
-        {currentLang === 'en' ? '🇬🇧 English' : '🇹🇭 ไทย'}
-      </Label>
-    </div>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={toggleLanguage}
+      className="transition-all duration-200 dark:hover:text-primary hover:scale-105"
+    >
+      <Languages className="w-4 h-4 mr-2" />
+      {nextLanguageDisplay}
+    </Button>
   );
 }
 
