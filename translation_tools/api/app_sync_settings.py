@@ -216,7 +216,7 @@ def toggle_app_autosync(app_name, enabled=False):
                 
                 for po_file in app_po_files:
                     print(f"💫 Processing PO file: {po_file['filename']} ({po_file['file_path']})")
-                    
+
                     # Find best match - prioritize by match score and app name
                     best_match = None
                     for github_file in available_files:
@@ -224,37 +224,50 @@ def toggle_app_autosync(app_name, enabled=False):
                         if app_name in github_file['path'].lower():
                             best_match = github_file
                             break
-                    
+
                     # Fallback to highest match score if no app-specific match
                     if not best_match and available_files:
                         best_match = available_files[0]  # Already sorted by match score
-                    
+
                     if not best_match:
                         print(f"❌ No suitable GitHub file found for {po_file['filename']}")
                         continue
-                    
+
                     selected_repo_files = [best_match['path']]
                     local_file_path = po_file['file_path']
-                    
+
                     print(f"✅ Selected GitHub file: {best_match['path']} (match score: {best_match.get('matchScore', 0)})")
                     print(f"📄 Target local file: {local_file_path}")
-                    
+
                     # STEP 3: Skip preview for auto-sync (it's optional in manual sync)
                     print(f"⏩ STEP 3: Skipping preview for auto-sync")
-                    
+
                     # STEP 4: Apply Changes (exactly like manual sync)
                     print(f"🔄 STEP 4: Applying sync changes...")
-                    
+
                     apply_result = apply_sync(
                         repo_url=repo_url,
                         branch=branch,
                         repo_files=selected_repo_files,  # Same format as manual sync
                         local_file_path=local_file_path  # Same format as manual sync
                     )
-                    
+
                     if apply_result.get('success'):
                         print(f"✅ Auto-sync successful for {po_file['filename']}")
                         frappe.logger().info(f"Auto-sync completed successfully for {app_name}: {po_file['filename']}")
+
+                        # Update app_settings with sync metadata (source_path, target_path, locale)
+                        print(f"💾 Updating app_settings with sync metadata...")
+                        app_settings[app_name]["locale"] = target_language
+                        app_settings[app_name]["source_path"] = best_match['path']
+                        app_settings[app_name]["target_path"] = local_file_path
+                        app_settings[app_name]["last_updated"] = frappe.utils.now_datetime().isoformat()
+
+                        # Save updated settings
+                        settings.app_sync_settings = json.dumps(app_settings)
+                        settings.save(ignore_permissions=True)
+                        frappe.db.commit()
+                        print(f"✅ App settings updated with sync metadata")
                     else:
                         print(f"❌ Auto-sync failed for {po_file['filename']}: {apply_result.get('error')}")
                         frappe.log_error(f"Auto-sync failed for {app_name}/{po_file['filename']}: {apply_result.get('error')}")
