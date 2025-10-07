@@ -184,6 +184,14 @@ export default function TranslationEditor({
     }
   }, [currentPage, entryFilter, searchTerm, selectedFile?.file_path, mutate]);
 
+  // Auto-set filter to 'untranslated' when entering AI mode
+  useEffect(() => {
+    if (translationMode === 'ai') {
+      setEntryFilter('untranslated');
+      setCurrentPage(1); // Reset to first page with untranslated entries
+    }
+  }, [translationMode]);
+
   // Update edited translation when selected entry changes
   // useEffect(() => {
   //   if (!data?.message?.entries || !selectedEntryId) return;
@@ -1355,7 +1363,15 @@ export default function TranslationEditor({
           entries={entries}
           settings={settings}
           batchSize={batchSize}
-          onTranslationComplete={() => mutate()}
+          onTranslationComplete={() => {
+            // Refresh current page data to show updated status
+            mutate();
+            // Auto-advance to next page to continue with untranslated entries
+            // Since filter is set to 'untranslated', next page will show only untranslated entries
+            if (currentPage < totalPages) {
+              setCurrentPage(currentPage + 1);
+            }
+          }}
         />
       )}
     </div>
