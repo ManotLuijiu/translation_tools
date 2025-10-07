@@ -4,6 +4,7 @@ import { POFile } from '../types';
 import { formatPercentage, formatDate } from '../utils/helpers';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { toast } from 'sonner';
 import {
   Table,
   TableBody,
@@ -285,10 +286,13 @@ export default function FileExplorer({
               clearInterval(pollInterval);
 
               const results = jobStatus.results;
-              const successMessage = `🌏 ASEAN translations completed! ${results.processed_apps}/${results.total_apps} apps processed. ` +
-                `${results.skipped_apps} skipped, ${results.error_apps} errors.`;
 
-              alert(successMessage);
+              // Show success toast
+              toast.success('🌏 ASEAN Translations Completed!', {
+                description: `${results.processed_apps}/${results.total_apps} apps processed • ${results.skipped_apps} skipped • ${results.error_apps} errors`,
+                duration: 5000,
+              });
+
               await mutate();
               setIsGeneratingAsean(false);
               setJobProgress(null); // Clear progress
@@ -305,7 +309,10 @@ export default function FileExplorer({
 
     } catch (error) {
       console.error('Error generating ASEAN translations:', error);
-      alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error('Translation Error', {
+        description: error instanceof Error ? error.message : 'Unknown error occurred',
+        duration: 5000,
+      });
       setIsGeneratingAsean(false);
       setJobProgress(null); // Clear progress on error
     }

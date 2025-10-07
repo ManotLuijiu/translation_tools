@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
-"POT-Creation-Date: 2025-10-06 22:21+0642\n"
+"POT-Creation-Date: 2025-10-06 22:53+0642\n"
 "PO-Revision-Date: 2025-10-06 22:21+0642\n"
 "Last-Translator: moocoding@gmail.com\n"
 "Language-Team: moocoding@gmail.com\n"
@@ -182,7 +182,7 @@ msgstr ""
 msgid "App '{0}' is not installed on site '{1}'. Available apps: {2}"
 msgstr ""
 
-#: translation_tools/utils/migration_translations.py:188
+#: translation_tools/utils/migration_translations.py:189
 msgid "App '{}' not found in this bench"
 msgstr ""
 

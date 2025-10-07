@@ -46,13 +46,13 @@ def generate_all_apps_asean_translations(force_regenerate_pot=False):
         job_doc.insert()
         frappe.db.commit()
 
-        # Enqueue background job - pass arguments directly (not as kwargs)
+        # Enqueue background job
         frappe.enqueue(
             "translation_tools.api.bulk_translation.process_bulk_translation_job",
             queue="long",
             timeout=7200,  # 2 hours timeout
             job_name=f"bulk_translation_{job_doc.job_id}",
-            job_id=job_doc.job_id,
+            translation_job_id=job_doc.job_id,
             force_regenerate_pot=force_regenerate_pot
         )
 
@@ -72,25 +72,25 @@ def generate_all_apps_asean_translations(force_regenerate_pot=False):
         }
 
 
-def process_bulk_translation_job(job_id, force_regenerate_pot=False):
+def process_bulk_translation_job(translation_job_id, force_regenerate_pot=False):
     """
     Background worker function for processing bulk translation job
 
     Args:
-        job_id (str): UUID of the Bulk Translation Job (stored in job_id field, not document name)
+        translation_job_id (str): UUID of the Bulk Translation Job (stored in job_id field, not document name)
         force_regenerate_pot (bool): Whether to regenerate POT files first
     """
     try:
         # Get job document by job_id field (not document name)
         job_doc = frappe.get_all(
             "Bulk Translation Job",
-            filters={"job_id": job_id},
+            filters={"job_id": translation_job_id},
             fields=["name"],
             limit=1
         )
 
         if not job_doc:
-            logger.error(f"Bulk Translation Job with job_id {job_id} not found")
+            logger.error(f"Bulk Translation Job with job_id {translation_job_id} not found")
             return
 
         job_doc = frappe.get_doc("Bulk Translation Job", job_doc[0].name)
@@ -106,7 +106,7 @@ def process_bulk_translation_job(job_id, force_regenerate_pot=False):
             # Check if job was cancelled
             job_doc.reload()
             if job_doc.status == "Cancelled":
-                logger.info(f"Job {job_id} was cancelled")
+                logger.info(f"Job {translation_job_id} was cancelled")
                 return
 
             try:
@@ -153,18 +153,28 @@ def process_bulk_translation_job(job_id, force_regenerate_pot=False):
         job_doc.save()
         frappe.db.commit()
 
-        logger.info(f"Bulk translation job {job_id} completed: {processed_apps}/{total_apps} apps processed")
+        logger.info(f"Bulk translation job {translation_job_id} completed: {processed_apps}/{total_apps} apps processed")
 
     except Exception as e:
-        logger.error(f"Bulk translation job {job_id} failed: {str(e)}")
+        logger.error(f"Bulk translation job {translation_job_id} failed: {str(e)}")
 
         # Update job as failed
-        job_doc = frappe.get_doc("Bulk Translation Job", job_id)
-        job_doc.status = "Failed"
-        job_doc.error_log = str(e)
-        job_doc.completed_at = now_datetime()
-        job_doc.save()
-        frappe.db.commit()
+        try:
+            job_docs = frappe.get_all(
+                "Bulk Translation Job",
+                filters={"job_id": translation_job_id},
+                fields=["name"],
+                limit=1
+            )
+            if job_docs:
+                job_doc = frappe.get_doc("Bulk Translation Job", job_docs[0].name)
+                job_doc.status = "Failed"
+                job_doc.error_log = str(e)
+                job_doc.completed_at = now_datetime()
+                job_doc.save()
+                frappe.db.commit()
+        except Exception as update_error:
+            logger.error(f"Failed to update job status: {str(update_error)}")
 
 
 def process_app_asean_translations(app_name, force_regenerate_pot=False):
