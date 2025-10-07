@@ -170,7 +170,6 @@ export default function Dashboard() {
                 selectedFile={selectedFile}
                 onSyncComplete={refreshTranslations}
                 onFilesFound={() => setActiveTab('files')}
-                onSelectGithubFile={(fileData) => setSelectedFile(fileData)}
               />
             </div>
             <div className="flex justify-center items-center space-x-2">

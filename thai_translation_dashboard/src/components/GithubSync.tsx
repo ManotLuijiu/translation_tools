@@ -33,14 +33,12 @@ interface GithubSyncProps {
   selectedFile: POFile | null;
   onSyncComplete: () => void;
   onFilesFound?: () => void;
-  onSelectGithubFile?: (fileData: POFile) => void;
 }
 
 export default function GithubSync({
   selectedFile,
   onSyncComplete,
   // onFilesFound,
-  onSelectGithubFile,
 }: GithubSyncProps) {
   // console.log('selectedFile Accessing', selectedFile);
   // console.log('onFilesFound Beginning Access', onFilesFound);
@@ -129,29 +127,15 @@ export default function GithubSync({
     }
   };
 
-  //   Step 1.1: Take care selectedFile
+  //   Step 1.1: Handle GitHub file selection for sync
   const handleFileSelect = (filePath: string) => {
+    // Only track which GitHub file is selected for sync operation
+    // Do NOT replace the local selectedFile
     setSelectedRepoFiles([filePath]);
 
-    if (onSelectGithubFile && availableFiles.length > 0) {
-      // Create a POFile object from the selected GitHub file
-      // This would need to be adapted based on your POFile type structure
-      const selectedGithubFile = {
-        file_path: filePath,
-        app: 'github', // Or extract app name from path
-        filename: filePath.split('/').pop() || '',
-        language: selectedFile?.language || 'th',
-        total_entries: 0,
-        translated_entries: 0,
-        translated_percentage: 0, // Default values
-        last_modified: new Date().toISOString(),
-        last_scanned: new Date().toISOString(),
-      };
-
-      // console.log('selectedGithubFile', selectedGithubFile);
-
-      onSelectGithubFile(selectedGithubFile);
-    }
+    // Note: onSelectGithubFile callback removed - GitHub file selection
+    // is only for determining sync source, not for changing active file
+    console.log('Selected GitHub file for sync:', filePath);
   };
 
   // Step 2: Preview sync changes
