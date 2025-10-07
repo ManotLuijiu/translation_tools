@@ -1955,6 +1955,103 @@ def debug_po_file_stats(file_path=None):
 
 @frappe.whitelist()
 @enhanced_error_handler
+def get_live_po_files(locale=None):
+    """
+    Get PO file statistics directly from filesystem (NO DATABASE CACHE)
+    This provides real-time statistics for File Explorer, matching Translation Editor behavior
+
+    Args:
+        locale: Optional locale filter (e.g., 'th', 'en')
+
+    Returns:
+        List of PO files with real-time statistics read directly from filesystem
+    """
+    try:
+        logger.info("Fetching live PO file statistics from filesystem (no cache)")
+
+        # Get the bench path and installed apps
+        bench_path = get_bench_path()
+        apps_path = os.path.join(bench_path, "apps")
+        installed_apps = frappe.get_installed_apps()
+
+        if not os.path.exists(apps_path):
+            logger.error(f"Apps path does not exist: {apps_path}")
+            return []
+
+        # Find all .po files in installed apps
+        po_files = []
+
+        for app_name in installed_apps:
+            app_dir = os.path.join(apps_path, app_name)
+            if not os.path.isdir(app_dir):
+                continue
+
+            # Look for locale directory: apps/app_name/app_name/locale/
+            locale_dir = os.path.join(app_dir, app_name, "locale")
+            if not os.path.exists(locale_dir):
+                continue
+
+            # Find all .po files in locale directory
+            for filename in os.listdir(locale_dir):
+                if not filename.endswith('.po'):
+                    continue
+
+                # Extract language from filename (e.g., 'th.po' -> 'th')
+                language = filename[:-3]  # Remove '.po' extension
+
+                # Apply locale filter if specified
+                if locale and language != locale:
+                    continue
+
+                file_path = os.path.join(locale_dir, filename)
+
+                # Skip translation_tools/translations directory
+                if "translation_tools/translations" in file_path:
+                    continue
+
+                try:
+                    # Get real-time statistics from file
+                    stats = parse_po_file(file_path)
+
+                    # Get file modification time
+                    file_modified = datetime.fromtimestamp(os.path.getmtime(file_path))
+
+                    # Build relative path from bench root
+                    rel_path = os.path.relpath(file_path, bench_path)
+
+                    # Create file entry matching get_cached_po_files format
+                    po_file = {
+                        "name": rel_path,  # Use relative path as identifier
+                        "file_path": rel_path,
+                        "app": app_name,
+                        "filename": filename,
+                        "language": language,
+                        "total_entries": stats["total_entries"],
+                        "translated_entries": stats["translated_entries"],
+                        "translated_percentage": stats["translation_status"],
+                        "last_modified": file_modified.strftime("%Y-%m-%d %H:%M:%S"),
+                        "last_scanned": frappe.utils.now_datetime().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+
+                    po_files.append(po_file)
+
+                except Exception as e:
+                    logger.warning(f"Error reading PO file {file_path}: {str(e)}")
+                    continue
+
+        # Sort by app name and filename (matching get_cached_po_files behavior)
+        po_files.sort(key=lambda x: (x["app"], x["filename"]))
+
+        logger.info(f"Found {len(po_files)} PO files with live statistics")
+        return po_files
+
+    except Exception as e:
+        logger.error(f"Error fetching live PO files: {str(e)}", exc_info=True)
+        raise
+
+
+@frappe.whitelist()
+@enhanced_error_handler
 def force_refresh_po_stats():
     """
     Force refresh all PO file statistics from filesystem

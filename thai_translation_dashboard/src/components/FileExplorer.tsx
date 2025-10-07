@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useGetCachedPOFiles, useScanPOFiles, useDeletePOFiles, useGetAppSyncSettings, useToggleAppAutosync, useForceRefreshPOStats } from '../api';
+import { useGetLivePOFiles, useScanPOFiles, useDeletePOFiles, useGetAppSyncSettings, useToggleAppAutosync } from '../api';
 import { POFile } from '../types';
 import { formatPercentage, formatDate } from '../utils/helpers';
 import { Button } from '@/components/ui/button';
@@ -52,10 +52,9 @@ export default function FileExplorer({
 }: FileExplorerProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<string>('th'); // Default to Thai
-  const { data, error, isLoading, mutate } = useGetCachedPOFiles(activeTab);
+  const { data, error, isLoading, mutate } = useGetLivePOFiles(activeTab);
   const scanFiles = useScanPOFiles();
   const deletePOFiles = useDeletePOFiles();
-  const forceRefreshStats = useForceRefreshPOStats();
   const [isScanningFiles, setIsScanningFiles] = useState(false);
   const [isGeneratingAsean, setIsGeneratingAsean] = useState(false);
   const [jobProgress, setJobProgress] = useState<{
@@ -113,42 +112,26 @@ export default function FileExplorer({
   }, [appSyncData]);
 
   // Provide refresh function to parent component
+  // Since we're using get_live_po_files (direct filesystem read), no cache invalidation needed
   useEffect(() => {
     console.log('📁 FileExplorer: Setting up refresh function');
     console.log('📁 onRefreshFunctionReady exists:', !!onRefreshFunctionReady);
     console.log('📁 mutate function exists:', !!mutate);
-    console.log('📁 forceRefreshStats function exists:', !!forceRefreshStats);
     if (onRefreshFunctionReady) {
-      console.log('📁 FileExplorer: Calling onRefreshFunctionReady with combined refresh function');
-      // Create a combined refresh function that forces backend recalculation + frontend refetch
+      console.log('📁 FileExplorer: Providing simple refresh function (live read, no cache)');
+      // Simple refresh - just refetch from filesystem
       const refreshFunction = async () => {
-        console.log('🔄 FileExplorer: Running combined refresh (forceRefreshStats + mutate)');
+        console.log('🔄 FileExplorer: Refreshing live statistics from filesystem');
         try {
-          // Small delay to ensure file system has updated modification time
-          await new Promise(resolve => setTimeout(resolve, 100));
-
-          // Force backend to recalculate statistics (recalculates ALL PO files)
-          console.log('⏳ FileExplorer: Calling forceRefreshStats...');
-          const result = await forceRefreshStats.call({});
-          console.log('✅ FileExplorer: Backend stats refreshed', result);
-
-          // Small delay to ensure database transaction is committed
-          await new Promise(resolve => setTimeout(resolve, 200));
-
-          // Refetch the data from backend (should now have fresh stats)
-          // Note: mutate() returns a promise in SWR, await it to ensure completion
-          console.log('⏳ FileExplorer: Revalidating cache with fresh data...');
           await mutate();
-          console.log('✅ FileExplorer: Frontend data refetched and UI updated');
+          console.log('✅ FileExplorer: Live statistics refreshed');
         } catch (error) {
           console.error('❌ FileExplorer: Refresh error:', error);
-          // Still try to mutate even if force refresh fails
-          await mutate();
         }
       };
       onRefreshFunctionReady(refreshFunction);
     }
-  }, [onRefreshFunctionReady, mutate, forceRefreshStats, activeTab]);
+  }, [onRefreshFunctionReady, mutate, activeTab]);
 
   // Log when active tab changes to verify API refetch
   useEffect(() => {

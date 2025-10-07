@@ -44,15 +44,15 @@ export default function Dashboard() {
     console.log('🔄 refreshTranslations: GitHub sync completed, starting refresh process');
     console.log('🔍 fileExplorerRefreshRef.current exists:', !!fileExplorerRefreshRef.current);
     console.log('🔍 translationEditorRefreshRef.current exists:', !!translationEditorRefreshRef.current);
-    
-    // FileExplorer's mutate function refreshes the progress bars (useGetCachedPOFiles)
+
+    // FileExplorer's mutate function refreshes live statistics from filesystem (useGetLivePOFiles)
     if (fileExplorerRefreshRef.current) {
       console.log('✅ Calling FileExplorer refresh function');
       fileExplorerRefreshRef.current();
     } else {
       console.log('❌ FileExplorer refresh function not available');
     }
-    
+
     // Also refresh TranslationEditor if available (for translation entries)
     if (translationEditorRefreshRef.current) {
       console.log('✅ Also calling TranslationEditor refresh function');
@@ -243,8 +243,8 @@ export default function Dashboard() {
                   translationEditorRefreshRef.current = refreshFn;
                 }}
                 onFileStatsChange={() => {
-                  // When translations are saved, refresh FileExplorer stats
-                  console.log('📊 Dashboard: Translation saved, refreshing FileExplorer stats');
+                  // When translations are saved, refresh FileExplorer live statistics
+                  console.log('📊 Dashboard: Translation saved, refreshing FileExplorer live statistics');
                   if (fileExplorerRefreshRef.current) {
                     fileExplorerRefreshRef.current();
                   }

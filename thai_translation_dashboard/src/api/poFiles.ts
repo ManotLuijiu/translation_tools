@@ -77,6 +77,18 @@ export function useGetCachedPOFiles(language?: string) {
 }
 
 /**
+ * Get list of all PO files directly from filesystem (NO CACHE)
+ * This provides real-time statistics, matching Translation Editor behavior
+ * @param language - Optional language code to filter (e.g., 'th', 'vi', 'lo', 'km', 'my'). Returns all ASEAN languages if not specified.
+ */
+export function useGetLivePOFiles(language?: string) {
+  return useFrappeGetCall<{ message: POFile[] }>(
+    'translation_tools.api.po_files.get_live_po_files',
+    language ? { locale: language } : {},
+  );
+}
+
+/**
  * Scan filesystem for PO files and update database
  */
 export function useScanPOFiles() {

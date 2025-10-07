@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -76,6 +76,18 @@ export default function GithubSync({
 
   // console.log('syncMode GithubSync.tsx', syncMode);
   // console.log('selectedFile before api call', selectedFile);
+
+  // Clear sync states when selectedFile changes (switching between apps)
+  useEffect(() => {
+    if (selectedFile) {
+      console.log('📁 GithubSync: selectedFile changed, clearing previous sync state');
+      setAvailableFiles([]);
+      setSelectedRepoFiles([]);
+      setPreviewData(null);
+      setCurrentTab('repository');
+      setSyncMode('preview');
+    }
+  }, [selectedFile?.file_path]); // Track by file_path to detect actual file changes
 
   // API calls
   const {

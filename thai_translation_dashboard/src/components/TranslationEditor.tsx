@@ -715,9 +715,9 @@ export default function TranslationEditor({
         // Refresh file data to update translation stats
         mutate();
 
-        // Also refresh FileExplorer stats to update progress bars
+        // Also refresh FileExplorer live statistics to update progress bars
         if (onFileStatsChange) {
-          console.log('📊 TranslationEditor: Manual save complete, refreshing FileExplorer stats');
+          console.log('📊 TranslationEditor: Manual save complete, refreshing FileExplorer live statistics');
           onFileStatsChange();
         }
       } else {
@@ -1378,9 +1378,9 @@ export default function TranslationEditor({
             setCurrentPage(1);
             // Refresh to get updated untranslated entries
             mutate();
-            // Also refresh FileExplorer stats to update progress bars
+            // Also refresh FileExplorer live statistics to update progress bars
             if (onFileStatsChange) {
-              console.log('📊 TranslationEditor: Calling onFileStatsChange to refresh FileExplorer stats');
+              console.log('📊 TranslationEditor: Calling onFileStatsChange to refresh FileExplorer live statistics');
               onFileStatsChange();
             }
           }}
