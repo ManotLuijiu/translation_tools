@@ -9,8 +9,8 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { Loader2, RefreshCw, Save } from 'lucide-react';
+import { toast } from 'sonner';
 // import { useTranslateBatch, useSaveBatchTranslations } from '../api';
-import { useStatusMessage } from '@/hooks/useStatusMessage';
 import type { POFile, TranslationToolsSettings, POEntry } from '../types';
 import { useTranslation } from '@/context/TranslationContext';
 import { useFrappePostCall } from 'frappe-react-sdk';
@@ -37,8 +37,6 @@ export default function BatchTranslationView({
     [key: string]: string;
   }>({});
   const [isTranslating, setIsTranslating] = useState(false);
-  // const [currentBatch, setCurrentBatch] = useState<POEntry[]>([]);
-  const { statusMessage, showMessage } = useStatusMessage();
 
   // Select entries that need translation
   const untranslatedEntries = entries.filter((entry) => !entry.is_translated);
@@ -68,12 +66,12 @@ export default function BatchTranslationView({
   // Monitor errors from SDK
   useEffect(() => {
     if (translateError) {
-      showMessage(translateError.message || 'Translation failed', 'error');
+      toast.error(translateError.message || __('Translation failed'));
     }
     if (saveError) {
-      showMessage(saveError.message || 'Failed to save translations', 'error');
+      toast.error(saveError.message || __('Failed to save translations'));
     }
-  }, [translateError, saveError, showMessage]);
+  }, [translateError, saveError, __]);
 
   // Clear selection when entries change
   // useEffect(() => {
@@ -86,9 +84,8 @@ export default function BatchTranslationView({
     if (!selectedFile?.file_path || selectedEntries.length === 0) return;
 
     setIsTranslating(true);
-    showMessage(
-      `Translating batch of ${selectedEntries.length} entries...`,
-      'info'
+    toast.info(
+      __('Translating batch of') + ` ${selectedEntries.length} ` + __('entries...')
     );
 
     try {
@@ -126,7 +123,7 @@ export default function BatchTranslationView({
         const newTranslations = response?.message?.translations;
         setTranslatedEntries((prev) => ({ ...prev, ...newTranslations }));
 
-        showMessage('Batch translation completed successfully', 'success');
+        toast.success(__('Batch translation completed successfully'));
 
         // If auto-save is enabled
         if (settings?.auto_save) {
@@ -134,11 +131,11 @@ export default function BatchTranslationView({
         }
       } else {
         console.error('Translation error:', response?.message?.error);
-        showMessage(response?.message?.error || 'Translation failed', 'error');
+        toast.error(response?.message?.error || __('Translation failed'));
       }
     } catch (err) {
       console.error('Translation error:', err);
-      showMessage('Translation failed', 'error');
+      toast.error(__('Translation failed'));
     } finally {
       setIsTranslating(false);
     }
@@ -148,7 +145,7 @@ export default function BatchTranslationView({
     if (!selectedFile?.file_path || Object.keys(translatedEntries).length === 0)
       return;
 
-    showMessage(__('Saving translations...'), 'info');
+    toast.info(__('Saving translations...'));
 
     try {
       // const result = await fetch(
@@ -178,19 +175,18 @@ export default function BatchTranslationView({
       // console.log('result saveBatchCall', result);
 
       if (result?.message?.success) {
-        showMessage(__('Translations saved successfully'), 'success');
+        toast.success(__('Translations saved successfully'));
         onTranslationComplete(); // Refresh data
         setTranslatedEntries({});
         setSelectedEntries([]);
       } else {
-        showMessage(
-          result?.message?.error || 'Failed to save translations',
-          'error'
+        toast.error(
+          result?.message?.error || __('Failed to save translations')
         );
       }
     } catch (err) {
       console.error('Save error:', err);
-      showMessage(__('Failed to save translations'), 'error');
+      toast.error(__('Failed to save translations'));
     }
   };
 
@@ -322,20 +318,6 @@ export default function BatchTranslationView({
                   </div>
                 </div>
               ))}
-            </div>
-          )}
-
-          {statusMessage && (
-            <div
-              className={`mt-4 p-3 rounded ${
-                statusMessage.type === 'error'
-                  ? 'bg-red-100 text-red-700'
-                  : statusMessage.type === 'success'
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-blue-100 text-blue-700'
-              }`}
-            >
-              {statusMessage.message}
             </div>
           )}
         </CardContent>

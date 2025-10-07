@@ -117,11 +117,38 @@ export default function FileExplorer({
     console.log('📁 FileExplorer: Setting up refresh function');
     console.log('📁 onRefreshFunctionReady exists:', !!onRefreshFunctionReady);
     console.log('📁 mutate function exists:', !!mutate);
+    console.log('📁 forceRefreshStats function exists:', !!forceRefreshStats);
     if (onRefreshFunctionReady) {
-      console.log('📁 FileExplorer: Calling onRefreshFunctionReady with mutate function');
-      onRefreshFunctionReady(mutate);
+      console.log('📁 FileExplorer: Calling onRefreshFunctionReady with combined refresh function');
+      // Create a combined refresh function that forces backend recalculation + frontend refetch
+      const refreshFunction = async () => {
+        console.log('🔄 FileExplorer: Running combined refresh (forceRefreshStats + mutate)');
+        try {
+          // Small delay to ensure file system has updated modification time
+          await new Promise(resolve => setTimeout(resolve, 100));
+
+          // Force backend to recalculate statistics (recalculates ALL PO files)
+          console.log('⏳ FileExplorer: Calling forceRefreshStats...');
+          const result = await forceRefreshStats.call({});
+          console.log('✅ FileExplorer: Backend stats refreshed', result);
+
+          // Small delay to ensure database transaction is committed
+          await new Promise(resolve => setTimeout(resolve, 200));
+
+          // Refetch the data from backend (should now have fresh stats)
+          // Note: mutate() returns a promise in SWR, await it to ensure completion
+          console.log('⏳ FileExplorer: Revalidating cache with fresh data...');
+          await mutate();
+          console.log('✅ FileExplorer: Frontend data refetched and UI updated');
+        } catch (error) {
+          console.error('❌ FileExplorer: Refresh error:', error);
+          // Still try to mutate even if force refresh fails
+          await mutate();
+        }
+      };
+      onRefreshFunctionReady(refreshFunction);
     }
-  }, [onRefreshFunctionReady, mutate]);
+  }, [onRefreshFunctionReady, mutate, forceRefreshStats, activeTab]);
 
   // Log when active tab changes to verify API refetch
   useEffect(() => {

@@ -67,6 +67,7 @@ interface TranslationEditorProps {
   selectedFile: POFile | null;
   settings: TranslationToolsSettings;
   onRefreshFunctionReady?: (refreshFn: () => void) => void;
+  onFileStatsChange?: () => void; // Callback to refresh FileExplorer stats
 }
 
 export default function TranslationEditor({
@@ -74,6 +75,7 @@ export default function TranslationEditor({
   selectedFile,
   settings,
   onRefreshFunctionReady,
+  onFileStatsChange,
 }: TranslationEditorProps) {
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
   const [entryFilter, setEntryFilter] = useState<
@@ -712,6 +714,12 @@ export default function TranslationEditor({
 
         // Refresh file data to update translation stats
         mutate();
+
+        // Also refresh FileExplorer stats to update progress bars
+        if (onFileStatsChange) {
+          console.log('📊 TranslationEditor: Manual save complete, refreshing FileExplorer stats');
+          onFileStatsChange();
+        }
       } else {
         // Basic save operation failed
         console.error('Save operation failed');
@@ -1364,12 +1372,16 @@ export default function TranslationEditor({
           settings={settings}
           batchSize={batchSize}
           onTranslationComplete={() => {
-            // Refresh current page data to show updated status
+            // Reset to page 1 before refreshing
+            // With 'untranslated' filter, page 1 will always show next batch
+            // This prevents pagination jumping issues
+            setCurrentPage(1);
+            // Refresh to get updated untranslated entries
             mutate();
-            // Auto-advance to next page to continue with untranslated entries
-            // Since filter is set to 'untranslated', next page will show only untranslated entries
-            if (currentPage < totalPages) {
-              setCurrentPage(currentPage + 1);
+            // Also refresh FileExplorer stats to update progress bars
+            if (onFileStatsChange) {
+              console.log('📊 TranslationEditor: Calling onFileStatsChange to refresh FileExplorer stats');
+              onFileStatsChange();
             }
           }}
         />

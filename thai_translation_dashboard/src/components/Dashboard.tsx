@@ -242,6 +242,13 @@ export default function Dashboard() {
                 onRefreshFunctionReady={(refreshFn) => {
                   translationEditorRefreshRef.current = refreshFn;
                 }}
+                onFileStatsChange={() => {
+                  // When translations are saved, refresh FileExplorer stats
+                  console.log('📊 Dashboard: Translation saved, refreshing FileExplorer stats');
+                  if (fileExplorerRefreshRef.current) {
+                    fileExplorerRefreshRef.current();
+                  }
+                }}
               />
             )}
           </TabsContent>
