@@ -127,7 +127,7 @@ export default function GlossaryManager() {
   const updateTerm = useUpdateGlossaryTerm();
   const deleteTerm = useDeleteGlossaryTerm();
   const cleanDuplicates = useCleanDuplicateGlossaryTerms();
-  const updateCategories = useUpdateGlossaryTermCategories();
+  // const updateCategories = useUpdateGlossaryTermCategories();
   const syncFromFile = useSyncGlossaryFromFile();
   const syncFromGitHub = useSyncGlossaryFromGitHub();
   const { translate: __, isReady } = useTranslation();
@@ -366,32 +366,32 @@ export default function GlossaryManager() {
     }
   };
 
-  const handleUpdateCategories = async () => {
-    // console.log('clicked');
-    try {
-      const result = await updateCategories;
+  // const handleUpdateCategories = async () => {
+  //   // console.log('clicked');
+  //   try {
+  //     const result = await updateCategories;
 
-      // console.log('result', result);
+  //     // console.log('result', result);
 
-      if (result?.result?.success) {
-        setStatusMessage({
-          type: 'success',
-          message: result.result?.message,
-        });
+  //     if (result?.result?.success) {
+  //       setStatusMessage({
+  //         type: 'success',
+  //         message: result.result?.message,
+  //       });
 
-        refreshTerms();
-      }
-      // setStatusMessage({
-      //   type: 'success',
-      //   message: result.result?.message || 'Categories updated successfully',
-      // });
-    } catch (err) {
-      setStatusMessage({
-        type: 'error',
-        message: `Failed to update categories ${err}`,
-      });
-    }
-  };
+  //       refreshTerms();
+  //     }
+  //     // setStatusMessage({
+  //     //   type: 'success',
+  //     //   message: result.result?.message || 'Categories updated successfully',
+  //     // });
+  //   } catch (err) {
+  //     setStatusMessage({
+  //       type: 'error',
+  //       message: `Failed to update categories ${err}`,
+  //     });
+  //   }
+  // };
 
   const handleSyncFromFile = async () => {
     try {
@@ -1018,7 +1018,7 @@ export default function GlossaryManager() {
                   {addTerm.loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      __('Adding...')
+                      {__('Adding...')}
                     </>
                   ) : (
                     __('Save Term')

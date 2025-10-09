@@ -84,6 +84,12 @@ export function useAddGlossaryTerm() {
         success: boolean;
         message: string;
         name: string;
+        github?: {
+          github_pushed: boolean;
+          message: string;
+          terms_count?: number;
+          commit_url?: string;
+        };
       };
     }>('translation_tools.api.glossary.add_glossary_term');
   return {
@@ -100,7 +106,15 @@ export function useAddGlossaryTerm() {
  * Update an existing glossary term
  */
 export function useUpdateGlossaryTerm() {
-  return useFrappePostCall<{ success: boolean }>(
+  return useFrappePostCall<{
+    success: boolean;
+    github?: {
+      github_pushed: boolean;
+      message: string;
+      terms_count?: number;
+      commit_url?: string;
+    };
+  }>(
     'translation_tools.api.glossary.update_glossary_term'
   );
 }
