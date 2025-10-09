@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFrappePostCall } from 'frappe-react-sdk';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Upload, FileSpreadsheet, Download, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import { useGetTranslationSettings } from '@/api/settings';
 
 interface ColumnAnalysis {
   name: string;
@@ -37,6 +38,10 @@ interface TranslationResult {
 }
 
 export default function CSVTranslationTab() {
+  // Get global AI settings
+  const { data: settingsData, isLoading: settingsLoading } = useGetTranslationSettings();
+  const settings = settingsData?.message;
+
   // File upload state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileContent, setFileContent] = useState<string>('');
@@ -48,12 +53,32 @@ export default function CSVTranslationTab() {
   const [sourceColumn, setSourceColumn] = useState<string>('');
   const [targetColumn, setTargetColumn] = useState<string>('');
   const [direction, setDirection] = useState<'th_to_en' | 'en_to_th'>('th_to_en');
-  const [modelProvider, setModelProvider] = useState<'openai' | 'claude'>('openai');
+  const [modelProvider, setModelProvider] = useState<'openai' | 'anthropic'>('openai');
+  const [model, setModel] = useState<string>('');
   const [skipEmpty, setSkipEmpty] = useState(true);
   const [skipExisting, setSkipExisting] = useState(true);
 
   // Translation result
   const [translationResult, setTranslationResult] = useState<TranslationResult | null>(null);
+
+  // Progress tracking
+  const [translationProgress, setTranslationProgress] = useState<{
+    current: number;
+    total: number;
+    percentage: number;
+    previewRows: any[];
+  } | null>(null);
+
+  // Error state
+  const [errorMessage, setErrorMessage] = useState<string>('');
+
+  // Initialize with global settings
+  useEffect(() => {
+    if (settings) {
+      setModelProvider(settings.default_model_provider === 'anthropic' ? 'anthropic' : 'openai');
+      setModel(settings.default_model || '');
+    }
+  }, [settings]);
 
   // API calls
   const { call: analyzeCSV, loading: analyzing } = useFrappePostCall('translation_tools.api.csv_translation.analyze_csv_file');
@@ -66,6 +91,7 @@ export default function CSVTranslationTab() {
     setSelectedFile(file);
     setAnalysisResult(null);
     setTranslationResult(null);
+    setErrorMessage('');
 
     // Read file content
     const reader = new FileReader();
@@ -75,13 +101,17 @@ export default function CSVTranslationTab() {
 
       // Analyze CSV
       try {
-        const result = await analyzeCSV({
+        const response = await analyzeCSV({
           file_content: content,
           filename: file.name
         });
 
+        // Frappe wraps response in 'message' property
+        const result = response.message || response;
+
         if (result.success) {
           setAnalysisResult(result as CSVAnalysisResult);
+          setErrorMessage('');
 
           // Auto-select columns based on analysis
           const thaiColumn = result.column_analysis.find((col: ColumnAnalysis) => col.type === 'thai');
@@ -98,9 +128,12 @@ export default function CSVTranslationTab() {
             // Suggest creating new column
             setTargetColumn(thaiColumn ? `${thaiColumn.name}_en` : 'translation');
           }
+        } else {
+          setErrorMessage(result.error || 'Failed to analyze CSV file. Please check the file format.');
         }
       } catch (error) {
         console.error('Analysis failed:', error);
+        setErrorMessage(`Analysis error: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     };
 
@@ -113,21 +146,106 @@ export default function CSVTranslationTab() {
       return;
     }
 
+    // Reset states
+    setTranslationResult(null);
+    setTranslationProgress({ current: 0, total: 0, percentage: 0, previewRows: [] });
+
     try {
-      const result = await translateCSV({
+      // Parse CSV to get total rows
+      const lines = fileContent.trim().split('\n');
+      const totalRows = lines.length - 1; // Exclude header
+      const batchSize = 20;
+      const totalBatches = Math.ceil(totalRows / batchSize);
+
+      // Process in batches with progress updates
+      let allTranslatedRows: any[] = [];
+
+      for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+        const startRow = batchIndex * batchSize;
+        const endRow = Math.min(startRow + batchSize, totalRows);
+
+        // Extract batch from CSV
+        const headerLine = lines[0];
+        const batchLines = lines.slice(startRow + 1, endRow + 1);
+        const batchContent = [headerLine, ...batchLines].join('\n');
+
+        // Update progress before processing
+        setTranslationProgress({
+          current: batchIndex + 1,
+          total: totalBatches,
+          percentage: Math.round(((batchIndex + 1) / totalBatches) * 100),
+          previewRows: allTranslatedRows,
+        });
+
+        // Translate batch
+        const response = await translateCSV({
+          file_content: batchContent,
+          source_column: sourceColumn,
+          target_column: targetColumn,
+          direction: direction,
+          model_provider: modelProvider,
+          model: model || undefined,
+          batch_size: batchSize,
+          skip_empty: skipEmpty,
+          skip_existing: skipExisting,
+        });
+
+        const result = response.message || response;
+
+        // Parse batch results and add to preview
+        if (result.success && result.csv_content) {
+          const batchResultLines = result.csv_content.trim().split('\n');
+          const batchResultRows = batchResultLines.slice(1); // Skip header
+
+          // Parse rows
+          batchResultRows.forEach(row => {
+            const columns = row.split(',');
+            if (columns.length >= 2) {
+              allTranslatedRows.push({
+                source: columns[columns.length - 2]?.replace(/^"|"$/g, ''),
+                target: columns[columns.length - 1]?.replace(/^"|"$/g, ''),
+              });
+            }
+          });
+        }
+
+        // Update progress with latest results
+        setTranslationProgress({
+          current: batchIndex + 1,
+          total: totalBatches,
+          percentage: Math.round(((batchIndex + 1) / totalBatches) * 100),
+          previewRows: [...allTranslatedRows],
+        });
+      }
+
+      // Final full translation to get complete CSV
+      const response = await translateCSV({
         file_content: fileContent,
         source_column: sourceColumn,
         target_column: targetColumn,
         direction: direction,
         model_provider: modelProvider,
-        batch_size: 20,
+        model: model || undefined,
+        batch_size: batchSize,
         skip_empty: skipEmpty,
-        skip_existing: skipExisting
+        skip_existing: skipExisting,
       });
 
-      setTranslationResult(result as TranslationResult);
+      const finalResult = response.message || response;
+      setTranslationResult(finalResult as TranslationResult);
+      setTranslationProgress(null); // Clear progress on completion
+
     } catch (error) {
       console.error('Translation failed:', error);
+      setTranslationProgress(null);
+      setTranslationResult({
+        success: false,
+        translated_count: 0,
+        total_rows: 0,
+        skipped_count: 0,
+        csv_content: '',
+        error: error instanceof Error ? error.message : 'Translation failed',
+      });
     }
   };
 
@@ -204,6 +322,14 @@ export default function CSVTranslationTab() {
               </span>
             )}
           </div>
+
+          {/* Error Display */}
+          {errorMessage && (
+            <Alert variant="destructive" className="mt-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
+          )}
         </CardContent>
       </Card>
 
@@ -254,6 +380,15 @@ export default function CSVTranslationTab() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* API Key Warning */}
+            {settings && !settings.openai_api_key && !settings.anthropic_api_key && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  No AI API keys configured. Please configure API keys in ASEAN Translations → Settings → AI Models.
+                </AlertDescription>
+              </Alert>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Source Column */}
               <div className="space-y-2">
@@ -309,18 +444,30 @@ export default function CSVTranslationTab() {
               </Select>
             </div>
 
-            {/* Model Provider */}
+            {/* Model Provider - Using Global Settings */}
             <div className="space-y-2">
               <Label>AI Model Provider</Label>
-              <Select value={modelProvider} onValueChange={(val) => setModelProvider(val as any)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="openai">OpenAI (GPT-4o-mini)</SelectItem>
-                  <SelectItem value="claude">Anthropic (Claude)</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-2">
+                <Select value={modelProvider} onValueChange={(val) => setModelProvider(val as 'openai' | 'anthropic')}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="openai">OpenAI</SelectItem>
+                    <SelectItem value="anthropic">Anthropic (Claude)</SelectItem>
+                  </SelectContent>
+                </Select>
+                {settings && (
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    Using: {model || settings.default_model || 'default'}
+                  </span>
+                )}
+              </div>
+              {settings && (
+                <p className="text-xs text-muted-foreground">
+                  Global settings from ASEAN Translations → Settings → AI Models
+                </p>
+              )}
             </div>
 
             {/* Options */}
@@ -347,7 +494,12 @@ export default function CSVTranslationTab() {
             {/* Translate Button */}
             <Button
               onClick={handleTranslate}
-              disabled={!sourceColumn || !targetColumn || translating}
+              disabled={
+                !sourceColumn ||
+                !targetColumn ||
+                translating ||
+                (settings && !settings.openai_api_key && !settings.anthropic_api_key)
+              }
               className="w-full"
               size="lg"
             >
@@ -357,6 +509,70 @@ export default function CSVTranslationTab() {
                 <>Translate CSV</>
               )}
             </Button>
+            {settings && !settings.openai_api_key && !settings.anthropic_api_key && (
+              <p className="text-xs text-red-600 text-center">
+                Configure API keys in Settings before translating
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Progress Preview */}
+      {translationProgress && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+              Translation in Progress
+            </CardTitle>
+            <CardDescription>
+              Batch {translationProgress.current} of {translationProgress.total} ({translationProgress.percentage}%)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Progress Bar */}
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div
+                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                style={{ width: `${translationProgress.percentage}%` }}
+              />
+            </div>
+
+            {/* Preview Table */}
+            {translationProgress.previewRows.length > 0 && (
+              <div className="space-y-2">
+                <Label>Preview (Latest 5 translations)</Label>
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 py-2 text-left">Source ({sourceColumn})</th>
+                        <th className="px-3 py-2 text-left">Translation ({targetColumn})</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {translationProgress.previewRows.slice(-5).map((row, idx) => (
+                        <tr key={idx} className="hover:bg-gray-50">
+                          <td className="px-3 py-2 max-w-xs truncate">{row.source}</td>
+                          <td className="px-3 py-2 max-w-xs truncate text-green-600">{row.target}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {translationProgress.previewRows.length} rows translated so far
+                </p>
+              </div>
+            )}
+
+            <Alert>
+              <AlertDescription className="text-sm">
+                💡 Tip: Translations are processed in batches of 20. If you need to stop, close this tab and
+                check back later - partial results won't be saved automatically.
+              </AlertDescription>
+            </Alert>
           </CardContent>
         </Card>
       )}

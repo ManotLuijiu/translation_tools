@@ -10,16 +10,24 @@ import FileExplorer from './FileExplorer';
 import TranslationEditor from './TranslationEditor';
 import GlossaryManager from './GlossaryManager';
 import SettingsPanel from './SettingsPanel';
-import Navbar from './Navbar';
 import Footer from './Footer';
 import { useTranslation } from '@/context/TranslationContext';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import GithubSync from './GithubSync';
 
-export default function Dashboard() {
+export interface DashboardProps {
+  onTabChange?: (tab: TabType) => void;
+}
+
+export default function Dashboard({ onTabChange }: DashboardProps = {}) {
   const { translate: __, isReady } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>('files');
+
+  // Notify parent when tab changes
+  useEffect(() => {
+    onTabChange?.(activeTab);
+  }, [activeTab, onTabChange]);
   const [selectedFile, setSelectedFile] = useState<POFile | null>(null);
   const [setupStatus, setSetupStatus] = useState<{
     complete: boolean;
@@ -30,10 +38,10 @@ export default function Dashboard() {
     'manual'
   );
   const { data: settingsData } = useGetTranslationSettings();
-  
+
   // Ref to store FileExplorer's refresh function
   const fileExplorerRefreshRef = useRef<(() => void) | null>(null);
-  
+
   // Ref to store TranslationEditor's refresh function (more reliable)
   const translationEditorRefreshRef = useRef<(() => void) | null>(null);
 
@@ -41,9 +49,17 @@ export default function Dashboard() {
   // console.log(__('Print Message'));
 
   const refreshTranslations = () => {
-    console.log('🔄 refreshTranslations: GitHub sync completed, starting refresh process');
-    console.log('🔍 fileExplorerRefreshRef.current exists:', !!fileExplorerRefreshRef.current);
-    console.log('🔍 translationEditorRefreshRef.current exists:', !!translationEditorRefreshRef.current);
+    console.log(
+      '🔄 refreshTranslations: GitHub sync completed, starting refresh process'
+    );
+    console.log(
+      '🔍 fileExplorerRefreshRef.current exists:',
+      !!fileExplorerRefreshRef.current
+    );
+    console.log(
+      '🔍 translationEditorRefreshRef.current exists:',
+      !!translationEditorRefreshRef.current
+    );
 
     // FileExplorer's mutate function refreshes live statistics from filesystem (useGetLivePOFiles)
     if (fileExplorerRefreshRef.current) {
@@ -153,7 +169,6 @@ export default function Dashboard() {
 
   return (
     <>
-      <Navbar currentTab={activeTab} />
       <div className="container mx-auto max-w-screen-xl py-6">
         <div className="mb-8 flex items-center justify-between">
           <div>
@@ -244,7 +259,9 @@ export default function Dashboard() {
                 }}
                 onFileStatsChange={() => {
                   // When translations are saved, refresh FileExplorer live statistics
-                  console.log('📊 Dashboard: Translation saved, refreshing FileExplorer live statistics');
+                  console.log(
+                    '📊 Dashboard: Translation saved, refreshing FileExplorer live statistics'
+                  );
                   if (fileExplorerRefreshRef.current) {
                     fileExplorerRefreshRef.current();
                   }
