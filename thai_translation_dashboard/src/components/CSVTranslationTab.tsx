@@ -71,10 +71,14 @@ export default function CSVTranslationTab() {
     useState<CSVAnalysisResult | null>(null);
 
   // Translation configuration
-  const [translationMode, setTranslationMode] = useState<'bidirectional' | 'oneway'>('bidirectional');
+  const [translationMode, setTranslationMode] = useState<
+    'bidirectional' | 'oneway'
+  >('bidirectional');
   const [thaiColumn, setThaiColumn] = useState<string>('');
   const [englishColumn, setEnglishColumn] = useState<string>('');
-  const [direction, setDirection] = useState<'th_to_en' | 'en_to_th'>('th_to_en');
+  const [direction, setDirection] = useState<'th_to_en' | 'en_to_th'>(
+    'th_to_en'
+  );
   const [modelProvider, setModelProvider] = useState<'openai' | 'anthropic'>(
     'openai'
   );
@@ -202,7 +206,9 @@ export default function CSVTranslationTab() {
     try {
       const lines = fileContent.trim().split('\n');
       const headerLine = lines[0];
-      const headers = headerLine.split(',').map((h: string) => h.trim().replace(/^"|"$/g, ''));
+      const headers = headerLine
+        .split(',')
+        .map((h: string) => h.trim().replace(/^"|"$/g, ''));
       const thaiColIndex = headers.indexOf(thaiColumn);
       const englishColIndex = headers.indexOf(englishColumn);
 
@@ -218,8 +224,10 @@ export default function CSVTranslationTab() {
         // ONE-WAY MODE: Simple source → target translation
         const sourceCol = direction === 'th_to_en' ? thaiColumn : englishColumn;
         const targetCol = direction === 'th_to_en' ? englishColumn : thaiColumn;
-        const sourceIdx = direction === 'th_to_en' ? thaiColIndex : englishColIndex;
-        const targetIdx = direction === 'th_to_en' ? englishColIndex : thaiColIndex;
+        const sourceIdx =
+          direction === 'th_to_en' ? thaiColIndex : englishColIndex;
+        const targetIdx =
+          direction === 'th_to_en' ? englishColIndex : thaiColIndex;
 
         for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
           const startRow = batchIndex * batchSize;
@@ -252,7 +260,9 @@ export default function CSVTranslationTab() {
             finalCSVLines.push(...resultLines);
 
             resultLines.forEach((line: string) => {
-              const columns = line.split(',').map((c: string) => c.trim().replace(/^"|"$/g, ''));
+              const columns = line
+                .split(',')
+                .map((c: string) => c.trim().replace(/^"|"$/g, ''));
               allTranslatedRows.push({
                 source: columns[sourceIdx] || '',
                 target: columns[targetIdx] || '',
@@ -279,7 +289,9 @@ export default function CSVTranslationTab() {
           const enToThLines: string[] = [];
 
           batchDataLines.forEach((line: string) => {
-            const columns = line.split(',').map((c: string) => c.trim().replace(/^"|"$/g, ''));
+            const columns = line
+              .split(',')
+              .map((c: string) => c.trim().replace(/^"|"$/g, ''));
             const thaiValue = columns[thaiColIndex] || '';
             const englishValue = columns[englishColIndex] || '';
 
@@ -324,11 +336,16 @@ export default function CSVTranslationTab() {
 
             const result = response.message || response;
             if (result.success && result.csv_content) {
-              const resultLines = result.csv_content.trim().split('\n').slice(1);
+              const resultLines = result.csv_content
+                .trim()
+                .split('\n')
+                .slice(1);
               finalCSVLines.push(...resultLines);
 
               resultLines.forEach((line: string) => {
-                const columns = line.split(',').map((c: string) => c.trim().replace(/^"|"$/g, ''));
+                const columns = line
+                  .split(',')
+                  .map((c: string) => c.trim().replace(/^"|"$/g, ''));
                 allTranslatedRows.push({
                   source: columns[thaiColIndex] || '',
                   target: columns[englishColIndex] || '',
@@ -355,11 +372,16 @@ export default function CSVTranslationTab() {
 
             const result = response.message || response;
             if (result.success && result.csv_content) {
-              const resultLines = result.csv_content.trim().split('\n').slice(1);
+              const resultLines = result.csv_content
+                .trim()
+                .split('\n')
+                .slice(1);
               finalCSVLines.push(...resultLines);
 
               resultLines.forEach((line: string) => {
-                const columns = line.split(',').map((c: string) => c.trim().replace(/^"|"$/g, ''));
+                const columns = line
+                  .split(',')
+                  .map((c: string) => c.trim().replace(/^"|"$/g, ''));
                 allTranslatedRows.push({
                   source: columns[englishColIndex] || '',
                   target: columns[thaiColIndex] || '',
@@ -566,44 +588,58 @@ export default function CSVTranslationTab() {
             {/* Translation Mode Selector */}
             <div className="space-y-2">
               <Label>Translation Mode</Label>
-              <Select value={translationMode} onValueChange={(val) => setTranslationMode(val as 'bidirectional' | 'oneway')}>
+              <Select
+                value={translationMode}
+                onValueChange={(val) =>
+                  setTranslationMode(val as 'bidirectional' | 'oneway')
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="bidirectional">
                     <div className="flex flex-col">
-                      <span className="font-medium">Bidirectional (Reconcile)</span>
-                      <span className="text-xs text-gray-500">Automatically translate both ways based on empty cells</span>
+                      <span className="font-medium">
+                        Bidirectional (Reconcile)
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        Automatically translate both ways based on empty cells
+                      </span>
                     </div>
                   </SelectItem>
                   <SelectItem value="oneway">
                     <div className="flex flex-col">
                       <span className="font-medium">One-Way</span>
-                      <span className="text-xs text-gray-500">Traditional source → target translation</span>
+                      <span className="text-xs text-gray-500">
+                        Traditional source → target translation
+                      </span>
                     </div>
                   </SelectItem>
                 </SelectContent>
               </Select>
               {translationMode === 'bidirectional' && (
-                <Alert className="bg-blue-50 border-blue-200">
+                <Alert className="bg-blue-50 dark:bg-gray-900 border-blue-200 dark:border-gray-500">
                   <AlertDescription className="text-xs">
-                    💡 Smart mode: Translates Thai → English for empty English cells, and English → Thai for empty Thai cells
+                    💡 Smart mode: Translates Thai → English for empty English
+                    cells, and English → Thai for empty Thai cells
                   </AlertDescription>
                 </Alert>
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col md:flex-row space-x-2">
               {/* Thai Column */}
-              <div className="space-y-2">
+              <div className="space-y-2 md:w-1/2">
                 <Label>
-                  {translationMode === 'oneway' && direction === 'th_to_en' ? 'Source Column (Thai)' :
-                   translationMode === 'oneway' && direction === 'en_to_th' ? 'Target Column (Thai)' :
-                   'Thai Column'}
+                  {translationMode === 'oneway' && direction === 'th_to_en'
+                    ? 'Source Column (Thai)'
+                    : translationMode === 'oneway' && direction === 'en_to_th'
+                      ? 'Target Column (Thai)'
+                      : 'Thai Column'}
                 </Label>
                 <Select value={thaiColumn} onValueChange={setThaiColumn}>
-                  <SelectTrigger>
+                  <SelectTrigger id="csv__thai__column" className="w-full">
                     <SelectValue placeholder="Select Thai column" />
                   </SelectTrigger>
                   <SelectContent>
@@ -617,14 +653,16 @@ export default function CSVTranslationTab() {
               </div>
 
               {/* English Column */}
-              <div className="space-y-2">
+              <div className="space-y-2 md:w-1/2">
                 <Label>
-                  {translationMode === 'oneway' && direction === 'th_to_en' ? 'Target Column (English)' :
-                   translationMode === 'oneway' && direction === 'en_to_th' ? 'Source Column (English)' :
-                   'English Column'}
+                  {translationMode === 'oneway' && direction === 'th_to_en'
+                    ? 'Target Column (English)'
+                    : translationMode === 'oneway' && direction === 'en_to_th'
+                      ? 'Source Column (English)'
+                      : 'English Column'}
                 </Label>
                 <Select value={englishColumn} onValueChange={setEnglishColumn}>
-                  <SelectTrigger>
+                  <SelectTrigger id="csv__english__column" className="w-full">
                     <SelectValue placeholder="Select English column" />
                   </SelectTrigger>
                   <SelectContent>
@@ -642,7 +680,12 @@ export default function CSVTranslationTab() {
             {translationMode === 'oneway' && (
               <div className="space-y-2">
                 <Label>Translation Direction</Label>
-                <Select value={direction} onValueChange={(val) => setDirection(val as 'th_to_en' | 'en_to_th')}>
+                <Select
+                  value={direction}
+                  onValueChange={(val) =>
+                    setDirection(val as 'th_to_en' | 'en_to_th')
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -664,7 +707,7 @@ export default function CSVTranslationTab() {
                     setModelProvider(val as 'openai' | 'anthropic')
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger id="csv__ai__trigger" className="md:w-1/2">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -764,13 +807,17 @@ export default function CSVTranslationTab() {
                 <Label>Preview (Latest 5 translations)</Label>
                 <div className="border rounded-lg overflow-hidden">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-900 dark:text-gray-400">
                       <tr>
                         <th className="px-3 py-2 text-left">
-                          Source {translationMode === 'oneway' && `(${direction === 'th_to_en' ? thaiColumn : englishColumn})`}
+                          Source{' '}
+                          {translationMode === 'oneway' &&
+                            `(${direction === 'th_to_en' ? thaiColumn : englishColumn})`}
                         </th>
                         <th className="px-3 py-2 text-left">
-                          Target {translationMode === 'oneway' && `(${direction === 'th_to_en' ? englishColumn : thaiColumn})`}
+                          Target{' '}
+                          {translationMode === 'oneway' &&
+                            `(${direction === 'th_to_en' ? englishColumn : thaiColumn})`}
                         </th>
                       </tr>
                     </thead>

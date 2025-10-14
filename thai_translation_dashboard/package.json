@@ -8,7 +8,7 @@
     "build": "vite build --base=/assets/translation_tools/thai_translation_dashboard/ && yarn copy-html-entry",
     "lint": "eslint .",
     "preview": "vite preview",
-    "copy-html-entry": "cp ../translation_tools/public/thai_translation_dashboard/index.html ../translation_tools/www/thai_translation_dashboard.html"
+    "copy-html-entry": "cp ../translation_tools/public/thai_translation_dashboard/index.html ../translation_tools/www/translation_tools_dashboard.html"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

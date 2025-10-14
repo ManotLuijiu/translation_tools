@@ -9,7 +9,7 @@ const queryClient = new QueryClient();
 
 if (import.meta.env.DEV) {
   fetch(
-    '/api/method/translation_tools.www.thai_translation_dashboard.get_context_for_dev',
+    '/api/method/translation_tools.www.translation_tools_dashboard.get_context_for_dev',
     {
       method: 'POST',
     }

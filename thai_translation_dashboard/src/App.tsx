@@ -1,6 +1,6 @@
 import type React from 'react';
 import { FrappeProvider } from 'frappe-react-sdk';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Suspense, lazy, useState, useEffect } from 'react';
 
 import { AppProvider } from './context/AppProvider';
@@ -20,6 +20,7 @@ import { NavUserDropdown } from './components/NavUserDropdown';
 import type { TabType } from './types';
 
 // Lazy load pages
+const LandingPage = lazy(() => import('./pages/LandingPage'));
 const ASEANTranslationsPage = lazy(
   () => import('./pages/ASEANTranslationsPage')
 );
@@ -63,7 +64,7 @@ const MainContent: React.FC = () => {
           <Routes>
             <Route
               path="/"
-              element={<Navigate to="/asean-translations" replace />}
+              element={<LandingPage />}
             />
             <Route
               path="/asean-translations"
@@ -91,7 +92,7 @@ const App: React.FC = () => {
       <ErrorBoundary fallback={<p>Opps! Something broke.</p>}>
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
           <AppProvider>
-            <BrowserRouter>
+            <BrowserRouter basename="/translation_tools_dashboard">
               <SidebarProvider>
                 <AppSidebar />
                 <MainContent />

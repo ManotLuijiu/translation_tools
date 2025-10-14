@@ -12,10 +12,10 @@ frappe.pages['ai-translator'].on_page_load = function (wrapper) {
       '<div class="text-center" style="padding: 40px 0;">' +
         '<i class="fa fa-spinner fa-spin fa-4x margin-bottom"></i>' +
         '<p style="margin-top: 15px; font-size: 16px;">' +
-        __('กำลังเปลี่ยนเส้นทางไปยังแดชบอร์ดการแปลภาษาไทย...') +
+        __('กำลังเปลี่ยนเส้นทางไปยังหน้าเลือกเครื่องมือแปลภาษา...') +
         '</p>' +
         '<p style="color: var(--text-muted); margin-top: 10px;">' +
-        __('Redirecting to Thai Translation Dashboard...') +
+        __('Redirecting to Translation Tools Selection...') +
         '</p>' +
         '</div>'
     );
@@ -26,14 +26,11 @@ frappe.pages['ai-translator'].on_page_load = function (wrapper) {
 
 frappe.pages['ai-translator'].on_page_show = function (wrapper) {
   console.info('wrapper ai-translator', wrapper);
-  //   load_desk_page(wrapper);
 
   setTimeout(function () {
-    // Log for debugging (can be removed in production)
-    // console.log('Redirecting to Thai Translation Dashboard');
-
-    // Perform the actual redirect
-    window.location.href = '/thai_translation_dashboard';
+    // Redirect to translation tools landing page
+    // User can choose between ASEAN Translations or CSV Translations
+    window.location.href = '/translation_tools_dashboard';
   }, 800);
 };
 

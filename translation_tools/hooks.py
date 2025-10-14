@@ -73,12 +73,12 @@ website_route_rules = [
         "to_route": "asean_translation_dashboard",
     },
     {
-        "from_route": "/thai_translation_dashboard/<path:app_path>",
-        "to_route": "thai_translation_dashboard",
+        "from_route": "/translation_tools_dashboard/<path:app_path>",
+        "to_route": "translation_tools_dashboard",
     },
     {
-        "from_route": "/thai_translation_dashboard",
-        "to_route": "thai_translation_dashboard",
+        "from_route": "/translation_tools_dashboard",
+        "to_route": "translation_tools_dashboard",
     }
 ]
 
