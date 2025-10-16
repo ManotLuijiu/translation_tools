@@ -10,7 +10,7 @@ export function useTheme() {
     const detectTheme = () => {
       try {
         // Check if we have access to frappe.boot.desk_theme
-        if ((window.frappe.boot as { desk_theme?: string }).desk_theme) {
+        if (window.frappe && window.frappe.boot && (window.frappe.boot as { desk_theme?: string }).desk_theme) {
           const bootTheme = (window.frappe.boot as { desk_theme?: string })
             .desk_theme;
           setTheme(bootTheme === 'Dark' ? 'dark' : 'light');

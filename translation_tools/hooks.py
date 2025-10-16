@@ -17,7 +17,7 @@ guest_title = app_title
 # Define your desktop sections
 desktop_icons = ["Translation Tools"]
 
-required_apps = ["payments", "print_designer"]
+required_apps = ["print_designer"]
 
 # Modules Definition
 # -----------------

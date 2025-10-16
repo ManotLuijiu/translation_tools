@@ -16,7 +16,8 @@ dependencies = [
     "PyPDF2",
     "num2words",
     "psutil",
-    "python-dotenv"
+    "python-dotenv",
+    "stripe~=10.12.0"
 ]
 
 [build-system]

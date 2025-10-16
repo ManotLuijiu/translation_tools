@@ -25,6 +25,7 @@ const ASEANTranslationsPage = lazy(
   () => import('./pages/ASEANTranslationsPage')
 );
 const CSVTranslationsPage = lazy(() => import('./pages/CSVTranslationsPage'));
+const UUIDGeneratorPage = lazy(() => import('./pages/UUIDGeneratorPage'));
 
 const MainContent: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<TabType | undefined>(undefined);
@@ -71,6 +72,7 @@ const MainContent: React.FC = () => {
               element={<ASEANTranslationsPage onTabChange={setCurrentTab} />}
             />
             <Route path="/csv-translations" element={<CSVTranslationsPage />} />
+            <Route path="/uuid-generator" element={<UUIDGeneratorPage />} />
           </Routes>
         </Suspense>
       </div>

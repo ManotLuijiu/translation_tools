@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { FileText, Upload, Home } from 'lucide-react';
+import { FileText, Upload, Home, Hash } from 'lucide-react';
 import tbsLogo from '../assets/tbs_logo.png';
 import {
   Sidebar,
@@ -41,6 +41,12 @@ export const AppSidebar = React.forwardRef<
       url: '/csv-translations',
       icon: Upload,
       isActive: isPathActive('/csv-translations'),
+    },
+    {
+      title: __('UUID Generator'),
+      url: '/uuid-generator',
+      icon: Hash,
+      isActive: isPathActive('/uuid-generator'),
     },
   ];
 
