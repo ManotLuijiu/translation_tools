@@ -219,16 +219,18 @@
     />
 
     <!-- {{ preload_links }} -->
-    <script type="module" crossorigin src="/assets/translation_tools/thai_translation_dashboard/assets/index-C3kP_0BO.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/translation_tools/thai_translation_dashboard/assets/index-DrbfNVyX.css">
+    <script type="module" crossorigin src="/assets/translation_tools/thai_translation_dashboard/assets/index-Dxii7kX1.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/translation_tools/thai_translation_dashboard/assets/index-rJQJy-SE.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root" vaul-drawer-wrapper="true"></div>
     <script>
-      window.csrf_token = "{{ frappe.session.csrf_token }}";
-      if (!window.frappe) window.frappe = {};
+      window.csrf_token = '{{ csrf_token }}';
+      			if (!window.frappe) window.frappe = {};
 
-      frappe.boot = JSON.parse({{ boot }})
+      			window.app_name = "Translation Tools";
+
+      			frappe.boot = JSON.parse({{ boot }});
     </script>
   </body>
 </html>

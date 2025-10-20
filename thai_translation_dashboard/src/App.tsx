@@ -1,22 +1,25 @@
 import type React from 'react';
-import { FrappeProvider } from 'frappe-react-sdk';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Suspense, lazy, useState, useEffect } from 'react';
 
-import { AppProvider } from './context/AppProvider';
-import { Toaster } from '@/components/ui/sonner';
-import { useTheme } from './hooks/useTheme';
-import { ThemeProvider } from '@/components/ThemeProvider';
-import { ErrorBoundary } from './components/ErrorBoundary';
+// UI Components
 import {
+  AppSidebar,
   SidebarProvider,
   SidebarTrigger,
-} from './components/ui/sidebar';
-import { AppSidebar } from './components/AppSidebar';
+} from '@/components/ui/sidebar';
 import { AppBreadcrumbs } from './components/AppBreadcrumbs';
-import { ModeToggle } from './components/ModeToggle';
 import { LanguageToggle } from './components/LanguageToggle';
+import { ModeToggle } from './components/ModeToggle';
 import { NavUserDropdown } from './components/NavUserDropdown';
+import { Toaster } from '@/components/ui/sonner';
+import { Skeleton } from '@/components/ui/skeleton';
+
+// Contexts and Hooks
+import { AutoSaveProvider } from '@/contexts/AutoSaveContext';
+import { useLanguageSync } from '@/hooks/useLanguageSync';
+
+// Types
 import type { TabType } from './types';
 
 // Lazy load pages
@@ -27,46 +30,65 @@ const ASEANTranslationsPage = lazy(
 const CSVTranslationsPage = lazy(() => import('./pages/CSVTranslationsPage'));
 const UUIDGeneratorPage = lazy(() => import('./pages/UUIDGeneratorPage'));
 
-const MainContent: React.FC = () => {
-  const [currentTab, setCurrentTab] = useState<TabType | undefined>(undefined);
+// Loading skeleton component for Suspense fallback - mobile-optimized
+const LoadingSkeleton = () => (
+  <div className="space-y-3 sm:space-y-4 p-4 sm:p-6 md:p-8">
+    <Skeleton className="h-6 sm:h-8 w-full sm:w-[250px]" />
+    <Skeleton className="h-3 sm:h-4 w-full" />
+    <Skeleton className="h-3 sm:h-4 w-full" />
+    <Skeleton className="h-3 sm:h-4 w-3/4" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6">
+      <Skeleton className="h-24 sm:h-32 w-full" />
+      <Skeleton className="h-24 sm:h-32 w-full" />
+      <Skeleton className="h-24 sm:h-32 w-full" />
+    </div>
+  </div>
+);
+
+// Main content component that works with the sidebar system - responsive to sidebar state
+const MainContent: React.FC<{
+  currentTab: TabType | undefined;
+  setCurrentTab: (tab: TabType | undefined) => void;
+}> = ({ currentTab, setCurrentTab }) => {
   const location = useLocation();
+
+  // ✅ No marginLeft needed - sidebar's spacer div (w-(--sidebar-width)) handles spacing
+  // The sidebar.tsx component creates an invisible spacer that pushes content automatically
+  // Adding margin-left would create DOUBLE spacing (16rem + 16rem = 32rem)
 
   // Reset currentTab when navigating away from ASEAN Translations page
   useEffect(() => {
     if (!location.pathname.startsWith('/asean-translations')) {
       setCurrentTab(undefined);
     }
-  }, [location.pathname]);
+  }, [location.pathname, setCurrentTab]);
 
   return (
-    <main
-      className="flex flex-1 flex-col transition-all duration-300 ease-in-out antialiased bg-gray-50 dark:bg-gray-900"
-    >
-      <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-background p-4">
-        <div className="flex items-center gap-2">
+    <main className="flex flex-1 flex-col transition-all duration-300 ease-in-out antialiased h-screen">
+      {/* Header with sidebar trigger and controls - mobile-optimized */}
+      <div className="flex items-center justify-between p-2 sm:p-4 border-b shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2">
           <SidebarTrigger />
-          <AppBreadcrumbs currentTab={currentTab} />
+          <h1 className="text-base sm:text-lg font-semibold">
+            Translation Tools
+          </h1>
+          {/* Hide breadcrumbs on small screens */}
+          <div className="hidden md:block">
+            <AppBreadcrumbs currentTab={currentTab} />
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <LanguageToggle />
+        <div className="flex items-center gap-1 sm:gap-2">
           <ModeToggle />
+          <LanguageToggle />
           <NavUserDropdown />
         </div>
       </div>
 
-      <div className="flex-1 container mx-auto px-4">
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center h-screen">
-              <p>Loading...</p>
-            </div>
-          }
-        >
+      {/* Content area with responsive padding - mobile-first */}
+      <div className="flex-1 min-h-0 rounded-[0.5rem] bg-sidebar-accent/50 p-2 sm:p-4 md:p-6 overflow-y-scroll">
+        <Suspense fallback={<LoadingSkeleton />}>
           <Routes>
-            <Route
-              path="/"
-              element={<LandingPage />}
-            />
+            <Route path="/" element={<LandingPage />} />
             <Route
               path="/asean-translations"
               element={<ASEANTranslationsPage onTabChange={setCurrentTab} />}
@@ -76,34 +98,47 @@ const MainContent: React.FC = () => {
           </Routes>
         </Suspense>
       </div>
-
-      <Toaster richColors position="bottom-right" />
     </main>
   );
 };
 
+/**
+ * Main App Component
+ * Local layout implementation (not imported from thai_business_suite)
+ */
 const App: React.FC = () => {
-  const theme = useTheme();
-  console.info('theme', theme);
+  const [currentTab, setCurrentTab] = useState<TabType | undefined>(undefined);
+
+  // Sync HTML lang attribute with Frappe language preference for dynamic font/line-height
+  useLanguageSync();
+
+  // Use basename only in production (when served from Frappe)
+  // In development (Vite dev server), no basename is needed
+  const basename = import.meta.env.DEV
+    ? undefined
+    : '/translation_tools_dashboard';
 
   return (
-    <FrappeProvider
-      siteName={import.meta.env.VITE_SITE_NAME}
-      socketPort={import.meta.env.VITE_SOCKET_PORT}
-    >
-      <ErrorBoundary fallback={<p>Opps! Something broke.</p>}>
-        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-          <AppProvider>
-            <BrowserRouter basename="/translation_tools_dashboard">
-              <SidebarProvider>
-                <AppSidebar />
-                <MainContent />
-              </SidebarProvider>
-            </BrowserRouter>
-          </AppProvider>
-        </ThemeProvider>
-      </ErrorBoundary>
-    </FrappeProvider>
+    <div className="h-screen w-full flex justify-center overflow-hidden">
+      <div className="w-full max-w-[1400px] h-full">
+        <BrowserRouter basename={basename}>
+          <AutoSaveProvider>
+            <SidebarProvider>
+              {/* Sidebar - collapsible with icon-only mode */}
+              <AppSidebar />
+
+              {/* Main content area with sidebar-aware styling */}
+              <MainContent
+                currentTab={currentTab}
+                setCurrentTab={setCurrentTab}
+              />
+
+              <Toaster />
+            </SidebarProvider>
+          </AutoSaveProvider>
+        </BrowserRouter>
+      </div>
+    </div>
   );
 };
 

@@ -1,9 +1,15 @@
+import { FileSpreadsheet, Globe, Languages, Sparkles } from 'lucide-react';
 import type React from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Globe, FileSpreadsheet, Sparkles, Languages } from 'lucide-react';
-import { __ } from '@/utils/translations';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { __ } from '@/utils/translation';
 
 const LandingPage: React.FC = () => {
   return (
@@ -38,7 +44,9 @@ const LandingPage: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                {__('Automatic translation system for Frappe/ERPNext and Custom Apps. Supports multiple ASEAN languages with AI and Glossary Management')}
+                {__(
+                  'Automatic translation system for Frappe/ERPNext and Custom Apps. Supports multiple ASEAN languages with AI and Glossary Management'
+                )}
               </p>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
@@ -81,12 +89,16 @@ const LandingPage: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                {__('Translation system specifically for CSV files. Perfect for batch processing of large amounts of data')}
+                {__(
+                  'Translation system specifically for CSV files. Perfect for batch processing of large amounts of data'
+                )}
               </p>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500">✓</span>
-                  <span>{__('Upload CSV file and translate automatically')}</span>
+                  <span>
+                    {__('Upload CSV file and translate automatically')}
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500">✓</span>
@@ -102,7 +114,11 @@ const LandingPage: React.FC = () => {
                 </li>
               </ul>
               <Link to="/csv-translations" className="block mt-6">
-                <Button className="w-full text-base h-12" size="lg" variant="outline">
+                <Button
+                  className="w-full text-base h-12"
+                  size="lg"
+                  variant="outline"
+                >
                   {__('Enter CSV Translations')}
                   <FileSpreadsheet className="ml-2 w-5 h-5" />
                 </Button>
@@ -114,7 +130,10 @@ const LandingPage: React.FC = () => {
         {/* Footer Info */}
         <div className="text-center text-sm text-muted-foreground mt-8 p-4 bg-muted/30 rounded-lg">
           <p>
-            💡 <strong>{__('Tip:')}</strong> {__('You can navigate between both tools anytime via the left sidebar')}
+            💡 <strong>{__('Tip:')}</strong>{' '}
+            {__(
+              'You can navigate between both tools anytime via the left sidebar'
+            )}
           </p>
         </div>
       </div>

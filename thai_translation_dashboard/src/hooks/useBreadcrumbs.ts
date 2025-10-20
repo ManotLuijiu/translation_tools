@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { __ } from '@/utils/translations';
+import { __ } from '@/utils/translation';
 
 export interface BreadcrumbItem {
   label: string;
@@ -19,7 +19,9 @@ const tabMap: Record<string, string> = {
   settings: __('Settings'),
 };
 
-export const useBreadcrumbs = (options?: UseBreadcrumbsOptions): BreadcrumbItem[] => {
+export const useBreadcrumbs = (
+  options?: UseBreadcrumbsOptions
+): BreadcrumbItem[] => {
   const location = useLocation();
   const { currentTab } = options || {};
 
@@ -28,7 +30,7 @@ export const useBreadcrumbs = (options?: UseBreadcrumbsOptions): BreadcrumbItem[
     '': __('ERPNext ASEAN Translations'),
     'asean-translations': __('ERPNext ASEAN Translations'),
     'csv-translations': __('CSV Translations'),
-    'settings': __('Settings'),
+    settings: __('Settings'),
   };
 
   const generateBreadcrumbs = (): BreadcrumbItem[] => {
@@ -54,11 +56,13 @@ export const useBreadcrumbs = (options?: UseBreadcrumbsOptions): BreadcrumbItem[
       currentPath += `/${segment}`;
       const isLast = index === pathSegments.length - 1;
 
-      const label = routeLabels[segment] || segment
-        .replace('-', ' ')
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
+      const label =
+        routeLabels[segment] ||
+        segment
+          .replace('-', ' ')
+          .split(' ')
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
 
       breadcrumbs.push({
         label,

@@ -13,7 +13,7 @@ __pycache__
 *.local.yaml
 # /translation_tools/public/css/styles.css
 # translation_tools/www/frontend.html
-# translation_tools/www/thai_translation_dashboard.html
+translation_tools/www/thai_translation_dashboard.html
 translation_tools/public/dist/
 
 # Build artifacts - exclude all bundled assets
@@ -33,4 +33,6 @@ yarn-error.log*
 .serena
 CLAUDE.md
 
-# translation_tools/locale/th.po
+translation_tools/locale/
+translation_tools/translations/
+translation_tools/public/images/local/

@@ -85,3 +85,102 @@ def get_guest_room(*, email: str, full_name: str, message: str) -> Dict[str, obj
         "room": room,
         "token": token,
     }
+
+
+@frappe.whitelist()
+def get_current_user():
+    """
+    Get current user data with debug logging
+    This is a custom API method to fetch user data with backend logging
+    """
+    try:
+        current_user = frappe.session.user
+        print(f"🔍 Backend: Current user session: {current_user}")
+
+        if not current_user or current_user == "Guest":
+            print("🔍 Backend: User is Guest, returning null")
+            return None
+
+        # Get user document
+        user_doc = frappe.get_doc("User", current_user)
+        print(f"🔍 Backend: User document found: {user_doc.name}")
+
+        # Extract user data
+        user_data = {
+            "name": user_doc.name,
+            "email": user_doc.email,
+            "first_name": user_doc.first_name,
+            "last_name": user_doc.last_name,
+            "full_name": user_doc.full_name,
+            "username": user_doc.username,
+            "user_image": user_doc.user_image,
+            "mobile_no": user_doc.mobile_no,
+            "phone": user_doc.phone,
+            "gender": user_doc.gender,
+            "birth_date": user_doc.birth_date,
+            "enabled": user_doc.enabled,
+            "user_type": user_doc.user_type,
+        }
+
+        print(f"🔍 Backend: User data extracted: {user_data}")
+
+        return user_data
+
+    except Exception as e:
+        print(f"❌ Backend Error getting user data: {str(e)}")
+        frappe.log_error(f"Error in get_current_user: {str(e)}")
+        return None
+
+
+@frappe.whitelist()
+def get_user_profile(user_name=None):
+    """
+    Get user profile data for specific user or current user
+    """
+    try:
+        if not user_name:
+            user_name = frappe.session.user
+
+        print(f"🔍 Backend: Getting profile for user: {user_name}")
+
+        if not user_name or user_name == "Guest":
+            print("🔍 Backend: User is Guest, returning null")
+            return None
+
+        # Check if user exists
+        if not frappe.db.exists("User", user_name):
+            print(f"❌ Backend: User {user_name} does not exist")
+            return None
+
+        # Get user document with all relevant fields
+        user_doc = frappe.get_doc("User", user_name)
+
+        user_profile = {
+            "name": user_doc.name,
+            "email": user_doc.email,
+            "first_name": user_doc.first_name,
+            "last_name": user_doc.last_name,
+            "full_name": user_doc.full_name,
+            "username": user_doc.username,
+            "user_image": user_doc.user_image,
+            "mobile_no": user_doc.mobile_no,
+            "phone": user_doc.phone,
+            "gender": user_doc.gender,
+            "birth_date": user_doc.birth_date,
+            "location": user_doc.location,
+            "bio": user_doc.bio,
+            "interest": user_doc.interest,
+            "enabled": user_doc.enabled,
+            "user_type": user_doc.user_type,
+            "creation": user_doc.creation,
+            "modified": user_doc.modified,
+        }
+
+        print(f"🔍 Backend: User profile data: {user_profile}")
+
+        return user_profile
+
+    except Exception as e:
+        print(f"❌ Backend Error getting user profile: {str(e)}")
+        frappe.log_error(f"Error in get_user_profile: {str(e)}")
+        return None
