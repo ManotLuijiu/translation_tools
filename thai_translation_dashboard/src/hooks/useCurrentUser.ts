@@ -31,7 +31,8 @@ export const useCurrentUser = (): UseCurrentUserReturn => {
   const { currentUser, isLoading: authLoading, logout } = useFrappeAuth();
 
   // Only fetch user details if we have a valid logged-in user
-  const shouldFetchUserDetails = !!currentUser && currentUser !== 'Guest' && currentUser !== '';
+  const shouldFetchUserDetails =
+    !!currentUser && currentUser !== 'Guest' && currentUser !== '';
 
   // Fetch specific user fields using frappe.client.get_value
   // This is safer than loading the entire document
@@ -42,10 +43,10 @@ export const useCurrentUser = (): UseCurrentUserReturn => {
     shouldFetchUserDetails
       ? {
           doctype: 'User',
-          filters: { name: currentUser },
+          name: currentUser, // ✅ Fixed: Use 'name' instead of 'filters'
           fieldname: ['email', 'first_name', 'last_name', 'full_name', 'username', 'user_image'],
         }
-      : null, // Pass null to skip the API call
+      : undefined, // Pass undefined to skip the API call
     undefined,
     {
       isOnline: () => shouldFetchUserDetails,
@@ -64,7 +65,12 @@ export const useCurrentUser = (): UseCurrentUserReturn => {
     const userInfo = userData?.message;
 
     // Generate initials from name
-    const getInitials = (firstName?: string, lastName?: string, fullName?: string, email?: string): string => {
+    const getInitials = (
+      firstName?: string,
+      lastName?: string,
+      fullName?: string,
+      email?: string
+    ): string => {
       // Try first name + last name
       if (firstName && lastName) {
         return `${firstName[0]}${lastName[0]}`.toUpperCase();

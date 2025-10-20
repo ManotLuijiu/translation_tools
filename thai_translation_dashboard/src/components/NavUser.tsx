@@ -1,17 +1,5 @@
-import {
-  ChevronsUpDown,
-  LogOut,
-  User,
-  Loader2,
-} from 'lucide-react';
-import { __ } from '@/utils/translations';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
-
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/components/ui/avatar';
+import { ChevronsUpDown, Loader2, LogOut, Settings, User } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +15,8 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useRealUser } from '@/hooks/useRealUser';
+import { __ } from '@/utils/translation';
 
 /**
  * NavUser component for translation tools sidebar
@@ -34,7 +24,7 @@ import { Skeleton } from '@/components/ui/skeleton';
  */
 export function NavUser() {
   const { isMobile } = useSidebar();
-  const { user, isLoading, isLoggedIn, logout } = useCurrentUser();
+  const { user, isLoading, isLoggedIn, logout } = useRealUser();
 
   // Default guest user data
   const defaultUser = {
@@ -87,7 +77,9 @@ export function NavUser() {
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                 <span className="truncate font-semibold">{userData.name}</span>
-                <span className="truncate text-xs text-muted-foreground">{userData.email}</span>
+                <span className="truncate text-xs text-muted-foreground">
+                  {userData.email}
+                </span>
               </div>
               <ChevronsUpDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
             </SidebarMenuButton>
@@ -113,17 +105,39 @@ export function NavUser() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{userData.name}</span>
-                  <span className="truncate text-xs text-muted-foreground">{userData.email}</span>
+                  <span className="truncate font-semibold">
+                    {userData.name}
+                  </span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {userData.email}
+                  </span>
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             {isLoggedIn ? (
-              <DropdownMenuItem onClick={() => logout()} className="text-red-600 dark:text-red-400">
-                <LogOut />
-                {__('Sign Out')}
-              </DropdownMenuItem>
+              <>
+                <DropdownMenuItem asChild>
+                  <a href="/me" className="cursor-pointer" rel="nofollow">
+                    <User />
+                    {__('Profile')}
+                  </a>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <a href="/app" className="cursor-pointer">
+                    <Settings />
+                    {__('Switch To Desk')}
+                  </a>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => logout()}
+                  className="cursor-pointer text-red-600 dark:text-red-400"
+                >
+                  <LogOut />
+                  {__('Sign Out')}
+                </DropdownMenuItem>
+              </>
             ) : (
               <DropdownMenuItem asChild>
                 <a href="/app" className="text-primary">

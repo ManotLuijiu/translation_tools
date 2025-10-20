@@ -230,7 +230,7 @@ export default function TranslationEditor({
 
   if (!selectedFile) {
     return (
-      <div className="flex h-[calc(100vh-200px)] items-center justify-center">
+      <div className="flex min-h-[400px] items-center justify-center">
         <div className="space-y-4 text-center">
           <p className="text-muted-foreground">
             {__('Please select a PO file to start translation')}
@@ -242,7 +242,7 @@ export default function TranslationEditor({
 
   if ((isLoading && !entries.length) || !isReady) {
     return (
-      <div className="flex h-[calc(100vh-200px)] items-center justify-center">
+      <div className="flex min-h-[400px] items-center justify-center">
         <Loader2 className="text-primary h-8 w-8 animate-spin" />
         <span className="ml-2">{__('Loading file contents...')}</span>
       </div>
@@ -891,10 +891,10 @@ export default function TranslationEditor({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">{selectedFile.filename}</h2>
+    <div className="space-y-6 max-w-full">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="min-w-0">
+          <h2 className="text-2xl font-bold truncate">{selectedFile.filename}</h2>
           <p className="text-muted-foreground">app: {selectedFile.app}</p>
         </div>
 
@@ -942,8 +942,8 @@ export default function TranslationEditor({
 
       {/* Separate Manual or AI Mode */}
       {translationMode === 'manual' ? (
-        <div className="flex space-x-4">
-          <div className="w-1/3 rounded-lg border">
+        <div className="flex gap-4 min-w-0 overflow-x-auto">
+          <div className="w-full md:w-1/3 rounded-lg border min-w-0">
             <div className="border-b p-4">
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="font-medium">Entries</h3>
@@ -982,7 +982,7 @@ export default function TranslationEditor({
               />
             </div>
 
-            <div className="h-[calc(100vh-400px)] overflow-y-auto">
+            <div className="max-h-[600px] overflow-y-auto">
               {isLoading ? (
                 <div className="flex h-32 items-center justify-center">
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -1025,7 +1025,7 @@ export default function TranslationEditor({
             </div>
           </div>
 
-          <div className="w-2/3">
+          <div className="w-full md:w-2/3 flex-1 min-w-0">
             {selectedEntry ? (
               <Card>
                 <CardHeader>

@@ -17,7 +17,8 @@ dependencies = [
     "num2words",
     "psutil",
     "python-dotenv",
-    "stripe~=10.12.0"
+    "stripe~=10.12.0",
+    "click>=8.3.0"
 ]
 
 [build-system]

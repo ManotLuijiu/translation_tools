@@ -59,6 +59,10 @@ def write_translations_file(app, lang, full_dict=None, app_messages=None):
 
     Extends the original function to include translations from SPA React/TypeScript files.
 
+    IMPORTANT FIX: This custom version writes ALL messages to CSV, including those
+    without existing translations. Frappe's default write_csv_file skips messages
+    without translations, which causes SPA strings to be silently dropped.
+
     Args:
         app: App name
         lang: Language code
@@ -68,8 +72,7 @@ def write_translations_file(app, lang, full_dict=None, app_messages=None):
     # Import original Frappe function
     from frappe.translate import (
         get_messages_for_app,
-        get_all_translations,
-        write_csv_file
+        get_all_translations
     )
 
     # Step 1: Get standard Frappe messages (if not provided)
@@ -93,14 +96,66 @@ def write_translations_file(app, lang, full_dict=None, app_messages=None):
     if not app_messages:
         return
 
-    # Step 4: Write CSV file (call original Frappe function)
+    # Step 4: Write CSV file (CUSTOM function that writes ALL messages)
     tpath = frappe.get_app_path(app, "translations")
     frappe.create_folder(tpath)
-    write_csv_file(
+
+    # Get translation dict
+    lang_dict = full_dict or get_all_translations(lang)
+
+    # Use custom write function that includes untranslated messages
+    write_csv_file_with_spa(
         os.path.join(tpath, lang + ".csv"),
         app_messages,
-        full_dict or get_all_translations(lang)
+        lang_dict
     )
+
+
+def write_csv_file_with_spa(path, app_messages, lang_dict):
+    """
+    Custom CSV writer that writes ALL messages, including those without translations.
+
+    This fixes Frappe's default behavior where messages without existing translations
+    are silently skipped, causing SPA-extracted strings to not appear in CSV files.
+
+    Args:
+        path: Output CSV file path
+        app_messages: List of message tuples (path, message, context, lineno)
+        lang_dict: Dictionary of existing translations {message: translation}
+    """
+    from csv import writer
+    import re
+
+    # Pattern to strip whitespace (from Frappe's CSV_STRIP_WHITESPACE_PATTERN)
+    CSV_STRIP_WHITESPACE_PATTERN = re.compile(r"{\s?([0-9]+)\s?}")
+
+    # Sort messages alphabetically
+    app_messages.sort(key=lambda x: x[1])
+
+    with open(path, "w", newline="") as msgfile:
+        w = writer(msgfile, lineterminator="\n")
+
+        for app_message in app_messages:
+            context = None
+            if len(app_message) == 2:
+                path, message = app_message
+            elif len(app_message) == 3:
+                path, message, lineno = app_message
+            elif len(app_message) == 4:
+                path, message, context, lineno = app_message
+            else:
+                continue
+
+            # Get translation if exists, otherwise use empty string
+            t = lang_dict.get(message, "")
+
+            # Strip whitespaces in translation
+            translated_string = CSV_STRIP_WHITESPACE_PATTERN.sub(r"{\g<1>}", t)
+
+            # IMPORTANT FIX: Write row even if translation is empty
+            # Frappe's original only writes: if translated_string:
+            # We write ALL messages so they appear in CSV for manual translation
+            w.writerow([message, translated_string, context or ""])
 
 
 def is_custom_app(app):
@@ -234,10 +289,12 @@ def extract_text_from_tsx_file(file_path):
     Extract English text from TypeScript/JSX file.
 
     Patterns to extract:
+    - Translation calls: __("Text"), __('Text') [PRIMARY PATTERN]
     - String literals in JSX: <div>Text</div>, <Button>Click Me</Button>
     - Props: placeholder="Enter name", title="Save", label="Email"
     - Toast/notifications: toast.success("Saved!")
     - Error messages: throw new Error("Invalid input")
+    - Alert/confirm dialogs: alert("Text"), confirm("Text")
 
     Args:
         file_path: Path to .tsx/.jsx file
@@ -274,6 +331,11 @@ def extract_text_from_tsx_file(file_path):
         # Pattern 5: Alert/confirm dialogs: alert("Text"), confirm("Text")
         dialog_msgs = re.findall(r'(?:alert|confirm)\s*\(["\']([^"\']{3,100})["\']', content)
         texts.update(dialog_msgs)
+
+        # Pattern 6: Translation function calls: __("Text") or __('Text')
+        # This is the PRIMARY pattern for extracting translatable strings in SPAs
+        translation_calls = re.findall(r'__\(["\']([^"\']{1,200})["\']', content)
+        texts.update(translation_calls)
 
         # Clean up: remove variables, URLs, paths
         cleaned_texts = set()

@@ -4,6 +4,10 @@ import './index.css';
 import App from './App.tsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TranslationProvider } from './context/TranslationContext.tsx';
+import { ThemeProvider } from './components/ThemeProvider';
+import { FrappeProvider } from 'frappe-react-sdk';
+import { AppProvider } from './context/AppProvider';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const queryClient = new QueryClient();
 
@@ -17,14 +21,22 @@ if (import.meta.env.DEV) {
     .then((response) => response.json())
     .then((values) => {
       const v = JSON.parse(values.message);
-      // if (!window.frappe) window.frappe = {};
       if (!window.frappe) {
         window.frappe = {
-          __: (text: string) => text, // Provide a default implementation for the __ function
-          show_alert: (message: string) => alert(message), // Provide a default implementation for show_alert
+          __: (text: string) => text,
+          show_alert: (message: string) => alert(message),
         };
       }
       window.frappe.boot = v;
+    })
+    .catch((error) => {
+      console.warn('Development context API failed:', error.message);
+      if (!window.frappe) {
+        window.frappe = {
+          __: (text: string) => text,
+          show_alert: (message: string) => alert(message),
+        };
+      }
     });
 }
 
@@ -32,11 +44,22 @@ const rootElement = document.getElementById('root');
 if (rootElement) {
   createRoot(rootElement).render(
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <TranslationProvider>
-          <App />
-        </TranslationProvider>
-      </QueryClientProvider>
+      <ThemeProvider defaultTheme="dark" storageKey="translation-tools-ui-theme">
+        <QueryClientProvider client={queryClient}>
+          <FrappeProvider
+            siteName={import.meta.env.VITE_SITE_NAME}
+            socketPort={import.meta.env.VITE_SOCKET_PORT}
+          >
+            <TranslationProvider>
+              <ErrorBoundary fallback={<p>Oops! Something broke.</p>}>
+                <AppProvider>
+                  <App />
+                </AppProvider>
+              </ErrorBoundary>
+            </TranslationProvider>
+          </FrappeProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
     </StrictMode>
   );
 } else {

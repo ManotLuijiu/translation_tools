@@ -40,6 +40,7 @@ after_install = [
     "translation_tools.install.after_install",
     "translation_tools.setup.github_sync_defaults.check_and_setup_if_needed",
     "translation_tools.overrides.setup_translation_override",  # Install SPA translation support
+    # Note: Translation extraction and CSV-to-PO migration run in after_migrate, not here
     # "translation_tools.patches.default.fix_fixtures_import",
     # "translation_tools.patches.default.add_default_font_to_print_settings",
     # "translation_tools.setup.install_custom_fields.install_custom_fields",
@@ -51,7 +52,9 @@ after_install = [
 # Migration
 after_migrate = [
     "translation_tools.setup.update_workspace.rebuild_workspace",
-    "translation_tools.utils.migration_translations.run_translation_commands_after_migrate"
+    "translation_tools.utils.migration_translations.run_translation_commands_after_migrate",
+    "translation_tools.utils.auto_extract.auto_extract_all_custom_apps",  # Auto-extract SPA translations for all languages
+    "translation_tools.utils.csv_to_po_with_spa.auto_migrate_csv_to_po",  # Auto-migrate CSV to PO (creates locale/ folder)
 ]
 
 # Uninstallation
@@ -64,7 +67,9 @@ after_uninstall = "translation_tools.uninstall.after_uninstall"
 # --------------------
 commands = [
     "translation_tools.commands.compile_mo_files",
-    "translation_tools.commands.update_translations"
+    "translation_tools.commands.update_translations",
+    "translation_tools.commands.migrate_csv_with_spa",  # CSV to PO migration with SPA support
+    "translation_tools.commands.gen_po",  # Generate PO files for custom apps
 ]
 
 website_route_rules = [
@@ -79,7 +84,7 @@ website_route_rules = [
     {
         "from_route": "/translation_tools_dashboard",
         "to_route": "translation_tools_dashboard",
-    }
+    },
 ]
 
 app_include_js = [
@@ -167,7 +172,7 @@ scheduler_events = {
         # Note: MO compilation removed - redundant with Frappe's native bench build-message-files
         "0 17 * * *": [
             "translation_tools.tasks.github_auto_sync.check_and_run_auto_sync"
-        ]
+        ],
     },
     # Daily tasks
     "daily": [
@@ -178,10 +183,10 @@ scheduler_events = {
     # Hourly safety check for missed schedules
     "hourly": [
         "translation_tools.tasks.translation_scheduler.run_missed_schedules",
-        "translation_tools.api.po_files.auto_refresh_stale_po_files"
+        "translation_tools.api.po_files.auto_refresh_stale_po_files",
     ],
     # Daily long-running tasks
     "daily_long": [
         "translation_tools.tasks.translation_scheduler.run_daily_translation_workflows"
-    ]
+    ],
 }

@@ -1,12 +1,6 @@
-import { LogOut, User, LayoutDashboard, Loader2 } from 'lucide-react';
-import { __ } from '@/utils/translations';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
-
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/components/ui/avatar';
+import { LayoutDashboard, Loader2, LogOut, User } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,15 +9,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useRealUser } from '@/hooks/useRealUser';
+import { __ } from '@/utils/translation';
 
 /**
  * Navbar user dropdown component for translation tools header
  * Displays compact avatar with dropdown menu
  */
 export function NavUserDropdown() {
-  const { user, isLoading, isLoggedIn, logout } = useCurrentUser();
+  const { user, isLoading, isLoggedIn, logout } = useRealUser();
 
   const userData = user;
 

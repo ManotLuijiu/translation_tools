@@ -169,7 +169,7 @@ export default function Dashboard({ onTabChange }: DashboardProps = {}) {
 
   return (
     <>
-      <div className="container mx-auto max-w-screen-xl py-6">
+      <div className="container mx-auto py-6">
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">
@@ -248,7 +248,11 @@ export default function Dashboard({ onTabChange }: DashboardProps = {}) {
             />
           </TabsContent>
 
-          <TabsContent value="editor" className="rounded-lg border p-4">
+          <TabsContent
+            id="translation__editor__tab__content"
+            value="editor"
+            className="rounded-lg border p-4"
+          >
             {settingsData?.message && (
               <TranslationEditor
                 translationMode={translationMode}

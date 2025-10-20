@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
-"POT-Creation-Date: 2025-10-06 22:53+0642\n"
-"PO-Revision-Date: 2025-10-06 22:53+0642\n"
+"POT-Creation-Date: 2025-10-20 14:02+0642\n"
+"PO-Revision-Date: 2025-10-20 14:02+0642\n"
 "Last-Translator: moocoding@gmail.com\n"
 "Language-Team: moocoding@gmail.com\n"
 "MIME-Version: 1.0\n"
@@ -149,10 +149,6 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34238
-msgid "All Applications"
-msgstr ""
-
 #. Label of a Currency field in DocType 'Token Purchase'
 #: translation_tools/templates/pages/token_management.html:72
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
@@ -198,18 +194,9 @@ msgstr ""
 msgid "App Sync Settings (JSON)"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34344
 #: translation_tools/translation_tools/page/translation_status/translation_status.js:47
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:25
 msgid "Application"
-msgstr ""
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34233
-msgid "Application Filter"
-msgstr ""
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34272
-msgid "Applications"
 msgstr ""
 
 #. Label of a number card in the Translation Tools Workspace
@@ -257,10 +244,6 @@ msgstr ""
 msgid "Automation"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34308
-msgid "Average Completion"
-msgstr ""
-
 #. Label of a Card Break in the Integrations Workspace
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Backup"
@@ -302,10 +285,20 @@ msgstr ""
 msgid "Branch"
 msgstr ""
 
+#. Name of a DocType
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Bulk Translation Job"
+msgstr ""
+
 #. Option for the 'Category' (Select) field in DocType 'Translation Glossary
 #. Term'
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Business"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Cancelled"
 msgstr ""
 
 #: translation_tools/override/client.py:86
@@ -317,7 +310,6 @@ msgstr ""
 msgid "Category"
 msgstr ""
 
-#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:132
 #: translation_tools/public/js/language_toggle.js:61
 msgid "Changing language to "
 msgstr ""
@@ -352,23 +344,22 @@ msgstr ""
 msgid "Compile PO files into binary MO files for runtime usage"
 msgstr ""
 
+#. Option for the 'Status' (Select) field in DocType 'Bulk Translation Job'
 #. Option for the 'Status' (Select) field in DocType 'Token Purchase'
 #. Option for the 'Status' (Select) field in DocType 'Translation Schedule'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Completed"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34350
-msgid "Completion"
+#. Label of a Datetime field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Completed At"
 msgstr ""
 
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:55
 msgid "Completion %"
-msgstr ""
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34243
-msgid "Completion Threshold"
 msgstr ""
 
 #: translation_tools/translation_tools/page/translation_status/translation_status.js:55
@@ -441,6 +432,21 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/token_package/token_package.json
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Currency"
+msgstr ""
+
+#. Label of a Data field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Current App"
+msgstr ""
+
+#. Label of a Data field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Current Locale"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Current Status"
 msgstr ""
 
 #. Label of a Data field in DocType 'GitHub Sync Settings'
@@ -603,6 +609,11 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
+#. Label of a Long Text field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Error Log"
+msgstr ""
+
 #. Label of a Text field in DocType 'GitHub Sync History Entry'
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Error Message"
@@ -628,7 +639,6 @@ msgstr ""
 msgid "Error verifying payment. Please contact support."
 msgstr ""
 
-#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:42
 #: translation_tools/public/js/app.js:76
 msgid "Error: "
 msgstr ""
@@ -653,23 +663,17 @@ msgstr ""
 msgid "Execution Status"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34400
-msgid "Export as CSV"
-msgstr ""
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34405
-msgid "Export as PDF"
-msgstr ""
-
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:124
 msgid "Extract all translatable strings from the app into a POT template file"
 msgstr ""
 
+#. Option for the 'Status' (Select) field in DocType 'Bulk Translation Job'
 #. Option for the 'Status' (Select) field in DocType 'GitHub Sync History
 #. Entry'
 #. Option for the 'Last Sync Status' (Select) field in DocType 'GitHub Sync
 #. Settings'
 #. Option for the 'Status' (Select) field in DocType 'Token Purchase'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
@@ -684,7 +688,6 @@ msgstr ""
 msgid "Failed to generate PDF. Please check the error log."
 msgstr ""
 
-#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:152
 #: translation_tools/public/js/language_toggle.js:82
 msgid "Failed to update language."
 msgstr ""
@@ -704,9 +707,9 @@ msgstr ""
 msgid "File Path"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1028
-#: translation_tools/api/po_files.py:1090
-#: translation_tools/api/po_files.py:1183
+#: translation_tools/api/po_files.py:1043
+#: translation_tools/api/po_files.py:1105
+#: translation_tools/api/po_files.py:1198
 #: translation_tools/api/translation.py:152
 #: translation_tools/api/translation.py:286
 msgid "File not found: {0}"
@@ -715,10 +718,6 @@ msgstr ""
 #. Label of a Data field in DocType 'PO File'
 #: translation_tools/translation_tools/doctype/po_file/po_file.json
 msgid "Filename"
-msgstr ""
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34352
-msgid "Files"
 msgstr ""
 
 #. Label of a Text field in DocType 'GitHub Sync History Entry'
@@ -733,6 +732,11 @@ msgstr ""
 #. Label of a Data field in DocType 'Translation Settings Custom Font'
 #: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
 msgid "Font Name"
+msgstr ""
+
+#. Label of a Check field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Force Regenerate POT"
 msgstr ""
 
 #. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
@@ -767,10 +771,6 @@ msgstr ""
 msgid "Generate from Document"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34205
-msgid "Generating PDF report..."
-msgstr ""
-
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:185
 msgid "Generating PDF..."
 msgstr ""
@@ -795,7 +795,7 @@ msgstr ""
 msgid "GitHub Sync Settings"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1645
+#: translation_tools/api/po_files.py:1660
 msgid "GitHub token saved successfully"
 msgstr ""
 
@@ -834,7 +834,6 @@ msgid "Google Settings"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'Translation PDF Settings'
-#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21398
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 msgid "Help"
 msgstr ""
@@ -848,10 +847,12 @@ msgstr ""
 msgid "Importing default Thai glossary..."
 msgstr ""
 
+#. Option for the 'Status' (Select) field in DocType 'Bulk Translation Job'
 #. Option for the 'Status' (Select) field in DocType 'GitHub Sync History
 #. Entry'
 #. Option for the 'Last Sync Status' (Select) field in DocType 'GitHub Sync
 #. Settings'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "In Progress"
@@ -892,8 +893,8 @@ msgstr ""
 msgid "Invalid GitHub repository URL"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1218
-#: translation_tools/api/po_files.py:1228
+#: translation_tools/api/po_files.py:1233
+#: translation_tools/api/po_files.py:1243
 msgid "Invalid entry ID or entry not found"
 msgstr ""
 
@@ -939,6 +940,16 @@ msgstr ""
 msgid "JSON storage for per-app auto-sync settings"
 msgstr ""
 
+#. Label of a Data field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Job ID"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Job Information"
+msgstr ""
+
 #. Label of a Link in the Integrations Workspace
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "LDAP Settings"
@@ -949,7 +960,6 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:145
 #: translation_tools/public/js/language_toggle.js:75
 msgid "Language updated. Reloading..."
 msgstr ""
@@ -986,10 +996,6 @@ msgstr ""
 
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:61
 msgid "Last Updated"
-msgstr ""
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34258
-msgid "Loading data..."
 msgstr ""
 
 #: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.js:73
@@ -1103,16 +1109,12 @@ msgstr ""
 msgid "No API keys found in configuration file."
 msgstr ""
 
-#: translation_tools/api/po_files.py:1489
+#: translation_tools/api/po_files.py:1504
 msgid "No changes needed, translations are already up to date"
 msgstr ""
 
 #: translation_tools/api/resend_provider.py:91
 msgid "No sender email address found. Please set a default from address."
-msgstr ""
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34262
-msgid "No translation data found. Try adjusting your filters."
 msgstr ""
 
 #. Label of a Attach field in DocType 'Translation Settings Custom Font'
@@ -1174,8 +1176,9 @@ msgstr ""
 msgid "OpenAI Model"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34217
-msgid "PDF Generated Successfully"
+#. Label of a Section Break field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Options"
 msgstr ""
 
 #. Label of a Select field in DocType 'Translation PDF Settings'
@@ -1327,10 +1330,6 @@ msgstr ""
 msgid "Please log in to save settings."
 msgstr ""
 
-#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21432
-msgid "Please select a file to translate"
-msgstr ""
-
 #: translation_tools/api/message.py:149
 msgid "Please sign in or provide your email to check token balance"
 msgstr ""
@@ -1358,14 +1357,24 @@ msgstr ""
 msgid "Price"
 msgstr ""
 
-#: translation_tools/public/dist/ai_translator.bundle.AWTVKUXP.js:19597
-#: translation_tools/public/dist/translation_tools.bundle.FYQK3ZDJ.js:19604
-msgid "Print Message"
-msgstr ""
-
 #. Label of a Int field in DocType 'ERPNext Module'
 #: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
 msgid "Priority"
+msgstr ""
+
+#. Label of a Int field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Processed Apps"
+msgstr ""
+
+#. Label of a Int field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Processed Locales"
+msgstr ""
+
+#. Label of a Percent field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Progress"
 msgstr ""
 
 #. Label of a Select field in DocType 'Translation History Entry'
@@ -1396,8 +1405,9 @@ msgstr ""
 msgid "Push Notifications"
 msgstr ""
 
-#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21371
-msgid "React Version"
+#. Option for the 'Status' (Select) field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Queued"
 msgstr ""
 
 #: translation_tools/override/client.py:82
@@ -1409,10 +1419,9 @@ msgid "Recent Purchases"
 msgstr ""
 
 #: translation_tools/translation_tools/page/ai_translator/ai_translator.js:18
-msgid "Redirecting to Thai Translation Dashboard..."
+msgid "Redirecting to Translation Tools Selection..."
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34395
 #: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.js:10
 #: translation_tools/translation_tools/page/translation_dashboard/translation_dashboard.js:9
 #: translation_tools/translation_tools/page/translation_status/translation_status.js:35
@@ -1439,6 +1448,16 @@ msgstr ""
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:20
 msgid "Reset Status"
+msgstr ""
+
+#. Label of a Long Text field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Results"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Results & Logs"
 msgstr ""
 
 #. Label of a Int field in DocType 'Translation Schedule'
@@ -1519,7 +1538,6 @@ msgstr ""
 
 #. Label of a Card Break in the Integrations Workspace
 #: translation_tools/config/translation_tools.py:13
-#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21384
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:68
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Settings"
@@ -1615,12 +1633,19 @@ msgstr ""
 msgid "Standard advice"
 msgstr ""
 
+#. Label of a Datetime field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Started At"
+msgstr ""
+
+#. Label of a Select field in DocType 'Bulk Translation Job'
 #. Label of a Select field in DocType 'GitHub Sync History Entry'
 #. Label of a Select field in DocType 'Token Purchase'
 #. Option for the 'Category' (Select) field in DocType 'Translation Glossary
 #. Term'
 #. Label of a Select field in DocType 'Translation Schedule'
 #: translation_tools/templates/pages/token_management.html:73
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
@@ -1652,7 +1677,7 @@ msgstr ""
 msgid "Success! Model: {0}"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1549
+#: translation_tools/api/po_files.py:1564
 msgid "Successfully pushed translations to GitHub"
 msgstr ""
 
@@ -1710,6 +1735,7 @@ msgid "Sync triggered successfully"
 msgstr ""
 
 #. Name of a role
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 #: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 #: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
@@ -1826,8 +1852,8 @@ msgstr ""
 msgid "There was an error initiating your payment. Please try again."
 msgstr ""
 
-#: translation_tools/www/thai_translation_dashboard.py:66
 #: translation_tools/www/translation_tools.py:19
+#: translation_tools/www/translation_tools_dashboard.py:112
 msgid "This method is only meant for developer mode"
 msgstr ""
 
@@ -1887,6 +1913,11 @@ msgstr ""
 msgid "Tokens"
 msgstr ""
 
+#. Label of a Int field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Total Apps"
+msgstr ""
+
 #. Label of a Int field in DocType 'PO File'
 #: translation_tools/translation_tools/doctype/po_file/po_file.json
 msgid "Total Entries"
@@ -1897,16 +1928,15 @@ msgstr ""
 msgid "Total Glossary Terms"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34282
-msgid "Total PO Files"
+#. Label of a Int field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
+msgid "Total Locales"
 msgstr ""
 
 #: translation_tools/templates/pages/token_management.html:21
 msgid "Total Purchased"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34298
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34346
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:37
 msgid "Total Strings"
 msgstr ""
@@ -1930,18 +1960,9 @@ msgstr ""
 msgid "Transaction ID"
 msgstr ""
 
-#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21377
-msgid "Translate File"
-msgstr ""
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34348
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:43
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:178
 msgid "Translated"
-msgstr ""
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34067
-msgid "Translated (%)"
 msgstr ""
 
 #. Label of a Int field in DocType 'PO File'
@@ -2064,11 +2085,10 @@ msgstr ""
 msgid "Translation Tools Settings"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1612
+#: translation_tools/api/po_files.py:1627
 msgid "Translation Tools Settings doctype does not exist. Please contact administrator."
 msgstr ""
 
-#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:29
 #: translation_tools/public/js/app.js:57
 msgid "Translation Tools link added successfully!"
 msgstr ""
@@ -2123,10 +2143,6 @@ msgstr ""
 msgid "Untranslated"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34073
-msgid "Untranslated (%)"
-msgstr ""
-
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:125
 msgid "Update PO translation files with new strings from the POT template"
 msgstr ""
@@ -2177,10 +2193,6 @@ msgstr ""
 msgid "View Full Log"
 msgstr ""
 
-#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21391
-msgid "View Glossary"
-msgstr ""
-
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.js:15
 msgid "View Sync History"
 msgstr ""
@@ -2225,7 +2237,7 @@ msgstr ""
 msgid "You do not have permission to use the translation tools"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1603
+#: translation_tools/api/po_files.py:1618
 msgid "You don't have permission to modify Translation Tools Settings"
 msgstr ""
 
@@ -2467,6 +2479,6 @@ msgid "zh-CN"
 msgstr ""
 
 #: translation_tools/translation_tools/page/ai_translator/ai_translator.js:15
-msgid "กำลังเปลี่ยนเส้นทางไปยังแดชบอร์ดการแปลภาษาไทย..."
+msgid "กำลังเปลี่ยนเส้นทางไปยังหน้าเลือกเครื่องมือแปลภาษา..."
 msgstr ""
 

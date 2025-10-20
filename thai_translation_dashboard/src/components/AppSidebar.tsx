@@ -1,17 +1,17 @@
+import { FileText, Hash, Home, Upload } from 'lucide-react';
 import React from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import { FileText, Upload, Home, Hash } from 'lucide-react';
-import tbsLogo from '../assets/tbs_logo.png';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { __ } from '@/utils/translations';
+import { __ } from '@/utils/translation';
+import tbsLogo from '../assets/tbs_logo.png';
 import { NavUser } from './NavUser';
 
 export const AppSidebar = React.forwardRef<
@@ -51,21 +51,29 @@ export const AppSidebar = React.forwardRef<
   ];
 
   return (
-    <Sidebar collapsible="icon" {...props} ref={ref}>
-      <SidebarHeader className="pt-4 pb-4 px-4 transition-all duration-300 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:mt-6">
-        <div className="flex items-center gap-2 transition-all duration-300 group-data-[collapsible=icon]:justify-center">
-          {/* <Home className="h-6 w-6" /> */}
-          <div className="flex items-center">
-            <a href="/app">
+    <Sidebar id="sidebar__main" collapsible="icon" {...props} ref={ref}>
+      <SidebarHeader
+        id="sidebar__header"
+        className="p-0 pt-4 pb-4 px-4 transition-all duration-300 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-3"
+      >
+        <div
+          id="sidebar__logo__div"
+          className="flex items-center gap-2 px-0 transition-all duration-300 group-data-[collapsible=icon]:justify-center"
+        >
+          <div
+            id="sidebar__logo__wrapper"
+            className="flex items-center shrink-0"
+          >
+            <a href="/app" className="flex items-center justify-center">
               <img
+                id="sidebar__logo"
                 src={tbsLogo}
                 alt="Thai Business Suite Logo"
-                className="h-8 w-auto transition-all duration-300 ease-in-out group-data-[collapsible=icon]:h-6"
+                className="h-8 w-8 min-h-8 min-w-8 object-contain transition-all duration-300 ease-in-out group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:min-h-10 group-data-[collapsible=icon]:min-w-10"
               />
-              {/* <span>{__('Back to ERPNext')}</span> */}
             </a>
           </div>
-          <span className="font-semibold text-lg transition-opacity duration-300 group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:opacity-0">
+          <span className="font-semibold text-lg transition-opacity duration-300 group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:w-0 overflow-hidden whitespace-nowrap">
             {__('Translation Tools')}
           </span>
         </div>

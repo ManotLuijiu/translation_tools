@@ -1,9 +1,21 @@
+import {
+  FileSpreadsheet,
+  Globe,
+  Hash,
+  Languages,
+  Sparkles,
+} from 'lucide-react';
 import type React from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Globe, FileSpreadsheet, Sparkles, Languages } from 'lucide-react';
-import { __ } from '@/utils/translations';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { __ } from '@/utils/translation';
 
 const LandingPage: React.FC = () => {
   return (
@@ -23,7 +35,7 @@ const LandingPage: React.FC = () => {
         </div>
 
         {/* Tool Cards */}
-        <div className="grid md:grid-cols-2 gap-6 mt-12">
+        <div className="grid md:grid-cols-3 gap-6 mt-12">
           {/* ASEAN Translations Card */}
           <Card className="hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/50 group">
             <CardHeader className="space-y-4">
@@ -36,9 +48,11 @@ const LandingPage: React.FC = () => {
                 {__('Translation for ASEAN Countries')}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="flex flex-col justify-between space-y-4 h-full">
               <p className="text-sm text-muted-foreground">
-                {__('Automatic translation system for Frappe/ERPNext and Custom Apps. Supports multiple ASEAN languages with AI and Glossary Management')}
+                {__(
+                  'Automatic translation system for Frappe/ERPNext and Custom Apps. Supports multiple ASEAN languages with AI and Glossary Management'
+                )}
               </p>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
@@ -59,7 +73,11 @@ const LandingPage: React.FC = () => {
                 </li>
               </ul>
               <Link to="/asean-translations" className="block mt-6">
-                <Button className="w-full text-base h-12" size="lg">
+                <Button
+                  className="w-full text-base h-12"
+                  size="lg"
+                  variant={'outline'}
+                >
                   {__('Enter ASEAN Translations')}
                   <Globe className="ml-2 w-5 h-5" />
                 </Button>
@@ -79,14 +97,21 @@ const LandingPage: React.FC = () => {
                 {__('Automatic CSV file translation')}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent
+              id="csv__translation__card__content"
+              className="flex flex-col justify-between space-y-4 h-full"
+            >
               <p className="text-sm text-muted-foreground">
-                {__('Translation system specifically for CSV files. Perfect for batch processing of large amounts of data')}
+                {__(
+                  'Translation system specifically for CSV files. Perfect for batch processing of large amounts of data'
+                )}
               </p>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500">✓</span>
-                  <span>{__('Upload CSV file and translate automatically')}</span>
+                  <span>
+                    {__('Upload CSV file and translate automatically')}
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500">✓</span>
@@ -102,9 +127,62 @@ const LandingPage: React.FC = () => {
                 </li>
               </ul>
               <Link to="/csv-translations" className="block mt-6">
-                <Button className="w-full text-base h-12" size="lg" variant="outline">
+                <Button
+                  className="w-full text-base h-12"
+                  size="lg"
+                  variant="outline"
+                >
                   {__('Enter CSV Translations')}
                   <FileSpreadsheet className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          {/* UUID Generator Card */}
+          <Card className="hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/50 group">
+            <CardHeader className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Hash className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
+                <FileSpreadsheet className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <CardTitle className="text-2xl">UUID Generator</CardTitle>
+              <CardDescription className="text-base">
+                {__('Generate unique identifiers for data')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col justify-between space-y-4 h-full">
+              <p className="text-sm text-muted-foreground">
+                {__(
+                  'Generate 10-character alphanumeric UUIDs for Asset Categories and other purposes with CSV automation support'
+                )}
+              </p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-500">✓</span>
+                  <span>{__('Single UUID generation')}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-500">✓</span>
+                  <span>{__('Bulk UUID generation (up to 1000)')}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-500">✓</span>
+                  <span>{__('CSV automation with column merge')}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-500">✓</span>
+                  <span>{__('Download as TXT or CSV')}</span>
+                </li>
+              </ul>
+              <Link to="/uuid-generator" className="block mt-6">
+                <Button
+                  className="w-full text-base h-12"
+                  size="lg"
+                  variant="secondary"
+                >
+                  {__('Enter UUID Generator')}
+                  <Hash className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
             </CardContent>
@@ -114,7 +192,10 @@ const LandingPage: React.FC = () => {
         {/* Footer Info */}
         <div className="text-center text-sm text-muted-foreground mt-8 p-4 bg-muted/30 rounded-lg">
           <p>
-            💡 <strong>{__('Tip:')}</strong> {__('You can navigate between both tools anytime via the left sidebar')}
+            💡 <strong>{__('Tip:')}</strong>{' '}
+            {__(
+              'You can navigate between all tools anytime via the left sidebar'
+            )}
           </p>
         </div>
       </div>
