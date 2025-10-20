@@ -51,15 +51,25 @@ export const AppSidebar = React.forwardRef<
   ];
 
   return (
-    <Sidebar collapsible="icon" {...props} ref={ref}>
-      <SidebarHeader className="pt-4 pb-4 px-4 transition-all duration-300 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:py-3">
-        <div className="flex items-center gap-2 transition-all duration-300 group-data-[collapsible=icon]:justify-center">
-          <div className="flex items-center shrink-0">
-            <a href="/app" className="flex items-center">
+    <Sidebar id="sidebar__main" collapsible="icon" {...props} ref={ref}>
+      <SidebarHeader
+        id="sidebar__header"
+        className="p-0 pt-4 pb-4 px-4 transition-all duration-300 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-3"
+      >
+        <div
+          id="sidebar__logo__div"
+          className="flex items-center gap-2 px-0 transition-all duration-300 group-data-[collapsible=icon]:justify-center"
+        >
+          <div
+            id="sidebar__logo__wrapper"
+            className="flex items-center shrink-0"
+          >
+            <a href="/app" className="flex items-center justify-center">
               <img
+                id="sidebar__logo"
                 src={tbsLogo}
                 alt="Thai Business Suite Logo"
-                className="h-8 w-auto transition-all duration-300 ease-in-out group-data-[collapsible=icon]:h-8"
+                className="h-8 w-8 min-h-8 min-w-8 object-contain transition-all duration-300 ease-in-out group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:min-h-10 group-data-[collapsible=icon]:min-w-10"
               />
             </a>
           </div>

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
-"POT-Creation-Date: 2025-10-06 22:53+0642\n"
-"PO-Revision-Date: 2025-10-06 22:21+0642\n"
+"POT-Creation-Date: 2025-10-20 14:02+0642\n"
+"PO-Revision-Date: 2025-10-20 14:02+0642\n"
 "Last-Translator: moocoding@gmail.com\n"
 "Language: my\n"
 "Language-Team: moocoding@gmail.com\n"
@@ -48,16 +48,12 @@ msgid "<h3 style='margin-bottom:15px;'>Translation Tools for Frappe/ERPNext Ecos
 msgstr ""
 
 #. Content of the 'Signature Preview' (HTML) field in DocType 'User Signature'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
 msgid "<img src=\"{{ doc.signature_image }}\" style=\"max-height: 100px;\">"
 msgstr ""
 
 #. Content of the 'help_html' (HTML) field in DocType 'Translation PDF
 #. Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 msgid "<p>The GitHub integration allows translations to be automatically shared to a central repository.</p><p>To set up GitHub integration:</p><ol><li>Create a GitHub account if you don't have one</li><li>Create a Personal Access Token (Classic) at <a href=\"https://github.com/settings/tokens\" target=\"_blank\">GitHub Settings</a></li><li>Give it the 'repo' permission</li><li>Copy the token and paste it above</li></ol>"
 msgstr ""
@@ -170,8 +166,6 @@ msgid "API Key"
 msgstr "API ကို Key ကို"
 
 #. Label of a Section Break field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "API Keys"
 msgstr ""
@@ -182,8 +176,6 @@ msgid "API Response Analysis"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "API Settings"
 msgstr ""
@@ -236,8 +228,6 @@ msgstr ""
 msgid "Action"
 msgstr "action"
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:16
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:22
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:34
@@ -246,8 +236,6 @@ msgstr "* Actions"
 
 #. Label of a Check field in DocType 'Token Package'
 #. Option for the 'Status' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/token_package/token_package.json
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:293
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
@@ -280,8 +268,6 @@ msgid "Add your API key and click"
 msgstr ""
 
 #. Label of a Int field in DocType 'GitHub Sync History Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Added"
 msgstr "Added"
@@ -292,8 +278,6 @@ msgid "Adding..."
 msgstr ""
 
 #. Name of a role
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
 #: translation_tools/translation_tools/doctype/po_file/po_file.json
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
@@ -301,10 +285,6 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
 msgid "All"
 msgstr "အားလုံး"
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34238
-msgid "All Applications"
-msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -317,8 +297,7 @@ msgid "All entries"
 msgstr ""
 
 #. Label of a Currency field in DocType 'Token Purchase'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/templates/pages/token_management.html:72
+#: translation_tools/templates/pages/token_management.html:72
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Amount"
 msgstr "ငွေပမာဏ"
@@ -338,8 +317,6 @@ msgid "Analysis"
 msgstr ""
 
 #. Label of a Password field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Anthropic API Key"
 msgstr ""
@@ -355,15 +332,11 @@ msgid "Anthropic Claude Settings"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Anthropic Configuration"
 msgstr ""
 
 #. Label of a Data field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Anthropic Model"
 msgstr ""
@@ -383,31 +356,19 @@ msgstr ""
 
 #. Label of a Data field in DocType 'PO File'
 #. Label of a Data field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/translation_tools/doctype/po_file/po_file.json
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "App Name"
 msgstr "App ကိုအမည်"
 
 #. Label of a Long Text field in DocType 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "App Sync Settings (JSON)"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34344
 #: translation_tools/translation_tools/page/translation_status/translation_status.js:47
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:25
 msgid "Application"
-msgstr ""
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34233
-msgid "Application Filter"
-msgstr ""
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34272
-msgid "Applications"
 msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
@@ -449,15 +410,11 @@ msgid "Authentication"
 msgstr ""
 
 #. Label of a Check field in DocType 'Translation PDF Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 msgid "Auto Attach PDF"
 msgstr ""
 
 #. Label of a Check field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Auto Save"
 msgstr ""
@@ -469,16 +426,12 @@ msgstr ""
 
 #. Option for the 'Category' (Select) field in DocType 'Translation Glossary
 #. Term'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Auto-imported"
 msgstr ""
 
 #. Option for the 'Sync Type' (Select) field in DocType 'GitHub Sync History
 #. Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Automatic"
 msgstr ""
@@ -503,10 +456,6 @@ msgstr ""
 msgid "Available Translation Files"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34308
-msgid "Average Completion"
-msgstr ""
-
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "Back"
@@ -523,15 +472,11 @@ msgid "Backup"
 msgstr ""
 
 #. Label of a Check field in DocType 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Backup Before Sync"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Basic Settings"
 msgstr ""
@@ -541,8 +486,6 @@ msgid "Basic questions"
 msgstr ""
 
 #. Label of a Int field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Batch Size"
 msgstr "batch Size ကို"
@@ -553,23 +496,17 @@ msgid "Batch translation completed successfully"
 msgstr ""
 
 #. Label of a Attach field in DocType 'Translation Settings Custom Font'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
 msgid "Bold"
 msgstr "ရဲရင့်"
 
 #. Label of a Attach field in DocType 'Translation Settings Custom Font'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
 msgid "Bold Italics"
 msgstr ""
 
 #. Label of a Data field in DocType 'GitHub Sync History Entry'
 #. Label of a Data field in DocType 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Branch"
@@ -580,8 +517,8 @@ msgstr "အညွန့"
 msgid "Breadcrumb Navigation Arrow"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Name of a DocType
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Bulk Translation Job"
 msgstr ""
 
@@ -597,8 +534,6 @@ msgstr ""
 
 #. Option for the 'Category' (Select) field in DocType 'Translation Glossary
 #. Term'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Business"
 msgstr ""
@@ -620,6 +555,11 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "CSV automation with column merge"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "CSV downloaded!"
 msgstr ""
 
@@ -628,8 +568,8 @@ msgstr ""
 msgid "Cancel"
 msgstr "ပျက်စေ"
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Option for the 'Status' (Select) field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Cancelled"
 msgstr "ဖျက်သိမ်းခဲ့သည်"
 
@@ -638,13 +578,10 @@ msgid "Cannot Fetch Values"
 msgstr ""
 
 #. Label of a Select field in DocType 'Translation Glossary Term'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Category"
 msgstr "Category:"
 
-#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:132
 #: translation_tools/public/js/language_toggle.js:61
 msgid "Changing language to "
 msgstr ""
@@ -686,15 +623,11 @@ msgstr ""
 msgid "Click to sync"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:199
 msgid "Close"
 msgstr "ပိတ်"
 
 #. Label of a Select field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Command Type"
 msgstr ""
@@ -723,30 +656,22 @@ msgstr ""
 msgid "Complete output from the translation process"
 msgstr ""
 
+#. Option for the 'Status' (Select) field in DocType 'Bulk Translation Job'
 #. Option for the 'Status' (Select) field in DocType 'Token Purchase'
 #. Option for the 'Status' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Completed"
 msgstr "ပြီးစီး"
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Label of a Datetime field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Completed At"
-msgstr ""
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34350
-msgid "Completion"
 msgstr ""
 
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:55
 msgid "Completion %"
-msgstr ""
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34243
-msgid "Completion Threshold"
 msgstr ""
 
 #: translation_tools/translation_tools/page/translation_status/translation_status.js:55
@@ -807,15 +732,11 @@ msgid "Confirm Deletion"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Conflict Resolution"
 msgstr ""
 
 #. Label of a Select field in DocType 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Conflict Resolution Strategy"
 msgstr ""
@@ -834,8 +755,6 @@ msgid "Content"
 msgstr ""
 
 #. Label of a Small Text field in DocType 'Translation Glossary Term'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Context"
 msgstr "နောက်ခံ"
@@ -857,23 +776,17 @@ msgstr ""
 
 #. Description of the 'GitHub Personal Access Token (Classic)' (Password) field
 #. in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Create a token with 'repo' scope at https://github.com/settings/tokens"
 msgstr ""
 
 #. Option for the 'Schedule Type' (Select) field in DocType 'Translation
 #. Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Cron"
 msgstr "Cron"
 
 #. Label of a Data field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Cron Expression"
 msgstr ""
@@ -888,20 +801,18 @@ msgstr ""
 
 #. Label of a Link field in DocType 'Token Package'
 #. Label of a Link field in DocType 'Token Purchase'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/token_package/token_package.json
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Currency"
 msgstr "ငှေကွေး"
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Label of a Data field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Current App"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Label of a Data field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Current Locale"
 msgstr ""
 
@@ -910,36 +821,28 @@ msgstr ""
 msgid "Current POT"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Label of a Section Break field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Current Status"
 msgstr ""
 
 #. Label of a Data field in DocType 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Custom Cron Expression"
 msgstr ""
 
 #. Label of a Table field in DocType 'Translation PDF Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 msgid "Custom Fonts"
 msgstr ""
 
 #. Label of a Data field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Customer Name"
 msgstr "ဖောက်သည်အမည်"
 
 #. Option for the 'Schedule Type' (Select) field in DocType 'Translation
 #. Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Daily"
 msgstr "နေ့စဉ်"
@@ -955,36 +858,26 @@ msgstr ""
 
 #. Option for the 'Category' (Select) field in DocType 'Translation Glossary
 #. Term'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Date/Time"
 msgstr ""
 
 #. Label of a Int field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Day of Month"
 msgstr ""
 
 #. Label of a Select field in DocType 'PDF Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
 msgid "Default Font"
 msgstr ""
 
 #. Label of a Data field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Default Model"
 msgstr ""
 
 #. Label of a Select field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Default Model Provider"
 msgstr ""
@@ -995,15 +888,11 @@ msgid "Default Provider"
 msgstr ""
 
 #. Label of a Data field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Default Source Language"
 msgstr ""
 
 #. Label of a Data field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Default Target Language"
 msgstr ""
@@ -1020,8 +909,6 @@ msgstr ""
 
 #. Label of a Small Text field in DocType 'ERPNext Module'
 #. Label of a Text Editor field in DocType 'Token Package'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
 #: translation_tools/translation_tools/doctype/token_package/token_package.json
 msgid "Description"
@@ -1089,6 +976,11 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Download as TXT or CSV"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Download results as CSV"
 msgstr ""
 
@@ -1103,8 +995,6 @@ msgid "ERPNext ASEAN Translations"
 msgstr ""
 
 #. Name of a DocType
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
 msgid "ERPNext Module"
 msgstr ""
@@ -1120,22 +1010,16 @@ msgid "Edit Glossary Term"
 msgstr ""
 
 #. Label of a Check field in DocType 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Enable Auto Sync"
 msgstr ""
 
 #. Label of a Check field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Enable Chat Features"
 msgstr ""
 
 #. Label of a Check field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Enable GitHub Integration"
 msgstr ""
@@ -1146,29 +1030,21 @@ msgid "Enable Github Integration"
 msgstr ""
 
 #. Label of a Check field in DocType 'Translation User Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
 msgid "Enable Message Tone"
 msgstr ""
 
 #. Label of a Check field in DocType 'Translation User Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
 msgid "Enable Notifications"
 msgstr ""
 
 #. Label of a Check field in DocType 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Enable Scheduled Auto Sync"
 msgstr ""
 
 #. Label of a Check field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Enable Translation Service"
 msgstr ""
@@ -1179,8 +1055,6 @@ msgid "Enable this step"
 msgstr ""
 
 #. Label of a Check field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Enabled"
 msgstr "Enabled"
@@ -1220,18 +1094,19 @@ msgstr ""
 msgid "Enter Thai translation"
 msgstr ""
 
-#. Description of the 'Custom Cron Expression' (Data) field in DocType 'GitHub
-#. Sync Settings'
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Enter UUID Generator"
+msgstr ""
+
+#. Description of the 'Custom Cron Expression' (Data) field in DocType 'GitHub
+#. Sync Settings'
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Enter a valid cron expression (e.g., '0 2 * * *' for daily at 2 AM)"
 msgstr ""
 
 #. Description of the 'Day of Month' (Int) field in DocType 'Translation
 #. Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Enter day of month (1-31)"
 msgstr ""
@@ -1256,21 +1131,17 @@ msgid "Entry not found"
 msgstr ""
 
 #. Option for the 'Status' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:289
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Error"
 msgstr "အမှား"
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Label of a Long Text field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Error Log"
 msgstr "အမှားပါ"
 
 #. Label of a Text field in DocType 'GitHub Sync History Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Error Message"
 msgstr "အမှားပြစာ"
@@ -1325,7 +1196,6 @@ msgstr ""
 msgid "Error verifying payment. Please contact support."
 msgstr ""
 
-#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:42
 #: translation_tools/public/js/app.js:76
 msgid "Error: "
 msgstr ""
@@ -1340,16 +1210,12 @@ msgstr ""
 
 #. Label of a Section Break field in DocType 'Translation Schedule'
 #. Label of a Long Text field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:188
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Execution Log"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Execution Status"
 msgstr ""
@@ -1359,25 +1225,17 @@ msgstr ""
 msgid "Exists"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34400
-msgid "Export as CSV"
-msgstr ""
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34405
-msgid "Export as PDF"
-msgstr ""
-
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:124
 msgid "Extract all translatable strings from the app into a POT template file"
 msgstr ""
 
+#. Option for the 'Status' (Select) field in DocType 'Bulk Translation Job'
 #. Option for the 'Status' (Select) field in DocType 'GitHub Sync History
 #. Entry'
 #. Option for the 'Last Sync Status' (Select) field in DocType 'GitHub Sync
 #. Settings'
 #. Option for the 'Status' (Select) field in DocType 'Token Purchase'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
@@ -1447,7 +1305,6 @@ msgstr ""
 msgid "Failed to update language preference"
 msgstr ""
 
-#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:152
 #: translation_tools/public/js/language_toggle.js:82
 msgid "Failed to update language."
 msgstr ""
@@ -1477,35 +1334,30 @@ msgid "File Information"
 msgstr "ပြန်ကြားရေး file"
 
 #. Label of a Data field in DocType 'PO File'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/translation_tools/doctype/po_file/po_file.json
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:31
 msgid "File Path"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1028
-#: translation_tools/api/po_files.py:1090
-#: translation_tools/api/po_files.py:1183
+#: translation_tools/api/po_files.py:1043
+#: translation_tools/api/po_files.py:1105
+#: translation_tools/api/po_files.py:1198
 #: translation_tools/api/translation.py:152
 #: translation_tools/api/translation.py:286
 msgid "File not found: {0}"
 msgstr ""
 
 #. Label of a Data field in DocType 'PO File'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/translation_tools/doctype/po_file/po_file.json
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
 msgid "Filename"
 msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34352
 msgid "Files"
 msgstr "files တွေကို"
 
 #. Label of a Text field in DocType 'GitHub Sync History Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Files Processed"
 msgstr ""
@@ -1525,8 +1377,6 @@ msgid "Font"
 msgstr ""
 
 #. Label of a Data field in DocType 'Translation Settings Custom Font'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
 msgid "Font Name"
 msgstr ""
@@ -1541,8 +1391,8 @@ msgstr ""
 msgid "Force Regenerate"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Label of a Check field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Force Regenerate POT"
 msgstr ""
 
@@ -1562,8 +1412,6 @@ msgid "Frappe Support"
 msgstr ""
 
 #. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Friday"
 msgstr "သောကြာနေ့"
@@ -1579,8 +1427,6 @@ msgstr ""
 
 #. Label of a Section Break field in DocType 'GitHub Sync Settings'
 #. Label of a Section Break field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "General Settings"
@@ -1622,8 +1468,9 @@ msgstr ""
 msgid "Generate from Document"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34205
-msgid "Generating PDF report..."
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Generate unique identifiers for data"
 msgstr ""
 
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:185
@@ -1656,15 +1503,11 @@ msgid "GitHub"
 msgstr "GitHub"
 
 #. Label of a Section Break field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "GitHub Integration"
 msgstr ""
 
 #. Label of a Password field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "GitHub Personal Access Token (Classic)"
 msgstr ""
@@ -1685,26 +1528,20 @@ msgid "GitHub Settings"
 msgstr ""
 
 #. Name of a DocType
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "GitHub Sync History Entry"
 msgstr ""
 
 #. Name of a DocType
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "GitHub Sync Settings"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1645
+#: translation_tools/api/po_files.py:1660
 msgid "GitHub token saved successfully"
 msgstr ""
 
 #. Label of a Data field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Github Branch"
 msgstr ""
@@ -1799,8 +1636,6 @@ msgid "Has Error"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'Translation PDF Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21398
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 msgid "Help"
 msgstr "ကူညီကြပါ"
@@ -1816,8 +1651,6 @@ msgid "Home"
 msgstr "နေအိမ်"
 
 #. Option for the 'Default Font' (Select) field in DocType 'PDF Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
 msgid "IBM Plex Thai"
 msgstr ""
@@ -1831,12 +1664,12 @@ msgstr "အရေးကြီးတယ်"
 msgid "Importing default Thai glossary..."
 msgstr ""
 
+#. Option for the 'Status' (Select) field in DocType 'Bulk Translation Job'
 #. Option for the 'Status' (Select) field in DocType 'GitHub Sync History
 #. Entry'
 #. Option for the 'Last Sync Status' (Select) field in DocType 'GitHub Sync
 #. Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "In Progress"
@@ -1877,8 +1710,8 @@ msgstr ""
 msgid "Invalid GitHub repository URL"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1218
-#: translation_tools/api/po_files.py:1228
+#: translation_tools/api/po_files.py:1233
+#: translation_tools/api/po_files.py:1243
 msgid "Invalid entry ID or entry not found"
 msgstr ""
 
@@ -1914,15 +1747,11 @@ msgid "Invoice PDF has been attached to this document"
 msgstr ""
 
 #. Label of a Check field in DocType 'Translation Glossary Term'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Is Approved"
 msgstr ""
 
 #. Label of a Attach field in DocType 'Translation Settings Custom Font'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
 msgid "Italics"
 msgstr ""
@@ -1934,19 +1763,17 @@ msgstr ""
 
 #. Description of the 'App Sync Settings (JSON)' (Long Text) field in DocType
 #. 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "JSON storage for per-app auto-sync settings"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Label of a Data field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Job ID"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Label of a Section Break field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Job Information"
 msgstr ""
 
@@ -1961,52 +1788,40 @@ msgid "LDAP Settings"
 msgstr ""
 
 #. Label of a Data field in DocType 'PO File'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/translation_tools/doctype/po_file/po_file.json
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
 msgid "Language"
 msgstr "ဘာသာစကား"
 
-#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:145
 #: translation_tools/public/js/language_toggle.js:75
 msgid "Language updated. Reloading..."
 msgstr ""
 
 #. Label of a Datetime field in DocType 'PO File'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/translation_tools/doctype/po_file/po_file.json
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
 msgid "Last Modified"
 msgstr ""
 
 #. Label of a Datetime field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Last Run"
 msgstr ""
 
 #. Label of a Datetime field in DocType 'PO File'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/translation_tools/doctype/po_file/po_file.json
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
 msgid "Last Scanned"
 msgstr ""
 
 #. Label of a Text field in DocType 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Last Sync Changes"
 msgstr ""
 
 #. Label of a Datetime field in DocType 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Last Sync Date/Time"
 msgstr ""
 
 #. Label of a Select field in DocType 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Last Sync Status"
 msgstr ""
@@ -2028,10 +1843,6 @@ msgstr "loading"
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "Loading apps..."
-msgstr ""
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34258
-msgid "Loading data..."
 msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
@@ -2065,8 +1876,6 @@ msgid "Local PO file not found"
 msgstr ""
 
 #. Label of a Select field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Locale"
 msgstr ""
@@ -2105,8 +1914,6 @@ msgstr ""
 
 #. Option for the 'Sync Type' (Select) field in DocType 'GitHub Sync History
 #. Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Manual"
 msgstr "လက်စွဲ"
@@ -2122,8 +1929,6 @@ msgid "Match score"
 msgstr ""
 
 #. Label of a Int field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Max Retries"
 msgstr ""
@@ -2151,8 +1956,6 @@ msgid "Missing required DocTypes: {0}"
 msgstr ""
 
 #. Label of a Data field in DocType 'Translation History Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
 msgid "Model"
 msgstr "ပုံစံ"
@@ -2163,30 +1966,22 @@ msgid "Models last updated"
 msgstr ""
 
 #. Label of a Link field in DocType 'Translation Glossary Term'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Module"
 msgstr "module"
 
 #. Label of a Data field in DocType 'ERPNext Module'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
 msgid "Module Name"
 msgstr "module အမည်"
 
 #. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Monday"
 msgstr "တနင်္လာနေ့"
 
 #. Option for the 'Schedule Type' (Select) field in DocType 'Translation
 #. Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Monthly"
 msgstr "လစဉ်"
@@ -2221,10 +2016,14 @@ msgid "My Settings"
 msgstr ""
 
 #. Label of a Data field in DocType 'User Tokens'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
+#: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
 msgid "Name"
 msgstr "နာမကို"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Navigation"
+msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -2241,8 +2040,6 @@ msgid "Next 5 runs:"
 msgstr ""
 
 #. Label of a Datetime field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Next Run"
 msgstr ""
@@ -2252,8 +2049,6 @@ msgid "Next Run: {0}"
 msgstr ""
 
 #. Label of a Datetime field in DocType 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Next Scheduled Sync"
 msgstr ""
@@ -2281,7 +2076,7 @@ msgstr ""
 msgid "No Logs Available"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1489
+#: translation_tools/api/po_files.py:1504
 msgid "No changes needed, translations are already up to date"
 msgstr ""
 
@@ -2314,10 +2109,6 @@ msgstr ""
 msgid "No sender email address found. Please set a default from address."
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34262
-msgid "No translation data found. Try adjusting your filters."
-msgstr ""
-
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "No translation files found"
@@ -2334,8 +2125,6 @@ msgid "None"
 msgstr "အဘယ်သူမျှမ"
 
 #. Label of a Attach field in DocType 'Translation Settings Custom Font'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
 msgid "Normal"
 msgstr "သာမန်"
@@ -2345,8 +2134,6 @@ msgid "Not permitted to read this document"
 msgstr ""
 
 #. Option for the 'Default Font' (Select) field in DocType 'PDF Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
 msgid "Noto Sans Thai"
 msgstr ""
@@ -2373,8 +2160,6 @@ msgstr ""
 
 #. Option for the 'Schedule Type' (Select) field in DocType 'Translation
 #. Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Once"
 msgstr ""
@@ -2391,8 +2176,6 @@ msgid "OpenAI"
 msgstr ""
 
 #. Label of a Password field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "OpenAI API Key"
 msgstr ""
@@ -2406,15 +2189,11 @@ msgid "OpenAI API connection successful! Translation: {0}"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "OpenAI Configuration"
 msgstr ""
 
 #. Label of a Data field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "OpenAI Model"
 msgstr ""
@@ -2424,8 +2203,8 @@ msgstr ""
 msgid "OpenAI Settings"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Label of a Section Break field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Options"
 msgstr "Options ကို"
 
@@ -2439,13 +2218,7 @@ msgstr ""
 msgid "Overview of translation log analysis"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34217
-msgid "PDF Generated Successfully"
-msgstr ""
-
 #. Label of a Select field in DocType 'Translation PDF Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 msgid "PDF Generation Method"
 msgstr ""
@@ -2465,8 +2238,6 @@ msgstr ""
 #. Name of a DocType
 #. Label of a Section Break field in DocType 'PDF Settings'
 #. Label of a Section Break field in DocType 'Translation PDF Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:383
@@ -2480,15 +2251,11 @@ msgstr ""
 
 #. Option for the 'PDF Generation Method' (Select) field in DocType
 #. 'Translation PDF Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 msgid "PDFMake"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'Translation PDF Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 msgid "PDFMake Settings"
 msgstr ""
@@ -2498,8 +2265,7 @@ msgid "PDFMake is a client-side library. This server-side function is a placehol
 msgstr ""
 
 #. Name of a DocType
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/setup/create_workspace.py:76
+#: translation_tools/setup/create_workspace.py:76
 #: translation_tools/translation_tools/doctype/po_file/po_file.json
 msgid "PO File"
 msgstr ""
@@ -2536,16 +2302,12 @@ msgid "Package"
 msgstr ""
 
 #. Label of a Data field in DocType 'Token Package'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/token_package/token_package.json
 msgid "Package Name"
 msgstr ""
 
 #. Description of the 'Signature Storage Path' (Data) field in DocType 'PDF
 #. Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
 msgid "Path where signature files will be stored (relative to site public folder)"
 msgstr ""
@@ -2556,15 +2318,11 @@ msgid "Patterns detected in AI model responses"
 msgstr ""
 
 #. Option for the 'Status' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Paused"
 msgstr ""
 
 #. Label of a Datetime field in DocType 'Token Purchase'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Payment Date"
 msgstr "ငွေပေးချေသည့်နေ့ရက်"
@@ -2602,8 +2360,6 @@ msgstr ""
 #. Option for the 'Last Sync Status' (Select) field in DocType 'GitHub Sync
 #. Settings'
 #. Option for the 'Status' (Select) field in DocType 'Token Purchase'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
@@ -2651,10 +2407,6 @@ msgstr ""
 msgid "Please select a PO file to start translation"
 msgstr ""
 
-#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21432
-msgid "Please select a file to translate"
-msgstr ""
-
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "Please select at least one column for UUID generation"
@@ -2683,8 +2435,6 @@ msgid "Please wait..."
 msgstr ""
 
 #. Label of a Select field in DocType 'Translation User Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
 msgid "Preferred Language"
 msgstr ""
@@ -2695,8 +2445,6 @@ msgid "Preservation of formatting tags and placeholders"
 msgstr ""
 
 #. Label of a Check field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Preserve Formatting"
 msgstr ""
@@ -2722,21 +2470,16 @@ msgid "Previous slide"
 msgstr ""
 
 #. Label of a Currency field in DocType 'Token Package'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/token_package/token_package.json
 msgid "Price"
 msgstr "စျေးနှုန်း"
 
 #. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/public/dist/ai_translator.bundle.AWTVKUXP.js:19597
-#: translation_tools/public/dist/translation_tools.bundle.FYQK3ZDJ.js:19604
+#: SPA
 msgid "Print Message"
 msgstr ""
 
 #. Label of a Int field in DocType 'ERPNext Module'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
 msgid "Priority"
 msgstr "ဦးစားပေး"
@@ -2751,13 +2494,13 @@ msgstr ""
 msgid "Problems encountered parsing AI responses"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Label of a Int field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Processed Apps"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Label of a Int field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Processed Locales"
 msgstr ""
 
@@ -2768,6 +2511,11 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Profile"
+msgstr ""
+
+#. Label of a Percent field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Progress"
 msgstr "တိုးတက်ခြင်း"
 
@@ -2777,15 +2525,11 @@ msgid "Promise"
 msgstr ""
 
 #. Label of a Select field in DocType 'Translation History Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
 msgid "Provider"
 msgstr "provider"
 
 #. Label of a Check field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Pull Request"
 msgstr ""
@@ -2813,8 +2557,8 @@ msgstr ""
 msgid "Push to Github"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Option for the 'Status' (Select) field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Queued"
 msgstr "Queued"
 
@@ -2828,10 +2572,6 @@ msgstr ""
 msgid "Raw Logs"
 msgstr ""
 
-#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21371
-msgid "React Version"
-msgstr ""
-
 #: translation_tools/override/client.py:82
 msgid "Read"
 msgstr ""
@@ -2841,12 +2581,9 @@ msgid "Recent Purchases"
 msgstr ""
 
 #: translation_tools/translation_tools/page/ai_translator/ai_translator.js:18
-msgid "Redirecting to Thai Translation Dashboard..."
+msgid "Redirecting to Translation Tools Selection..."
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34395
 #: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.js:10
 #: translation_tools/translation_tools/page/translation_dashboard/translation_dashboard.js:9
 #: translation_tools/translation_tools/page/translation_status/translation_status.js:35
@@ -2869,8 +2606,6 @@ msgid "Refreshing..."
 msgstr ""
 
 #. Option for the 'Status' (Select) field in DocType 'Token Purchase'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Refunded"
 msgstr ""
@@ -2893,8 +2628,6 @@ msgstr ""
 #. Label of a Data field in DocType 'GitHub Sync History Entry'
 #. Label of a Data field in DocType 'GitHub Sync Settings'
 #. Label of a Data field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
@@ -2914,19 +2647,17 @@ msgstr ""
 msgid "Reset Status"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Label of a Long Text field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Results"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Label of a Section Break field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Results & Logs"
 msgstr ""
 
 #. Label of a Int field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Retry Count"
 msgstr ""
@@ -2940,8 +2671,6 @@ msgid "Run complete translation workflow: Generate POT → Update PO → Compile
 msgstr ""
 
 #. Option for the 'Status' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:287
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Running"
@@ -2966,21 +2695,15 @@ msgid "SMS Settings"
 msgstr ""
 
 #. Option for the 'Default Font' (Select) field in DocType 'PDF Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
 msgid "Sarabun"
 msgstr ""
 
 #. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Saturday"
 msgstr "စနေနေ့"
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:384
 msgid "Save"
 msgstr "Save ကို"
@@ -3040,30 +2763,22 @@ msgid "Scanning..."
 msgstr ""
 
 #. Label of a Data field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Schedule Name"
 msgstr "ဇယားအမည်"
 
 #. Label of a Select field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Schedule Type"
 msgstr ""
 
 #. Option for the 'Sync Type' (Select) field in DocType 'GitHub Sync History
 #. Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Scheduled"
 msgstr "Scheduled"
 
 #. Label of a Section Break field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Scheduling"
 msgstr ""
@@ -3206,9 +2921,7 @@ msgid "Session Defaults"
 msgstr "session Defaults ကို"
 
 #. Label of a Card Break in the Integrations Workspace
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/config/translation_tools.py:13
-#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21384
+#: translation_tools/config/translation_tools.py:13
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:68
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Settings"
@@ -3239,8 +2952,6 @@ msgstr ""
 msgid "Setup Error"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.js:40
 msgid "Setup Required"
 msgstr ""
@@ -3274,36 +2985,26 @@ msgid "Sign Out"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'User Signature'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
 msgid "Signature"
 msgstr "လက်မှတ်"
 
 #. Label of a Attach Image field in DocType 'User Signature'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
 msgid "Signature Image"
 msgstr ""
 
 #. Label of a HTML field in DocType 'User Signature'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
 msgid "Signature Preview"
 msgstr ""
 
 #. Label of a Data field in DocType 'PDF Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
 msgid "Signature Storage Path"
 msgstr ""
 
 #. Label of a Data field in DocType 'User Signature'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
 msgid "Signature URL"
 msgstr ""
@@ -3311,6 +3012,11 @@ msgstr ""
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "Single UUID Generator"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Single UUID generation"
 msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
@@ -3333,22 +3039,16 @@ msgid "Some dependencies are missing. The setup script will attempt to install t
 msgstr ""
 
 #. Label of a Data field in DocType 'Translation History Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
 msgid "Source Language"
 msgstr ""
 
 #. Label of a Data field in DocType 'Translation Glossary Term'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Source Term"
 msgstr ""
 
 #. Label of a Small Text field in DocType 'Translation History Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
 msgid "Source Text"
 msgstr "source စာသား"
@@ -3362,8 +3062,8 @@ msgstr ""
 msgid "Standard advice"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Label of a Datetime field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Started At"
 msgstr ""
 
@@ -3372,13 +3072,14 @@ msgstr ""
 msgid "Starting..."
 msgstr ""
 
+#. Label of a Select field in DocType 'Bulk Translation Job'
 #. Label of a Select field in DocType 'GitHub Sync History Entry'
 #. Label of a Select field in DocType 'Token Purchase'
 #. Option for the 'Category' (Select) field in DocType 'Translation Glossary
 #. Term'
 #. Label of a Select field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/templates/pages/token_management.html:73
+#: translation_tools/templates/pages/token_management.html:73
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
@@ -3392,8 +3093,6 @@ msgid "Status: {0}"
 msgstr ""
 
 #. Label of a Data field in DocType 'Token Purchase'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Stripe Session ID"
 msgstr ""
@@ -3402,8 +3101,6 @@ msgstr ""
 #. Entry'
 #. Option for the 'Last Sync Status' (Select) field in DocType 'GitHub Sync
 #. Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Success"
@@ -3419,7 +3116,7 @@ msgstr ""
 msgid "Successfully connected to GitHub!"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1549
+#: translation_tools/api/po_files.py:1564
 msgid "Successfully pushed translations to GitHub"
 msgstr ""
 
@@ -3429,8 +3126,6 @@ msgid "Summary"
 msgstr "အကျဉ်းချုပ်"
 
 #. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Sunday"
 msgstr "တနင်္ဂနွေ"
@@ -3451,30 +3146,22 @@ msgid "Switch To Desk"
 msgstr ""
 
 #. Label of a Datetime field in DocType 'GitHub Sync History Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Sync Date/Time"
 msgstr ""
 
 #. Label of a Float field in DocType 'GitHub Sync History Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Sync Duration (seconds)"
 msgstr ""
 
 #. Label of a Select field in DocType 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Sync Frequency"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'GitHub Sync Settings'
 #. Label of a Table field in DocType 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Sync History"
 msgstr ""
@@ -3484,15 +3171,11 @@ msgid "Sync Now"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Sync Schedule"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Sync Status"
 msgstr ""
@@ -3503,8 +3186,6 @@ msgid "Sync Translations from GitHub"
 msgstr ""
 
 #. Label of a Select field in DocType 'GitHub Sync History Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Sync Type"
 msgstr ""
@@ -3548,8 +3229,7 @@ msgid "System"
 msgstr "စံနစ်"
 
 #. Name of a role
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 #: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 #: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
@@ -3569,8 +3249,6 @@ msgstr "system Manager က"
 
 #. Label of a Data field in DocType 'GitHub Sync Settings'
 #. Label of a Data field in DocType 'Translation History Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
 msgid "Target Language"
@@ -3578,15 +3256,11 @@ msgstr ""
 
 #. Option for the 'Category' (Select) field in DocType 'Translation Glossary
 #. Term'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Technical"
 msgstr ""
 
 #. Label of a Float field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Temperature"
 msgstr ""
@@ -3653,8 +3327,6 @@ msgid "Thai PDF Generator"
 msgstr ""
 
 #. Label of a Password field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Thai Tax Consultant License Key"
 msgstr ""
@@ -3665,14 +3337,10 @@ msgid "Thai Tax Consultant Tokens"
 msgstr ""
 
 #. Label of a Data field in DocType 'Translation Glossary Term'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "Thai Translation"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.js:5
 #: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.py:6
 #: translation_tools/translation_tools/page/thai_translation_dashboard/thai_translation_dashboard.py:7
@@ -3694,16 +3362,12 @@ msgstr ""
 
 #. Description of the 'Anthropic Model' (Data) field in DocType 'Translation
 #. Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "The Anthropic Claude model to use for translations"
 msgstr ""
 
 #. Description of the 'OpenAI Model' (Data) field in DocType 'Translation Tools
 #. Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "The OpenAI model to use for translations"
 msgstr ""
@@ -3722,8 +3386,8 @@ msgstr ""
 msgid "This action cannot be undone. The files will be backed up but removed from the application."
 msgstr ""
 
-#: translation_tools/www/thai_translation_dashboard.py:66
 #: translation_tools/www/translation_tools.py:19
+#: translation_tools/www/translation_tools_dashboard.py:112
 msgid "This method is only meant for developer mode"
 msgstr ""
 
@@ -3732,15 +3396,11 @@ msgid "This transaction is already processed"
 msgstr ""
 
 #. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Thursday"
 msgstr "ကြာသပတေးနေ့"
 
 #. Label of a Time field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Time"
 msgstr "အချိန်"
@@ -3766,30 +3426,23 @@ msgid "Toggle theme"
 msgstr ""
 
 #. Label of a Int field in DocType 'Token Package'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/token_package/token_package.json
 msgid "Token Amount"
 msgstr ""
 
 #. Label of a Int field in DocType 'User Tokens'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
+#: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
 msgid "Token Balance"
 msgstr ""
 
 #. Name of a DocType
 #. Label of a Link field in DocType 'Token Purchase'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/token_package/token_package.json
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Token Package"
 msgstr ""
 
 #. Name of a DocType
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Token Purchase"
 msgstr ""
@@ -3819,14 +3472,13 @@ msgstr ""
 msgid "Total"
 msgstr "စုစုပေါင်း"
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Label of a Int field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Total Apps"
 msgstr ""
 
 #. Label of a Int field in DocType 'PO File'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/translation_tools/doctype/po_file/po_file.json
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
 msgid "Total Entries"
 msgstr ""
 
@@ -3835,34 +3487,26 @@ msgstr ""
 msgid "Total Glossary Terms"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
+#. Label of a Int field in DocType 'Bulk Translation Job'
+#: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
 msgid "Total Locales"
-msgstr ""
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34282
-msgid "Total PO Files"
 msgstr ""
 
 #: translation_tools/templates/pages/token_management.html:21
 msgid "Total Purchased"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34298
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34346
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:37
 msgid "Total Strings"
 msgstr ""
 
 #. Label of a Int field in DocType 'User Tokens'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
+#: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
 msgid "Total Tokens Purchased"
 msgstr ""
 
 #. Label of a Int field in DocType 'User Tokens'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
+#: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
 msgid "Total Tokens Used"
 msgstr ""
 
@@ -3871,8 +3515,6 @@ msgid "Total Used"
 msgstr ""
 
 #. Label of a Data field in DocType 'Token Purchase'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Transaction ID"
 msgstr "ငွေသွင်းငွေထုတ် ID ကို"
@@ -3882,31 +3524,17 @@ msgstr "ငွေသွင်းငွေထုတ် ID ကို"
 msgid "Translate CSV"
 msgstr ""
 
-#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21377
-msgid "Translate File"
-msgstr ""
-
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34348
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:43
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:178
 msgid "Translated"
 msgstr ""
 
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34067
-msgid "Translated (%)"
-msgstr ""
-
 #. Label of a Int field in DocType 'PO File'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/translation_tools/doctype/po_file/po_file.json
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
 msgid "Translated Entries"
 msgstr ""
 
 #. Label of a Small Text field in DocType 'Translation History Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
 msgid "Translated Text"
 msgstr "ဘာသာပြန်ထားသောစာသား"
@@ -3927,21 +3555,16 @@ msgid "Translating..."
 msgstr ""
 
 #. Label of a Card Break in the Translation Tools Workspace
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
 msgid "Translation"
 msgstr "ဘာသာပြန်ချက်"
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/setup/create_workspace.py:65
+#: translation_tools/setup/create_workspace.py:65
 #: translation_tools/translation_tools/page/translation_dashboard/translation_dashboard.js:4
 msgid "Translation Dashboard"
 msgstr ""
 
 #. Label of a Datetime field in DocType 'Translation History Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
 msgid "Translation Date"
 msgstr ""
@@ -3968,23 +3591,18 @@ msgstr ""
 
 #. Name of a DocType
 #. Label of a Link in the Translation Tools Workspace
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/setup/create_workspace.py:82
+#: translation_tools/setup/create_workspace.py:82
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 #: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
 msgid "Translation Glossary Term"
 msgstr ""
 
 #. Label of a Table field in DocType 'Translation User Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
 msgid "Translation History"
 msgstr ""
 
 #. Name of a DocType
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
 msgid "Translation History Entry"
 msgstr ""
@@ -3999,8 +3617,6 @@ msgid "Translation Management"
 msgstr ""
 
 #. Name of a role
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Translation Manager"
 msgstr ""
@@ -4016,8 +3632,6 @@ msgid "Translation Options"
 msgstr ""
 
 #. Name of a DocType
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 msgid "Translation PDF Settings"
 msgstr ""
@@ -4028,8 +3642,6 @@ msgid "Translation Parameters"
 msgstr ""
 
 #. Label of a number card in the Translation Tools Workspace
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
 msgid "Translation Progress"
 msgstr ""
@@ -4037,23 +3649,17 @@ msgstr ""
 #. Name of a DocType
 #. Label of a Link in the Translation Tools Workspace
 #. Label of a shortcut in the Translation Tools Workspace
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 #: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
 msgid "Translation Schedule"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Translation Settings"
 msgstr ""
 
 #. Name of a DocType
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_settings_custom_font/translation_settings_custom_font.json
 msgid "Translation Settings Custom Font"
 msgstr ""
@@ -4062,8 +3668,7 @@ msgstr ""
 #. Label of a chart in the Translation Tools Workspace
 #. Label of a Link in the Translation Tools Workspace
 #. Label of a shortcut in the Translation Tools Workspace
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/translation_tools/doctype/po_file/po_file.json
+#: translation_tools/translation_tools/doctype/po_file/po_file.json
 #: translation_tools/translation_tools/page/translation_status/translation_status.js:4
 #: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
 msgid "Translation Status"
@@ -4071,8 +3676,6 @@ msgstr ""
 
 #. Name of a report
 #. Label of a Link in the Translation Tools Workspace
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.json
 #: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
 msgid "Translation Status Report"
@@ -4080,8 +3683,7 @@ msgstr ""
 
 #. Label of a Link in the Integrations Workspace
 #. Name of a Workspace
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/config/desktop.py:11
+#: translation_tools/config/desktop.py:11
 #: translation_tools/config/translation_tools.py:7
 #: translation_tools/desktop/config.py:9
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
@@ -4096,19 +3698,16 @@ msgstr ""
 #. Name of a DocType
 #. Label of a Link in the Integrations Workspace
 #. Label of a Link in the Translation Tools Workspace
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 #: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
 msgid "Translation Tools Settings"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1612
+#: translation_tools/api/po_files.py:1627
 msgid "Translation Tools Settings doctype does not exist. Please contact administrator."
 msgstr ""
 
-#: translation_tools/public/dist/js/translation_tools.app.bundle.2UJUURKA.js:29
 #: translation_tools/public/js/app.js:57
 msgid "Translation Tools link added successfully!"
 msgstr ""
@@ -4126,8 +3725,6 @@ msgid "Translation Tools was installed, but with some configuration issues:"
 msgstr ""
 
 #. Name of a DocType
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
 msgid "Translation User Settings"
 msgstr ""
@@ -4158,11 +3755,6 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
-msgid "Translation system specifically for CSV files. Perfect for batch processing of large amounts of data"
-msgstr ""
-
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 msgid "Translations saved successfully"
 msgstr ""
 
@@ -4176,16 +3768,12 @@ msgid "Try Again"
 msgstr ""
 
 #. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Tuesday"
 msgstr "အင်္ဂါနေ့"
 
 #. Option for the 'Category' (Select) field in DocType 'Translation Glossary
 #. Term'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
 msgid "UI"
 msgstr ""
@@ -4221,8 +3809,6 @@ msgid "UUIDs downloaded!"
 msgstr ""
 
 #. Label of a Int field in DocType 'GitHub Sync History Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Unchanged"
 msgstr "မပြောင်းလဲ"
@@ -4231,16 +3817,10 @@ msgstr "မပြောင်းလဲ"
 msgid "Unsupported model provider: {0}"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:49
 #: translation_tools/translation_tools/report/translation_status_report/translation_status_report.py:179
 msgid "Untranslated"
 msgstr "ဘာသာပြန်ခြင်း"
-
-#: translation_tools/public/dist/translation_status.bundle.FRMPF2JU.js:34073
-msgid "Untranslated (%)"
-msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -4267,8 +3847,6 @@ msgid "Update the translation glossary term."
 msgstr ""
 
 #. Label of a Int field in DocType 'GitHub Sync History Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Updated"
 msgstr "Updated"
@@ -4290,8 +3868,6 @@ msgstr ""
 
 #. Description of the 'Signature Image' (Attach Image) field in DocType 'User
 #. Signature'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
 msgid "Upload your signature image (PNG format recommended)"
 msgstr ""
@@ -4305,8 +3881,6 @@ msgstr ""
 #. Label of a Link field in DocType 'Translation User Settings'
 #. Label of a Link field in DocType 'User Signature'
 #. Label of a Link field in DocType 'User Tokens'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
@@ -4320,22 +3894,17 @@ msgid "User Forum"
 msgstr ""
 
 #. Label of a Data field in DocType 'User Signature'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
 msgid "User Full Name"
 msgstr ""
 
 #. Name of a DocType
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
 msgid "User Signature"
 msgstr ""
 
 #. Name of a DocType
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
+#: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
 msgid "User Tokens"
 msgstr ""
 
@@ -4346,10 +3915,6 @@ msgstr ""
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:39
 msgid "View Full Log"
-msgstr ""
-
-#: translation_tools/public/dist/thai_translator.bundle.PQ5PZTUG.js:21391
-msgid "View Glossary"
 msgstr ""
 
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.js:15
@@ -4363,15 +3928,11 @@ msgstr "view ဝက်ဘ်ဆိုက်"
 
 #. Option for the 'PDF Generation Method' (Select) field in DocType
 #. 'Translation PDF Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 msgid "WeasyPrint"
 msgstr ""
 
 #. Label of a Data field in DocType 'Translation PDF Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 msgid "WeasyPrint Path"
 msgstr ""
@@ -4382,23 +3943,17 @@ msgid "Webhook"
 msgstr ""
 
 #. Option for the 'Weekday' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Wednesday"
 msgstr "ဗုဒ္ဓဟူးနေ့"
 
 #. Label of a Select field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Weekday"
 msgstr "WEEKDAY"
 
 #. Option for the 'Schedule Type' (Select) field in DocType 'Translation
 #. Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Weekly"
 msgstr "ရက်သတ္တပတ်တကြိမ်ဖြစ်သော"
@@ -4413,11 +3968,6 @@ msgstr ""
 msgid "You can create a token at"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
-msgid "You can navigate between both tools anytime via the left sidebar"
-msgstr ""
-
 #: translation_tools/override/client.py:33
 msgid "You do not have Read or Select Permissions for {}"
 msgstr ""
@@ -4426,7 +3976,7 @@ msgstr ""
 msgid "You do not have permission to use the translation tools"
 msgstr ""
 
-#: translation_tools/api/po_files.py:1603
+#: translation_tools/api/po_files.py:1618
 msgid "You don't have permission to modify Translation Tools Settings"
 msgstr ""
 
@@ -4456,48 +4006,36 @@ msgid "ai-translator"
 msgstr ""
 
 #. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "all"
 msgstr ""
 
 #. Option for the 'Default Model Provider' (Select) field in DocType
 #. 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "anthropic"
 msgstr ""
 
 #. Option for the 'Provider' (Select) field in DocType 'Translation History
 #. Entry'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
 msgid "claude"
 msgstr ""
 
 #. Option for the 'Command Type' (Select) field in DocType 'Translation
 #. Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "compile_mo"
 msgstr ""
 
 #. Option for the 'Sync Frequency' (Select) field in DocType 'GitHub Sync
 #. Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "custom"
 msgstr ""
 
 #. Option for the 'Sync Frequency' (Select) field in DocType 'GitHub Sync
 #. Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "daily"
 msgstr ""
@@ -4505,8 +4043,6 @@ msgstr ""
 #. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
 #. Option for the 'Preferred Language' (Select) field in DocType 'Translation
 #. User Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
 msgid "de"
@@ -4518,15 +4054,11 @@ msgstr ""
 
 #. Description of the 'Cron Expression' (Data) field in DocType 'Translation
 #. Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "e.g., '0 2 * * *' for 2 AM daily, '0 0 * * 1' for Monday midnight"
 msgstr ""
 
 #. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "en"
 msgstr ""
@@ -4534,8 +4066,6 @@ msgstr ""
 #. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
 #. Option for the 'Preferred Language' (Select) field in DocType 'Translation
 #. User Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
 msgid "es"
@@ -4544,8 +4074,6 @@ msgstr ""
 #. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
 #. Option for the 'Preferred Language' (Select) field in DocType 'Translation
 #. User Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
 msgid "fr"
@@ -4553,39 +4081,29 @@ msgstr ""
 
 #. Option for the 'Command Type' (Select) field in DocType 'Translation
 #. Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "full_workflow"
 msgstr ""
 
 #. Option for the 'Command Type' (Select) field in DocType 'Translation
 #. Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "generate_pot"
 msgstr ""
 
 #. Option for the 'Conflict Resolution Strategy' (Select) field in DocType
 #. 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "github_wins"
 msgstr ""
 
 #. Option for the 'Sync Frequency' (Select) field in DocType 'GitHub Sync
 #. Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "hourly"
 msgstr ""
 
 #. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "it"
 msgstr ""
@@ -4593,8 +4111,6 @@ msgstr ""
 #. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
 #. Option for the 'Preferred Language' (Select) field in DocType 'Translation
 #. User Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
 msgid "ja"
@@ -4603,8 +4119,6 @@ msgstr ""
 #. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
 #. Option for the 'Preferred Language' (Select) field in DocType 'Translation
 #. User Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
 msgid "ko"
@@ -4612,24 +4126,18 @@ msgstr ""
 
 #. Option for the 'Conflict Resolution Strategy' (Select) field in DocType
 #. 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "local_wins"
 msgstr ""
 
 #. Option for the 'Conflict Resolution Strategy' (Select) field in DocType
 #. 'GitHub Sync Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "manual_review"
 msgstr ""
 
 #. Option for the 'Command Type' (Select) field in DocType 'Translation
 #. Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "migrate_csv_to_po"
 msgstr ""
@@ -4638,8 +4146,6 @@ msgstr ""
 #. Entry'
 #. Option for the 'Default Model Provider' (Select) field in DocType
 #. 'Translation Tools Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "openai"
@@ -4656,21 +4162,15 @@ msgid "pdf-override"
 msgstr ""
 
 #. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "pt"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/page/resend_integration/resend_integration.js:4
 msgid "resend-integration"
 msgstr ""
 
 #. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "ru"
 msgstr ""
@@ -4683,8 +4183,6 @@ msgstr ""
 #. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
 #. Option for the 'Preferred Language' (Select) field in DocType 'Translation
 #. User Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
 msgid "th"
@@ -4706,65 +4204,50 @@ msgstr ""
 msgid "translation-status"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/page/translation_tools/translation_tools.js:11
 msgid "translation-tools"
 msgstr ""
 
-#. Extracted from SPA (React/TypeScript) files
-#: SPA translation_tools/translation_tools/page/translator/translator.js:4
+#: translation_tools/translation_tools/page/translator/translator.js:4
 msgid "translator"
 msgstr ""
 
 #. Option for the 'Command Type' (Select) field in DocType 'Translation
 #. Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "update_po"
 msgstr ""
 
 #. Option for the 'Preferred Language' (Select) field in DocType 'Translation
 #. User Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
 msgid "vi"
 msgstr ""
 
 #. Option for the 'Sync Frequency' (Select) field in DocType 'GitHub Sync
 #. Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "weekly"
 msgstr ""
 
 #. Option for the 'PDF Generation Method' (Select) field in DocType
 #. 'Translation PDF Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
 msgid "wkhtmltopdf"
 msgstr ""
 
 #. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "zh"
 msgstr ""
 
 #. Option for the 'Preferred Language' (Select) field in DocType 'Translation
 #. User Settings'
-#. Extracted from SPA (React/TypeScript) files
-#: SPA
 #: translation_tools/translation_tools/doctype/translation_user_settings/translation_user_settings.json
 msgid "zh-CN"
 msgstr ""
 
 #: translation_tools/translation_tools/page/ai_translator/ai_translator.js:15
-msgid "กำลังเปลี่ยนเส้นทางไปยังแดชบอร์ดการแปลภาษาไทย..."
+msgid "กำลังเปลี่ยนเส้นทางไปยังหน้าเลือกเครื่องมือแปลภาษา..."
 msgstr ""
 

@@ -133,6 +133,7 @@ function SidebarProvider({
     <SidebarContext.Provider value={contextValue}>
       <TooltipProvider delayDuration={0}>
         <div
+          id="sidebar__context__first__div"
           style={
             {
               '--sidebar-width': SIDEBAR_WIDTH,
@@ -718,9 +719,12 @@ const AppSidebar = React.forwardRef<
   ];
 
   return (
-    <Sidebar collapsible="icon" {...props} ref={ref}>
+    <Sidebar id="sidebar__app__wrapper" collapsible="icon" {...props} ref={ref}>
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-4 py-2">
+        <div
+          id="sidebar__app__header__first__div"
+          className="flex items-center gap-2 px-4 py-2 transition-all duration-300 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-3 group-data-[collapsible=icon]:justify-center"
+        >
           <div className="flex items-center">
             <img
               src={tbsLogo}

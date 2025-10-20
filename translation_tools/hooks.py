@@ -68,7 +68,8 @@ after_uninstall = "translation_tools.uninstall.after_uninstall"
 commands = [
     "translation_tools.commands.compile_mo_files",
     "translation_tools.commands.update_translations",
-    "translation_tools.commands.migrate_csv_with_spa"  # CSV to PO migration with SPA support
+    "translation_tools.commands.migrate_csv_with_spa",  # CSV to PO migration with SPA support
+    "translation_tools.commands.gen_po",  # Generate PO files for custom apps
 ]
 
 website_route_rules = [
@@ -83,7 +84,7 @@ website_route_rules = [
     {
         "from_route": "/translation_tools_dashboard",
         "to_route": "translation_tools_dashboard",
-    }
+    },
 ]
 
 app_include_js = [
@@ -171,7 +172,7 @@ scheduler_events = {
         # Note: MO compilation removed - redundant with Frappe's native bench build-message-files
         "0 17 * * *": [
             "translation_tools.tasks.github_auto_sync.check_and_run_auto_sync"
-        ]
+        ],
     },
     # Daily tasks
     "daily": [
@@ -182,10 +183,10 @@ scheduler_events = {
     # Hourly safety check for missed schedules
     "hourly": [
         "translation_tools.tasks.translation_scheduler.run_missed_schedules",
-        "translation_tools.api.po_files.auto_refresh_stale_po_files"
+        "translation_tools.api.po_files.auto_refresh_stale_po_files",
     ],
     # Daily long-running tasks
     "daily_long": [
         "translation_tools.tasks.translation_scheduler.run_daily_translation_workflows"
-    ]
+    ],
 }

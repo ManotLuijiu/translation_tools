@@ -8,3 +8,4 @@ setup_translation_override()
 from .compile_mo_files import *
 from .update_translations import *
 from .cleanup_translations import cleanup_non_asean_translations
+from .gen_po import *  # Generate PO files command

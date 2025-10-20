@@ -66,7 +66,10 @@ const MainContent: React.FC<{
   return (
     <main className="flex flex-1 flex-col transition-all duration-300 ease-in-out antialiased h-screen">
       {/* Header with sidebar trigger and controls - mobile-optimized */}
-      <div className="flex items-center justify-between p-2 sm:p-4 border-b shrink-0">
+      <div
+        id="main__first__div"
+        className="flex items-center justify-between p-2 sm:p-4 border-b shrink-0"
+      >
         <div className="flex items-center gap-1 sm:gap-2">
           <SidebarTrigger />
           <h1 className="text-base sm:text-lg font-semibold">
@@ -85,7 +88,7 @@ const MainContent: React.FC<{
       </div>
 
       {/* Content area with responsive padding - mobile-first */}
-      <div className="flex-1 min-h-0 rounded-[0.5rem] bg-sidebar-accent/50 p-2 sm:p-4 md:p-6 overflow-y-scroll">
+      <div className="flex-1 min-h-0 bg-sidebar-accent/50 p-2 sm:p-4 md:p-6 overflow-y-scroll">
         <Suspense fallback={<LoadingSkeleton />}>
           <Routes>
             <Route path="/" element={<LandingPage />} />
