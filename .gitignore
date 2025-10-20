@@ -34,3 +34,4 @@ yarn-error.log*
 CLAUDE.md
 
 # translation_tools/locale/th.po
+translation_tools/public/images/local/
