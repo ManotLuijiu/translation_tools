@@ -51,10 +51,11 @@ after_install = [
 
 # Migration
 after_migrate = [
-    "translation_tools.setup.update_workspace.rebuild_workspace",
+    # "translation_tools.setup.update_workspace.rebuild_workspace",  # REDUNDANT - replaced by workspace_manager API
     "translation_tools.utils.migration_translations.run_translation_commands_after_migrate",
     "translation_tools.utils.auto_extract.auto_extract_all_custom_apps",  # Auto-extract SPA translations for all languages
     "translation_tools.utils.csv_to_po_with_spa.auto_migrate_csv_to_po",  # Auto-migrate CSV to PO (creates locale/ folder)
+    "translation_tools.api.workspace_manager.setup_translation_tools",  # Setup workspace links using new API
 ]
 
 # Uninstallation
@@ -129,25 +130,12 @@ desk_page = {
 }
 
 
-# Fixtures: export workspace so your link stays after migration/restart
-fixtures = [
-    {"doctype": "Workspace", "filters": [["name", "=", "Integrations"]]},
-    # {"doctype": "Language", "filters": [["name", "in", ["en", "th"]]]},
-    # {"dt": "Workspace", "filters": [["name", "=", "Integrations"]]},
-    # {"dt": "Number Card", "filters": [["module", "=", "Translation Tools"]]},
-    # {"dt": "Dashboard Chart", "filters": [["module", "=", "Translation Tools"]]},
-    # {"doctype": "Workspace", "filters": [["name", "=", "Translation Tools"]]},
-    # {"dt": "Page", "filters": [["name", "=", "translation-tools"]]},
-    # {"dt": "Custom Field", "filters": [["dt", "in", ["Print Settings", "Company"]]]},
-    # {
-    #     "doctype": "Property Setter",
-    #     "filters": [
-    #         ["doc_type", "=", "Print Format"],
-    #         ["field_name", "=", "pdf_generator"],
-    #         ["property", "=", "options"],
-    #     ],
-    # },
-]
+# Fixtures: using API approach instead
+# Note: Workspace management now uses the centralized API in api/workspace_manager.py
+# This avoids fixture conflicts and provides better cross-app integration
+# fixtures = [  # Commented out - using API approach instead
+#     {"doctype": "Workspace", "filters": [["name", "=", "Integrations"]]},
+# ]
 
 # Include Thai font files
 # app_include_fonts = [
