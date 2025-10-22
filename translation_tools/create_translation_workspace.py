@@ -1,3 +1,18 @@
+"""
+⚠️  OBSOLETE - DO NOT USE THIS FILE ⚠️
+
+This script has been replaced by the centralized workspace management system:
+- New API: translation_tools.api.workspace_manager.WorkspaceManager
+- Cross-app support for thai_business_suite and translation_tools
+- Persistent workspace links across migrations
+- Better error handling and logging
+
+Please use the new API approach instead.
+See: test_workspace_consolidation.py for usage examples.
+
+=== DEPRECATED CODE BEGINS (DO NOT USE) ===
+"""
+
 import os
 import sys
 import frappe
@@ -14,6 +29,7 @@ def boot_frappe(site_name="moo.localhost"):
     frappe.init(site=site_name)
     frappe.connect()
     print("✅ Frappe booted for site:", site_name)
+    print("⚠️  WARNING: This script is obsolete! Use workspace_manager API instead.")
 
 
 # Step 2: Teardown
