@@ -64,42 +64,46 @@ const MainContent: React.FC<{
   }, [location.pathname, setCurrentTab]);
 
   return (
-    <main className="flex flex-1 flex-col transition-all duration-300 ease-in-out antialiased h-screen">
+    <main className="flex flex-1 flex-col transition-all duration-300 ease-in-out antialiased h-screen w-full overflow-y-auto overflow-x-hidden">
       {/* Header with sidebar trigger and controls - mobile-optimized */}
       <div
         id="main__first__div"
-        className="flex items-center justify-between p-2 sm:p-4 border-b shrink-0"
+        className="border-b shrink-0 p-2 sm:p-4 md:p-6 w-full"
       >
-        <div className="flex items-center gap-1 sm:gap-2">
-          <SidebarTrigger />
-          <h1 className="text-base sm:text-lg font-semibold">
-            Translation Tools
-          </h1>
-          {/* Hide breadcrumbs on small screens */}
-          <div className="hidden md:block">
-            <AppBreadcrumbs currentTab={currentTab} />
+        <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <SidebarTrigger />
+            <h1 className="text-base sm:text-lg font-semibold">
+              Translation Tools
+            </h1>
+            {/* Hide breadcrumbs on small screens */}
+            <div className="hidden md:block">
+              <AppBreadcrumbs currentTab={currentTab} />
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-1 sm:gap-2">
-          <ModeToggle />
-          <LanguageToggle />
-          <NavUserDropdown />
+          <div className="flex items-center gap-1 sm:gap-2">
+            <ModeToggle />
+            <LanguageToggle />
+            <NavUserDropdown />
+          </div>
         </div>
       </div>
 
       {/* Content area with responsive padding - mobile-first */}
-      <div className="flex-1 min-h-0 bg-sidebar-accent/50 p-2 sm:p-4 md:p-6 overflow-y-scroll">
-        <Suspense fallback={<LoadingSkeleton />}>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route
-              path="/asean-translations"
-              element={<ASEANTranslationsPage onTabChange={setCurrentTab} />}
-            />
-            <Route path="/csv-translations" element={<CSVTranslationsPage />} />
-            <Route path="/uuid-generator" element={<UUIDGeneratorPage />} />
-          </Routes>
-        </Suspense>
+      <div className="flex-1 bg-sidebar-accent/50 w-full">
+        <div className="container mx-auto px-2 sm:px-4 md:px-6 py-2 sm:py-4 md:py-6">
+          <Suspense fallback={<LoadingSkeleton />}>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route
+                path="/asean-translations"
+                element={<ASEANTranslationsPage onTabChange={setCurrentTab} />}
+              />
+              <Route path="/csv-translations" element={<CSVTranslationsPage />} />
+              <Route path="/uuid-generator" element={<UUIDGeneratorPage />} />
+            </Routes>
+          </Suspense>
+        </div>
       </div>
     </main>
   );
@@ -122,25 +126,23 @@ const App: React.FC = () => {
     : '/translation_tools_dashboard';
 
   return (
-    <div className="h-screen w-full flex justify-center overflow-hidden">
-      <div className="w-full max-w-[1400px] h-full">
-        <BrowserRouter basename={basename}>
-          <AutoSaveProvider>
-            <SidebarProvider>
-              {/* Sidebar - collapsible with icon-only mode */}
-              <AppSidebar />
+    <div className="h-screen w-full overflow-hidden">
+      <BrowserRouter basename={basename}>
+        <AutoSaveProvider>
+          <SidebarProvider>
+            {/* Sidebar - collapsible with icon-only mode */}
+            <AppSidebar />
 
-              {/* Main content area with sidebar-aware styling */}
-              <MainContent
-                currentTab={currentTab}
-                setCurrentTab={setCurrentTab}
-              />
+            {/* Main content area with sidebar-aware styling */}
+            <MainContent
+              currentTab={currentTab}
+              setCurrentTab={setCurrentTab}
+            />
 
-              <Toaster />
-            </SidebarProvider>
-          </AutoSaveProvider>
-        </BrowserRouter>
-      </div>
+            <Toaster />
+          </SidebarProvider>
+        </AutoSaveProvider>
+      </BrowserRouter>
     </div>
   );
 };
