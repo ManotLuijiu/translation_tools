@@ -154,7 +154,9 @@ export default function TranslationEditor({
     console.log('📝 onRefreshFunctionReady exists:', !!onRefreshFunctionReady);
     console.log('📝 mutate function exists:', !!mutate);
     if (onRefreshFunctionReady) {
-      console.log('📝 TranslationEditor: Calling onRefreshFunctionReady with mutate function');
+      console.log(
+        '📝 TranslationEditor: Calling onRefreshFunctionReady with mutate function'
+      );
       onRefreshFunctionReady(mutate);
     }
   }, [onRefreshFunctionReady, mutate]);
@@ -373,77 +375,105 @@ export default function TranslationEditor({
       if (result.data && typeof result.data === 'string') {
         try {
           const parsedData = JSON.parse(result.data);
-          if (parsedData.message && parsedData.message.success && parsedData.message.translation) {
+          if (
+            parsedData.message &&
+            parsedData.message.success &&
+            parsedData.message.translation
+          ) {
             translationData = parsedData.message.translation;
           }
         } catch (e) {
           console.log('Failed to parse data field:', e);
         }
       }
-      
+
       // Fallback to direct message structure
-      if (!translationData && result.message && typeof result.message === 'object') {
+      if (
+        !translationData &&
+        result.message &&
+        typeof result.message === 'object'
+      ) {
         if (result.message.success && result.message.translation) {
           translationData = result.message.translation;
         } else if (result.message.error) {
           errorMessage = result.message.error;
         }
       }
-      
+
       // Handle successful translation
       if (translationData) {
         // Robust Unicode decode handling for multiple levels of escaping
         let translation = translationData;
         console.log('Raw translation data:', translation);
         console.log('Raw translation repr:', JSON.stringify(translation));
-        
+
         try {
           // Handle multiple levels of Unicode escaping from OpenAI inconsistency
           let iterations = 0;
           const maxIterations = 5; // Prevent infinite loops
-          
+
           while (translation.includes('\\u') && iterations < maxIterations) {
             const beforeDecoding = translation;
-            
+
             // First, handle quadruple backslashes (\\\\u) -> double backslashes (\\u)
             if (translation.includes('\\\\\\\\u')) {
-              translation = translation.replace(/\\\\\\\\u([0-9a-fA-F]{4})/g, '\\\\u$1');
-              console.log(`Fixed quadruple escapes (iteration ${iterations}):`, translation);
+              translation = translation.replace(
+                /\\\\\\\\u([0-9a-fA-F]{4})/g,
+                '\\\\u$1'
+              );
+              console.log(
+                `Fixed quadruple escapes (iteration ${iterations}):`,
+                translation
+              );
             }
-            
-            // Handle double backslashes (\\u) -> single backslashes (\u)  
+
+            // Handle double backslashes (\\u) -> single backslashes (\u)
             if (translation.includes('\\\\u')) {
-              translation = translation.replace(/\\\\u([0-9a-fA-F]{4})/g, '\\u$1');
-              console.log(`Fixed double escapes (iteration ${iterations}):`, translation);
+              translation = translation.replace(
+                /\\\\u([0-9a-fA-F]{4})/g,
+                '\\u$1'
+              );
+              console.log(
+                `Fixed double escapes (iteration ${iterations}):`,
+                translation
+              );
             }
-            
+
             // Decode Unicode escape sequences
             if (translation.includes('\\u')) {
               try {
                 // Use JSON.parse to decode Unicode sequences
-                translation = JSON.parse(`"${translation.replace(/"/g, '\\"')}"`);
-                console.log(`Decoded Unicode (iteration ${iterations}):`, translation);
+                translation = JSON.parse(
+                  `"${translation.replace(/"/g, '\\"')}"`
+                );
+                console.log(
+                  `Decoded Unicode (iteration ${iterations}):`,
+                  translation
+                );
               } catch (parseError) {
                 console.log('Unicode decode failed, stopping:', parseError);
                 break;
               }
             }
-            
+
             // If no change occurred, stop to avoid infinite loop
             if (beforeDecoding === translation) {
               console.log('No more changes, stopping decode loop');
               break;
             }
-            
+
             iterations++;
           }
-          
-          console.log(`Final decoded translation (${iterations} iterations):`, translation);
+
+          console.log(
+            `Final decoded translation (${iterations} iterations):`,
+            translation
+          );
         } catch (e) {
           console.error('Unicode decoding error:', e);
           console.log('Using original translation data');
         }
-        
+
         setEditedTranslation(translation);
         showMessage('Translation completed', 'success');
 
@@ -453,7 +483,7 @@ export default function TranslationEditor({
         }
         return;
       }
-      
+
       // Handle error cases
       if (errorMessage) {
         console.error('Translation error:', errorMessage);
@@ -462,7 +492,8 @@ export default function TranslationEditor({
       }
 
       // Fallback error handling
-      const fallbackError = result?.error || result?.message?.error || 'Translation failed';
+      const fallbackError =
+        result?.error || result?.message?.error || 'Translation failed';
       console.error('Translation error:', fallbackError);
       showMessage(fallbackError, 'error');
     } catch (err: unknown) {
@@ -717,7 +748,9 @@ export default function TranslationEditor({
 
         // Also refresh FileExplorer live statistics to update progress bars
         if (onFileStatsChange) {
-          console.log('📊 TranslationEditor: Manual save complete, refreshing FileExplorer live statistics');
+          console.log(
+            '📊 TranslationEditor: Manual save complete, refreshing FileExplorer live statistics'
+          );
           onFileStatsChange();
         }
       } else {
@@ -894,13 +927,15 @@ export default function TranslationEditor({
     <div className="space-y-6 max-w-full">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="min-w-0">
-          <h2 className="text-2xl font-bold truncate">{selectedFile.filename}</h2>
+          <h2 className="text-2xl font-bold truncate">
+            {selectedFile.filename}
+          </h2>
           <p className="text-muted-foreground">app: {selectedFile.app}</p>
         </div>
 
-        <div>
+        <div className="min-w-0 w-full md:w-auto">
           {/* Pagination Controls */}
-          <div className="p-3 flex items-center justify-between space-x-2">
+          <div className="p-2 sm:p-3 flex flex-col sm:flex-row items-center justify-between gap-2">
             <div className="text-sm text-muted-foreground">
               {totalEntries > 0 ? (
                 <span>
@@ -912,7 +947,7 @@ export default function TranslationEditor({
                 <span>{__('0 entries')}</span>
               )}
             </div>
-            <div className="flex space-x-1">
+            <div className="flex gap-1">
               <Button
                 variant="outline"
                 size="sm"
@@ -942,8 +977,8 @@ export default function TranslationEditor({
 
       {/* Separate Manual or AI Mode */}
       {translationMode === 'manual' ? (
-        <div className="flex gap-4 min-w-0 overflow-x-auto">
-          <div className="w-full md:w-1/3 rounded-lg border min-w-0">
+        <div className="flex flex-col lg:flex-row gap-4 min-w-0">
+          <div className="w-full lg:w-1/3 lg:max-w-1/3 rounded-lg border">
             <div className="border-b p-4">
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="font-medium">Entries</h3>
@@ -1025,7 +1060,7 @@ export default function TranslationEditor({
             </div>
           </div>
 
-          <div className="w-full md:w-2/3 flex-1 min-w-0">
+          <div className="w-full lg:w-2/3 lg:max-w-2/3 flex-1 min-w-0">
             {selectedEntry ? (
               <Card>
                 <CardHeader>
@@ -1380,7 +1415,9 @@ export default function TranslationEditor({
             mutate();
             // Also refresh FileExplorer live statistics to update progress bars
             if (onFileStatsChange) {
-              console.log('📊 TranslationEditor: Calling onFileStatsChange to refresh FileExplorer live statistics');
+              console.log(
+                '📊 TranslationEditor: Calling onFileStatsChange to refresh FileExplorer live statistics'
+              );
               onFileStatsChange();
             }
           }}

@@ -127,7 +127,7 @@ export default function Dashboard({ onTabChange }: DashboardProps = {}) {
   // Show setup prompt if needed
   if (setupStatus && !setupStatus.complete && !isSettingUp && isReady) {
     return (
-      <div className="container mx-auto max-w-3xl py-12">
+      <div className="xl:container xl:mx-auto xl:max-w-3xl py-12">
         <Alert variant="destructive" className="mb-8">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>{__('Setup Required')}</AlertTitle>
@@ -169,7 +169,7 @@ export default function Dashboard({ onTabChange }: DashboardProps = {}) {
 
   return (
     <>
-      <div className="container mx-auto py-6">
+      <div id="dashboard__wrapper" className="xl:container xl:mx-auto xl:py-6">
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">

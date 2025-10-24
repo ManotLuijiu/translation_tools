@@ -246,7 +246,7 @@ def get_po_file_entries_paginated(
                     "msgid": entry.msgid,
                     "msgstr": entry.msgstr if hasattr(entry, "msgstr") else "",
                     "is_translated": (
-                        bool(entry.msgstr) if hasattr(entry, "msgstr") else False
+                        bool(entry.msgstr and entry.msgstr.strip()) if hasattr(entry, "msgstr") else False
                     ),
                     "context": entry.msgctxt if hasattr(entry, "msgctxt") else None,
                     "comments": entry.comment if hasattr(entry, "comment") else [],
@@ -1061,7 +1061,7 @@ def get_po_file_entries(file_path):
                     "id": str(i),  # Use index as ID
                     "msgid": entry.msgid,
                     "msgstr": entry.msgstr,
-                    "is_translated": bool(entry.msgstr),
+                    "is_translated": bool(entry.msgstr and entry.msgstr.strip()),
                     "comments": (
                         [c for c in entry.comment.split("\n") if c]
                         if entry.comment
@@ -1130,7 +1130,7 @@ def get_po_file_contents(file_path, limit=100, offset=0):
                 {
                     "msgid": entry.msgid,
                     "msgstr": entry.msgstr,
-                    "is_translated": bool(entry.msgstr),
+                    "is_translated": bool(entry.msgstr and entry.msgstr.strip()),
                     "is_fuzzy": "fuzzy" in entry.flags,
                     "entry_type": (
                         "fuzzy"

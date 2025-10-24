@@ -27,21 +27,21 @@ export default function TranslationStats({ stats }: TranslationStatsProps) {
   }
 
   return (
-    <div className="flex items-center space-x-4">
+    <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
       <div className="text-center">
-        <div className="text-2xl font-bold text-sky-600">{stats.total}</div>
+        <div className="text-xl sm:text-2xl font-bold text-sky-600">{stats.total}</div>
         <div className="text-muted-foreground text-xs">{__('Total')}</div>
       </div>
 
       <div className="text-center">
-        <div className="text-2xl font-bold text-green-600 dark:text-green-500">
+        <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-500">
           {stats.translated}
         </div>
         <div className="text-muted-foreground text-xs">{__('Translated')}</div>
       </div>
 
       <div className="text-center">
-        <div className="text-2xl font-bold text-orange-600 dark:text-orange-500">
+        <div className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-500">
           {stats.untranslated}
         </div>
         <div className="text-muted-foreground text-xs">
@@ -49,7 +49,7 @@ export default function TranslationStats({ stats }: TranslationStatsProps) {
         </div>
       </div>
 
-      <div className="w-48">
+      <div className="w-full sm:w-48">
         <div className="mb-1 flex justify-between">
           <span className="text-sm font-medium">{__('Progress')}</span>
           <span className="text-sm font-medium">
