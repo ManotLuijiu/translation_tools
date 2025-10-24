@@ -64,13 +64,16 @@ const MainContent: React.FC<{
   }, [location.pathname, setCurrentTab]);
 
   return (
-    <main className="flex flex-1 flex-col transition-all duration-300 ease-in-out antialiased h-screen w-full overflow-y-auto overflow-x-hidden">
+    <main className="flex flex-1 flex-col transition-all duration-300 ease-in-out antialiased h-screen w-full overflow-y-auto">
       {/* Header with sidebar trigger and controls - mobile-optimized */}
       <div
         id="main__first__div"
-        className="border-b shrink-0 p-2 sm:p-4 md:p-6 w-full"
+        className="border-b shrink-0 p-2 sm:p-4 w-full"
       >
-        <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between">
+        <div
+          id="main__second__div"
+          className="flex items-center justify-between"
+        >
           <div className="flex items-center gap-1 sm:gap-2">
             <SidebarTrigger />
             <h1 className="text-base sm:text-lg font-semibold">
@@ -91,7 +94,7 @@ const MainContent: React.FC<{
 
       {/* Content area with responsive padding - mobile-first */}
       <div className="flex-1 bg-sidebar-accent/50 w-full">
-        <div className="container mx-auto px-2 sm:px-4 md:px-6 py-2 sm:py-4 md:py-6">
+        <div className="xl:container xl:mx-auto px-2 sm:px-4 md:px-6 py-2 sm:py-4 md:py-6">
           <Suspense fallback={<LoadingSkeleton />}>
             <Routes>
               <Route path="/" element={<LandingPage />} />
@@ -99,7 +102,10 @@ const MainContent: React.FC<{
                 path="/asean-translations"
                 element={<ASEANTranslationsPage onTabChange={setCurrentTab} />}
               />
-              <Route path="/csv-translations" element={<CSVTranslationsPage />} />
+              <Route
+                path="/csv-translations"
+                element={<CSVTranslationsPage />}
+              />
               <Route path="/uuid-generator" element={<UUIDGeneratorPage />} />
             </Routes>
           </Suspense>
@@ -126,7 +132,10 @@ const App: React.FC = () => {
     : '/translation_tools_dashboard';
 
   return (
-    <div className="h-screen w-full overflow-hidden">
+    <div
+      id="main__wrapper"
+      className="xl:container xl:flex xl:mx-auto h-screen w-full overflow-hidden"
+    >
       <BrowserRouter basename={basename}>
         <AutoSaveProvider>
           <SidebarProvider>
