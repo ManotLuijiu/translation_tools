@@ -1,4 +1,5 @@
 import frappe
+import os
 
 # Import reorganized functions
 from translation_tools.api.installation import (
@@ -105,6 +106,9 @@ def after_install():
 
         # Final notification to users
         show_success_notification()
+        
+        # Styled success message
+        show_installation_success_message()
 
         # Generate PO file
         generate_po_file()
@@ -195,6 +199,99 @@ def create_translation_tools_workspace():
         frappe.logger().error(
             f"Error cleaning up Translation Tools workspace: {str(e)}"
         )
+
+
+def show_installation_success_message():
+    """Display styled success message after Translation Tools installation"""
+    # Get version from __init__.py and check for update
+    try:
+        from translation_tools import __version__ as new_version
+    except ImportError:
+        new_version = "1.1.0"  # fallback version
+    
+    # Get current version from server (if app was already installed)
+    current_version = get_current_app_version()
+    
+    # Box content
+    border_width = 42
+    title = "Translation Tools Installation Complete!"
+    
+    if current_version and current_version != new_version:
+        version = f"Update available! {current_version} → {new_version}"
+    else:
+        version = f"Version {new_version}"
+    
+    website = "Platform: Multi-language Translation System"
+    setup_text = "Setup: Complete Translation Workflow Tools"
+    
+    # Create box border
+    top_border = "┌" + "─" * border_width + "┐"
+    bottom_border = "└" + "─" * border_width + "┘"
+    empty_line = "│" + " " * border_width + "│"
+    
+    # Center text within box
+    def center_text(text):
+        padding = (border_width - len(text)) // 2
+        return "│" + " " * padding + text + " " * (border_width - len(text) - padding) + "│"
+    
+    # Display the message
+    print("")
+    print(top_border)
+    print(empty_line)
+    print(center_text(title))
+    print(center_text(version))
+    print(center_text(website))
+    print(center_text(setup_text))
+    print(empty_line)
+    print(bottom_border)
+    print("")
+    print("🌍 Ready to translate your applications!")
+    print("📊 Dashboard with real-time translation statistics")
+    print("🔧 CSV/PO/MO file management tools")
+    print("📝 Glossary management and term validation")
+    print("🚀 Automated translation workflow integration")
+    print("")
+    
+    # Show additional translation-specific info
+    try:
+        from translation_tools.setup.create_workspace import (
+            get_translation_stats_dashboard_info
+        )
+        stats = get_translation_stats_dashboard_info()
+        if stats.get("total_languages"):
+            print(f"🌎 Configured for {stats['total_languages']} languages including ASEAN languages")
+    except:
+        pass  # Continue without stats
+
+
+def get_current_app_version():
+    """Get current installed version of translation_tools app"""
+    try:
+        # Check if app version exists in database
+        if frappe.db.exists("DocType", "App Version"):
+            version_doc = frappe.db.get_value("App Version", {"app_name": "translation_tools"}, "version")
+            return version_doc
+        else:
+            # Try to get from installed apps
+            app_list = frappe.get_installed_apps()
+            if "translation_tools" in app_list:
+                # Try to read from hooks or existing installation
+                try:
+                    app_path = frappe.get_app_path("translation_tools")
+                    init_file = os.path.join(app_path, "translation_tools", "__init__.py")
+                    if os.path.exists(init_file):
+                        with open(init_file, 'r') as f:
+                            content = f.read()
+                            for line in content.split('\n'):
+                                if line.strip().startswith('__version__'):
+                                    # Extract version string
+                                    version = line.split('=')[1].strip().strip('"\'')
+                                    return version
+                except:
+                    pass
+        return None
+    except Exception:
+        return None
 
 
 # def arrange_workspaces():

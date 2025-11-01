@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: Translation Tools VERSION\n"
 "Report-Msgid-Bugs-To: moocoding@gmail.com\n"
 "POT-Creation-Date: 2025-10-20 14:02+0642\n"
-"PO-Revision-Date: 2025-10-24 15:51\n"
+"PO-Revision-Date: 2025-10-24 15:51+0000\n"
 "Last-Translator: moocoding@gmail.com\n"
-"Language-Team: moocoding@gmail.com\n"
 "Language: th\n"
+"Language-Team: moocoding@gmail.com\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.13.1\n"
 
 #: translation_tools/api/notifications.py:41
@@ -49,14 +49,8 @@ msgstr "<div class=\"text-center\">กำลังโหลดข้อมูล
 
 #. Header text in the Translation Tools Workspace
 #: translation_tools/translation_tools/workspace/translation_tools/translation_tools.json
-msgid ""
-"<h3 style='margin-bottom:15px;'>Translation Tools for Frappe/ERPNext "
-"Ecosystem</h3><p style='margin-bottom:15px;'>AI-powered utilities for "
-"translating English to Thai language and other localization tools</p>"
-msgstr ""
-"<h3 style='margin-bottom:15px;'>เครื่องมือแปลสำหรับระบบ "
-"Frappe/ERPNext</h3><p style='margin-bottom:15px;'>เป็นเครื่องมือที่ใช้ AI "
-"สำหรับแปลภาษาอังกฤษเป็นภาษาไทยและเครื่องมือแปลท้องถิ่นอื่นๆ</p>"
+msgid "<h3 style='margin-bottom:15px;'>Translation Tools for Frappe/ERPNext Ecosystem</h3><p style='margin-bottom:15px;'>AI-powered utilities for translating English to Thai language and other localization tools</p>"
+msgstr "<h3 style='margin-bottom:15px;'>เครื่องมือแปลสำหรับระบบ Frappe/ERPNext</h3><p style='margin-bottom:15px;'>เป็นเครื่องมือที่ใช้ AI สำหรับแปลภาษาอังกฤษเป็นภาษาไทยและเครื่องมือแปลท้องถิ่นอื่นๆ</p>"
 
 #. Content of the 'Signature Preview' (HTML) field in DocType 'User Signature'
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
@@ -66,20 +60,8 @@ msgstr "<img src=\"{{ doc.signature_image }}\" style=\"max-height: 100px;\">"
 #. Content of the 'help_html' (HTML) field in DocType 'Translation PDF
 #. Settings'
 #: translation_tools/translation_tools/doctype/translation_pdf_settings/translation_pdf_settings.json
-msgid ""
-"<p>The GitHub integration allows translations to be automatically shared to "
-"a central repository.</p><p>To set up GitHub integration:</p><ol><li>Create "
-"a GitHub account if you don't have one</li><li>Create a Personal Access "
-"Token (Classic) at <a href=\"https://github.com/settings/tokens\" "
-"target=\"_blank\">GitHub Settings</a></li><li>Give it the 'repo' "
-"permission</li><li>Copy the token and paste it above</li></ol>"
-msgstr ""
-"<p>การเชื่อมต่อ GitHub "
-"ช่วยให้การแปลสามารถแชร์ไปยังที่เก็บกลางได้โดยอัตโนมัติ</p><p>วิธีตั้งค่าการเชื่อมต่อ"
-" GitHub:</p><ol><li>สร้างบัญชี GitHub หากยังไม่มี</li><li>สร้าง Personal "
-"Access Token (Classic) ที่ <a href=\"https://github.com/settings/tokens\" "
-"target=\"_blank\">การตั้งค่า GitHub</a></li><li>กำหนดสิทธิ์ "
-"'repo'</li><li>คัดลอกโทเค็นแล้ววางในช่องด้านบน</li></ol>"
+msgid "<p>The GitHub integration allows translations to be automatically shared to a central repository.</p><p>To set up GitHub integration:</p><ol><li>Create a GitHub account if you don't have one</li><li>Create a Personal Access Token (Classic) at <a href=\"https://github.com/settings/tokens\" target=\"_blank\">GitHub Settings</a></li><li>Give it the 'repo' permission</li><li>Copy the token and paste it above</li></ol>"
+msgstr "<p>การเชื่อมต่อ GitHub ช่วยให้การแปลสามารถแชร์ไปยังที่เก็บกลางได้โดยอัตโนมัติ</p><p>วิธีตั้งค่าการเชื่อมต่อ GitHub:</p><ol><li>สร้างบัญชี GitHub หากยังไม่มี</li><li>สร้าง Personal Access Token (Classic) ที่ <a href=\"https://github.com/settings/tokens\" target=\"_blank\">การตั้งค่า GitHub</a></li><li>กำหนดสิทธิ์ 'repo'</li><li>คัดลอกโทเค็นแล้ววางในช่องด้านบน</li></ol>"
 
 #. Header text in the Integrations Workspace
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
@@ -97,12 +79,8 @@ msgid "<span class=\"h4\"><b>Your Shortcuts</b></span>"
 msgstr "<span class=\"h4\"><b>ทางลัดของคุณ</b></span>"
 
 #: translation_tools/api/resend_integration.py:98
-msgid ""
-"A sample Email Account for Resend has been created. Please update it with "
-"your Resend API key and settings."
-msgstr ""
-"บัญชีอีเมลตัวอย่างสำหรับการส่งซ้ำได้ถูกสร้างขึ้นแล้ว กรุณาอัปเดตด้วยคีย์ API"
-" สำหรับการส่งซ้ำและการตั้งค่าของคุณ"
+msgid "A sample Email Account for Resend has been created. Please update it with your Resend API key and settings."
+msgstr "บัญชีอีเมลตัวอย่างสำหรับการส่งซ้ำได้ถูกสร้างขึ้นแล้ว กรุณาอัปเดตด้วยคีย์ API สำหรับการส่งซ้ำและการตั้งค่าของคุณ"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -116,8 +94,7 @@ msgstr "การแปลชุดด้วย AI"
 
 #: translation_tools/api/message.py:54
 msgid "AI Bookkeeping features require you to log in to your ERPNext account."
-msgstr ""
-"ฟีเจอร์การทำบัญชีด้วย AI จำเป็นต้องให้คุณเข้าสู่ระบบบัญชี ERPNext ของคุณ"
+msgstr "ฟีเจอร์การทำบัญชีด้วย AI จำเป็นต้องให้คุณเข้าสู่ระบบบัญชี ERPNext ของคุณ"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -209,8 +186,7 @@ msgid "API Settings"
 msgstr "ตั้งค่า API"
 
 #: translation_tools/api/components.py:146
-msgid ""
-"API key configuration file not found. Translation features may not work."
+msgid "API key configuration file not found. Translation features may not work."
 msgstr "ไม่พบการตั้งค่า API Key ส่งผลให้เครื่องมือแปลภาษาด้วย AI ไม่ทำงาน"
 
 #: translation_tools/api/translation.py:208
@@ -269,7 +245,7 @@ msgstr "การดำเนินการ"
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:293
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Active"
-msgstr "ใช้งานอยู่"
+msgstr "ใช้งาน"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -875,7 +851,7 @@ msgstr "ชื่อลูกค้า"
 #. Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Daily"
-msgstr "รายวัน"
+msgstr "ประจำวัน"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -942,7 +918,7 @@ msgstr "กำลังลบ..."
 #: translation_tools/translation_tools/doctype/erpnext_module/erpnext_module.json
 #: translation_tools/translation_tools/doctype/token_package/token_package.json
 msgid "Description"
-msgstr "รายละเอียด"
+msgstr "คำอธิบาย"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -1087,7 +1063,7 @@ msgstr "เปิดใช้งานขั้นตอนนี้"
 #. Label of a Check field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Enabled"
-msgstr "เปิดใช้งาน"
+msgstr "เปิดการใช้งาน"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -1133,8 +1109,7 @@ msgstr "ป้อนตัวสร้าง UUID"
 #. Sync Settings'
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
 msgid "Enter a valid cron expression (e.g., '0 2 * * *' for daily at 2 AM)"
-msgstr ""
-"กรุณาใส่สตริง cron ที่ถูกต้อง (เช่น '0 2 * * *' สำหรับทุกวันเวลา 2 โมงเช้า)"
+msgstr "กรุณาใส่สตริง cron ที่ถูกต้อง (เช่น '0 2 * * *' สำหรับทุกวันเวลา 2 โมงเช้า)"
 
 #. Description of the 'Day of Month' (Int) field in DocType 'Translation
 #. Schedule'
@@ -1334,7 +1309,7 @@ msgstr "ไม่สามารถบันทึกการแปลได้
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "Failed to update language preference"
-msgstr "ไม่สามารถอัปเดตการตั้งค่าภาษาได้"
+msgstr "ไม่สามารถอัปเดตการตั้งค่าภาษาได้สำเร็จ"
 
 #: translation_tools/public/js/language_toggle.js:82
 msgid "Failed to update language."
@@ -1932,11 +1907,8 @@ msgstr "เข้าสู่ระบบ"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
-msgid ""
-"Lower values give more consistent translations, higher values more creative"
-msgstr ""
-"ค่ายิ่งต่ำจะให้การแปลที่สม่ำเสมอมากขึ้น "
-"ค่ายิ่งสูงจะให้ความคิดสร้างสรรค์มากขึ้น"
+msgid "Lower values give more consistent translations, higher values more creative"
+msgstr "ค่ายิ่งต่ำจะให้การแปลที่สม่ำเสมอมากขึ้น ค่ายิ่งสูงจะให้ความคิดสร้างสรรค์มากขึ้น"
 
 #: translation_tools/config/translation_tools.py:21
 msgid "Manage Glossary Term"
@@ -2295,12 +2267,8 @@ msgid "PDFMake Settings"
 msgstr "การตั้งค่า PDFMake"
 
 #: translation_tools/override/print_format.py:120
-msgid ""
-"PDFMake is a client-side library. This server-side function is a "
-"placeholder."
-msgstr ""
-"PDFMake เป็นไลบรารีฝั่งไคลเอนต์ "
-"ฟังก์ชันฝั่งเซิร์ฟเวอร์นี้เป็นเพียงตัวแทนเท่านั้น"
+msgid "PDFMake is a client-side library. This server-side function is a placeholder."
+msgstr "PDFMake เป็นไลบรารีฝั่งไคลเอนต์ ฟังก์ชันฝั่งเซิร์ฟเวอร์นี้เป็นเพียงตัวแทนเท่านั้น"
 
 #. Name of a DocType
 #: translation_tools/setup/create_workspace.py:76
@@ -2347,8 +2315,7 @@ msgstr "ชื่อชุดโปรแกรม"
 #. Description of the 'Signature Storage Path' (Data) field in DocType 'PDF
 #. Settings'
 #: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
-msgid ""
-"Path where signature files will be stored (relative to site public folder)"
+msgid "Path where signature files will be stored (relative to site public folder)"
 msgstr "เส้นทางที่ไฟล์ลายเซ็นจะถูกจัดเก็บ (สัมพันธ์กับโฟลเดอร์สาธารณะของไซต์)"
 
 #. Extracted from SPA (React/TypeScript) files
@@ -2364,7 +2331,7 @@ msgstr "หยุดชั่วคราว"
 #. Label of a Datetime field in DocType 'Token Purchase'
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Payment Date"
-msgstr "วันที่ การชำระเงิน"
+msgstr "วันจ่าย"
 
 #: translation_tools/templates/pages/token_management.html:128
 msgid "Payment canceled. You can try again whenever you're ready."
@@ -2384,9 +2351,7 @@ msgstr "การชำระเงินยังไม่เสร็จสม
 
 #: translation_tools/api/payment.py:67
 msgid "Payment processing error. Please try again or contact support."
-msgstr ""
-"เกิดข้อผิดพลาดในการประมวลผลการชำระเงิน กรุณาลองใหม่อีกครั้งหรือ "
-"ติดต่อฝ่ายสนับสนุน"
+msgstr "เกิดข้อผิดพลาดในการประมวลผลการชำระเงิน กรุณาลองใหม่อีกครั้งหรือ ติดต่อฝ่ายสนับสนุน"
 
 #: translation_tools/api/payment.py:51
 msgid "Payment successful! Tokens have been added to your account."
@@ -2394,8 +2359,7 @@ msgstr "ชำระเงินสำเร็จ! โทเค็นได้�
 
 #: translation_tools/api/stripe_payment.py:138
 msgid "Payment verified successfully! Tokens have been added to your account."
-msgstr ""
-"การชำระเงินได้รับการยืนยันเรียบร้อยแล้ว! โทเค็นได้ถูกเพิ่มในบัญชีของคุณแล้ว"
+msgstr "การชำระเงินได้รับการยืนยันเรียบร้อยแล้ว! โทเค็นได้ถูกเพิ่มในบัญชีของคุณแล้ว"
 
 #. Option for the 'Status' (Select) field in DocType 'GitHub Sync History
 #. Entry'
@@ -2677,12 +2641,8 @@ msgid "Repository URL"
 msgstr "URL ที่เก็บข้อมูล"
 
 #: translation_tools/api/resend_provider.py:24
-msgid ""
-"Resend API Key not provided. Please set it in site_config.json as "
-"resend_api_key."
-msgstr ""
-"ไม่ได้ระบุ Resend API Key กรุณาตั้งค่าในไฟล์ site_config.json เป็น "
-"resend_api_key"
+msgid "Resend API Key not provided. Please set it in site_config.json as resend_api_key."
+msgstr "ไม่ได้ระบุ Resend API Key กรุณาตั้งค่าในไฟล์ site_config.json เป็น resend_api_key"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -2713,8 +2673,7 @@ msgid "Run Now"
 msgstr "เรียกใช้งานทันที"
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:128
-msgid ""
-"Run complete translation workflow: Generate POT → Update PO → Compile MO"
+msgid "Run complete translation workflow: Generate POT → Update PO → Compile MO"
 msgstr "เรียกใช้กระบวนการแปลทั้งหมด: สร้าง POT → อัปเดต PO → คอมไพล์ MO"
 
 #. Option for the 'Status' (Select) field in DocType 'Translation Schedule'
@@ -2823,7 +2782,7 @@ msgstr "ประเภทกำหนดการ"
 #. Entry'
 #: translation_tools/translation_tools/doctype/github_sync_history_entry/github_sync_history_entry.json
 msgid "Scheduled"
-msgstr "กำหนดเวลาไว้แล้ว"
+msgstr "กำหนด"
 
 #. Label of a Section Break field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
@@ -2972,7 +2931,7 @@ msgstr "ค่าเริ่มต้นของเซสชัน"
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:68
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Settings"
-msgstr "ตั้งค่า"
+msgstr "การตั้งค่า"
 
 #: translation_tools/config/translation_tools.py:14
 msgid "Settings AI API Key"
@@ -3082,12 +3041,8 @@ msgid "Social Login Key"
 msgstr "คีย์เข้าสู่ระบบโซเชียล"
 
 #: translation_tools/api/installation.py:347
-msgid ""
-"Some dependencies are missing. The setup script will attempt to install "
-"them."
-msgstr ""
-"มีการขาดแคลนส่วนประกอบบางอย่าง "
-"สคริปต์การตั้งค่าจะพยายามติดตั้งส่วนประกอบเหล่านั้นให้"
+msgid "Some dependencies are missing. The setup script will attempt to install them."
+msgstr "มีการขาดแคลนส่วนประกอบบางอย่าง สคริปต์การตั้งค่าจะพยายามติดตั้งส่วนประกอบเหล่านั้นให้"
 
 #. Label of a Data field in DocType 'Translation History Entry'
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
@@ -3296,7 +3251,7 @@ msgstr "ระบบ"
 #: translation_tools/translation_tools/doctype/user_signature/user_signature.json
 #: translation_tools/translation_tools/doctype/user_tokens/user_tokens.json
 msgid "System Manager"
-msgstr "จัดการระบบ"
+msgstr "ผู้จัดการระบบ"
 
 #. Label of a Data field in DocType 'GitHub Sync Settings'
 #. Label of a Data field in DocType 'Translation History Entry'
@@ -3435,12 +3390,8 @@ msgstr "เกิดข้อผิดพลาดในการเริ่ม
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
-msgid ""
-"This action cannot be undone. The files will be backed up but removed from "
-"the application."
-msgstr ""
-"การดำเนินการนี้ไม่สามารถย้อนกลับได้ "
-"ไฟล์จะถูกสำรองข้อมูลแต่จะถูกลบออกจากแอปพลิเคชัน"
+msgid "This action cannot be undone. The files will be backed up but removed from the application."
+msgstr "การดำเนินการนี้ไม่สามารถย้อนกลับได้ ไฟล์จะถูกสำรองข้อมูลแต่จะถูกลบออกจากแอปพลิเคชัน"
 
 #: translation_tools/www/translation_tools.py:19
 #: translation_tools/www/translation_tools_dashboard.py:112
@@ -3761,9 +3712,7 @@ msgid "Translation Tools Settings"
 msgstr "การตั้งค่าเครื่องมือแปล"
 
 #: translation_tools/api/po_files.py:1627
-msgid ""
-"Translation Tools Settings doctype does not exist. Please contact "
-"administrator."
+msgid "Translation Tools Settings doctype does not exist. Please contact administrator."
 msgstr "doctype การตั้งค่าเครื่องมือแปลไม่มีอยู่ในระบบ กรุณาติดต่อผู้ดูแลระบบ"
 
 #: translation_tools/public/js/app.js:57
@@ -4055,11 +4004,8 @@ msgid "You need {0} permission to fetch values from {1} {2}"
 msgstr "คุณต้องมีสิทธิ์ {0} เพื่อดึงค่าจาก {1} {2}"
 
 #: translation_tools/api/message.py:45
-msgid ""
-"You've used all your free tokens. Please purchase more to continue using the"
-" Thai Tax Consultant."
-msgstr ""
-"คุณได้ใช้โทเค็นฟรีทั้งหมดแล้ว กรุณาซื้อเพิ่มเพื่อใช้งานที่ปรึกษาภาษีไทยต่อไป"
+msgid "You've used all your free tokens. Please purchase more to continue using the Thai Tax Consultant."
+msgstr "คุณได้ใช้โทเค็นฟรีทั้งหมดแล้ว กรุณาซื้อเพิ่มเพื่อใช้งานที่ปรึกษาภาษีไทยต่อไป"
 
 #: translation_tools/templates/pages/token_management.html:17
 msgid "Your Token Balance"
@@ -4121,8 +4067,7 @@ msgstr "คำอธิบาย"
 #. Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "e.g., '0 2 * * *' for 2 AM daily, '0 0 * * 1' for Monday midnight"
-msgstr ""
-"เช่น '0 2 * * *' สำหรับตี 2 ทุกวัน, '0 0 * * 1' สำหรับเที่ยงคืนวันจันทร์"
+msgstr "เช่น '0 2 * * *' สำหรับตี 2 ทุกวัน, '0 0 * * 1' สำหรับเที่ยงคืนวันจันทร์"
 
 #. Option for the 'Locale' (Select) field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
@@ -4316,3 +4261,4 @@ msgstr "zh-CN"
 #: translation_tools/translation_tools/page/ai_translator/ai_translator.js:15
 msgid "กำลังเปลี่ยนเส้นทางไปยังหน้าเลือกเครื่องมือแปลภาษา..."
 msgstr "กำลังเปลี่ยนเส้นทางไปยังหน้าเลือกเครื่องมือแปลภาษา..."
+
