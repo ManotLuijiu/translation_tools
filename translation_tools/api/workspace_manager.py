@@ -341,6 +341,7 @@ class WorkspaceManager:
                 {"id": "sc_delivery", "type": "shortcut", "data": {"shortcut_name": "Delivery Schedule", "col": 3}},
                 {"id": "sc_po_calendar", "type": "shortcut", "data": {"shortcut_name": "PO Delivery Calendar Report", "col": 3}},
                 {"id": "sc_inter_express", "type": "shortcut", "data": {"shortcut_name": "Inter Express Delivery", "col": 3}},
+                {"id": "sc_inter_express_export", "type": "shortcut", "data": {"shortcut_name": "Inter Express Export", "col": 3}},
                 {"id": "sc_manufacturing", "type": "shortcut", "data": {"shortcut_name": "Manufacturing Order", "col": 3}},
                 {"id": "spacer_shortcuts", "type": "spacer", "data": {"col": 12}},
                 # Cards
@@ -416,9 +417,10 @@ class WorkspaceManager:
                 ],
                 "Delivery & Logistics": [
                     {"label": "Inter Express Delivery", "link_to": "Inter Express Delivery", "link_type": "DocType", "onboard": 1},
+                    {"label": "Inter Express Export", "link_to": "inter-express-export", "link_type": "Page"},
                     {"label": "Inter Express Settings", "link_to": "Inter Express Settings", "link_type": "DocType"},
-                    {"label": "TBS Delivery Company", "link_to": "TBS Delivery Company", "link_type": "DocType"},
-                    {"label": "TBS Delivery Service", "link_to": "TBS Delivery Service", "link_type": "DocType"},
+                    {"label": "Delivery Company", "link_to": "TBS Delivery Company", "link_type": "DocType"},
+                    {"label": "Delivery Service", "link_to": "TBS Delivery Service", "link_type": "DocType"},
                 ],
                 "Manufacturing": [
                     {"label": "Manufacturing Order", "link_to": "Manufacturing Order", "link_type": "DocType", "onboard": 1},
@@ -522,6 +524,174 @@ class WorkspaceManager:
             logger.error(f"Error clearing cache: {str(e)}")
             return {"success": False, "error": str(e)}
 
+    @staticmethod
+    def setup_app_workspace_from_config(app_name):
+        """
+        Setup workspace by reading configuration from Workspace Config DocType.
+        This is the dynamic method that replaces hardcoded workspace setup methods.
+
+        Args:
+            app_name: The app identifier (e.g., 'inpac_pharma')
+
+        Returns:
+            dict: Success/failure status with message
+        """
+        try:
+            logger.info(f"🔍 [DEBUG] setup_app_workspace_from_config called with app_name: {app_name}")
+
+            # Check if Workspace Config exists for this app
+            if not frappe.db.exists("Workspace Config", app_name):
+                logger.info(f"🔍 [DEBUG] No Workspace Config DocType found for: {app_name}")
+                # Fallback to hardcoded method if exists (for backward compatibility)
+                hardcoded_method = f"setup_{app_name}_workspace"
+                if hasattr(WorkspaceManager, hardcoded_method):
+                    logger.info(f"🔍 [DEBUG] Fallback to hardcoded method: {hardcoded_method}")
+                    return getattr(WorkspaceManager, hardcoded_method)()
+                logger.warning(f"No Workspace Config found for app: {app_name}")
+                return {"success": False, "message": f"No Workspace Config found for {app_name}"}
+
+            logger.info(f"🔍 [DEBUG] Found Workspace Config for: {app_name}, loading document...")
+            config = frappe.get_doc("Workspace Config", app_name)
+
+            # Debug: Print all config fields
+            logger.info(f"🔍 [DEBUG] Config loaded:")
+            logger.info(f"    - app_name: {config.app_name}")
+            logger.info(f"    - workspace_name: {config.workspace_name}")
+            logger.info(f"    - module: {config.module}")
+            logger.info(f"    - icon: {config.icon}")
+            logger.info(f"    - indicator_color: {config.indicator_color}")
+            logger.info(f"    - sequence_id: {config.sequence_id}")
+            logger.info(f"    - enabled: {config.enabled}")
+            logger.info(f"    - dashboard_content length: {len(config.dashboard_content or '')}")
+            logger.info(f"    - cards count: {len(config.cards or [])}")
+
+            if not config.enabled:
+                logger.info(f"🔍 [DEBUG] Config is disabled for: {app_name}")
+                return {"success": False, "message": f"Workspace Config disabled for {app_name}"}
+
+            workspace_name = config.workspace_name
+            logger.info(f"Setting up {workspace_name} workspace from config...")
+
+            # Parse dashboard_content JSON
+            dashboard_content = config.dashboard_content or "[]"
+
+            # Check if workspace exists
+            if not frappe.db.exists("Workspace", workspace_name):
+                logger.info(f"Creating new workspace: {workspace_name}")
+                workspace = frappe.new_doc("Workspace")
+                workspace.name = workspace_name
+                workspace.title = workspace_name
+                workspace.label = workspace_name
+                workspace.module = config.module or app_name
+                workspace.public = 1
+                workspace.sequence_id = config.sequence_id or 10.0
+                workspace.icon = config.icon or "folder"
+                workspace.indicator_color = config.indicator_color or "green"
+                workspace.content = dashboard_content
+            else:
+                logger.info(f"Using existing workspace: {workspace_name}")
+                workspace = frappe.get_doc("Workspace", workspace_name)
+                # Update workspace properties
+                workspace.module = config.module or app_name
+                workspace.sequence_id = config.sequence_id or 10.0
+                workspace.icon = config.icon or "folder"
+                workspace.indicator_color = config.indicator_color or "green"
+                workspace.content = dashboard_content
+
+            # Build cards from child table
+            workspace.links = []
+            links_added = 0
+            cards_count = 0
+
+            logger.info(f"🔍 [DEBUG] Processing {len(config.cards or [])} cards from config...")
+
+            for card in sorted(config.cards, key=lambda x: x.sequence or 0):
+                cards_count += 1
+                logger.info(f"🔍 [DEBUG] Card #{cards_count}: {card.card_name} (sequence: {card.sequence})")
+                logger.info(f"🔍 [DEBUG]   links_json raw: {card.links_json[:100] if card.links_json else 'None'}...")
+
+                # Parse links_json
+                try:
+                    links = json.loads(card.links_json) if card.links_json else []
+                    logger.info(f"🔍 [DEBUG]   Parsed {len(links)} links from JSON")
+                except json.JSONDecodeError as e:
+                    logger.warning(f"Invalid JSON in links_json for card {card.card_name}: {e}")
+                    links = []
+
+                # Add card break
+                workspace.append("links", {
+                    "label": card.card_name,
+                    "type": "Card Break",
+                    "hidden": 0,
+                    "is_query_report": 0,
+                    "link_count": len(links),
+                    "onboard": 0,
+                })
+                logger.info(f"Processing card '{card.card_name}' ({len(links)} links)")
+
+                # Add links under card
+                for link_data in links:
+                    workspace.append("links", {
+                        "label": link_data.get("label"),
+                        "link_to": link_data.get("link_to"),
+                        "link_type": link_data.get("link_type", "DocType"),
+                        "type": "Link",
+                        "hidden": 0,
+                        "is_query_report": link_data.get("is_query_report", 0),
+                        "onboard": link_data.get("onboard", 0),
+                    })
+                    links_added += 1
+
+            workspace.save(ignore_permissions=True)
+            frappe.db.commit()
+
+            # Clear workspace cache
+            WorkspaceManager.clear_workspace_cache()
+
+            logger.info(f"✅ {workspace_name} workspace setup complete - {cards_count} cards, {links_added} links")
+            return {
+                "success": True,
+                "message": f"{workspace_name} workspace updated with {cards_count} cards and {links_added} links",
+            }
+
+        except Exception as e:
+            logger.error(f"Error setting up workspace from config for {app_name}: {str(e)}")
+            frappe.db.rollback()
+            return {"success": False, "error": str(e)}
+
+    @staticmethod
+    def setup_all_configured_workspaces():
+        """
+        Setup all enabled workspace configs.
+        Called from after_migrate hook to apply all workspace configurations.
+        """
+        try:
+            configs = frappe.get_all(
+                "Workspace Config",
+                filters={"enabled": 1},
+                pluck="app_name"
+            )
+
+            if not configs:
+                logger.info("No enabled Workspace Config found")
+                return {"success": True, "message": "No configs to apply", "results": []}
+
+            results = []
+            for app_name in configs:
+                result = WorkspaceManager.setup_app_workspace_from_config(app_name)
+                results.append({"app": app_name, "result": result})
+                logger.info(f"Processed workspace config for: {app_name}")
+
+            return {
+                "success": True,
+                "message": f"Processed {len(configs)} workspace configs",
+                "results": results
+            }
+
+        except Exception as e:
+            logger.error(f"Error setting up all configured workspaces: {str(e)}")
+            return {"success": False, "error": str(e)}
+
 
 # API endpoints for remote calls
 @frappe.whitelist()
@@ -552,3 +722,15 @@ def clear_workspace_cache():
 def setup_inpac_pharma_workspace():
     """API endpoint to setup Inpac Pharma workspace - called from inpac_pharma after_migrate"""
     return WorkspaceManager.setup_inpac_pharma_workspace()
+
+
+@frappe.whitelist()
+def setup_app_workspace_from_config(app_name):
+    """API endpoint to setup any app's workspace from Workspace Config DocType"""
+    return WorkspaceManager.setup_app_workspace_from_config(app_name)
+
+
+@frappe.whitelist()
+def setup_all_configured_workspaces():
+    """API endpoint to setup all enabled workspace configs"""
+    return WorkspaceManager.setup_all_configured_workspaces()

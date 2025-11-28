@@ -1,0 +1,130 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:app_name",
+ "creation": "2025-11-28 17:07:33.684250",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_section",
+  "app_name",
+  "workspace_name",
+  "module",
+  "column_break_basic",
+  "icon",
+  "indicator_color",
+  "sequence_id",
+  "enabled",
+  "dashboard_section",
+  "dashboard_content",
+  "cards_section",
+  "cards"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_section",
+   "fieldtype": "Section Break",
+   "label": "Basic Information"
+  },
+  {
+   "fieldname": "app_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "App Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "workspace_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Workspace Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "module",
+   "fieldtype": "Data",
+   "label": "Module"
+  },
+  {
+   "fieldname": "column_break_basic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "folder",
+   "fieldname": "icon",
+   "fieldtype": "Data",
+   "label": "Icon"
+  },
+  {
+   "default": "green",
+   "fieldname": "indicator_color",
+   "fieldtype": "Select",
+   "label": "Indicator Color",
+   "options": "blue\ngreen\norange\nred\ngray"
+  },
+  {
+   "default": "10.0",
+   "fieldname": "sequence_id",
+   "fieldtype": "Float",
+   "label": "Sequence ID"
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "dashboard_section",
+   "fieldtype": "Section Break",
+   "label": "Dashboard Content"
+  },
+  {
+   "description": "JSON array for dashboard layout (number cards, charts, shortcuts)",
+   "fieldname": "dashboard_content",
+   "fieldtype": "Code",
+   "label": "Dashboard Content",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "cards_section",
+   "fieldtype": "Section Break",
+   "label": "Workspace Cards"
+  },
+  {
+   "fieldname": "cards",
+   "fieldtype": "Table",
+   "label": "Cards",
+   "options": "Workspace Config Card"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-11-28 17:07:33.684250",
+ "modified_by": "Administrator",
+ "module": "Translation Tools",
+ "name": "Workspace Config",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "workspace_name",
+ "track_changes": 1
+}
