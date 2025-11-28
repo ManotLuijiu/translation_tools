@@ -310,6 +310,205 @@ class WorkspaceManager:
             return {"success": False, "error": str(e)}
 
     @staticmethod
+    def setup_inpac_pharma_workspace():
+        """Setup Inpac Pharma workspace with all cards and links
+
+        This method is called from inpac_pharma's after_migrate hook
+        to ensure the workspace is properly configured on all deployments.
+        """
+        try:
+            workspace_name = "Inpac Pharma"
+            logger.info(f"Setting up {workspace_name} workspace...")
+
+            # Define dashboard content with number cards and charts
+            # Using col:4 for 3 cards per row (standard Frappe layout)
+            dashboard_content = json.dumps([
+                # Row 1: First 3 KPI cards
+                {"id": "nc_active_items", "type": "number_card", "data": {"number_card_name": "IP Active Items", "col": 4}},
+                {"id": "nc_suppliers", "type": "number_card", "data": {"number_card_name": "Active Suppliers", "col": 4}},
+                {"id": "nc_customers", "type": "number_card", "data": {"number_card_name": "Active Customers", "col": 4}},
+                # Row 2: Next 3 KPI cards
+                {"id": "nc_pending_so", "type": "number_card", "data": {"number_card_name": "IP Pending Sales Orders", "col": 4}},
+                {"id": "nc_pending_po", "type": "number_card", "data": {"number_card_name": "IP Pending Purchase Orders", "col": 4}},
+                {"id": "nc_stock_value", "type": "number_card", "data": {"number_card_name": "IP Total Stock Value", "col": 4}},
+                {"id": "spacer_kpi", "type": "spacer", "data": {"col": 12}},
+                # Row 3: Charts (side by side)
+                {"id": "chart_sales", "type": "chart", "data": {"chart_name": "IP Sales Trend", "col": 6}},
+                {"id": "chart_purchase", "type": "chart", "data": {"chart_name": "IP Purchase Trend", "col": 6}},
+                {"id": "spacer_charts", "type": "spacer", "data": {"col": 12}},
+                # Shortcuts header
+                {"id": "shortcuts_header", "type": "header", "data": {"text": '<span class="h4"><b>Shortcuts</b></span>', "col": 12}},
+                {"id": "sc_delivery", "type": "shortcut", "data": {"shortcut_name": "Delivery Schedule", "col": 3}},
+                {"id": "sc_po_calendar", "type": "shortcut", "data": {"shortcut_name": "PO Delivery Calendar Report", "col": 3}},
+                {"id": "sc_inter_express", "type": "shortcut", "data": {"shortcut_name": "Inter Express Delivery", "col": 3}},
+                {"id": "sc_manufacturing", "type": "shortcut", "data": {"shortcut_name": "Manufacturing Order", "col": 3}},
+                {"id": "spacer_shortcuts", "type": "spacer", "data": {"col": 12}},
+                # Cards
+                {"id": "card_masters", "type": "card", "data": {"card_name": "Masters", "col": 4}},
+                {"id": "card_purchasing", "type": "card", "data": {"card_name": "Purchasing", "col": 4}},
+                {"id": "card_stock", "type": "card", "data": {"card_name": "Stock & Inventory", "col": 4}},
+                {"id": "card_sales", "type": "card", "data": {"card_name": "Sales", "col": 4}},
+                {"id": "card_delivery", "type": "card", "data": {"card_name": "Delivery & Logistics", "col": 4}},
+                {"id": "card_manufacturing", "type": "card", "data": {"card_name": "Manufacturing", "col": 4}},
+                {"id": "spacer_cards1", "type": "spacer", "data": {"col": 12}},
+                {"id": "card_dksh", "type": "card", "data": {"card_name": "DKSH Integration", "col": 4}},
+                {"id": "card_hr", "type": "card", "data": {"card_name": "HR & Administration", "col": 4}},
+                {"id": "card_assets", "type": "card", "data": {"card_name": "Assets", "col": 4}},
+                {"id": "card_reports", "type": "card", "data": {"card_name": "Reports", "col": 4}},
+                {"id": "card_manual", "type": "card", "data": {"card_name": "User Manual", "col": 4}},
+            ])
+
+            # Check if workspace exists
+            if not frappe.db.exists("Workspace", workspace_name):
+                logger.info(f"Creating new workspace: {workspace_name}")
+                workspace = frappe.new_doc("Workspace")
+                workspace.name = workspace_name
+                workspace.title = workspace_name
+                workspace.label = workspace_name
+                workspace.module = "Inpac Pharma"
+                workspace.public = 1
+                workspace.sequence_id = 17.0
+                workspace.icon = "organization"
+                workspace.indicator_color = "green"
+                workspace.content = dashboard_content
+            else:
+                logger.info(f"Using existing workspace: {workspace_name}")
+                workspace = frappe.get_doc("Workspace", workspace_name)
+                # Update content if different
+                workspace.content = dashboard_content
+
+            # Define all cards and links for Inpac Pharma
+            cards = {
+                "Masters": [
+                    {"label": "Item", "link_to": "Item", "link_type": "DocType", "onboard": 1},
+                    {"label": "Supplier", "link_to": "Supplier", "link_type": "DocType", "onboard": 1},
+                    {"label": "Manufacturer", "link_to": "Manufacturer", "link_type": "DocType"},
+                    {"label": "Customer", "link_to": "Customer", "link_type": "DocType", "onboard": 1},
+                    {"label": "IP Customer Type", "link_to": "IP Customer Type", "link_type": "DocType"},
+                    {"label": "UOM", "link_to": "UOM", "link_type": "DocType"},
+                    {"label": "Warehouse", "link_to": "Warehouse", "link_type": "DocType"},
+                    {"label": "Thai Branch", "link_to": "Thai Branch", "link_type": "DocType"},
+                ],
+                "Purchasing": [
+                    {"label": "Material Request", "link_to": "Material Request", "link_type": "DocType", "onboard": 1},
+                    {"label": "Purchase Order", "link_to": "Purchase Order", "link_type": "DocType", "onboard": 1},
+                    {"label": "Purchase Receipt", "link_to": "Purchase Receipt", "link_type": "DocType"},
+                    {"label": "Purchase Invoice", "link_to": "Purchase Invoice", "link_type": "DocType"},
+                    {"label": "Supplier Quotation", "link_to": "Supplier Quotation", "link_type": "DocType"},
+                    {"label": "PO Planned Delivery", "link_to": "PO Planned Delivery", "link_type": "DocType"},
+                    {"label": "Supplier Manufacturer Link", "link_to": "Supplier Manufacturer Link", "link_type": "DocType"},
+                ],
+                "Stock & Inventory": [
+                    {"label": "Stock Entry", "link_to": "Stock Entry", "link_type": "DocType", "onboard": 1},
+                    {"label": "Delivery Schedule", "link_to": "Delivery Schedule", "link_type": "DocType"},
+                    {"label": "Batch", "link_to": "Batch", "link_type": "DocType"},
+                    {"label": "Stock Reservation", "link_to": "Stock Reservation", "link_type": "DocType"},
+                    {"label": "Pick List", "link_to": "Pick List", "link_type": "DocType"},
+                    {"label": "Delivery Note", "link_to": "Delivery Note", "link_type": "DocType"},
+                ],
+                "Sales": [
+                    {"label": "Sales Order", "link_to": "Sales Order", "link_type": "DocType", "onboard": 1},
+                    {"label": "Sales Invoice", "link_to": "Sales Invoice", "link_type": "DocType", "onboard": 1},
+                    {"label": "Quotation", "link_to": "Quotation", "link_type": "DocType"},
+                    {"label": "Item Price", "link_to": "Item Price", "link_type": "DocType"},
+                    {"label": "Price List", "link_to": "Price List", "link_type": "DocType"},
+                    {"label": "Customer Delivery Schedule", "link_to": "Customer Delivery Schedule", "link_type": "DocType"},
+                ],
+                "Delivery & Logistics": [
+                    {"label": "Inter Express Delivery", "link_to": "Inter Express Delivery", "link_type": "DocType", "onboard": 1},
+                    {"label": "Inter Express Settings", "link_to": "Inter Express Settings", "link_type": "DocType"},
+                    {"label": "TBS Delivery Company", "link_to": "TBS Delivery Company", "link_type": "DocType"},
+                    {"label": "TBS Delivery Service", "link_to": "TBS Delivery Service", "link_type": "DocType"},
+                ],
+                "Manufacturing": [
+                    {"label": "Manufacturing Order", "link_to": "Manufacturing Order", "link_type": "DocType", "onboard": 1},
+                    {"label": "Work Order", "link_to": "Work Order", "link_type": "DocType"},
+                    {"label": "BOM", "link_to": "BOM", "link_type": "DocType"},
+                    {"label": "Job Card", "link_to": "Job Card", "link_type": "DocType"},
+                ],
+                "DKSH Integration": [
+                    {"label": "DK Sales Import", "link_to": "DK Sales Import", "link_type": "DocType"},
+                    {"label": "DK Material Code Mapping", "link_to": "DK Material Code Mapping", "link_type": "DocType"},
+                ],
+                "HR & Administration": [
+                    {"label": "Employee", "link_to": "Employee", "link_type": "DocType"},
+                    {"label": "Department", "link_to": "Department", "link_type": "DocType"},
+                    {"label": "Designation", "link_to": "Designation", "link_type": "DocType"},
+                    {"label": "Leave Application", "link_to": "Leave Application", "link_type": "DocType"},
+                    {"label": "Attendance", "link_to": "Attendance", "link_type": "DocType"},
+                    {"label": "Expense Claim", "link_to": "Expense Claim", "link_type": "DocType"},
+                    {"label": "Training Event", "link_to": "Training Event", "link_type": "DocType"},
+                    {"label": "Training Program", "link_to": "Training Program", "link_type": "DocType"},
+                    {"label": "Event", "link_to": "Event", "link_type": "DocType"},
+                ],
+                "Assets": [
+                    {"label": "Asset", "link_to": "Asset", "link_type": "DocType"},
+                    {"label": "Asset Maintenance", "link_to": "Asset Maintenance", "link_type": "DocType"},
+                    {"label": "Asset Repair", "link_to": "Asset Repair", "link_type": "DocType"},
+                ],
+                "Reports": [
+                    {"label": "PO Delivery Calendar Report", "link_to": "PO Delivery Calendar Report", "link_type": "Report", "is_query_report": 1},
+                    {"label": "Stock Balance", "link_to": "Stock Balance", "link_type": "Report", "is_query_report": 1},
+                    {"label": "Stock Ledger Report", "link_to": "Stock Ledger", "link_type": "Report", "is_query_report": 1},
+                    {"label": "Sales Analytics", "link_to": "Sales Analytics", "link_type": "Report", "is_query_report": 1},
+                    {"label": "Purchase Order Trends", "link_to": "Purchase Order Trends", "link_type": "Report", "is_query_report": 1},
+                    {"label": "Accounts Receivable", "link_to": "Accounts Receivable", "link_type": "Report", "is_query_report": 1},
+                    {"label": "Accounts Payable", "link_to": "Accounts Payable", "link_type": "Report", "is_query_report": 1},
+                ],
+                "User Manual": [
+                    {"label": "Manual Articles", "link_to": "IP Manual Article", "link_type": "DocType", "onboard": 1},
+                    {"label": "Manual Categories", "link_to": "IP Manual Category", "link_type": "DocType"},
+                ],
+            }
+
+            # Clear existing links and rebuild
+            workspace.links = []
+            links_added = 0
+
+            for card_name, links in cards.items():
+                # Add card break
+                workspace.append("links", {
+                    "label": card_name,
+                    "type": "Card Break",
+                    "hidden": 0,
+                    "is_query_report": 0,
+                    "link_count": len(links),
+                    "onboard": 0,
+                })
+                logger.info(f"Processing card '{card_name}' ({len(links)} links)")
+
+                # Add links under card
+                for link_data in links:
+                    workspace.append("links", {
+                        "label": link_data.get("label"),
+                        "link_to": link_data.get("link_to"),
+                        "link_type": link_data.get("link_type", "DocType"),
+                        "type": "Link",
+                        "hidden": 0,
+                        "is_query_report": link_data.get("is_query_report", 0),
+                        "onboard": link_data.get("onboard", 0),
+                    })
+                    links_added += 1
+                    logger.info(f"Added link '{link_data.get('label')}' to card '{card_name}'")
+
+            workspace.save(ignore_permissions=True)
+            frappe.db.commit()
+
+            # Clear workspace cache
+            WorkspaceManager.clear_workspace_cache()
+
+            logger.info(f"✅ Inpac Pharma workspace setup complete - {len(cards)} cards, {links_added} links")
+            return {
+                "success": True,
+                "message": f"Inpac Pharma workspace updated with {len(cards)} cards and {links_added} links",
+            }
+
+        except Exception as e:
+            logger.error(f"Error setting up Inpac Pharma workspace: {str(e)}")
+            frappe.db.rollback()
+            return {"success": False, "error": str(e)}
+
+    @staticmethod
     def clear_workspace_cache():
         """Clear workspace cache to ensure updates are visible"""
         try:
@@ -347,3 +546,9 @@ def setup_thai_business_suite():
 def clear_workspace_cache():
     """API endpoint to clear workspace cache"""
     return WorkspaceManager.clear_workspace_cache()
+
+
+@frappe.whitelist()
+def setup_inpac_pharma_workspace():
+    """API endpoint to setup Inpac Pharma workspace - called from inpac_pharma after_migrate"""
+    return WorkspaceManager.setup_inpac_pharma_workspace()
