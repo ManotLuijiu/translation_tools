@@ -476,6 +476,11 @@ msgstr ""
 msgid "Backup Before Sync"
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Basic Information"
+msgstr ""
+
 #. Label of a Section Break field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Basic Settings"
@@ -576,6 +581,16 @@ msgstr "ဖျက်သိမ်းခဲ့သည်"
 #: translation_tools/override/client.py:86
 msgid "Cannot Fetch Values"
 msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Card Name"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Cards"
+msgstr "ကတ်များ"
 
 #. Label of a Select field in DocType 'Translation Glossary Term'
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
@@ -850,6 +865,11 @@ msgstr "နေ့စဉ်"
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "Dark"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Dashboard Content"
 msgstr ""
 
 #: translation_tools/templates/pages/token_management.html:74
@@ -1657,6 +1677,11 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Icon"
+msgstr "အိုင်ကွန်"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Important"
 msgstr "အရေးကြီးတယ်"
 
@@ -1678,6 +1703,11 @@ msgstr "ဆောင်ရွက်ဆဲဖြစ်သည်"
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
 msgid "Include Company Logo"
 msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Indicator Color"
+msgstr "indicator အရောင်"
 
 #: translation_tools/api/notifications.py:50
 msgid "Installation Complete"
@@ -1761,6 +1791,16 @@ msgstr ""
 msgid "JSON Parsing Issues"
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "JSON array for dashboard layout (number cards, charts, shortcuts)"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "JSON array of links: [{\"label\": \"Item\", \"link_to\": \"Item\", \"link_type\": \"DocType\", \"is_query_report\": 0, \"onboard\": 1}]"
+msgstr ""
+
 #. Description of the 'App Sync Settings (JSON)' (Long Text) field in DocType
 #. 'GitHub Sync Settings'
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
@@ -1833,6 +1873,11 @@ msgstr ""
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "Light"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Links (JSON)"
 msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
@@ -2917,6 +2962,16 @@ msgstr "Separator"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Sequence"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Sequence ID"
+msgstr "အဆက်အသွယ် ID"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Session Defaults"
 msgstr "session Defaults ကို"
 
@@ -3965,6 +4020,26 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Workspace Cards"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Workspace Config"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Workspace Config Card"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Workspace Name"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "You can create a token at"
 msgstr ""
 
@@ -4015,6 +4090,11 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "anthropic"
 msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "blue"
+msgstr "အပြာ"
 
 #. Option for the 'Provider' (Select) field in DocType 'Translation History
 #. Entry'
@@ -4097,6 +4177,16 @@ msgstr ""
 msgid "github_wins"
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "gray"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "green"
+msgstr "အစိမ်း"
+
 #. Option for the 'Sync Frequency' (Select) field in DocType 'GitHub Sync
 #. Settings'
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
@@ -4153,6 +4243,11 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "orange"
+msgstr "လိမ္မော်သီး"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "pdf-generator"
 msgstr ""
 
@@ -4165,6 +4260,11 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "pt"
 msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "red"
+msgstr "အနီေရာင်"
 
 #: translation_tools/translation_tools/page/resend_integration/resend_integration.js:4
 msgid "resend-integration"
