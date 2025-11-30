@@ -1,4 +1,12 @@
-import { FileText, Hash, Home, Upload } from 'lucide-react';
+/**
+ * @deprecated This file is NOT used. The actual AppSidebar is defined in:
+ * @see /components/ui/sidebar.tsx (around line 685)
+ *
+ * When adding new navigation items, update the navItems array in ui/sidebar.tsx
+ * Also update: App.tsx (route) and LandingPage.tsx (card)
+ */
+
+import { FileText, Hash, Home, Upload, Wrench } from 'lucide-react';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
@@ -47,6 +55,12 @@ export const AppSidebar = React.forwardRef<
       url: '/uuid-generator',
       icon: Hash,
       isActive: isPathActive('/uuid-generator'),
+    },
+    {
+      title: __('Account Mapper'),
+      url: '/account-mapper',
+      icon: Wrench,
+      isActive: isPathActive('/account-mapper'),
     },
   ];
 

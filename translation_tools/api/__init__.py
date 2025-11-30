@@ -3,6 +3,7 @@ from . import po_files
 from . import translation
 from . import glossary
 from . import settings
+from . import account_import  # One-Stop Service for Chart of Accounts Import
 
 # Configure logging
 import logging
