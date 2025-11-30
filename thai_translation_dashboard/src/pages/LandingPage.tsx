@@ -4,6 +4,7 @@ import {
   Hash,
   Languages,
   Sparkles,
+  Wrench,
 } from 'lucide-react';
 import type React from 'react';
 import { Link } from 'react-router-dom';
@@ -35,7 +36,7 @@ const LandingPage: React.FC = () => {
         </div>
 
         {/* Tool Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mt-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
           {/* ASEAN Translations Card */}
           <Card className="hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/50 group">
             <CardHeader className="space-y-4">
@@ -183,6 +184,55 @@ const LandingPage: React.FC = () => {
                 >
                   {__('Enter UUID Generator')}
                   <Hash className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          {/* Account Mapper Card */}
+          <Card className="hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/50 group">
+            <CardHeader className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Wrench className="w-12 h-12 text-orange-500 group-hover:scale-110 transition-transform" />
+                <FileSpreadsheet className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <CardTitle className="text-2xl">Account Mapper</CardTitle>
+              <CardDescription className="text-base">
+                {__('Fix Frappe Data Export/Import bugs')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col justify-between space-y-4 h-full">
+              <p className="text-sm text-muted-foreground">
+                {__(
+                  'Fix Account CSV export/import issues when migrating Chart of Accounts between companies or servers'
+                )}
+              </p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="text-orange-500">✓</span>
+                  <span>{__('Remove extra quotes from Data Export')}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-orange-500">✓</span>
+                  <span>{__('Override company abbreviation (ABBR)')}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-orange-500">✓</span>
+                  <span>{__('Override company name')}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-orange-500">✓</span>
+                  <span>{__('Fix Parent Account references')}</span>
+                </li>
+              </ul>
+              <Link to="/account-mapper" className="block mt-6">
+                <Button
+                  className="w-full text-base h-12"
+                  size="lg"
+                  variant="outline"
+                >
+                  {__('Enter Account Mapper')}
+                  <Wrench className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
             </CardContent>

@@ -2,7 +2,7 @@
 
 import { Slot } from '@radix-ui/react-slot';
 import { cva, VariantProps } from 'class-variance-authority';
-import { FileText, Hash, PanelLeftIcon, Upload } from 'lucide-react';
+import { FileText, Hash, PanelLeftIcon, Upload, Wrench } from 'lucide-react';
 import * as React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import tbsLogo from '@/assets/tbs_logo.png';
@@ -697,6 +697,10 @@ const AppSidebar = React.forwardRef<
     return location.pathname.startsWith(path);
   };
 
+  // Navigation items for Translation Tools sidebar
+  // NOTE: When adding new tools, also update:
+  //   1. App.tsx - Add route and lazy import
+  //   2. LandingPage.tsx - Add card for the tool
   const navItems = [
     {
       title: __('ERPNext ASEAN Translations'),
@@ -715,6 +719,12 @@ const AppSidebar = React.forwardRef<
       url: '/uuid-generator',
       icon: Hash,
       isActive: isPathActive('/uuid-generator'),
+    },
+    {
+      title: __('Account Mapper'),
+      url: '/account-mapper',
+      icon: Wrench,
+      isActive: isPathActive('/account-mapper'),
     },
   ];
 

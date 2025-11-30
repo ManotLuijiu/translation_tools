@@ -29,6 +29,7 @@ const ASEANTranslationsPage = lazy(
 );
 const CSVTranslationsPage = lazy(() => import('./pages/CSVTranslationsPage'));
 const UUIDGeneratorPage = lazy(() => import('./pages/UUIDGeneratorPage'));
+const AccountMapperPage = lazy(() => import('./pages/AccountMapperPage'));
 
 // Loading skeleton component for Suspense fallback - mobile-optimized
 const LoadingSkeleton = () => (
@@ -107,6 +108,7 @@ const MainContent: React.FC<{
                 element={<CSVTranslationsPage />}
               />
               <Route path="/uuid-generator" element={<UUIDGeneratorPage />} />
+              <Route path="/account-mapper" element={<AccountMapperPage />} />
             </Routes>
           </Suspense>
         </div>

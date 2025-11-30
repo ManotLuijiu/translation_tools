@@ -305,7 +305,7 @@ msgstr "รายการทั้งหมด"
 #: translation_tools/templates/pages/token_management.html:72
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Amount"
-msgstr "จำนวนเงิน"
+msgstr "จำนวน"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -866,7 +866,7 @@ msgstr "ชื่อลูกค้า"
 #. Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Daily"
-msgstr "ประจำวัน"
+msgstr "รายวัน"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -1083,7 +1083,7 @@ msgstr "เปิดใช้งานขั้นตอนนี้"
 #. Label of a Check field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Enabled"
-msgstr "เปิดการใช้งาน"
+msgstr "เปิดใช้งานแล้ว"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -2639,7 +2639,7 @@ msgstr "กำลังเปลี่ยนเส้นทางไปยัง
 #: translation_tools/translation_tools/page/translation_dashboard/translation_dashboard.js:9
 #: translation_tools/translation_tools/page/translation_status/translation_status.js:35
 msgid "Refresh"
-msgstr "รีเฟรซ"
+msgstr "รีเฟรช"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -2692,7 +2692,7 @@ msgstr "ไม่ได้ระบุ Resend API Key กรุณาตั้�
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "Reset"
-msgstr "รีเซ็ต"
+msgstr "เริ่มใหม่"
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:20
 msgid "Reset Status"
@@ -3532,7 +3532,7 @@ msgstr "โทเค็น"
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "Total"
-msgstr "รวมทั้งหมด"
+msgstr "รวม"
 
 #. Label of a Int field in DocType 'Bulk Translation Job'
 #: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
@@ -4255,7 +4255,7 @@ msgstr "openai"
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "orange"
-msgstr "ส้ม"
+msgstr "สีส้ม"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
