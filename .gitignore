@@ -30,7 +30,13 @@ yarn-error.log*
 .temp/
 .tmp/
 
-.serena
+.serena/
+.claude/
+.conductor/
+.playwright-mcp/
+
+specs/
+docs/
 CLAUDE.md
 
 translation_tools/locale/
