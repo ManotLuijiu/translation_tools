@@ -215,12 +215,21 @@ def validate_accounts(accounts_json: str, company: str) -> dict:
     errors = []
     warnings = []
 
-    # Build set of all account IDs in import
+    # Build set of all account IDs in import and track duplicates
     account_ids = set()
-    for acc in accounts:
+    id_to_rows = {}  # Track which rows have which IDs
+    for i, acc in enumerate(accounts):
         acc_id = acc.get("ID", "").strip()
         if acc_id:
             account_ids.add(acc_id)
+            if acc_id not in id_to_rows:
+                id_to_rows[acc_id] = []
+            id_to_rows[acc_id].append(i + 1)  # 1-based row number
+
+    # Find duplicates (IDs that appear more than once)
+    duplicate_ids = {acc_id: rows for acc_id, rows in id_to_rows.items() if len(rows) > 1}
+    for acc_id, rows in duplicate_ids.items():
+        warnings.append(f"Duplicate ID '{acc_id}' found in rows: {', '.join(map(str, rows))}")
 
     # Validate each account
     for i, acc in enumerate(accounts):
@@ -235,7 +244,9 @@ def validate_accounts(accounts_json: str, company: str) -> dict:
             errors.append(f"Row {row_num}: Account Name is required")
 
         if not root_type:
-            errors.append(f"Row {row_num} ({acc_name}): Root Type is required")
+            # Root type not required for now - we auto-detect from name pattern
+            # errors.append(f"Row {row_num} ({acc_name}): Root Type is required")
+            pass
         elif root_type not in ["Asset", "Liability", "Equity", "Income", "Expense"]:
             errors.append(f"Row {row_num} ({acc_name}): Invalid Root Type '{root_type}'")
 
@@ -245,12 +256,6 @@ def validate_accounts(accounts_json: str, company: str) -> dict:
                 # Check if parent exists in database for this company
                 if not frappe.db.exists("Account", {"name": parent, "company": company}):
                     errors.append(f"Row {row_num} ({acc_name}): Parent Account '{parent}' not found")
-
-        # Check for duplicates
-        if acc_id:
-            count = sum(1 for a in accounts if a.get("ID", "").strip() == acc_id)
-            if count > 1:
-                warnings.append(f"Row {row_num}: Duplicate ID '{acc_id}'")
 
     # Check for existing accounts that would conflict
     existing_count = 0
@@ -277,18 +282,31 @@ def _sort_accounts_by_hierarchy(accounts: list) -> list:
     Sort accounts so that parent accounts are created before children.
     Uses topological sort based on parent-child relationships.
 
+    Order: Root accounts (depth 0) → Level 1 → Level 2 → ... → Leaf accounts
+
+    Example output order:
+    1. 1000 - Application of Funds (Assets) - MCCCL (root, depth 0)
+    2. 1100-1600 - Current Assets - MCCCL (depth 1, parent is root)
+    3. 1100 - Cash - MCCCL (depth 2, parent is Current Assets)
+
     Args:
         accounts: List of account dictionaries
 
     Returns:
         list: Sorted list with parents before children
     """
+    import logging
+    logger = logging.getLogger(__name__)
+
     # Build lookup by account ID
     account_lookup = {}
     for acc in accounts:
         acc_id = acc.get("ID", "").strip()
         if acc_id:
             account_lookup[acc_id] = acc
+
+    logger.info(f"[Account Import] Total accounts to sort: {len(accounts)}")
+    logger.info(f"[Account Import] Account lookup built with {len(account_lookup)} entries")
 
     # Calculate depth for each account
     def get_depth(acc_id, visited=None):
@@ -306,21 +324,39 @@ def _sort_accounts_by_hierarchy(accounts: list) -> list:
 
         parent_id = acc.get("Parent Account", "").strip()
         if not parent_id or parent_id not in account_lookup:
-            return 0
+            return 0  # Root account or parent not in import list
 
         return 1 + get_depth(parent_id, visited)
 
     # Calculate depth for each account
     depths = []
+    root_accounts = []
     for acc in accounts:
         acc_id = acc.get("ID", "").strip()
+        parent_id = acc.get("Parent Account", "").strip()
         depth = get_depth(acc_id) if acc_id else 0
         depths.append((depth, acc))
+
+        # Track root accounts for debugging
+        if depth == 0:
+            root_accounts.append(acc_id)
+
+    logger.info(f"[Account Import] Root accounts (depth 0): {root_accounts}")
 
     # Sort by depth (root accounts first)
     depths.sort(key=lambda x: x[0])
 
-    return [acc for _, acc in depths]
+    sorted_accounts = [acc for _, acc in depths]
+
+    # Debug: Log first 10 accounts in sorted order
+    logger.info("[Account Import] Sorted order (first 10):")
+    for i, acc in enumerate(sorted_accounts[:10]):
+        acc_id = acc.get("ID", "")
+        parent = acc.get("Parent Account", "")
+        depth = depths[i][0] if i < len(depths) else "?"
+        logger.info(f"  {i+1}. [depth={depth}] {acc_id} (parent: {parent or 'NONE - ROOT'})")
+
+    return sorted_accounts
 
 
 def _create_single_account(account_data: dict, company: str, abbr: str, available_fields: dict) -> dict:
@@ -336,8 +372,18 @@ def _create_single_account(account_data: dict, company: str, abbr: str, availabl
     Returns:
         dict: Result with status (created/skipped/failed) and message
     """
+    import logging
+    logger = logging.getLogger(__name__)
+
     acc_id = account_data.get("ID", "").strip()
     acc_name = account_data.get("Account Name", "").strip()
+    parent_acc = account_data.get("Parent Account", "").strip()
+    root_type_csv = account_data.get("Root Type", "").strip()
+
+    logger.info(f"[Account Import] Creating: {acc_id}")
+    logger.info(f"  - Account Name: {acc_name}")
+    logger.info(f"  - Parent Account: {parent_acc or 'NONE (root account)'}")
+    logger.info(f"  - Root Type (from CSV): {root_type_csv or 'not set'}")
 
     # Check if account already exists
     if frappe.db.exists("Account", acc_id):
@@ -360,10 +406,48 @@ def _create_single_account(account_data: dict, company: str, abbr: str, availabl
             "account_type": account_data.get("Account Type", "").strip() or None,
         }
 
-        # Parent Account
+        # Parent Account - handle root accounts specially
         parent = account_data.get("Parent Account", "").strip()
+        root_type = doc_data.get("root_type")
+
+        # Detect root accounts by standard ERPNext naming pattern if root_type not explicitly set
+        # Standard root account names: "Application of Funds (Assets)", "Source of Funds (Liabilities)",
+        # "Equity", "Income", "Expenses" etc.
+        if not root_type and not parent:
+            logger.info(f"  - No root_type and no parent - checking name pattern for root account detection")
+            root_type_mapping = {
+                "Application of Funds (Assets)": "Asset",
+                "Source of Funds (Liabilities)": "Liability",
+                "Equity": "Equity",
+                "Income": "Income",
+                "Expenses": "Expense",
+                # Thai equivalents
+                "สินทรัพย์": "Asset",
+                "หนี้สิน": "Liability",
+                "ทุน": "Equity",
+                "รายได้": "Income",
+                "ค่าใช้จ่าย": "Expense",
+            }
+            for pattern, detected_root_type in root_type_mapping.items():
+                if pattern.lower() in acc_name.lower():
+                    root_type = detected_root_type
+                    doc_data["root_type"] = detected_root_type
+                    logger.info(f"  - AUTO-DETECTED root_type: {detected_root_type} (matched pattern: {pattern})")
+                    break
+
         if parent:
             doc_data["parent_account"] = parent
+            logger.info(f"  - Setting parent_account: {parent}")
+        elif root_type:
+            # Root accounts don't have parent_account - they are top-level accounts
+            # Frappe accepts accounts with root_type and no parent_account
+            logger.info(f"  - ROOT ACCOUNT: No parent_account needed (root_type={root_type})")
+            pass  # No parent_account needed for root accounts with root_type
+        else:
+            # Neither parent nor root_type - this is an error
+            # But we'll let Frappe validation handle it
+            logger.warning(f"  - WARNING: No parent and no root_type - Frappe validation may fail!")
+            pass
 
         # Account Number
         acc_number = account_data.get("Account Number", "").strip()
@@ -406,9 +490,18 @@ def _create_single_account(account_data: dict, company: str, abbr: str, availabl
         doc = frappe.get_doc(doc_data)
         doc.flags.ignore_permissions = True
         doc.flags.ignore_links = True
-        doc.flags.ignore_validate = True
+
+        # Root accounts (those with root_type but no parent) need ignore_mandatory
+        # This follows ERPNext's Chart of Accounts import pattern
+        is_root_account = root_type and not parent
+        if is_root_account:
+            doc.flags.ignore_mandatory = True
+            logger.info(f"  - Setting ignore_mandatory=True for root account")
+
+        logger.info(f"  - Inserting account with doc_data: root_type={doc_data.get('root_type')}, parent_account={doc_data.get('parent_account', 'NOT SET')}")
         doc.insert()
 
+        logger.info(f"  - ✅ SUCCESS: Account created: {doc.name}")
         return {
             "status": "created",
             "account": doc.name,
@@ -416,10 +509,22 @@ def _create_single_account(account_data: dict, company: str, abbr: str, availabl
         }
 
     except Exception as e:
-        frappe.log_error(
-            f"Failed to create account {acc_id}: {str(e)}",
-            "Account Import Error"
-        )
+        logger.error(f"  - ❌ FAILED: {str(e)}")
+
+        # Log error with truncated title to avoid CharacterLengthExceededError
+        # Error Log title field has max 140 characters
+        error_title = f"Account Import: {acc_id}"[:140]
+        error_message = f"Failed to create account {acc_id}: {str(e)}"
+
+        try:
+            frappe.log_error(
+                title=error_title,
+                message=error_message
+            )
+        except Exception:
+            # If even logging fails, silently continue - don't let logging break import
+            pass
+
         return {
             "status": "failed",
             "account": acc_id,
@@ -503,26 +608,48 @@ def import_accounts(accounts_json: str, company: str, abbr: str) -> dict:
         "custom_fields_available": available_fields
     }
 
-    # Import accounts
-    for i, account in enumerate(sorted_accounts):
-        result = _create_single_account(account, company, abbr, available_fields)
+    # Disable NestedSet updates during batch import for performance
+    # Tree will be rebuilt after all accounts are inserted
+    frappe.local.flags.ignore_update_nsm = True
 
-        if result["status"] == "created":
-            results["created"].append(result["account"])
-        elif result["status"] == "skipped":
-            results["skipped"].append(result["account"])
-        else:
-            results["failed"].append({
-                "account": result["account"],
-                "error": result["message"]
-            })
+    try:
+        # Import accounts
+        for i, account in enumerate(sorted_accounts):
+            result = _create_single_account(account, company, abbr, available_fields)
 
-        # Commit every 50 accounts to avoid transaction issues
-        if (i + 1) % 50 == 0:
-            frappe.db.commit()
+            if result["status"] == "created":
+                results["created"].append(result["account"])
+            elif result["status"] == "skipped":
+                results["skipped"].append(result["account"])
+            else:
+                results["failed"].append({
+                    "account": result["account"],
+                    "error": result["message"]
+                })
+
+            # Commit every 50 accounts to avoid transaction issues
+            if (i + 1) % 50 == 0:
+                frappe.db.commit()
+    finally:
+        # Re-enable NestedSet updates
+        frappe.local.flags.ignore_update_nsm = False
 
     # Final commit
     frappe.db.commit()
+
+    # Rebuild the Account NestedSet tree after import
+    # This ensures proper parent-child relationships are set in lft/rgt fields
+    # Following ERPNext's Chart of Accounts import pattern
+    if results["created"]:
+        try:
+            from frappe.utils.nestedset import rebuild_tree
+            rebuild_tree("Account", "parent_account")
+        except Exception as e:
+            # Log but don't fail - tree can be rebuilt manually if needed
+            frappe.log_error(
+                title="Account Tree Rebuild Warning",
+                message=f"Could not rebuild Account tree after import: {str(e)}"
+            )
 
     # Set overall success status
     results["success"] = len(results["failed"]) == 0
