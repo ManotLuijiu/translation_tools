@@ -1110,7 +1110,11 @@ const AccountMapperPage: React.FC = () => {
                 <span className="font-medium">{selectedCompany?.name}</span>
               </p>
             </div>
-            <Button size="lg" onClick={handleImport} className="px-8">
+            <Button
+              size="lg"
+              onClick={handleImport}
+              className="px-8 cursor-pointer"
+            >
               <Upload className="mr-2 h-5 w-5" />
               {__('Import Now')}
             </Button>
