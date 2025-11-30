@@ -849,6 +849,92 @@ class WorkspaceManager:
                         f"Added link '{link_data.get('label')}' to card '{card_name}'"
                     )
 
+            # Add charts array for workspace
+            workspace.charts = []
+            workspace.append("charts", {
+                "chart_name": "IP Sales Trend",
+                "label": "Monthly Sales Trend"
+            })
+            workspace.append("charts", {
+                "chart_name": "IP Purchase Trend",
+                "label": "Monthly Purchase Trend"
+            })
+
+            # Add number_cards array for workspace
+            workspace.number_cards = []
+            workspace.append("number_cards", {
+                "number_card_name": "IP Monthly Sales",
+                "label": "Monthly Sales",
+                "color": "Blue"
+            })
+            workspace.append("number_cards", {
+                "number_card_name": "IP Pending Sales Orders",
+                "label": "Pending Delivery",
+                "color": "Orange"
+            })
+            workspace.append("number_cards", {
+                "number_card_name": "IP Pending Purchase Orders",
+                "label": "Pending Receipt",
+                "color": "Purple"
+            })
+            workspace.append("number_cards", {
+                "number_card_name": "IP Manufacturing Orders",
+                "label": "Active MO",
+                "color": "Yellow"
+            })
+            workspace.append("number_cards", {
+                "number_card_name": "IP Total Stock Value",
+                "label": "Stock Value",
+                "color": "Green"
+            })
+            workspace.append("number_cards", {
+                "number_card_name": "IP Active Items",
+                "label": "Active Items",
+                "color": "Cyan"
+            })
+
+            # Add shortcuts array
+            workspace.shortcuts = []
+            workspace.append("shortcuts", {
+                "label": "PO Delivery Calendar Report",
+                "link_to": "PO Delivery Calendar Report",
+                "type": "Report",
+                "doc_view": "List",
+                "color": "Grey",
+                "report_ref_doctype": "Purchase Order"
+            })
+            workspace.append("shortcuts", {
+                "label": "Delivery Schedule",
+                "link_to": "Delivery Schedule",
+                "type": "DocType",
+                "doc_view": "List",
+                "color": "Blue",
+                "stats_filter": "[]"
+            })
+            workspace.append("shortcuts", {
+                "label": "Inter Express Delivery",
+                "link_to": "Inter Express Delivery",
+                "type": "DocType",
+                "doc_view": "List",
+                "color": "Green",
+                "stats_filter": "[]"
+            })
+            workspace.append("shortcuts", {
+                "label": "Inter Express Export",
+                "link_to": "inter-express-export",
+                "type": "Page",
+                "doc_view": "",
+                "color": "Cyan"
+            })
+            workspace.append("shortcuts", {
+                "label": "Manufacturing Order",
+                "link_to": "Manufacturing Order",
+                "type": "DocType",
+                "doc_view": "List",
+                "color": "Orange",
+                "stats_filter": "[]"
+            })
+
             workspace.save(ignore_permissions=True)
             frappe.db.commit()
 
@@ -859,7 +945,7 @@ class WorkspaceManager:
             WorkspaceManager.fix_standard_workspace_ordering()
 
             logger.info(
-                f"✅ Inpac Pharma workspace setup complete - {len(cards)} cards, {links_added} links"
+                f"✅ Inpac Pharma workspace setup complete - {len(cards)} cards, {links_added} links, 2 charts, 6 number cards"
             )
             return {
                 "success": True,
