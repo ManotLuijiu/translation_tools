@@ -1185,11 +1185,16 @@ const AccountMapperPage: React.FC = () => {
             )}
 
             <div className="flex justify-center gap-2 pt-4">
-              <Button variant="outline" onClick={resetWizard}>
+              <Button
+                variant="outline"
+                onClick={resetWizard}
+                className="cursor-pointer"
+              >
                 <RefreshCw className="mr-2 h-4 w-4" />
                 {__('Import Another')}
               </Button>
               <Button
+                className="cursor-pointer"
                 onClick={() => {
                   window.open(
                     `/app/account?company=${encodeURIComponent(selectedCompany?.name || '')}`,
@@ -1232,7 +1237,8 @@ const AccountMapperPage: React.FC = () => {
         {STEPS.map((step, index) => {
           const StepIcon = step.icon;
           const isActive = currentStep === step.id;
-          const isCompleted = currentStep > step.id;
+          // Step is completed if we're past it, OR if it's the Import step (5) and import was successful
+          const isCompleted = currentStep > step.id || (step.id === 5 && importResult?.success);
 
           return (
             <div key={step.id} className="flex items-center">
@@ -1253,7 +1259,7 @@ const AccountMapperPage: React.FC = () => {
               </div>
               <span
                 className={`ml-2 text-sm font-medium hidden sm:inline ${
-                  isActive ? 'text-foreground' : 'text-muted-foreground'
+                  isActive || isCompleted ? 'text-foreground' : 'text-muted-foreground'
                 }`}
               >
                 {__(step.name)}
@@ -1261,7 +1267,7 @@ const AccountMapperPage: React.FC = () => {
               {index < STEPS.length - 1 && (
                 <div
                   className={`w-8 sm:w-16 h-0.5 mx-2 sm:mx-4 ${
-                    currentStep > step.id
+                    currentStep > step.id || (step.id === 4 && importResult?.success)
                       ? 'bg-green-500'
                       : 'bg-muted-foreground/30'
                   }`}
