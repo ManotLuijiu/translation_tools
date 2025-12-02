@@ -210,6 +210,11 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Abbreviation"
+msgstr "အကျဉ်း"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "About"
 msgstr ""
 
@@ -222,6 +227,16 @@ msgstr ""
 #: SPA
 msgid "About this tool"
 msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Account Mapper"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Account Name"
+msgstr "အကောင့်အမည်"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -424,6 +439,11 @@ msgstr ""
 msgid "Auto Sync"
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Auto-detected Mapping"
+msgstr ""
+
 #. Option for the 'Category' (Select) field in DocType 'Translation Glossary
 #. Term'
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
@@ -601,6 +621,11 @@ msgstr "Category:"
 msgid "Changing language to "
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Chart of Accounts Import"
+msgstr ""
+
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:67
 msgid "Claude API connection failed: {0}"
 msgstr ""
@@ -635,12 +660,22 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Click the button below to import accounts to the database"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Click to sync"
 msgstr ""
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:199
 msgid "Close"
 msgstr "ပိတ်"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Column Mapping"
+msgstr ""
 
 #. Label of a Select field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
@@ -652,9 +687,29 @@ msgstr ""
 msgid "Common problems identified in logs"
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Company"
+msgstr "ကုမ္ပဏီ"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Company Name"
+msgstr "ကုမ္ပဏီအမည်"
+
 #. Label of a Link in the Integrations Workspace
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Company Retention Settings"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Company already exists, using existing"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Company created successfully"
 msgstr ""
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:126
@@ -786,6 +841,21 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Create Company"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Create New Company"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Create New Company..."
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Create a token with"
 msgstr ""
 
@@ -794,6 +864,11 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Create a token with 'repo' scope at https://github.com/settings/tokens"
 msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Created"
+msgstr "Created"
 
 #. Option for the 'Schedule Type' (Select) field in DocType 'Translation
 #. Schedule'
@@ -820,6 +895,11 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Currency"
 msgstr "ငှေကွေး"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Currency defaults to THB"
+msgstr ""
 
 #. Label of a Data field in DocType 'Bulk Translation Job'
 #: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
@@ -1004,6 +1084,16 @@ msgstr ""
 msgid "Download results as CSV"
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Downloaded mapped CSV"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Drop your CSV file here"
+msgstr ""
+
 #. Label of a Link in the Integrations Workspace
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Dropbox Settings"
@@ -1087,6 +1177,11 @@ msgstr ""
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "Enter ASEAN Translations"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Enter Account Mapper"
 msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
@@ -1242,6 +1337,11 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Existing Companies"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Exists"
 msgstr ""
 
@@ -1262,6 +1362,11 @@ msgstr ""
 msgid "Failed"
 msgstr "Failed"
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Failed Accounts"
+msgstr ""
+
 #: translation_tools/api/message.py:202
 msgid "Failed to create checkout session. Please try again."
 msgstr ""
@@ -1273,6 +1378,16 @@ msgstr ""
 
 #: translation_tools/override/custom_sales_invoice.py:78
 msgid "Failed to generate PDF. Please check the error log."
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Failed to generate abbreviation"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Failed to load companies"
 msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
@@ -1359,6 +1474,11 @@ msgstr "ပြန်ကြားရေး file"
 msgid "File Path"
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "File Ready"
+msgstr ""
+
 #: translation_tools/api/po_files.py:1043
 #: translation_tools/api/po_files.py:1105
 #: translation_tools/api/po_files.py:1198
@@ -1392,6 +1512,11 @@ msgstr ""
 msgid "Find Translation Files"
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Fix Parent Account references"
+msgstr ""
+
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
 msgid "Font"
 msgstr ""
@@ -1419,6 +1544,11 @@ msgstr ""
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "Force regenerate will overwrite existing POT files"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Found"
 msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
@@ -1682,8 +1812,33 @@ msgstr "အိုင်ကွန်"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Import Accounts"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Import Another"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Import Complete"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Import Now"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Important"
 msgstr "အရေးကြီးတယ်"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Importing accounts..."
+msgstr ""
 
 #: translation_tools/api/components.py:83
 msgid "Importing default Thai glossary..."
@@ -2127,6 +2282,11 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "No company found."
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "No data available for this file"
 msgstr ""
 
@@ -2260,6 +2420,11 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Override company name"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Overview of translation log analysis"
 msgstr ""
 
@@ -2351,6 +2516,11 @@ msgstr ""
 msgid "Package Name"
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Parent"
+msgstr "မိဘ"
+
 #. Description of the 'Signature Storage Path' (Data) field in DocType 'PDF
 #. Settings'
 #: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
@@ -2433,6 +2603,11 @@ msgstr ""
 msgid "Please enter at least one API key first"
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Please enter company name and abbreviation"
+msgstr ""
+
 #: translation_tools/api/config.py:126
 msgid "Please log in to save settings."
 msgstr ""
@@ -2472,6 +2647,11 @@ msgstr ""
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "Please wait while POT files are being generated..."
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Please wait while we validate the data"
 msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
@@ -2617,8 +2797,18 @@ msgstr ""
 msgid "Raw Logs"
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Re-validate"
+msgstr ""
+
 #: translation_tools/override/client.py:82
 msgid "Read"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Ready to import"
 msgstr ""
 
 #: translation_tools/templates/pages/token_management.html:67
@@ -2659,6 +2849,11 @@ msgstr ""
 #: SPA
 msgid "Reload"
 msgstr "Reload ကို"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Remove extra quotes from Data Export"
+msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -2706,6 +2901,26 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Retry Count"
 msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Review how columns will be mapped from source to target"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Review the import results"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Review the mapped data before importing"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Root Type"
+msgstr "အမြစ်ကအမျိုးအစား"
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:9
 msgid "Run Now"
@@ -2835,6 +3050,11 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Search companies..."
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Search files..."
 msgstr ""
 
@@ -2882,6 +3102,11 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Select Target Company"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Select Thai column"
 msgstr ""
 
@@ -2922,6 +3147,11 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Select company..."
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Select default model"
 msgstr ""
 
@@ -2953,6 +3183,11 @@ msgstr ""
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "Select the translation tool you want to use"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Selected Company"
 msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
@@ -3079,6 +3314,11 @@ msgstr ""
 msgid "Skip Empty Values"
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Skipped"
+msgstr ""
+
 #. Label of a Link in the Integrations Workspace
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Slack Webhook URL"
@@ -3091,6 +3331,11 @@ msgstr ""
 
 #: translation_tools/api/installation.py:347
 msgid "Some dependencies are missing. The setup script will attempt to install them."
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Source Column"
 msgstr ""
 
 #. Label of a Data field in DocType 'Translation History Entry'
@@ -3115,6 +3360,11 @@ msgstr ""
 
 #: translation_tools/templates/pages/token_management.html:27
 msgid "Standard advice"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Start Import"
 msgstr ""
 
 #. Label of a Datetime field in DocType 'Bulk Translation Job'
@@ -3302,6 +3552,11 @@ msgstr "စံနစ်"
 msgid "System Manager"
 msgstr "system Manager က"
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Target Field"
+msgstr ""
+
 #. Label of a Data field in DocType 'GitHub Sync Settings'
 #. Label of a Data field in DocType 'Translation History Entry'
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
@@ -3374,6 +3629,11 @@ msgstr ""
 #. Label of a Card Break in the Integrations Workspace
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Thai Business Suite"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Thai Name"
 msgstr ""
 
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:4
@@ -3918,6 +4178,11 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Upload Account Export CSV"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Upload CSV file and translate automatically"
 msgstr ""
 
@@ -3968,6 +4233,46 @@ msgstr ""
 msgid "User is not logged in."
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Validating accounts..."
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Validating..."
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Validation Failed"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Validation Passed"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Validation failed"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Validation found issues"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Validation passed"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "View Accounts"
+msgstr ""
+
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:39
 msgid "View Full Log"
 msgstr ""
@@ -3980,6 +4285,11 @@ msgstr ""
 #: SPA
 msgid "View Website"
 msgstr "view ဝက်ဘ်ဆိုက်"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Warnings"
+msgstr ""
 
 #. Option for the 'PDF Generation Method' (Select) field in DocType
 #. 'Translation PDF Settings'
