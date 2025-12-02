@@ -215,6 +215,11 @@ msgstr "การแปลอาเซียน"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Abbreviation"
+msgstr "ตัวย่อ"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "About"
 msgstr "เกี่ยวกับ"
 
@@ -227,6 +232,16 @@ msgstr "เกี่ยวกับเครื่องมือแปล"
 #: SPA
 msgid "About this tool"
 msgstr "เกี่ยวกับเครื่องมือนี้"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Account Mapper"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Account Name"
+msgstr "ชื่อบัญชี"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -429,6 +444,11 @@ msgstr "บันทึกอัตโนมัติ"
 msgid "Auto Sync"
 msgstr "ซิงค์อัตโนมัติ"
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Auto-detected Mapping"
+msgstr ""
+
 #. Option for the 'Category' (Select) field in DocType 'Translation Glossary
 #. Term'
 #: translation_tools/translation_tools/doctype/translation_glossary_term/translation_glossary_term.json
@@ -606,6 +626,11 @@ msgstr "หมวดหมู่"
 msgid "Changing language to "
 msgstr "กำลังเปลี่ยนภาษาเป็น"
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Chart of Accounts Import"
+msgstr ""
+
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.js:67
 msgid "Claude API connection failed: {0}"
 msgstr "การเชื่อมต่อ Claude API ล้มเหลว: {0}"
@@ -640,12 +665,22 @@ msgstr "คลิก"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Click the button below to import accounts to the database"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Click to sync"
 msgstr "คลิกเพื่อซิงค์"
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:199
 msgid "Close"
 msgstr "ปิด"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Column Mapping"
+msgstr ""
 
 #. Label of a Select field in DocType 'Translation Schedule'
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
@@ -657,10 +692,30 @@ msgstr "ประเภทคำสั่ง"
 msgid "Common problems identified in logs"
 msgstr "ปัญหาทั่วไปที่พบในบันทึกการเข้าใช้งาน"
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Company"
+msgstr "บริษัท"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Company Name"
+msgstr "ชื่อ บริษัท"
+
 #. Label of a Link in the Integrations Workspace
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Company Retention Settings"
 msgstr "การตั้งค่า เงินประกันผลงาน"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Company already exists, using existing"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Company created successfully"
+msgstr ""
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:126
 msgid "Compile PO files into binary MO files for runtime usage"
@@ -791,6 +846,21 @@ msgstr "คัดลอกทั้งหมด"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Create Company"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Create New Company"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Create New Company..."
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Create a token with"
 msgstr "สร้าง {% s %}"
 
@@ -800,6 +870,11 @@ msgstr "สร้าง {% s %}"
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Create a token with 'repo' scope at https://github.com/settings/tokens"
 msgstr "สร้างโทเค็นที่มีขอบเขต 'repo' ที่ https://github.com/settings/tokens"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Created"
+msgstr "ที่สร้างไว้"
 
 #. Option for the 'Schedule Type' (Select) field in DocType 'Translation
 #. Schedule'
@@ -826,6 +901,11 @@ msgstr "นิพจน์ Cron ควรประกอบด้วย 5 ส่
 #: translation_tools/translation_tools/doctype/token_purchase/token_purchase.json
 msgid "Currency"
 msgstr "สกุลเงิน"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Currency defaults to THB"
+msgstr ""
 
 #. Label of a Data field in DocType 'Bulk Translation Job'
 #: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
@@ -1010,6 +1090,16 @@ msgstr "ดาวน์โหลดเป็น TXT หรือ CSV"
 msgid "Download results as CSV"
 msgstr "ดาวน์โหลดผลลัพธ์เป็น CSV"
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Downloaded mapped CSV"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Drop your CSV file here"
+msgstr ""
+
 #. Label of a Link in the Integrations Workspace
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Dropbox Settings"
@@ -1094,6 +1184,11 @@ msgstr "ไทย"
 #: SPA
 msgid "Enter ASEAN Translations"
 msgstr "กรอกคำแปลอาเซียน"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Enter Account Mapper"
+msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -1248,6 +1343,11 @@ msgstr "สถานะการดำเนินการ"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Existing Companies"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Exists"
 msgstr "มีอยู่แล้ว"
 
@@ -1268,6 +1368,11 @@ msgstr "ดึงข้อความที่แปลได้ทั้งห
 msgid "Failed"
 msgstr "ล้มเหลว"
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Failed Accounts"
+msgstr ""
+
 #: translation_tools/api/message.py:202
 msgid "Failed to create checkout session. Please try again."
 msgstr "ไม่สามารถสร้างเซสชันชำระเงินได้ กรุณาลองใหม่อีกครั้ง"
@@ -1280,6 +1385,16 @@ msgstr "ไม่สามารถดึงโมเดลได้ กรุ�
 #: translation_tools/override/custom_sales_invoice.py:78
 msgid "Failed to generate PDF. Please check the error log."
 msgstr "ไม่สามารถสร้างไฟล์ PDF ได้ กรุณาตรวจสอบบันทึกข้อผิดพลาด"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Failed to generate abbreviation"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Failed to load companies"
+msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -1365,6 +1480,11 @@ msgstr "ข้อมูลไฟล์"
 msgid "File Path"
 msgstr "เส้นทางไฟล์"
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "File Ready"
+msgstr ""
+
 #: translation_tools/api/po_files.py:1043
 #: translation_tools/api/po_files.py:1105
 #: translation_tools/api/po_files.py:1198
@@ -1398,6 +1518,11 @@ msgstr "กรองรายการ"
 msgid "Find Translation Files"
 msgstr "ค้นหาไฟล์แปลภาษา"
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Fix Parent Account references"
+msgstr ""
+
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
 msgid "Font"
 msgstr "แบบอักษร"
@@ -1426,6 +1551,11 @@ msgstr "บังคับสร้างไฟล์ POT ใหม่"
 #: SPA
 msgid "Force regenerate will overwrite existing POT files"
 msgstr "การบังคับสร้างใหม่จะเขียนทับไฟล์ POT ที่มีอยู่แล้ว"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Found"
+msgstr "พบ"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -1688,8 +1818,33 @@ msgstr "ไอคอน"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Import Accounts"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Import Another"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Import Complete"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Import Now"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Important"
 msgstr "สำคัญ"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Importing accounts..."
+msgstr ""
 
 #: translation_tools/api/components.py:83
 msgid "Importing default Thai glossary..."
@@ -2133,6 +2288,11 @@ msgstr "ไม่จำเป็นต้องเปลี่ยนแปลง
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "No company found."
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "No data available for this file"
 msgstr "ไม่มีข้อมูลสำหรับไฟล์นี้"
 
@@ -2266,6 +2426,11 @@ msgstr "ความก้าวหน้ารวม"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Override company name"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Overview of translation log analysis"
 msgstr "ภาพรวมของการวิเคราะห์บันทึกการแปล"
 
@@ -2357,6 +2522,11 @@ msgstr "แพ็กเกจ"
 msgid "Package Name"
 msgstr "ชื่อชุดโปรแกรม"
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Parent"
+msgstr "ผู้ปกครอง"
+
 #. Description of the 'Signature Storage Path' (Data) field in DocType 'PDF
 #. Settings'
 #: translation_tools/translation_tools/doctype/pdf_settings/pdf_settings.json
@@ -2439,6 +2609,11 @@ msgstr "กรุณาใส่คีย์ API ของ OpenAI ก่อน"
 msgid "Please enter at least one API key first"
 msgstr "กรุณากรอกคีย์ API อย่างน้อยหนึ่งรายการก่อน"
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Please enter company name and abbreviation"
+msgstr ""
+
 #: translation_tools/api/config.py:126
 msgid "Please log in to save settings."
 msgstr "โปรดลงชื่อเข้าใช้ก่อนจะบันทึกการตั้งค่า"
@@ -2479,6 +2654,11 @@ msgstr "กรุณาเข้าสู่ระบบเพื่อซื้
 #: SPA
 msgid "Please wait while POT files are being generated..."
 msgstr "กรุณารอสักครู่ ขณะกำลังสร้างไฟล์ POT..."
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Please wait while we validate the data"
+msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -2623,9 +2803,19 @@ msgstr "เนื้อหาบันทึกดิบ"
 msgid "Raw Logs"
 msgstr "บันทึกดิบ"
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Re-validate"
+msgstr ""
+
 #: translation_tools/override/client.py:82
 msgid "Read"
 msgstr "อ่าน"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Ready to import"
+msgstr ""
 
 #: translation_tools/templates/pages/token_management.html:67
 msgid "Recent Purchases"
@@ -2665,6 +2855,11 @@ msgstr "คืนเงิน"
 #: SPA
 msgid "Reload"
 msgstr "โหลด"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Remove extra quotes from Data Export"
+msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -2712,6 +2907,26 @@ msgstr "ผลลัพธ์และบันทึก"
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.json
 msgid "Retry Count"
 msgstr "จำนวนครั้งที่ลองใหม่"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Review how columns will be mapped from source to target"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Review the import results"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Review the mapped data before importing"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Root Type"
+msgstr "ประเภทหลัก"
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:9
 msgid "Run Now"
@@ -2841,6 +3056,11 @@ msgstr "ค้นหาชื่อโมดูล..."
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Search companies..."
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Search files..."
 msgstr "ค้นหาไฟล์..."
 
@@ -2888,6 +3108,11 @@ msgstr "เลือก ไม่มี"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Select Target Company"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Select Thai column"
 msgstr "เลือกคอลัมน์ภาษาไทย"
 
@@ -2928,6 +3153,11 @@ msgstr "เลือกคอลัมน์ที่จะแปล"
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Select company..."
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Select default model"
 msgstr "เลือกโมเดลเริ่มต้น"
 
@@ -2960,6 +3190,11 @@ msgstr "เลือกคอลัมน์เป้าหมาย"
 #: SPA
 msgid "Select the translation tool you want to use"
 msgstr "เลือกเครื่องมือแปลที่คุณต้องการใช้"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Selected Company"
+msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -3085,6 +3320,11 @@ msgstr "การสร้าง UUID เดียว"
 msgid "Skip Empty Values"
 msgstr "ข้ามค่าที่ว่างเปล่า"
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Skipped"
+msgstr "ข้ามไป"
+
 #. Label of a Link in the Integrations Workspace
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Slack Webhook URL"
@@ -3098,6 +3338,11 @@ msgstr "คีย์เข้าสู่ระบบโซเชียล"
 #: translation_tools/api/installation.py:347
 msgid "Some dependencies are missing. The setup script will attempt to install them."
 msgstr "มีการขาดแคลนส่วนประกอบบางอย่าง สคริปต์การตั้งค่าจะพยายามติดตั้งส่วนประกอบเหล่านั้นให้"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Source Column"
+msgstr ""
 
 #. Label of a Data field in DocType 'Translation History Entry'
 #: translation_tools/translation_tools/doctype/translation_history_entry/translation_history_entry.json
@@ -3122,6 +3367,11 @@ msgstr "การจัดการเฉพาะทางสำหรับก
 #: translation_tools/templates/pages/token_management.html:27
 msgid "Standard advice"
 msgstr "คำแนะนำมาตรฐาน"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Start Import"
+msgstr "เริ่มนำเข้า"
 
 #. Label of a Datetime field in DocType 'Bulk Translation Job'
 #: translation_tools/translation_tools/doctype/bulk_translation_job/bulk_translation_job.json
@@ -3308,6 +3558,11 @@ msgstr "ระบบ"
 msgid "System Manager"
 msgstr "ผู้จัดการระบบ"
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Target Field"
+msgstr ""
+
 #. Label of a Data field in DocType 'GitHub Sync Settings'
 #. Label of a Data field in DocType 'Translation History Entry'
 #: translation_tools/translation_tools/doctype/github_sync_settings/github_sync_settings.json
@@ -3381,6 +3636,11 @@ msgstr "กำลังทดสอบการเชื่อมต่อ OpenA
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Thai Business Suite"
 msgstr "ชุดธุรกิจไทย"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Thai Name"
+msgstr ""
 
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:4
 #: translation_tools/translation_tools/page/pdf_override/pdf_override.js:73
@@ -3929,6 +4189,11 @@ msgstr "กำลังอัปเดต..."
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Upload Account Export CSV"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Upload CSV file and translate automatically"
 msgstr "อัปโหลดไฟล์ CSV และแปลโดยอัตโนมัติ"
 
@@ -3979,6 +4244,46 @@ msgstr "โทเค็นผู้ใช้"
 msgid "User is not logged in."
 msgstr "ผู้ใช้ยังไม่ได้เข้าสู่ระบบ"
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Validating accounts..."
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Validating..."
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Validation Failed"
+msgstr "การตรวจสอบล้มเหลว"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Validation Passed"
+msgstr "การตรวจสอบผ่านแล้ว"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Validation failed"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Validation found issues"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Validation passed"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "View Accounts"
+msgstr ""
+
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:39
 msgid "View Full Log"
 msgstr "ดูบันทึกเต็มรูปแบบ"
@@ -3991,6 +4296,11 @@ msgstr "ดูประวัติการซิงค์"
 #: SPA
 msgid "View Website"
 msgstr "ดูเว็บไซต์"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Warnings"
+msgstr "คำเตือน"
 
 #. Option for the 'PDF Generation Method' (Select) field in DocType
 #. 'Translation PDF Settings'
