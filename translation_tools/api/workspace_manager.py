@@ -760,6 +760,12 @@ class WorkspaceManager:
                         "is_query_report": 1,
                     },
                     {
+                        "label": "Customer Delivery Calendar Report",
+                        "link_to": "Customer Delivery Calendar Report",
+                        "link_type": "Report",
+                        "is_query_report": 1,
+                    },
+                    {
                         "label": "Stock Balance",
                         "link_to": "Stock Balance",
                         "link_type": "Report",
@@ -902,6 +908,14 @@ class WorkspaceManager:
                 "doc_view": "List",
                 "color": "Grey",
                 "report_ref_doctype": "Purchase Order"
+            })
+            workspace.append("shortcuts", {
+                "label": "Customer Delivery Calendar Report",
+                "link_to": "Customer Delivery Calendar Report",
+                "type": "Report",
+                "doc_view": "List",
+                "color": "Purple",
+                "report_ref_doctype": "Sales Order"
             })
             workspace.append("shortcuts", {
                 "label": "Delivery Schedule",
