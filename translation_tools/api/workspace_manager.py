@@ -412,6 +412,11 @@ class WorkspaceManager:
                         "type": "shortcut",
                         "data": {"shortcut_name": "Manufacturing Order", "col": 3},
                     },
+                    {
+                        "id": "sc_customer_delivery_calendar",
+                        "type": "shortcut",
+                        "data": {"shortcut_name": "Customer Delivery Calendar Report", "col": 3},
+                    },
                     {"id": "spacer_shortcuts", "type": "spacer", "data": {"col": 12}},
                     # Cards
                     {
@@ -609,6 +614,11 @@ class WorkspaceManager:
                         "link_to": "Sales Order",
                         "link_type": "DocType",
                         "onboard": 1,
+                    },
+                    {
+                        "label": "Consignment",
+                        "link_to": "Consignment",
+                        "link_type": "DocType",
                     },
                     {
                         "label": "Sales Invoice",
