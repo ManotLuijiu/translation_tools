@@ -42,3 +42,8 @@ CLAUDE.md
 translation_tools/locale/
 translation_tools/translations/
 translation_tools/public/images/local/
+
+translation_tools/locale/th.po
+translation_tools/public/thai_translation_dashboard/index.html
+translation_tools/translations/th.csv
+translation_tools/www/translation_tools_dashboard.html
