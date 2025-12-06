@@ -593,8 +593,8 @@ class WorkspaceManager:
                     },
                     {"label": "Batch", "link_to": "Batch", "link_type": "DocType"},
                     {
-                        "label": "Stock Reservation",
-                        "link_to": "Stock Reservation",
+                        "label": "Stock Reservation Entry",
+                        "link_to": "Stock Reservation Entry",
                         "link_type": "DocType",
                     },
                     {
