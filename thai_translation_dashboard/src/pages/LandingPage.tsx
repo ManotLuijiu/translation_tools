@@ -49,7 +49,10 @@ const LandingPage: React.FC = () => {
                 {__('Translation for ASEAN Countries')}
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col justify-between space-y-4 h-full">
+            <CardContent
+              id="landing__page__card__content"
+              className="flex flex-col justify-between space-y-4 h-full"
+            >
               <p className="text-sm text-muted-foreground">
                 {__(
                   'Automatic translation system for Frappe/ERPNext and Custom Apps. Supports multiple ASEAN languages with AI and Glossary Management'
@@ -75,7 +78,7 @@ const LandingPage: React.FC = () => {
               </ul>
               <Link to="/asean-translations" className="block mt-6">
                 <Button
-                  className="w-full text-base h-12"
+                  className="w-full text-base h-12 cursor-pointer"
                   size="lg"
                   variant={'outline'}
                 >
@@ -129,7 +132,7 @@ const LandingPage: React.FC = () => {
               </ul>
               <Link to="/csv-translations" className="block mt-6">
                 <Button
-                  className="w-full text-base h-12"
+                  className="w-full text-base h-12 cursor-pointer"
                   size="lg"
                   variant="outline"
                 >
@@ -178,7 +181,7 @@ const LandingPage: React.FC = () => {
               </ul>
               <Link to="/uuid-generator" className="block mt-6">
                 <Button
-                  className="w-full text-base h-12"
+                  className="w-full text-base h-12 cursor-pointer"
                   size="lg"
                   variant="secondary"
                 >
@@ -227,7 +230,7 @@ const LandingPage: React.FC = () => {
               </ul>
               <Link to="/account-mapper" className="block mt-6">
                 <Button
-                  className="w-full text-base h-12"
+                  className="w-full text-base h-12 cursor-pointer"
                   size="lg"
                   variant="outline"
                 >
