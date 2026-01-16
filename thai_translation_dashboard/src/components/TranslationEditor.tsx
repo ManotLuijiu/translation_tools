@@ -109,6 +109,7 @@ export default function TranslationEditor({
     file_path: string;
     entry_id: string;
     translation: string;
+    msgid: string; // Added for reliable fallback lookup
   }
 
   const [pendingPushEntry, setPendingPushEntry] =
@@ -172,16 +173,16 @@ export default function TranslationEditor({
   // const { data, error, isLoading } = useGetTranslationSettings();
 
   // Reset selected entry when file changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: selectedFile?.file_path triggers reset intentionally
   useEffect(() => {
-    // console.log('TranslationEditor Clicked');
     setSelectedEntryId(null);
     setEditedTranslation('');
-    // setStatusMessage(null);
     setCurrentPage(1);
     clearMessage();
-  }, [selectedFile?.file_path]);
+  }, [selectedFile?.file_path, clearMessage]);
 
-  // Effect to fetch data when page, filter, or search term changes
+  // Effect to refetch when page, filter, or search term changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deps trigger refetch intentionally
   useEffect(() => {
     if (selectedFile?.file_path) {
       mutate();
@@ -376,9 +377,8 @@ export default function TranslationEditor({
         try {
           const parsedData = JSON.parse(result.data);
           if (
-            parsedData.message &&
-            parsedData.message.success &&
-            parsedData.message.translation
+            parsedData.message?.success &&
+            parsedData.message?.translation
           ) {
             translationData = parsedData.message.translation;
           }
@@ -538,6 +538,7 @@ export default function TranslationEditor({
           entry_id: pendingPushEntry.entry_id,
           translation: pendingPushEntry.translation,
           push_to_github: true,
+          msgid: pendingPushEntry.msgid, // For reliable fallback lookup
         });
 
         // console.log('Push result after token save:', pushResult);
@@ -689,6 +690,7 @@ export default function TranslationEditor({
         entry_id: selectedEntry.id,
         translation: editedTranslation,
         push_to_github: pushToGithub,
+        msgid: selectedEntry.msgid, // For reliable fallback lookup if index shifted
       });
 
       // console.log('Save result:', result);
@@ -726,12 +728,13 @@ export default function TranslationEditor({
               file_path: selectedFile.file_path,
               entry_id: selectedEntry.id,
               translation: editedTranslation,
+              msgid: selectedEntry.msgid, // Added for reliable fallback lookup
             });
 
             return;
           }
           // GitHub push succeeded
-          else if (githubResult?.github_pushed) {
+          if (githubResult?.github_pushed) {
             msg += ' and shared on GitHub!';
           }
           // Other GitHub errors
@@ -830,6 +833,7 @@ export default function TranslationEditor({
           file_path: selectedFile.file_path,
           entry_id: selectedEntry.id,
           translation: editedTranslation,
+          msgid: selectedEntry.msgid, // Added for reliable fallback lookup
         });
 
         return;
