@@ -107,17 +107,8 @@ def enhanced_error_handler(func):
     return wrapper
 
 
-def setup_logging():
-    """Configure logging for this module"""
-    handler = logging.StreamHandler()
-    handler.setFormatter(
-        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    )
-    logger.addHandler(handler)
-    logger.setLevel(logging.DEBUG)
-
-
-setup_logging()
+# setup_logging() removed - handlers already configured above (lines 32-50)
+# Keeping this comment to prevent re-adding duplicate handler setup
 
 
 @frappe.whitelist()
@@ -1163,14 +1154,15 @@ def get_po_file_contents(file_path, limit=100, offset=0):
 
 @frappe.whitelist()
 @enhanced_error_handler
-def save_translation(file_path, entry_id, translation, push_to_github=False):
+def save_translation(file_path, entry_id, translation, push_to_github=False, msgid=None):
     """
     Save a single translation to local file and optionally push to Github
     Args:
         file_path (str): Path to the PO file (standardized format)
-        entry_id (int): Index of the entry to translate
+        entry_id (str): Hash ID of the entry to translate
         translation (str): The translated text
         push_to_github (bool): Whether to also push to GitHub
+        msgid (str, optional): Original msgid for fallback lookup if hash doesn't match
     """
 
     loggerJson.info("Start save translation")
@@ -1228,9 +1220,36 @@ def save_translation(file_path, entry_id, translation, push_to_github=False):
                 logger.info(f"Found entry by hash at index {index}")
                 break
 
+        # Fallback: If hash lookup failed, try msgid-based lookup
+        # This handles cases where the PO file was modified (index shifted)
+        if entry is None and msgid:
+            logger.warning(f"Entry with hash ID {entry_id} not found, trying msgid fallback with provided msgid...")
+
+            # Use the msgid provided by frontend for reliable lookup
+            for index, potential_entry in enumerate(po):
+                if potential_entry.msgid == msgid:
+                    entry = potential_entry
+                    orig_index = index
+                    logger.info(f"Found entry by exact msgid match at index {index} (fallback)")
+                    break
+
+        # Second fallback: try msgid-only hash if msgid wasn't provided
         if entry is None:
-            logger.warning(f"Entry with ID {entry_id} not found")
-            frappe.throw(_("Invalid entry ID or entry not found"))
+            logger.warning(f"Entry with hash ID {entry_id} not found, trying msgid hash fallback...")
+
+            for index, potential_entry in enumerate(po):
+                # Try matching just by msgid hash (without index)
+                msgid_only_hash = hashlib.md5(potential_entry.msgid.encode("utf-8")).hexdigest()
+
+                if msgid_only_hash == entry_id:
+                    entry = potential_entry
+                    orig_index = index
+                    logger.info(f"Found entry by msgid-only hash at index {index} (fallback)")
+                    break
+
+        if entry is None:
+            logger.warning(f"Entry with ID {entry_id} not found even with fallback. msgid provided: {bool(msgid)}")
+            frappe.throw(_("Entry not found. The file may have been modified. Please refresh the page and try again."))
 
         # Check if this is a new translation (i.e., previously untranslated)
         was_untranslated = entry is not None and not entry.msgstr
@@ -1576,9 +1595,15 @@ def push_translation_to_github(
                         "error": "GitHub authentication failed. Please check your token.",
                     }
                 elif "push protection" in error_msg or "secret" in error_msg:
+                    # Log the translation content for debugging
+                    logger.warning(
+                        f"GitHub secret scanning blocked push. Translation: {translation[:200] if translation else 'N/A'}..."
+                    )
+                    logger.warning(f"Full GitHub error: {error_msg}")
                     return {
                         "github_pushed": False,
-                        "error": "GitHub security blocked the push. Please manually create the repository first.",
+                        "error": _("GitHub secret scanning blocked the push. The translation content may contain text that looks like an API key or token. Check the translation for long alphanumeric strings."),
+                        "details": error_msg,
                     }
                 else:
                     return {

@@ -13,7 +13,7 @@
     "is_approved",
     "module"
   ],
-  "autoname": "format:TERM-{source_term:.20}-{####}",
+  "autoname": "",
   "fields": [
     {
       "fieldname": "source_term",

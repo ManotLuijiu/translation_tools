@@ -419,6 +419,16 @@ msgstr ""
 msgid "Are you sure you want to run this translation command now?"
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Ask me to analyze data or process files..."
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Assistant"
+msgstr ""
+
 #. Label of a Card Break in the Integrations Workspace
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "Authentication"
@@ -671,6 +681,11 @@ msgstr ""
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:199
 msgid "Close"
 msgstr "បិទការ"
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Close sidebar"
+msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
@@ -931,6 +946,11 @@ msgstr ""
 msgid "Custom Fonts"
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Custom Streaming Events"
+msgstr ""
+
 #. Label of a Data field in DocType 'Translation Tools Settings'
 #: translation_tools/translation_tools/doctype/translation_tools_settings/translation_tools_settings.json
 msgid "Customer Name"
@@ -950,6 +970,11 @@ msgstr ""
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "Dashboard Content"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Data Analysis"
 msgstr ""
 
 #: translation_tools/templates/pages/token_management.html:74
@@ -1172,6 +1197,11 @@ msgstr "បានបើក"
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
 msgid "English Term"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Enter"
 msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
@@ -1980,6 +2010,11 @@ msgstr "ផ្លូវកាត់ក្តារចុច។"
 #. Label of a Link in the Integrations Workspace
 #: translation_tools/translation_tools/workspace/integrations/integrations.json
 msgid "LDAP Settings"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "LangGraph UI"
 msgstr ""
 
 #. Label of a Data field in DocType 'PO File'
@@ -2811,6 +2846,11 @@ msgstr ""
 msgid "Ready to import"
 msgstr ""
 
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Reasoning"
+msgstr ""
+
 #: translation_tools/templates/pages/token_management.html:67
 msgid "Recent Purchases"
 msgstr ""
@@ -3335,6 +3375,11 @@ msgstr ""
 
 #. Extracted from SPA (React/TypeScript) files
 #: SPA
+msgid "Soon"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
 msgid "Source Column"
 msgstr ""
 
@@ -3395,6 +3440,11 @@ msgstr "ស្ថានភាព"
 
 #: translation_tools/translation_tools/doctype/translation_schedule/translation_schedule.js:56
 msgid "Status: {0}"
+msgstr ""
+
+#. Extracted from SPA (React/TypeScript) files
+#: SPA
+msgid "Streaming Examples"
 msgstr ""
 
 #. Label of a Data field in DocType 'Token Purchase'
