@@ -53,12 +53,12 @@ After installing the app, follow these steps to start translating:
    ```
 2. Log in to ERPNext and open Translation Dashboard from the desktop.
 3. Configure your API key:
-   -Go to Settings
-   -Add your OpenAI or Anthropic API key
-   -Select the preferred model
+   - Go to Settings
+   - Add your OpenAI or Anthropic API key
+   - Select the preferred model
 4. Choose a translation method:
-   -Dashboard UI for interactive translation
-   -CLI tool for batch or automated translation
+   - Dashboard UI for interactive translation
+   - CLI tool for batch or automated translation
 
 ### Using the Dashboard
 
