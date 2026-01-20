@@ -1,0 +1,63 @@
+# CodeRabbit Configuration
+# Documentation: https://docs.coderabbit.ai/configuration/
+
+language: en-US
+
+reviews:
+  # Enable automatic reviews on PRs
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+      - develop
+
+  # Review profile - chill is less strict, assertive is more thorough
+  profile: chill
+
+  # Focus areas
+  path_filters:
+    # Include these paths
+    - "**/*.py"
+    - "**/*.ts"
+    - "**/*.tsx"
+    - "**/*.js"
+    - "**/*.jsx"
+    - "**/*.json"
+    # Exclude these paths
+    - "!**/node_modules/**"
+    - "!**/dist/**"
+    - "!**/*.min.js"
+    - "!**/package-lock.json"
+    - "!**/yarn.lock"
+
+  # Request changes on high severity issues
+  request_changes_workflow: false
+
+  # High-level summary
+  high_level_summary: true
+
+  # Poem in review (fun feature)
+  poem: false
+
+  # Review status in PR
+  review_status: true
+
+  # Collapse walkthrough after certain lines
+  collapse_walkthrough: true
+
+  # Changed files summary
+  changed_files_summary: true
+
+chat:
+  # Enable chat with @coderabbitai
+  auto_reply: true
+
+# Knowledge base for project context
+knowledge_base:
+  learnings:
+    scope: auto
+  issues:
+    scope: auto
+  pull_requests:
+    scope: auto
