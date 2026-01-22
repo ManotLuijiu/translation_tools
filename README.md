@@ -90,7 +90,7 @@ You can toggle between manual and AI translation modes:
 
 ### Command Line Usage
 
-Use the CLI tool to translate PO files directly from your bench environment.
+Use the CLI tool to translate PO files directly from your Frappe bench environment.
 
 #### Basic Usage
 
@@ -99,6 +99,32 @@ To translate a PO file to Thai, run the following command from your bench direct
 ```bash
 ./bin/translate-po apps/frappe/frappe/locale/th.po
 ```
+
+**Explanation:**
+
+- `./bin/translate-po` — CLI script for translating PO files
+- `apps/frappe/frappe/locale/th.po` — path to the target language file
+
+**Example: Translate to Another Language**
+
+For example, to translate a Hindi PO file:
+
+```bash
+./bin/translate-po apps/frappe/frappe/locale/hi.po
+```
+
+**Expected Output**
+
+After running the command, the tool will:
+
+- Translate missing entries in the PO file
+- Preserve existing translations
+- Save the updated file automatically
+
+**Tips**
+
+- Ensure your API key is configured in the Settings before running the CLI tool.
+- Run the command from the root of your bench directory.
 
 #### Advanced Options
 
