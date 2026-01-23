@@ -3,6 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/moo_logo.svg" />
+
+    <script type="module">
+      // first npm i react-grab
+      // then in head:
+      if (import.meta.env.DEV) {
+        import("react-grab").then((m) => m.init({"activationKey":{"key":"k","altKey":true},"activationMode":"hold","keyHoldDuration":150,"allowActivationInsideInput":true,"maxContextLines":3})).then((m) => m.init({"activationKey":{"key":"k","altKey":true},"activationMode":"hold","keyHoldDuration":150,"allowActivationInsideInput":true,"maxContextLines":3})).then((m) => m.init({"activationKey":{"key":"k","altKey":true},"activationMode":"hold","keyHoldDuration":150,"allowActivationInsideInput":true,"maxContextLines":3}));
+      }
+    </script>
+    
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"

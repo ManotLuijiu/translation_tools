@@ -3,6 +3,11 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import proxyOptions from "./proxyOptions";
+// import { startServer } from "@react-grab/claude-code/server";
+
+// if (process.env.NODE_ENV === "development") {
+//   startServer();
+// }
 
 // https://vitejs.dev/config/
 export default defineConfig({
