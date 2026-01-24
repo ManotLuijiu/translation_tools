@@ -14,8 +14,9 @@ guest_title = app_title
 
 # Desktop Sections
 # -------------------
-# Define your desktop sections
-desktop_icons = ["Translation Tools"]
+# Note: desktop_icons hook is deprecated in Frappe v15+
+# Desktop icons are now auto-generated from Workspaces
+# desktop_icons = ["Translation Tools"]
 
 required_apps = ["print_designer"]
 
