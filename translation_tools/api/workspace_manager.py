@@ -28,12 +28,14 @@ class WorkspaceManager:
                 workspace.sequence_id = 20.0
                 workspace.icon = "integration"
                 workspace.content = WorkspaceManager.get_default_integrations_content()
+                workspace.save(ignore_permissions=True)
+                frappe.db.commit()
             else:
                 logger.info("Using existing Integrations workspace")
                 workspace = frappe.get_doc("Workspace", workspace_name)
+                # Don't save existing workspace - it may have links to DocTypes
+                # that don't exist on this system (e.g., Dropbox Settings, Google Drive)
 
-            workspace.save(ignore_permissions=True)
-            frappe.db.commit()
             return workspace
 
         except Exception as e:
