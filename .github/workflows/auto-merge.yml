@@ -1,4 +1,4 @@
-name: Auto Merge Develop Into Main
+name: Auto Merge Develop Into Version-15
 
 on:
     push:
@@ -24,9 +24,9 @@ jobs:
                   git config user.name "GitHub Actions"
                   git config user.email "actions@github.com"
 
-            - name: Merge develop → main
+            - name: Merge develop → version-15
               run: |
                   git fetch origin
-                  git checkout main
+                  git checkout version-15
                   git merge origin/develop --no-edit
-                  git push origin main
+                  git push origin version-15
