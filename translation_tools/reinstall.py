@@ -2,7 +2,7 @@ import os
 import subprocess
 import shutil
 import frappe
-
+import platform
 
 def reset_installation():
     """Reset and repair the Translation Tools installation"""
@@ -49,7 +49,10 @@ def reset_installation():
         setup_script = os.path.join(app_dir, "translation_tools", "setup.sh")
 
         # Make the script executable
-        subprocess.check_call(["chmod", "+x", setup_script])
+        if platform.system() != "Windows":
+            subprocess.check_call(["chmod", "+x", setup_script])
+        else:
+            print("Skipping chmod on Windows (not required).")
 
         # Print instructions
         print("\nTo complete the repair, please run the setup script:")
