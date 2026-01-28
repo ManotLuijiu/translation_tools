@@ -265,16 +265,26 @@ def generate_pot_file(app_name):
     """
     Generate POT file using bench generate-pot-file
     Official command: bench generate-pot-file --app {app_name}
+
+    IMPORTANT: Deletes existing main.pot first because Frappe's generate-pot-file
+    doesn't update existing files - it only creates new ones.
     """
     try:
         bench_path = get_bench_path()
+
+        # Delete existing main.pot first (Frappe doesn't update existing POT files)
+        pot_path = get_app_pot_path(app_name)
+        if os.path.exists(pot_path):
+            os.remove(pot_path)
+            logger.info(f"Deleted existing POT file: {pot_path}")
+
         cmd = ["bench", "generate-pot-file", "--app", app_name]
-        
+
         result = subprocess.run(
-            cmd, 
-            cwd=bench_path, 
-            capture_output=True, 
-            text=True, 
+            cmd,
+            cwd=bench_path,
+            capture_output=True,
+            text=True,
             timeout=120
         )
         

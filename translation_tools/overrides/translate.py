@@ -334,7 +334,11 @@ def extract_text_from_tsx_file(file_path):
 
         # Pattern 6: Translation function calls: __("Text") or __('Text')
         # This is the PRIMARY pattern for extracting translatable strings in SPAs
-        translation_calls = re.findall(r'__\(["\']([^"\']{1,200})["\']', content)
+        # Uses \s* to handle multiline patterns like:
+        #   __(
+        #     "Capture the back side with ID"
+        #   )
+        translation_calls = re.findall(r'__\(\s*["\']([^"\']{1,200})["\']\s*\)', content)
         texts.update(translation_calls)
 
         # Clean up: remove variables, URLs, paths
