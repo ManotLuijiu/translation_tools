@@ -348,14 +348,18 @@ def extract_text_from_tsx_file(file_path):
             # Skip if too short, has special chars, or looks like code
             if len(text) < 3:
                 continue
-            if re.search(r'[{}()\[\]<>/@\\]', text):
+            # Skip code-like patterns: {}, [], <>, @, \ but ALLOW () and /
+            # () is used in labels like "Floor/Story (optional)", "(THB)"
+            # / is used in labels like "Floor/Story", "Room/Unit"
+            if re.search(r'[{}\[\]<>@\\]', text):
                 continue
             if text.startswith('http'):
                 continue
             if text.isnumeric():
                 continue
-            # Keep only English text with spaces or single words starting with capital
-            if re.match(r'^[A-Z][A-Za-z\s,.\-!?]{2,}$', text):
+            # Keep text with English letters, spaces, and common punctuation
+            # Allow: A-Za-z, spaces, commas, periods, hyphens, !, ?, (), /
+            if re.match(r'^[A-Za-z][A-Za-z\s,.\-!?()/]{2,}$', text):
                 cleaned_texts.add(text)
 
         return cleaned_texts
