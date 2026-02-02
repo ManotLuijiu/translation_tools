@@ -286,21 +286,24 @@ def get_messages_from_spa(app):
 
 def extract_text_from_tsx_file(file_path):
     """
-    Extract English text from TypeScript/JSX file.
+    Extract translatable text from TypeScript/JSX file.
 
-    Patterns to extract:
-    - Translation calls: __("Text"), __('Text') [PRIMARY PATTERN]
-    - String literals in JSX: <div>Text</div>, <Button>Click Me</Button>
-    - Props: placeholder="Enter name", title="Save", label="Email"
-    - Toast/notifications: toast.success("Saved!")
-    - Error messages: throw new Error("Invalid input")
-    - Alert/confirm dialogs: alert("Text"), confirm("Text")
+    ONLY extracts strings wrapped in __() translation function calls.
+    This ensures we capture intentionally marked translatable strings
+    and avoid extracting CSS classes, variable names, or other code artifacts.
+
+    Supported patterns:
+    - __("Text")
+    - __('Text')
+    - __(
+        "Multiline text"
+      )
 
     Args:
         file_path: Path to .tsx/.jsx file
 
     Returns:
-        set: Unique English text found
+        set: Unique translatable strings found in __() calls
     """
     texts = set()
 
@@ -308,61 +311,20 @@ def extract_text_from_tsx_file(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
 
-        # Pattern 1: JSX text content: <tag>Text Here</tag>
-        jsx_text = re.findall(r'>\s*([A-Z][A-Za-z\s]{2,50})\s*<', content)
-        texts.update(jsx_text)
-
-        # Pattern 2: String props: prop="Text"
-        string_props = re.findall(
-            r'(?:title|label|placeholder|description|message|text|name|error|success|warning)=["\']([^"\']{3,100})["\']',
-            content,
-            re.IGNORECASE
-        )
-        texts.update(string_props)
-
-        # Pattern 3: Toast notifications: toast.success("Text")
-        toast_msgs = re.findall(r'toast\.\w+\(["\']([^"\']{3,100})["\']', content)
-        texts.update(toast_msgs)
-
-        # Pattern 4: Error messages: Error("Text"), throw "Text"
-        error_msgs = re.findall(r'(?:Error|throw)\s*\(["\']([^"\']{3,100})["\']', content)
-        texts.update(error_msgs)
-
-        # Pattern 5: Alert/confirm dialogs: alert("Text"), confirm("Text")
-        dialog_msgs = re.findall(r'(?:alert|confirm)\s*\(["\']([^"\']{3,100})["\']', content)
-        texts.update(dialog_msgs)
-
-        # Pattern 6: Translation function calls: __("Text") or __('Text')
-        # This is the PRIMARY pattern for extracting translatable strings in SPAs
+        # ONLY extract from __("Text") or __('Text') translation function calls
         # Uses \s* to handle multiline patterns like:
         #   __(
         #     "Capture the back side with ID"
         #   )
         translation_calls = re.findall(r'__\(\s*["\']([^"\']{1,200})["\']\s*\)', content)
-        texts.update(translation_calls)
 
-        # Clean up: remove variables, URLs, paths
-        cleaned_texts = set()
-        for text in texts:
+        # Add all found translation strings
+        for text in translation_calls:
             text = text.strip()
-            # Skip if too short, has special chars, or looks like code
-            if len(text) < 3:
-                continue
-            # Skip code-like patterns: {}, [], <>, @, \ but ALLOW () and /
-            # () is used in labels like "Floor/Story (optional)", "(THB)"
-            # / is used in labels like "Floor/Story", "Room/Unit"
-            if re.search(r'[{}\[\]<>@\\]', text):
-                continue
-            if text.startswith('http'):
-                continue
-            if text.isnumeric():
-                continue
-            # Keep text with English letters, spaces, and common punctuation
-            # Allow: A-Za-z, spaces, commas, periods, hyphens, !, ?, (), /
-            if re.match(r'^[A-Za-z][A-Za-z\s,.\-!?()/]{2,}$', text):
-                cleaned_texts.add(text)
+            if text:  # Skip empty strings
+                texts.add(text)
 
-        return cleaned_texts
+        return texts
 
     except Exception as e:
         return set()
