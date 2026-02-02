@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.1](https://github.com/ManotLuijiu/translation_tools/compare/v1.2.0...v1.2.1) (2026-02-03)
+
+### 🐛 Bug Fixes
+
+* extract only __() wrapped strings from SPA files ([dee8e93](https://github.com/ManotLuijiu/translation_tools/commit/dee8e93))
+  - Removed extraction patterns that captured Tailwind CSS classes (font-bold, text-sm, etc.)
+  - Now only strings explicitly wrapped in __() translation function are extracted
+  - Fixes issue where non-translatable strings appeared in Translation Dashboard
+
 ## [1.2.0](https://github.com/ManotLuijiu/translation_tools/compare/v1.1.0...v1.2.0) (2026-01-29)
 
 ### ✨ Features
