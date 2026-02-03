@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.3](https://github.com/ManotLuijiu/translation_tools/compare/v1.2.2...v1.2.3) (2026-02-03)
+
+### 🐛 Bug Fixes
+
+* ensure TranslationEditor refreshes after GitHub sync ([30b297a](https://github.com/ManotLuijiu/translation_tools/commit/30b297a))
+  - Add pending sync refresh mechanism for cases where TranslationEditor is not mounted during sync
+  - Refresh triggers when user switches to editor tab or when component mounts with pending sync
+
+## [1.2.2](https://github.com/ManotLuijiu/translation_tools/compare/v1.2.1...v1.2.2) (2026-02-03)
+
+### 🐛 Bug Fixes
+
+* fix translation API endpoint to use correct translation_tools API
+* fix socket.io port configuration for FrappeProvider
+
 ## [1.2.1](https://github.com/ManotLuijiu/translation_tools/compare/v1.2.0...v1.2.1) (2026-02-03)
 
 ### 🐛 Bug Fixes
