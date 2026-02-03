@@ -208,6 +208,10 @@ export function useSaveTranslation() {
     message: string;
     error: string;
     github_pushed: boolean;
+    push_mode?: 'direct' | 'pr';
+    pr_url?: string;
+    pr_number?: number;
+    branch?: string;
   }>('translation_tools.api.po_files.save_translation');
 }
 

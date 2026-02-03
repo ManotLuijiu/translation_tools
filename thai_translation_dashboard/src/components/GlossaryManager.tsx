@@ -210,7 +210,14 @@ export default function GlossaryManager() {
         // Add GitHub status to success message
         if (pushToGithub && message.github) {
           if (message.github.github_pushed) {
-            successMessage += ' and pushed to GitHub';
+            const gh = message.github as { push_mode?: string; pr_url?: string; branch?: string; github_pushed: boolean };
+            if (gh.push_mode === 'pr' && gh.pr_url) {
+              successMessage += ` and PR created: ${gh.pr_url}`;
+            } else if (gh.push_mode === 'pr' && gh.branch) {
+              successMessage += ` and pushed to branch: ${gh.branch}`;
+            } else {
+              successMessage += ' and pushed to GitHub';
+            }
           } else {
             successMessage += ` (GitHub: ${message.github.message})`;
           }
@@ -272,7 +279,14 @@ export default function GlossaryManager() {
         // Add GitHub status to success message
         if (pushToGithub && result.github) {
           if (result.github.github_pushed) {
-            successMessage += ' and pushed to GitHub';
+            const gh = result.github as { push_mode?: string; pr_url?: string; branch?: string; github_pushed: boolean };
+            if (gh.push_mode === 'pr' && gh.pr_url) {
+              successMessage += ` and PR created: ${gh.pr_url}`;
+            } else if (gh.push_mode === 'pr' && gh.branch) {
+              successMessage += ` and pushed to branch: ${gh.branch}`;
+            } else {
+              successMessage += ' and pushed to GitHub';
+            }
           } else {
             successMessage += ` (GitHub: ${result.github.message})`;
           }

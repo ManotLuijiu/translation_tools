@@ -26,7 +26,7 @@
     "github_section",
     "customer_name",
     "default_branch",
-    "create_pull_requests",
+    "github_push_mode",
     "github_enable",
     "github_repo",
     "github_token",
@@ -159,10 +159,12 @@
       "label": "Github Branch"
     },
     {
-      "default": "0",
-      "fieldname": "create_pull_requests",
-      "fieldtype": "Check",
-      "label": "Pull Request"
+      "default": "Auto (Dev=Direct, Prod=PR)",
+      "fieldname": "github_push_mode",
+      "fieldtype": "Select",
+      "label": "Push Mode",
+      "options": "Auto (Dev=Direct, Prod=PR)\nAlways Direct Push\nAlways Create PR",
+      "description": "Auto: Dev mode pushes directly to main, Production creates PR. Direct: Always push to main. PR: Always create pull request for review."
     },
     {
       "default": "0",
@@ -177,10 +179,10 @@
       "label": "Repository URL"
     },
     {
-      "description": "Create a token with 'repo' scope at https://github.com/settings/tokens",
+      "description": "Classic token: 'repo' scope. Fine-grained token: 'Contents: Read and write' + 'Pull requests: Read and write' (if using PR mode). Create at https://github.com/settings/tokens",
       "fieldname": "github_token",
       "fieldtype": "Password",
-      "label": "GitHub Personal Access Token (Classic)"
+      "label": "GitHub Personal Access Token"
     },
     {
       "fieldname": "api_keys_section",

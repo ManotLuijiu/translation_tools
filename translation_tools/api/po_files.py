@@ -11,6 +11,8 @@ import tempfile
 import subprocess
 import shutil
 import hashlib
+import requests
+from urllib.parse import urlparse
 from frappe.utils.password import get_decrypted_password, get_encryption_key, encrypt
 
 import frappe.utils
@@ -1354,16 +1356,166 @@ def save_translation(file_path, entry_id, translation, push_to_github=False, msg
         raise
 
 
+# =============================================================================
+# GitHub Push Mode Helpers
+# =============================================================================
+
+
+def should_create_pr():
+    """
+    Determine if Pull Request mode should be used based on settings and environment.
+
+    Returns:
+        bool: True if PR should be created, False for direct push to main
+    """
+    try:
+        push_mode = frappe.db.get_single_value(
+            "Translation Tools Settings", "github_push_mode"
+        )
+        if not push_mode:
+            push_mode = "Auto (Dev=Direct, Prod=PR)"
+
+        if push_mode == "Always Direct Push":
+            return False
+        elif push_mode == "Always Create PR":
+            return True
+        else:  # Auto mode
+            is_dev_mode = frappe.conf.get("developer_mode", False)
+            logger.info(f"Auto push mode: developer_mode={is_dev_mode}")
+            return not is_dev_mode
+    except Exception as e:
+        logger.warning(f"Error checking push mode, defaulting to direct push: {e}")
+        return False
+
+
+def parse_github_repo_url(repo_url):
+    """
+    Parse GitHub repository URL to extract owner and repo name.
+
+    Args:
+        repo_url (str): GitHub repository URL (https or git format)
+
+    Returns:
+        tuple: (owner, repo_name) or (None, None) if parsing fails
+    """
+    try:
+        # Handle different URL formats
+        # https://github.com/owner/repo.git
+        # https://github.com/owner/repo
+        # git@github.com:owner/repo.git
+
+        url = repo_url.strip()
+
+        # Remove .git suffix if present
+        if url.endswith(".git"):
+            url = url[:-4]
+
+        # Handle HTTPS format
+        if "github.com/" in url:
+            parts = url.split("github.com/")[-1].split("/")
+            if len(parts) >= 2:
+                owner = parts[0]
+                repo = parts[1]
+                return owner, repo
+
+        # Handle SSH format (git@github.com:owner/repo)
+        if "github.com:" in url:
+            parts = url.split("github.com:")[-1].split("/")
+            if len(parts) >= 2:
+                owner = parts[0]
+                repo = parts[1]
+                return owner, repo
+
+        logger.error(f"Could not parse GitHub URL: {repo_url}")
+        return None, None
+    except Exception as e:
+        logger.error(f"Error parsing GitHub URL {repo_url}: {e}")
+        return None, None
+
+
+def create_github_pull_request(token, owner, repo, branch_name, title, body, base="main"):
+    """
+    Create a Pull Request on GitHub using the REST API.
+
+    Args:
+        token (str): GitHub Personal Access Token
+        owner (str): Repository owner
+        repo (str): Repository name
+        branch_name (str): Source branch name (head)
+        title (str): PR title
+        body (str): PR description
+        base (str): Target branch (default: main)
+
+    Returns:
+        dict: Result with success status, PR URL, and PR number
+    """
+    try:
+        url = f"https://api.github.com/repos/{owner}/{repo}/pulls"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+        }
+        data = {
+            "title": title,
+            "head": branch_name,
+            "base": base,
+            "body": body,
+        }
+
+        logger.info(f"Creating PR: {owner}/{repo} from {branch_name} to {base}")
+        response = requests.post(url, headers=headers, json=data, timeout=30)
+
+        if response.status_code == 201:
+            pr_data = response.json()
+            logger.info(f"Successfully created PR #{pr_data['number']}")
+            return {
+                "success": True,
+                "pr_url": pr_data["html_url"],
+                "pr_number": pr_data["number"],
+                "pr_title": pr_data["title"],
+            }
+        elif response.status_code == 422:
+            # Might be duplicate PR or no changes
+            error_data = response.json()
+            error_msg = error_data.get("errors", [{}])[0].get("message", "Unknown error")
+            if "A pull request already exists" in str(error_data):
+                logger.info("PR already exists for this branch")
+                return {
+                    "success": True,
+                    "pr_url": None,
+                    "message": "A pull request already exists for this branch",
+                }
+            logger.error(f"GitHub API 422 error: {error_data}")
+            return {"success": False, "error": f"Validation failed: {error_msg}"}
+        else:
+            error_msg = response.json().get("message", response.text)
+            logger.error(f"GitHub API error {response.status_code}: {error_msg}")
+            return {"success": False, "error": f"GitHub API error: {error_msg}"}
+
+    except requests.exceptions.Timeout:
+        logger.error("GitHub API request timed out")
+        return {"success": False, "error": "Request to GitHub API timed out"}
+    except Exception as e:
+        logger.exception(f"Error creating GitHub PR: {e}")
+        return {"success": False, "error": str(e)}
+
+
 def push_translation_to_github(
     file_path, entry=None, translation=None, custom_commit_message=None
 ):
     """
-    Push a translation PO file to GitHub, handling existing repositories properly
+    Push a translation PO file to GitHub, handling existing repositories properly.
+
+    Supports two modes based on settings:
+    - Direct Push (Dev mode): Push directly to main branch
+    - Pull Request (Prod mode): Create a feature branch and open a PR for review
 
     Args:
         file_path (str): Path to the PO file to push
         entry (polib.POEntry, optional): Specific entry being translated, for commit message
         translation (str, optional): New translation, for commit message
+        custom_commit_message (str, optional): Custom commit message to use
     """
     # Get the token
     token_result = get_github_token()
@@ -1394,6 +1546,10 @@ def push_translation_to_github(
         token_url = repo_url.replace("https://", f"https://{github_token}@")
     else:
         raise TypeError("repo_url and github_token must be strings")
+
+    # Determine push mode
+    use_pr_mode = should_create_pr()
+    logger.info(f"Push mode: {'PR' if use_pr_mode else 'Direct'}")
 
     try:
         # Extract app name and language from file_path
@@ -1430,9 +1586,10 @@ def push_translation_to_github(
                 logger.info("Successfully cloned existing repository")
             except subprocess.CalledProcessError as e:
                 if "Repository not found" in e.stderr or "not found" in e.stderr:
-                    # Repository doesn't exist yet
-                    logger.info("Repository doesn't exist, will create a new one")
+                    # Repository doesn't exist yet - force direct push mode
+                    logger.info("Repository doesn't exist, will create a new one (forcing direct push)")
                     repo_exists = False
+                    use_pr_mode = False  # Can't create PR for new repo
 
                     # Initialize new repository
                     subprocess.run(["git", "init"], cwd=temp_dir, check=True)
@@ -1476,6 +1633,21 @@ def push_translation_to_github(
             subprocess.run(
                 ["git", "config", "user.name", str(user_name)], cwd=temp_dir, check=True
             )
+
+            # Create feature branch for PR mode
+            branch_name = "main"
+            if use_pr_mode and repo_exists:
+                # Generate unique branch name: translation/{user}-{app}-{timestamp}
+                safe_user = re.sub(r"[^a-zA-Z0-9]", "-", user_email.split("@")[0])[:20]
+                timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+                branch_name = f"translation/{safe_user}-{app_name}-{timestamp}"
+
+                subprocess.run(
+                    ["git", "checkout", "-b", branch_name],
+                    cwd=temp_dir,
+                    check=True,
+                )
+                logger.info(f"Created feature branch: {branch_name}")
 
             # Create app directory if it doesn't exist
             app_dir = os.path.join(temp_dir, app_name)
@@ -1554,19 +1726,19 @@ def push_translation_to_github(
                 )
                 logger.info("Set branch to main")
 
-            # Push changes - if new repo use -u to set upstream
+            # Push changes
             try:
                 if repo_exists:
-                    # For existing repo
+                    # For existing repo - push to current branch (main or feature branch)
                     result = subprocess.run(
-                        ["git", "push", "origin", "HEAD"],  # Push current branch
+                        ["git", "push", "-u", "origin", branch_name],
                         cwd=temp_dir,
                         check=True,
                         capture_output=True,
                         text=True,
                     )
                 else:
-                    # For new repo
+                    # For new repo - push to main
                     result = subprocess.run(
                         ["git", "push", "-u", "origin", "main"],
                         cwd=temp_dir,
@@ -1576,15 +1748,77 @@ def push_translation_to_github(
                     )
 
                 logger.info(f"Push output: {result.stdout}")
-                logger.info("Successfully pushed to GitHub")
+                logger.info(f"Successfully pushed to GitHub branch: {branch_name}")
 
+                # If PR mode, create the Pull Request
+                if use_pr_mode and repo_exists and branch_name != "main":
+                    owner, repo = parse_github_repo_url(repo_url)
+                    if owner and repo:
+                        pr_title = f"🌐 Translation update: {app_name}/{language}"
+                        pr_body = f"""## Translation Update
+
+**App**: {app_name}
+**Language**: {language}
+**Submitted by**: {user_name} ({user_email})
+**Commit**: {commit_message}
+
+---
+*This PR was automatically created by Translation Tools.*
+"""
+                        pr_result = create_github_pull_request(
+                            token=github_token,
+                            owner=owner,
+                            repo=repo,
+                            branch_name=branch_name,
+                            title=pr_title,
+                            body=pr_body,
+                        )
+
+                        if pr_result.get("success"):
+                            return {
+                                "github_pushed": True,
+                                "push_mode": "pr",
+                                "message": _("Successfully created Pull Request for review"),
+                                "app": app_name,
+                                "language": language,
+                                "commit_message": commit_message,
+                                "branch": branch_name,
+                                "pr_url": pr_result.get("pr_url"),
+                                "pr_number": pr_result.get("pr_number"),
+                            }
+                        else:
+                            # PR creation failed but push succeeded
+                            return {
+                                "github_pushed": True,
+                                "push_mode": "pr",
+                                "message": _("Pushed to branch but PR creation failed"),
+                                "app": app_name,
+                                "language": language,
+                                "commit_message": commit_message,
+                                "branch": branch_name,
+                                "pr_error": pr_result.get("error"),
+                            }
+                    else:
+                        return {
+                            "github_pushed": True,
+                            "push_mode": "pr",
+                            "message": _("Pushed to branch but could not parse repo URL for PR"),
+                            "app": app_name,
+                            "language": language,
+                            "commit_message": commit_message,
+                            "branch": branch_name,
+                        }
+
+                # Direct push mode - return success
                 return {
                     "github_pushed": True,
+                    "push_mode": "direct",
                     "message": _("Successfully pushed translations to GitHub"),
                     "app": app_name,
                     "language": language,
                     "commit_message": commit_message,
                 }
+
             except subprocess.CalledProcessError as e:
                 error_msg = e.stderr if hasattr(e, "stderr") else str(e)
                 logger.error(f"Failed to push to GitHub: {error_msg}")

@@ -735,7 +735,14 @@ export default function TranslationEditor({
           }
           // GitHub push succeeded
           if (githubResult?.github_pushed) {
-            msg += ' and shared on GitHub!';
+            // Check if it was a PR or direct push
+            if (githubResult.push_mode === 'pr' && githubResult.pr_url) {
+              msg += ` and PR created: ${githubResult.pr_url}`;
+            } else if (githubResult.push_mode === 'pr' && githubResult.branch) {
+              msg += ` and pushed to branch: ${githubResult.branch}`;
+            } else {
+              msg += ' and shared on GitHub!';
+            }
           }
           // Other GitHub errors
           else if (githubResult) {

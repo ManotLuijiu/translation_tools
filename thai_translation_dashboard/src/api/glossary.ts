@@ -89,6 +89,10 @@ export function useAddGlossaryTerm() {
           message: string;
           terms_count?: number;
           commit_url?: string;
+          push_mode?: 'direct' | 'pr';
+          pr_url?: string;
+          pr_number?: number;
+          branch?: string;
         };
       };
     }>('translation_tools.api.glossary.add_glossary_term');
@@ -113,6 +117,10 @@ export function useUpdateGlossaryTerm() {
       message: string;
       terms_count?: number;
       commit_url?: string;
+      push_mode?: 'direct' | 'pr';
+      pr_url?: string;
+      pr_number?: number;
+      branch?: string;
     };
   }>(
     'translation_tools.api.glossary.update_glossary_term'
@@ -123,13 +131,17 @@ export function useUpdateGlossaryTerm() {
  * Delete a glossary term
  */
 export function useDeleteGlossaryTerm() {
-  return useFrappePostCall<{ 
+  return useFrappePostCall<{
     success: boolean;
     github?: {
       github_pushed: boolean;
       message: string;
       terms_count?: number;
       commit_url?: string;
+      push_mode?: 'direct' | 'pr';
+      pr_url?: string;
+      pr_number?: number;
+      branch?: string;
     };
   }>('translation_tools.api.glossary.delete_glossary_term');
 }
