@@ -25,32 +25,37 @@ def rebuild_all_translation_files():
     """
     Override of frappe.translate.rebuild_all_translation_files
 
-    For custom apps: Only rebuild ASEAN language translations (th, vi, lo, km, my)
-    For core apps: SKIP (don't touch existing translations)
+    Rebuilds ASEAN language translations (th, vi, lo, km, my, en) for:
+    - Core apps (frappe, erpnext, hrms, payments)
+    - Custom apps (from ManotLuijiu GitHub)
 
-    This ensures we don't overwrite existing core app translations while
-    providing ASEAN-focused translation support for custom apps.
+    All apps get SPA extraction if they have SPA directories.
     """
+    core_apps = ['frappe', 'erpnext', 'hrms', 'payments']
+
     for app in frappe.get_all_apps():
-        # Only process custom apps - skip core apps entirely
-        if not is_custom_app(app):
-            # Skip core apps (frappe, erpnext, hrms, payments)
-            # They maintain their own translations
+        # Process both core apps and custom apps
+        is_core = app in core_apps
+        is_custom = is_custom_app(app)
+
+        if not is_core and not is_custom:
+            # Skip apps that are neither core nor custom (unknown origin)
             continue
 
-        # Custom apps: Only ASEAN languages
+        app_type = "core" if is_core else "custom"
         languages = ASEAN_LOCALES
-        print(f"🌏 Rebuilding ASEAN translations for custom app: {app}")
+        print(f"🌏 Rebuilding ASEAN translations for {app_type} app: {app}")
 
         # Build translation files for ASEAN languages
         for lang in languages:
             write_translations_file(app, lang)
 
-        # Cleanup: Remove non-ASEAN files from custom apps
-        try:
-            cleanup_non_asean_files(app)
-        except Exception as e:
-            print(f"   ⚠️  Cleanup warning for {app}: {e}")
+        # Cleanup: Remove non-ASEAN files (only for custom apps to be safe)
+        if is_custom:
+            try:
+                cleanup_non_asean_files(app)
+            except Exception as e:
+                print(f"   ⚠️  Cleanup warning for {app}: {e}")
 
 
 def write_translations_file(app, lang, full_dict=None, app_messages=None):
@@ -222,13 +227,11 @@ def get_messages_from_spa(app):
     """
     Extract translatable messages from SPA React/TypeScript files.
 
-    Optimized to only scan custom apps with SPA pages to save server compute time.
-    Only processes apps that have SPA directories (Vite/React pattern).
+    Scans ALL apps (core + custom) that have SPA directories (Vite/React pattern).
+    Core apps like hrms also use SPA, so they are included.
 
-    Custom app detection:
-    1. Core apps (frappe, erpnext, hrms, payments) are skipped
-    2. Apps with git remote from https://github.com/ManotLuijiu/* are considered custom
-    3. Apps with git remote from git@github.com:ManotLuijiu/* are considered custom
+    For apps without SPA directories, this function returns empty set
+    (no overhead for non-SPA apps).
 
     Args:
         app: App name
@@ -239,17 +242,6 @@ def get_messages_from_spa(app):
     messages = set()
 
     try:
-        # Define core Frappe ecosystem apps
-        core_apps = ['frappe', 'erpnext', 'hrms', 'payments']
-
-        # Skip core apps entirely - they have their own translation workflows
-        if app in core_apps:
-            return messages
-
-        # Check if app is a custom app (from ManotLuijiu GitHub)
-        if not is_custom_app(app):
-            return messages
-
         # Find SPA directories
         app_path = Path(frappe.get_app_path(app)).parent
         spa_dirs = []

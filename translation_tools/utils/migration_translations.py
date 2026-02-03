@@ -50,25 +50,35 @@ def run_translation_commands_after_migrate():
         print(f"⚠️ {error_msg}")
         print("   You can manually rebuild later with: bench build-message-files")
 
-    # Run full POT/PO/MO compilation for custom apps
+    # Run full POT/PO/MO compilation for ALL apps (including core apps)
     try:
-        # Automatically detect custom apps
-        custom_apps_to_translate = get_custom_apps_for_translation()
+        # Get ALL installed apps (core + custom)
+        # Core apps: frappe, erpnext, hrms, payments
+        # Custom apps: detected from ManotLuijiu GitHub
+        all_apps_to_translate = get_all_apps_for_translation()
 
-        if not custom_apps_to_translate:
-            frappe.logger().info("No custom apps found for translation processing")
-            print("ℹ️  No custom apps found for translation processing")
+        if not all_apps_to_translate:
+            frappe.logger().info("No apps found for translation processing")
+            print("ℹ️  No apps found for translation processing")
             return
 
         # Get the bench directory
         bench_path = frappe.utils.get_bench_path()
 
-        frappe.logger().info(f"Running full translation setup for {len(custom_apps_to_translate)} custom app(s)...")
-        print(f"\n📦 Running full translation setup (POT/PO/MO compilation) for {len(custom_apps_to_translate)} app(s)...")
-        print(f"   Apps: {', '.join(custom_apps_to_translate)}")
+        # Separate core and custom apps for logging
+        core_apps = ['frappe', 'erpnext', 'hrms', 'payments']
+        core_apps_found = [app for app in all_apps_to_translate if app in core_apps]
+        custom_apps_found = [app for app in all_apps_to_translate if app not in core_apps]
+
+        frappe.logger().info(f"Running full translation setup for {len(all_apps_to_translate)} app(s)...")
+        print(f"\n📦 Running full translation setup (POT/PO/MO compilation) for {len(all_apps_to_translate)} app(s)...")
+        if core_apps_found:
+            print(f"   Core apps: {', '.join(core_apps_found)}")
+        if custom_apps_found:
+            print(f"   Custom apps: {', '.join(custom_apps_found)}")
         print(f"   Languages: {', '.join(asean_locales)}")
 
-        for app in custom_apps_to_translate:
+        for app in all_apps_to_translate:
             # Check if app exists in the current bench
             if not _app_exists(app):
                 frappe.logger().info(f"App '{app}' not found in this bench, skipping...")
@@ -317,6 +327,45 @@ def get_apps_needing_translation():
                 available_apps.append(app)
 
     return available_apps
+
+
+def get_all_apps_for_translation():
+    """
+    Get ALL apps (core + custom) for POT/PO/MO translation processing.
+
+    This function returns both:
+    1. Core apps (frappe, erpnext, hrms, payments) - if installed
+    2. Custom apps (from ManotLuijiu GitHub)
+
+    The 4 translation commands (generate-pot-file, migrate-csv-to-po,
+    update-po-files, compile-po-to-mo) run for ALL apps.
+
+    Returns:
+        list: List of all app names that need translation processing
+    """
+    all_apps_to_translate = []
+    core_apps = ['frappe', 'erpnext', 'hrms', 'payments']
+
+    try:
+        # Get all installed apps
+        installed_apps = frappe.get_installed_apps(_ensure_on_bench=True)
+
+        # Add core apps first (if installed)
+        for app in core_apps:
+            if app in installed_apps and _app_exists(app):
+                all_apps_to_translate.append(app)
+
+        # Add custom apps (from ManotLuijiu GitHub)
+        for app in installed_apps:
+            if app in core_apps:
+                continue  # Already added above
+            if _is_custom_app(app):
+                all_apps_to_translate.append(app)
+
+    except Exception as e:
+        frappe.logger().error(f"Error detecting apps for translation: {str(e)}")
+
+    return all_apps_to_translate
 
 
 def get_custom_apps_for_translation():

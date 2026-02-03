@@ -211,15 +211,30 @@ def sync_app_from_github(app_name):
             branch=settings.branch or 'main',
             target_language=settings.target_language or 'th'
         )
-        
+
         if not github_files_result.get('success') or not github_files_result.get('files'):
             frappe.log_error(f"No translation files found in GitHub for {app_name}")
             return
-        
-        # Get the best matching file
-        best_match = github_files_result['files'][0] if github_files_result['files'] else None
-        if not best_match:
+
+        # Filter GitHub files to find the one matching this app
+        # Look for patterns like: app_name/th.po, app_name/locale/th.po, etc.
+        target_language = settings.target_language or 'th'
+        app_specific_files = []
+
+        for github_file in github_files_result['files']:
+            file_path = github_file['path']
+            # Match patterns like: m_capital/th.po, m_capital/locale/th.po
+            if file_path.startswith(f"{app_name}/") and file_path.endswith(f"{target_language}.po"):
+                app_specific_files.append(github_file)
+                frappe.logger().info(f"Found matching GitHub file for {app_name}: {file_path}")
+
+        if not app_specific_files:
+            frappe.logger().info(f"No app-specific translation files found in GitHub for {app_name}")
             return
+
+        # Use the first app-specific match (should be the most relevant)
+        best_match = app_specific_files[0]
+        frappe.logger().info(f"Using GitHub file for {app_name}: {best_match['path']}")
         
         # For each PO file in the app, sync with GitHub
         for po_file in app_po_files:
