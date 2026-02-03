@@ -45,8 +45,17 @@ export default function Dashboard({ onTabChange }: DashboardProps = {}) {
   // Ref to store TranslationEditor's refresh function (more reliable)
   const translationEditorRefreshRef = useRef<(() => void) | null>(null);
 
-  // console.log('selectedFile', selectedFile);
-  // console.log(__('Print Message'));
+  // Track if a sync happened that needs TranslationEditor refresh
+  const [pendingSyncRefresh, setPendingSyncRefresh] = useState(false);
+
+  // When switching to editor tab after a pending sync, trigger refresh
+  useEffect(() => {
+    if (activeTab === 'editor' && pendingSyncRefresh && translationEditorRefreshRef.current) {
+      console.log('🔄 Dashboard: Triggering pending sync refresh for TranslationEditor');
+      translationEditorRefreshRef.current();
+      setPendingSyncRefresh(false);
+    }
+  }, [activeTab, pendingSyncRefresh]);
 
   const refreshTranslations = () => {
     console.log(
@@ -73,8 +82,10 @@ export default function Dashboard({ onTabChange }: DashboardProps = {}) {
     if (translationEditorRefreshRef.current) {
       console.log('✅ Also calling TranslationEditor refresh function');
       translationEditorRefreshRef.current();
+      setPendingSyncRefresh(false);
     } else {
-      console.log('❌ TranslationEditor refresh function not available');
+      console.log('⏳ TranslationEditor not mounted, marking pending refresh');
+      setPendingSyncRefresh(true);
     }
   };
 
@@ -260,6 +271,12 @@ export default function Dashboard({ onTabChange }: DashboardProps = {}) {
                 settings={settingsData.message}
                 onRefreshFunctionReady={(refreshFn) => {
                   translationEditorRefreshRef.current = refreshFn;
+                  // If there's a pending sync refresh, trigger it immediately
+                  if (pendingSyncRefresh && refreshFn) {
+                    console.log('🔄 Dashboard: TranslationEditor mounted with pending sync, triggering refresh');
+                    refreshFn();
+                    setPendingSyncRefresh(false);
+                  }
                 }}
                 onFileStatsChange={() => {
                   // When translations are saved, refresh FileExplorer live statistics

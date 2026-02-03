@@ -79,6 +79,12 @@ def run_full_translation_setup():
             print(f"\n  Processing app: {app}")
             frappe.logger().info(f"Processing translations for app: {app}")
 
+            # Delete existing main.pot first (Frappe doesn't update existing POT files)
+            pot_path = os.path.join(bench_path, "apps", app, app, "locale", "main.pot")
+            if os.path.exists(pot_path):
+                os.remove(pot_path)
+                print(f"    🗑️  Deleted existing POT file for fresh generation")
+
             # Process each ASEAN locale
             for locale in asean_locales:
                 try:

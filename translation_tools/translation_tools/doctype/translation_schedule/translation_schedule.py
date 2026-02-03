@@ -283,8 +283,16 @@ class TranslationSchedule(Document):
     def run_full_workflow(self):
         """Run the complete translation workflow"""
         results = []
-        
+
         try:
+            # Step 0: Delete existing POT file (Frappe doesn't update existing POT files)
+            import os
+            bench_path = frappe.utils.get_bench_path()
+            pot_path = os.path.join(bench_path, "apps", self.app_name, self.app_name, "locale", "main.pot")
+            if os.path.exists(pot_path):
+                os.remove(pot_path)
+                results.append(f"POT Cleanup: Deleted existing main.pot for fresh generation")
+
             # Step 1: Generate POT
             result = self.run_bench_command(f"generate-pot-file --app {self.app_name}")
             results.append(f"POT Generation: Success\n{result}")

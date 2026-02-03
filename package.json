@@ -1,6 +1,6 @@
 {
   "name": "translation_tools",
-  "version": "1.1.0",
+  "version": "1.2.3",
   "description": "An AI-powered translation utility for ERPNext that helps translate PO files using advanced language models like OpenAI GPT and Anthropic Claude.",
   "main": "index.js",
   "scripts": {
