@@ -6,19 +6,26 @@ from frappe import _
 
 def run_translation_commands_after_migrate():
     """
-    Lightweight translation update after migration.
+    Full translation update after migration.
 
     This function runs after EVERY migration:
-    - Rebuilds CSV files for custom apps (ASEAN languages only)
-    - Includes SPA support (.tsx/.jsx extraction)
-    - Automatic cleanup of non-ASEAN files
+    1. Rebuilds CSV files for custom apps (ASEAN languages only)
+    2. Includes SPA support (.tsx/.jsx extraction)
+    3. Deletes existing main.pot files (Frappe doesn't update existing POT files)
+    4. Runs all 4 translation commands:
+       - bench generate-pot-file --app {app}
+       - bench migrate-csv-to-po --app {app} --locale {locale}
+       - bench update-po-files --app {app} --locale {locale}
+       - bench compile-po-to-mo --app {app} --locale {locale} --force
+         (--force ensures MO files are always recompiled even if PO didn't change)
 
-    PO/MO compilation is NOT run during migrate (only during install).
-    To manually update PO/MO files:
-    - bench update-po-files --app <app> --locale <locale>
-    - bench compile-po-to-mo --app <app> --locale <locale>
+    For apps: Automatically detected custom apps (ManotLuijiu GitHub)
+    For locales: th, vi, lo, km, my (ASEAN languages)
     """
-    frappe.logger().info("Starting CSV translation update after migration...")
+    frappe.logger().info("Starting full translation update after migration...")
+
+    # ASEAN language locales
+    asean_locales = ["th", "vi", "lo", "km", "my"]
 
     try:
         print("\n🌍 Updating translation CSV files (ASEAN languages)...")
@@ -42,6 +49,80 @@ def run_translation_commands_after_migrate():
         frappe.logger().warning(error_msg)
         print(f"⚠️ {error_msg}")
         print("   You can manually rebuild later with: bench build-message-files")
+
+    # Run full POT/PO/MO compilation for custom apps
+    try:
+        # Automatically detect custom apps
+        custom_apps_to_translate = get_custom_apps_for_translation()
+
+        if not custom_apps_to_translate:
+            frappe.logger().info("No custom apps found for translation processing")
+            print("ℹ️  No custom apps found for translation processing")
+            return
+
+        # Get the bench directory
+        bench_path = frappe.utils.get_bench_path()
+
+        frappe.logger().info(f"Running full translation setup for {len(custom_apps_to_translate)} custom app(s)...")
+        print(f"\n📦 Running full translation setup (POT/PO/MO compilation) for {len(custom_apps_to_translate)} app(s)...")
+        print(f"   Apps: {', '.join(custom_apps_to_translate)}")
+        print(f"   Languages: {', '.join(asean_locales)}")
+
+        for app in custom_apps_to_translate:
+            # Check if app exists in the current bench
+            if not _app_exists(app):
+                frappe.logger().info(f"App '{app}' not found in this bench, skipping...")
+                continue
+
+            print(f"\n  Processing app: {app}")
+            frappe.logger().info(f"Processing translations for app: {app}")
+
+            # Delete existing main.pot first (Frappe doesn't update existing POT files)
+            pot_path = os.path.join(bench_path, "apps", app, app, "locale", "main.pot")
+            if os.path.exists(pot_path):
+                os.remove(pot_path)
+                print(f"    🗑️  Deleted existing POT file for fresh generation")
+                frappe.logger().info(f"Deleted existing POT file: {pot_path}")
+
+            # Process each ASEAN locale
+            for locale in asean_locales:
+                try:
+                    print(f"    Language: {locale}")
+                    # Run translation commands for each locale
+                    commands = [
+                        f"bench generate-pot-file --app {app}",
+                        f"bench migrate-csv-to-po --app {app} --locale {locale}",
+                        f"bench update-po-files --app {app} --locale {locale}",
+                        f"bench compile-po-to-mo --app {app} --locale {locale} --force"
+                    ]
+
+                    for cmd in commands:
+                        try:
+                            frappe.logger().info(f"Running: {cmd}")
+                            result = _run_bench_command(cmd, bench_path)
+                            if result["success"]:
+                                frappe.logger().info(f"✓ Successfully executed: {cmd}")
+                            else:
+                                frappe.logger().error(f"✗ Failed to execute: {cmd}")
+                                frappe.logger().error(f"Error: {result['error']}")
+
+                        except Exception as e:
+                            frappe.logger().error(f"Exception while running {cmd}: {str(e)}")
+                            continue
+
+                except Exception as locale_error:
+                    frappe.logger().error(f"Error processing locale {locale} for app {app}: {str(locale_error)}")
+                    continue
+
+        frappe.logger().info("Completed full translation setup after migration")
+        print("\n✅ Full translation setup complete (CSV + POT + PO + MO)")
+        print("   📁 CSV files: apps/*/translations/*.csv")
+        print("   📁 PO files: apps/*/locale/*.po")
+        print("   📁 MO files: sites/assets/locale/*/LC_MESSAGES/*.mo")
+
+    except Exception as e:
+        frappe.logger().error(f"Error in translation setup after migration: {str(e)}")
+        print(f"⚠️ Translation setup error: {str(e)}")
 
 
 def run_full_translation_setup():
@@ -94,7 +175,7 @@ def run_full_translation_setup():
                         f"bench generate-pot-file --app {app}",
                         f"bench migrate-csv-to-po --app {app} --locale {locale}",
                         f"bench update-po-files --app {app} --locale {locale}",
-                        f"bench compile-po-to-mo --app {app} --locale {locale}"
+                        f"bench compile-po-to-mo --app {app} --locale {locale} --force"
                     ]
 
                     for cmd in commands:
@@ -200,7 +281,7 @@ def run_translation_commands_for_single_app(app_name, locale="th"):
         f"bench generate-pot-file --app {app_name}",
         f"bench migrate-csv-to-po --app {app_name} --locale {locale}",
         f"bench update-po-files --app {app_name} --locale {locale}",
-        f"bench compile-po-to-mo --app {app_name} --locale {locale}"
+        f"bench compile-po-to-mo --app {app_name} --locale {locale} --force"
     ]
     
     results = []
