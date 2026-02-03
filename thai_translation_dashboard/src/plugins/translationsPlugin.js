@@ -17,15 +17,17 @@ function makeTranslationFunction() {
 	}
 
 	async function setup() {
-		// First try to get from boot context (injected by server)
+		// First try boot context (injected by server)
 		if (window.frappe?.boot?.__messages) {
 			messages = window.frappe?.boot?.__messages;
 			console.log('✓ Translations loaded from boot context');
 			return;
 		}
 
-		// Fallback: fetch from API
-		const url = new URL("/api/method/frappe.translate.get_app_translations", location.origin);
+		// Fallback: fetch from translation_tools API
+		const lang = window.frappe?.boot?.lang || navigator.language?.split('-')[0] || 'en';
+		const url = new URL("/api/method/translation_tools.api.get_translation.get_translations_by_lang", location.origin);
+		url.searchParams.append('lang', lang);
 
 		try {
 			const response = await fetch(url);

@@ -27,41 +27,33 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const setup = async () => {
       try {
+        // First try boot messages (faster, already loaded)
         if (window.frappe?.boot?.__messages) {
           setMessages(window.frappe.boot.__messages);
+          setIsReady(true);
+          return;
+        }
+
+        // Fallback: fetch from translation_tools API
+        const lang = window.frappe?.boot?.lang || navigator.language?.split('-')[0] || 'en';
+        const url = new URL(
+          '/api/method/translation_tools.api.get_translation.get_translations_by_lang',
+          location.origin
+        );
+        url.searchParams.append('lang', lang);
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.message) {
+          setMessages(data.message);
         } else {
-          const url = new URL(
-            // '/api/method/frappe.translate.load_all_translations',
-            '/api/method/frappe.translate.get_app_translations',
-            location.origin
-          );
-
-          // Note: This endpoint doesn't need lang and hash parameters as it uses
-          // user's language preference from the session or system settings
-          // url.searchParams.append(
-          //   'lang',
-          //   window.frappe?.boot?.lang ?? navigator.language
-          // );
-          // url.searchParams.append(
-          //   'hash',
-          //   window.frappe?.boot?.translations_hash ||
-          //     window._version_number ||
-          //     Math.random().toString()
-          // );
-
-          const response = await fetch(url);
-          const data = await response.json();
-          // setMessages(data || {});
-
-          if (data.message) {
-            setMessages(data.message);
-          } else {
-            console.warn('No translation data received');
-            setMessages({});
-          }
+          console.warn('No translation data received');
+          setMessages({});
         }
       } catch (error) {
         console.error('Failed to fetch translations: ', error);
+        setMessages({});
       } finally {
         setIsReady(true);
       }
