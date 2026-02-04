@@ -177,13 +177,17 @@ def get_app_github_repo_url(app_name):
 
 def sync_app_from_github(app_name):
     """Background job to sync translations for a specific app from GitHub"""
+    frappe.logger("auto_sync").info(f"📥 [SYNC] Starting sync_app_from_github for: {app_name}")
+
     try:
         from translation_tools.api.github_sync import apply_sync, find_translation_files, preview_sync
         from translation_tools.api.po_files import get_cached_po_files
-        
+
         # Get settings
         settings = frappe.get_single("GitHub Sync Settings")
+        frappe.logger("auto_sync").info(f"📥 [SYNC] Settings: enabled={settings.enabled}, repo={settings.repository_url}")
         if not settings.enabled:
+            frappe.logger("auto_sync").info(f"📥 [SYNC] Sync disabled, skipping {app_name}")
             return
         
         # Get app-specific repository URL if available
@@ -195,25 +199,31 @@ def sync_app_from_github(app_name):
             return
         
         # Get PO files for this app
+        frappe.logger("auto_sync").info(f"📥 [SYNC] Getting PO files for {app_name}")
         po_files_result = get_cached_po_files()
         if not po_files_result or 'message' not in po_files_result:
+            frappe.logger("auto_sync").warning(f"📥 [SYNC] No PO files result for {app_name}")
             return
-        
+
         app_po_files = [f for f in po_files_result['message'] if f['app'] == app_name]
-        
+        frappe.logger("auto_sync").info(f"📥 [SYNC] Found {len(app_po_files)} PO files for {app_name}: {[f['file_path'] for f in app_po_files]}")
+
         if not app_po_files:
-            frappe.log_error(f"No PO files found for app {app_name}")
+            frappe.logger("auto_sync").warning(f"📥 [SYNC] No PO files found for app {app_name}")
             return
         
         # Find translation files in GitHub
+        frappe.logger("auto_sync").info(f"📥 [SYNC] Finding GitHub files: repo={repo_url}, branch={settings.branch or 'main'}, lang={settings.target_language or 'th'}")
         github_files_result = find_translation_files(
             repo_url=repo_url,
             branch=settings.branch or 'main',
             target_language=settings.target_language or 'th'
         )
 
+        frappe.logger("auto_sync").info(f"📥 [SYNC] GitHub files result: success={github_files_result.get('success')}, files_count={len(github_files_result.get('files', []))}")
+
         if not github_files_result.get('success') or not github_files_result.get('files'):
-            frappe.log_error(f"No translation files found in GitHub for {app_name}")
+            frappe.logger("auto_sync").warning(f"📥 [SYNC] No translation files found in GitHub for {app_name}")
             return
 
         # Filter GitHub files to find the one matching this app
@@ -249,22 +259,26 @@ def sync_app_from_github(app_name):
                 
                 if preview_result.get('success'):
                     preview_data = preview_result.get('preview', {})
-                    
+                    added = preview_data.get('added', 0)
+                    updated = preview_data.get('updated', 0)
+                    frappe.logger("auto_sync").info(f"📥 [SYNC] Preview for {po_file['filename']}: added={added}, updated={updated}")
+
                     # Only apply if there are changes
-                    if preview_data.get('added', 0) > 0 or preview_data.get('updated', 0) > 0:
+                    if added > 0 or updated > 0:
+                        frappe.logger("auto_sync").info(f"📥 [SYNC] Applying changes to {po_file['file_path']}")
                         apply_result = apply_sync(
                             repo_url=repo_url,
                             branch=settings.branch or 'main',
                             repo_files=[best_match['path']],
                             local_file_path=po_file['file_path']
                         )
-                        
+
                         if apply_result.get('success'):
-                            frappe.logger().info(f"Successfully synced {po_file['filename']} for app {app_name}")
+                            frappe.logger("auto_sync").info(f"✅ [SYNC] Successfully synced {po_file['filename']} for app {app_name}: +{added} updated={updated}")
                         else:
-                            frappe.log_error(f"Failed to apply sync for {po_file['filename']}: {apply_result.get('error')}")
+                            frappe.logger("auto_sync").error(f"❌ [SYNC] Failed to apply sync for {po_file['filename']}: {apply_result.get('error')}")
                     else:
-                        frappe.logger().info(f"No changes to sync for {po_file['filename']} in app {app_name}")
+                        frappe.logger("auto_sync").info(f"⏭️ [SYNC] No changes to sync for {po_file['filename']} in app {app_name}")
                         
             except Exception as e:
                 frappe.log_error(f"Error syncing file {po_file['filename']}: {str(e)}")
@@ -309,4 +323,85 @@ def trigger_all_apps_sync():
         
     except Exception as e:
         frappe.log_error(f"Error triggering all apps sync: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+
+@frappe.whitelist()
+def debug_auto_sync_status():
+    """
+    Debug endpoint to check auto-sync configuration and status.
+    Call via: /api/method/translation_tools.api.app_sync_settings.debug_auto_sync_status
+    """
+    try:
+        from frappe.utils import now_datetime
+
+        result = {
+            "timestamp": str(now_datetime()),
+            "scheduler_enabled": frappe.conf.get("pause_scheduler", 0) == 0,
+            "developer_mode": frappe.conf.get("developer_mode", False),
+        }
+
+        # Check if DocType exists
+        if not frappe.db.exists("DocType", "GitHub Sync Settings"):
+            result["error"] = "GitHub Sync Settings DocType not found"
+            return result
+
+        settings = frappe.get_single("GitHub Sync Settings")
+
+        result["settings"] = {
+            "enabled": settings.enabled,
+            "auto_sync_enabled": getattr(settings, "auto_sync_enabled", None),
+            "repository_url": settings.repository_url,
+            "branch": settings.branch,
+            "target_language": getattr(settings, "target_language", "th"),
+            "sync_frequency": getattr(settings, "sync_frequency", None),
+            "next_sync_datetime": str(getattr(settings, "next_sync_datetime", None)),
+            "last_sync_datetime": str(getattr(settings, "last_sync_datetime", None)),
+            "last_sync_status": getattr(settings, "last_sync_status", None),
+        }
+
+        # Check is_sync_due
+        result["is_sync_due"] = settings.is_sync_due() if hasattr(settings, "is_sync_due") else "N/A"
+
+        # Get app settings
+        app_settings = {}
+        if hasattr(settings, "app_sync_settings") and settings.app_sync_settings:
+            app_settings = json.loads(settings.app_sync_settings)
+
+        enabled_apps = [app for app, config in app_settings.items() if config.get("enabled")]
+        result["enabled_apps"] = enabled_apps
+        result["total_apps_configured"] = len(app_settings)
+
+        # Check scheduler jobs
+        result["scheduler_jobs"] = {
+            "cron_job": "translation_tools.tasks.github_auto_sync.check_and_run_auto_sync",
+            "cron_schedule": "0 17 * * * (midnight Bangkok time)",
+        }
+
+        return {"success": True, "debug_info": result}
+
+    except Exception as e:
+        frappe.log_error(f"Error in debug_auto_sync_status: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+
+@frappe.whitelist()
+def test_sync_single_app(app_name):
+    """
+    Test sync for a single app synchronously (not background) for debugging.
+    Call via: /api/method/translation_tools.api.app_sync_settings.test_sync_single_app?app_name=m_capital
+    """
+    frappe.logger("auto_sync").info(f"🧪 [TEST] Manual test sync triggered for: {app_name}")
+
+    try:
+        # Run sync directly (not enqueued) so we can see results immediately
+        sync_app_from_github(app_name)
+
+        return {
+            "success": True,
+            "message": f"Sync completed for {app_name}. Check logs at: bench --site <site> show-logs | grep auto_sync",
+        }
+
+    except Exception as e:
+        frappe.log_error(f"Test sync error for {app_name}: {str(e)}")
         return {"success": False, "error": str(e)}

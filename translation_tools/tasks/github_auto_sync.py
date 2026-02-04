@@ -4,20 +4,28 @@ import json
 
 def check_and_run_auto_sync():
     """Check if auto-sync is due and trigger sync for enabled apps"""
-    
+
+    # Debug: Log that scheduler called this function
+    frappe.logger("auto_sync").info(f"🔄 [AUTO-SYNC] Scheduler triggered check_and_run_auto_sync at {now_datetime()}")
+
     try:
         # Get GitHub Sync Settings
         if not frappe.db.exists("DocType", "GitHub Sync Settings"):
+            frappe.logger("auto_sync").info("🔄 [AUTO-SYNC] GitHub Sync Settings DocType not found, skipping")
             return
-            
+
         settings = frappe.get_single("GitHub Sync Settings")
-        
+        frappe.logger("auto_sync").info(f"🔄 [AUTO-SYNC] Settings loaded: enabled={settings.enabled}, auto_sync_enabled={getattr(settings, 'auto_sync_enabled', 'N/A')}")
+
         # Check if global auto-sync is enabled
         if not settings.enabled or not settings.auto_sync_enabled:
+            frappe.logger("auto_sync").info(f"🔄 [AUTO-SYNC] Global sync disabled (enabled={settings.enabled}, auto_sync_enabled={getattr(settings, 'auto_sync_enabled', 'N/A')})")
             return
-        
+
         # Check if sync is due based on schedule
-        if not settings.is_sync_due():
+        is_due = settings.is_sync_due()
+        frappe.logger("auto_sync").info(f"🔄 [AUTO-SYNC] is_sync_due={is_due}, next_sync_datetime={getattr(settings, 'next_sync_datetime', 'N/A')}")
+        if not is_due:
             return
         
         # Get app-specific settings
@@ -33,7 +41,7 @@ def check_and_run_auto_sync():
         if not enabled_apps:
             return
         
-        frappe.logger().info(f"Running scheduled auto-sync for apps: {', '.join(enabled_apps)}")
+        frappe.logger("auto_sync").info(f"🚀 [AUTO-SYNC] Running scheduled auto-sync for apps: {', '.join(enabled_apps)}")
         
         # Update status to "In Progress"
         settings.update_sync_status("In Progress")
@@ -46,12 +54,12 @@ def check_and_run_auto_sync():
             # Update status to "Success"
             changes_message = f"Synced {len(enabled_apps)} apps: {', '.join(enabled_apps)}"
             settings.update_sync_status("Success", changes_message)
-            frappe.logger().info(f"Auto-sync completed successfully: {changes_message}")
+            frappe.logger("auto_sync").info(f"✅ [AUTO-SYNC] Completed successfully: {changes_message}")
         else:
             # Update status to "Failed"
             error_message = result.get('error', 'Unknown error') if result else 'Unknown error'
             settings.update_sync_status("Failed", f"Error: {error_message}")
-            frappe.log_error(f"Auto-sync failed: {error_message}")
+            frappe.logger("auto_sync").error(f"❌ [AUTO-SYNC] Failed: {error_message}")
             
     except Exception as e:
         frappe.log_error(f"Error in check_and_run_auto_sync: {str(e)}")
