@@ -40,6 +40,17 @@ if (import.meta.env.DEV) {
     });
 }
 
+// Get socket port from Frappe boot data (runtime) or env var (build time)
+const getSocketPort = (): string => {
+  // First try to get from Frappe boot data (set by server)
+  const bootPort = window.frappe?.boot?.socketio_port;
+  if (bootPort) {
+    return String(bootPort);
+  }
+  // Fallback to env var (production default: 9000)
+  return import.meta.env.VITE_SOCKET_PORT || '9000';
+};
+
 const rootElement = document.getElementById('root');
 if (rootElement) {
   createRoot(rootElement).render(
@@ -48,7 +59,7 @@ if (rootElement) {
         <QueryClientProvider client={queryClient}>
           <FrappeProvider
             siteName={import.meta.env.VITE_SITE_NAME}
-            socketPort={import.meta.env.VITE_SOCKET_PORT}
+            socketPort={getSocketPort()}
           >
             <TranslationProvider>
               <ErrorBoundary fallback={<p>Oops! Something broke.</p>}>

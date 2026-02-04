@@ -6,6 +6,7 @@ declare global {
         lang: string
         __messages
         translations_hash
+        socketio_port?: number | string
       }
       // add more properties here if needed
       __: (text: string) => string

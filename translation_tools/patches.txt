@@ -8,5 +8,6 @@ translation_tools.patches.default.add_default_font_to_print_settings
 translation_tools.patches.add_app_sync_settings_field
 translation_tools.patches.fix_dashboard_site_specific_apps
 translation_tools.patches.migrate_github_push_mode
+translation_tools.patches.fix_app_sync_settings
 # translation_tools.patches.set_workspace_sequence
 # translation_tools.patches.arrange_workspaces
