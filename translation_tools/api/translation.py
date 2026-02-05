@@ -23,6 +23,72 @@ from .glossary import get_glossary_terms_dict
 from .settings import get_translation_settings, get_decrypted_api_keys
 
 
+# Retry configuration for transient network errors
+MAX_RETRIES = 3
+RETRY_BASE_DELAY = 2  # seconds
+RETRY_MAX_DELAY = 30  # seconds
+
+# Exceptions that should trigger retry
+RETRYABLE_OPENAI_ERRORS = (
+    openai.APIConnectionError,
+    openai.APITimeoutError,
+    openai.RateLimitError,
+    openai.InternalServerError,
+)
+
+RETRYABLE_ANTHROPIC_ERRORS = (
+    anthropic.APIConnectionError,
+    anthropic.APITimeoutError,
+    anthropic.RateLimitError,
+    anthropic.InternalServerError,
+)
+
+
+def retry_with_backoff(func, max_retries=MAX_RETRIES, retryable_errors=None):
+    """
+    Retry a function with exponential backoff for transient errors.
+
+    Args:
+        func: Callable to execute
+        max_retries: Maximum number of retry attempts
+        retryable_errors: Tuple of exception types that should trigger retry
+
+    Returns:
+        Result from the function or raises the last exception
+    """
+    if retryable_errors is None:
+        retryable_errors = (Exception,)
+
+    last_exception: Optional[Exception] = None
+
+    for attempt in range(max_retries + 1):
+        try:
+            return func()
+        except retryable_errors as e:
+            last_exception = e
+            if attempt < max_retries:
+                # Calculate delay with exponential backoff + jitter
+                delay = min(RETRY_BASE_DELAY * (2 ** attempt) + random.uniform(0, 1), RETRY_MAX_DELAY)
+                logger.warning(
+                    f"Retry attempt {attempt + 1}/{max_retries} after error: {type(e).__name__}: {str(e)[:100]}. "
+                    f"Waiting {delay:.1f}s before retry..."
+                )
+                time.sleep(delay)
+            else:
+                logger.error(f"All {max_retries} retry attempts failed. Last error: {type(e).__name__}: {str(e)[:200]}")
+        except Exception as e:
+            # Non-retryable error, raise immediately
+            logger.error(f"Non-retryable error: {type(e).__name__}: {str(e)[:200]}")
+            raise
+
+    # All retries exhausted - raise the last exception
+    if last_exception is not None:
+        raise last_exception
+
+    # This should never happen, but satisfy type checker
+    raise RuntimeError("Retry loop completed without success or exception")
+
+
 @frappe.whitelist()
 def translate_text(
     text,
@@ -1049,20 +1115,21 @@ Only return the translation, no explanations."""
 
 
 def _translate_with_openai(api_key, model, text):
-    """Translate text using OpenAI API"""
+    """Translate text using OpenAI API with automatic retry for transient errors"""
+    client = openai.OpenAI(api_key=api_key)
+
+    # Format the glossary with timeout protection
     try:
-        client = openai.OpenAI(api_key=api_key)
+        glossary_terms = get_glossary_terms_dict()
+        glossary_text = json.dumps(glossary_terms, indent=2)
+    except Exception as glossary_error:
+        logger.warning(f"Failed to load glossary: {glossary_error}")
+        glossary_terms = {}
+        glossary_text = "{}"
 
-        # Format the glossary with timeout protection
-        try:
-            glossary_terms = get_glossary_terms_dict()
-            glossary_text = json.dumps(glossary_terms, indent=2)
-        except Exception as glossary_error:
-            logger.warning(f"Failed to load glossary: {glossary_error}")
-            glossary_terms = {}
-            glossary_text = "{}"
-
-        response = client.chat.completions.create(
+    def make_api_call():
+        """Inner function for retry wrapper"""
+        return client.chat.completions.create(
             model=model,
             messages=[
                 {
@@ -1092,6 +1159,14 @@ Only respond with the translated text, nothing else.""",
             temperature=0.3,
             max_tokens=2000,  # CRITICAL FIX: Allow enough tokens for long translations
             timeout=60,
+        )
+
+    try:
+        # Use retry wrapper for transient errors
+        response = retry_with_backoff(
+            make_api_call,
+            max_retries=MAX_RETRIES,
+            retryable_errors=RETRYABLE_OPENAI_ERRORS
         )
 
         raw_translation = response.choices[0].message.content.strip()  # type: ignore
@@ -1150,20 +1225,21 @@ Only respond with the translated text, nothing else.""",
 
 
 def _translate_with_claude(api_key, model, text):
-    """Translate text using Anthropic Claude API"""
+    """Translate text using Anthropic Claude API with automatic retry for transient errors"""
+    client = anthropic.Anthropic(api_key=api_key)
+
+    # Format the glossary with timeout protection
     try:
-        client = anthropic.Anthropic(api_key=api_key)
+        glossary_terms = get_glossary_terms_dict()
+        glossary_text = json.dumps(glossary_terms, indent=2)
+    except Exception as glossary_error:
+        logger.warning(f"Failed to load glossary: {glossary_error}")
+        glossary_terms = {}
+        glossary_text = "{}"
 
-        # Format the glossary with timeout protection
-        try:
-            glossary_terms = get_glossary_terms_dict()
-            glossary_text = json.dumps(glossary_terms, indent=2)
-        except Exception as glossary_error:
-            logger.warning(f"Failed to load glossary: {glossary_error}")
-            glossary_terms = {}
-            glossary_text = "{}"
-
-        response = client.messages.create(
+    def make_api_call():
+        """Inner function for retry wrapper"""
+        return client.messages.create(
             model=model or "claude-3-haiku-20240307",
             max_tokens=2000,  # Increased to match OpenAI fix
             temperature=0.3,
@@ -1181,6 +1257,14 @@ Only respond with the translated text, nothing else.
 Text to translate: {text}""",
                 }
             ],
+        )
+
+    try:
+        # Use retry wrapper for transient errors
+        response = retry_with_backoff(
+            make_api_call,
+            max_retries=MAX_RETRIES,
+            retryable_errors=RETRYABLE_ANTHROPIC_ERRORS
         )
 
         raw_translation = response.content[0].text.strip()  # type: ignore
@@ -1235,32 +1319,33 @@ Text to translate: {text}""",
 
 
 def _batch_translate_with_openai(api_key, model, entries, temperature=0.3):
-    """Translate multiple entries using OpenAI API"""
+    """Translate multiple entries using OpenAI API with automatic retry for transient errors"""
+    client = openai.OpenAI(api_key=api_key)
+
+    # Format the glossary with timeout protection
     try:
-        client = openai.OpenAI(api_key=api_key)
+        glossary_terms = get_glossary_terms_dict()
+        glossary_text = json.dumps(glossary_terms, indent=2)
+    except Exception as glossary_error:
+        logger.warning(f"Failed to load glossary: {glossary_error}")
+        glossary_terms = {}
+        glossary_text = "{}"
 
-        # Format the glossary with timeout protection
-        try:
-            glossary_terms = get_glossary_terms_dict()
-            glossary_text = json.dumps(glossary_terms, indent=2)
-        except Exception as glossary_error:
-            logger.warning(f"Failed to load glossary: {glossary_error}")
-            glossary_terms = {}
-            glossary_text = "{}"
+    # Build a message with all entries
+    entries_list = [f"Entry {idx}: {text}" for idx, text in entries.items()]
+    entries_text = "\n\n".join(entries_list)
 
-        # Build a message with all entries
-        entries_list = [f"Entry {idx}: {text}" for idx, text in entries.items()]
-        entries_text = "\n\n".join(entries_list)
-        
-        # Log entry details for debugging
-        logger.info(f"Translating {len(entries)} entries via OpenAI")
-        logger.debug(f"Entries to translate: {entries_list}")
+    # Log entry details for debugging
+    logger.info(f"Translating {len(entries)} entries via OpenAI")
+    logger.debug(f"Entries to translate: {entries_list}")
 
-        # Get the temperature from settings if available
-        settings = get_translation_settings()
-        temp = settings.get("temperature", temperature)
+    # Get the temperature from settings if available
+    settings = get_translation_settings()
+    temp = settings.get("temperature", temperature)
 
-        response = client.chat.completions.create(
+    def make_api_call():
+        """Inner function for retry wrapper"""
+        return client.chat.completions.create(
             model=model,
             messages=[
                 {
@@ -1279,6 +1364,14 @@ IMPORTANT: Translate the ENTIRE text for each entry, not just the first line or 
             temperature=temp,
             max_tokens=4000,  # Increase token limit for longer translations
             timeout=120,  # Add 2-minute timeout to prevent hanging
+        )
+
+    try:
+        # Use retry wrapper for transient errors
+        response = retry_with_backoff(
+            make_api_call,
+            max_retries=MAX_RETRIES,
+            retryable_errors=RETRYABLE_OPENAI_ERRORS
         )
 
         # Parse the response to extract translations
