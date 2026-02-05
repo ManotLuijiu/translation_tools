@@ -10,7 +10,7 @@ An AI-powered translation utility for ERPNext that helps translate PO files usin
 
 ## English Version
 
-## Translation Tools Overview
+### Translation Tools Overview
 
 Translation Tools is a standalone app for ERPNext that provides powerful machine translation capabilities for localizing ERPNext to other languages. It features:
 
@@ -43,6 +43,23 @@ bench get-app https://github.com/ManotLuijiu/translation_tools.git
 bench --site your-site.local install-app translation_tools
 ```
 
+### Quick Start
+
+After installing the app, follow these steps to start translating:
+
+1. Restart your bench:
+   ```bash
+   bench restart
+   ```
+2. Log in to ERPNext and open Translation Dashboard from the desktop.
+3. Configure your API key:
+   - Go to Settings
+   - Add your OpenAI or Anthropic API key
+   - Select the preferred model
+4. Choose a translation method:
+   - Dashboard UI for interactive translation
+   - CLI tool for batch or automated translation
+
 ### Using the Dashboard
 
 After installation, you can access the Translation Dashboard from the ERPNext desktop:
@@ -73,13 +90,41 @@ You can toggle between manual and AI translation modes:
 
 ### Command Line Usage
 
+Use the CLI tool to translate PO files directly from your Frappe bench environment.
+
 #### Basic Usage
 
-To translate a PO file to Thai:
+To translate a PO file to Thai, run the following command from your bench directory:
 
 ```bash
 ./bin/translate-po apps/frappe/frappe/locale/th.po
 ```
+
+**Explanation:**
+
+- `./bin/translate-po` — CLI script for translating PO files
+- `apps/frappe/frappe/locale/th.po` — path to the target language file
+
+**Example: Translate to Another Language**
+
+For example, to translate a Hindi PO file:
+
+```bash
+./bin/translate-po apps/frappe/frappe/locale/hi.po
+```
+
+**Expected Output**
+
+After running the command, the tool will:
+
+- Translate missing entries in the PO file
+- Preserve existing translations
+- Save the updated file automatically
+
+**Tips**
+
+- Ensure your API key is configured in the Settings before running the CLI tool.
+- Run the command from the root of your bench directory.
 
 #### Advanced Options
 
