@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0](https://github.com/ManotLuijiu/translation_tools/compare/v1.2.3...v1.3.0) (2026-03-01)
+
+### ✨ Features
+
+* add smart "Use Own Repo" toggle for GitHub Integration Settings ([7ec37a8](https://github.com/ManotLuijiu/translation_tools/commit/7ec37a8))
+  - "Use Own Repo" switch on same row as Enable toggle (far right, flex space-between)
+  - Default OFF: repo URL read-only, token status from site_config (green/red indicator)
+  - Toggle ON: editable repo URL + token with step-by-step setup guides
+  - Add `has_site_config_token()` API endpoint (checks without exposing value)
+  - Backend save logic handles both modes (default repo vs custom)
+  - `test_github_connection` falls back to site_config PAT when no UI token
+* add private repo authentication to all GitHub sync API calls ([7ec37a8](https://github.com/ManotLuijiu/translation_tools/commit/7ec37a8))
+  - `_get_github_headers()` reads `github_pat_token` from site_config.json or common_site_config.json
+  - All 3 `requests.get()` calls in github_sync.py now include auth headers
+* add post-migrate hook to restore translations from GitHub ([7ec37a8](https://github.com/ManotLuijiu/translation_tools/commit/7ec37a8))
+  - `sync_translations_after_migrate()` enqueues background sync after `bench migrate`
+  - Prevents translation rollback when POT/PO files are regenerated
+  - MO recompilation runs automatically after successful background sync
+
 ## [1.2.3](https://github.com/ManotLuijiu/translation_tools/compare/v1.2.2...v1.2.3) (2026-02-03)
 
 ### 🐛 Bug Fixes
