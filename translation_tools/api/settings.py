@@ -8,6 +8,15 @@ from .common import logger, CONFIG_FILE, get_bench_path
 import configparser
 import requests
 
+DEFAULT_GITHUB_REPO = "https://github.com/ManotLuijiu/erpnext-thai-translation.git"
+
+
+@frappe.whitelist()
+def has_site_config_token():
+    """Check if github_pat_token exists in site_config or common_site_config (never exposes the value)."""
+    token = frappe.conf.get("github_pat_token")
+    return {"has_token": bool(token and token.strip())}
+
 
 def save_github_token(github_token):
     """Save GitHub token (Frappe Password field handles encryption automatically)"""
@@ -112,7 +121,13 @@ def get_translation_settings():
             "auto_save": cint(doc.auto_save or 0),  # type: ignore
             "preserve_formatting": cint(doc.preserve_formatting or 1),  # type: ignore
             "github_enable": cint(doc.github_enable or 0),  # type: ignore
-            "github_repo": doc.github_repo or "",  # type: ignore
+            "github_repo": doc.github_repo or DEFAULT_GITHUB_REPO,  # type: ignore
+            "use_own_repo": bool(
+                doc.github_repo  # type: ignore
+                and doc.github_repo.strip()  # type: ignore
+                and doc.github_repo.strip().rstrip("/").rstrip(".git").rstrip("/")  # type: ignore
+                != DEFAULT_GITHUB_REPO.rstrip("/").rstrip(".git").rstrip("/")
+            ),
         }
     )
 
@@ -172,13 +187,15 @@ def test_github_connection(github_repo=None, github_token=None):
             github_repo = settings.github_repo  # type: ignore
 
         if not github_token or set(github_token) == {"*"}:
-            # Properly decrypt the token from the settings
+            # Try settings Password field first, then fall back to site_config
             github_token = get_decrypted_password(
                 "Translation Tools Settings",
                 settings.name,
                 "github_token",
-                raise_exception=True,
+                raise_exception=False,
             )
+            if not github_token:
+                github_token = frappe.conf.get("github_pat_token")
 
         # Validate inputs
         if not github_repo:
@@ -297,17 +314,20 @@ def save_translation_settings(settings):
     ) and "github_enable" not in settings_data:
         doc.github_enable = 1  # type: ignore
 
-    if "github_repo" in settings_data:
-        doc.github_repo = settings_data.github_repo  # type: ignore
-    # if "github_token" in settings_data:
-    #     doc.github_token = settings_data.github_token
+    use_own_repo = settings_data.get("use_own_repo", False)
+    if isinstance(use_own_repo, str):
+        use_own_repo = use_own_repo.lower() in ("true", "1", "yes")
 
-    # Properly handle the GitHub token as a password field
-    if "github_token" in settings_data and settings_data.github_token:
-        # Only update if token is provided and not just asterisks
-        if not set(settings_data.github_token) == {"*"}:
-            # Use Frappe's secure field storage mechanism
-            doc.github_token = settings_data.github_token  # type: ignore
+    if use_own_repo:
+        # Client's own repo: save both repo URL and token
+        if "github_repo" in settings_data:
+            doc.github_repo = settings_data.github_repo  # type: ignore
+        if "github_token" in settings_data and settings_data.github_token:
+            if not set(settings_data.github_token) == {"*"}:
+                doc.github_token = settings_data.github_token  # type: ignore
+    else:
+        # Default repo: save default URL, don't touch token (uses site_config)
+        doc.github_repo = DEFAULT_GITHUB_REPO  # type: ignore
 
     doc.save()
     frappe.db.commit()

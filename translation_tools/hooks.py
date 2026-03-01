@@ -57,6 +57,7 @@ after_migrate = [
     "translation_tools.utils.auto_extract.auto_extract_all_custom_apps",  # Auto-extract SPA translations for all languages
     "translation_tools.utils.csv_to_po_with_spa.auto_migrate_csv_to_po",  # Auto-migrate CSV to PO (creates locale/ folder)
     "translation_tools.api.workspace_manager.setup_translation_tools",  # Setup workspace links using new API
+    "translation_tools.tasks.github_auto_sync.sync_translations_after_migrate",  # Restore translations from GitHub (background)
 ]
 
 # Uninstallation

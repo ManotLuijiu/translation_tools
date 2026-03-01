@@ -17,6 +17,16 @@ MAX_FUZZY_CANDIDATES = 100  # limit fuzzy matching candidates
 FUZZY_MATCH_THRESHOLD = 0.9
 
 
+def _get_github_headers():
+    """Build HTTP headers for GitHub API requests.
+    Reads github_pat_token from site_config.json or common_site_config.json."""
+    headers = {"Accept": "application/vnd.github+json"}
+    token = frappe.conf.get("github_pat_token")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    return headers
+
+
 @frappe.whitelist()
 def find_translation_files(repo_url, branch="main", target_language="th"):
     """Find PO translation files in a GitHub repository"""
@@ -43,7 +53,7 @@ def find_translation_files(repo_url, branch="main", target_language="th"):
         # Use GitHub API to fetch repository contents
         api_url = f"https://api.github.com/repos/{owner}/{repo}/git/trees/{branch}?recursive=1"
 
-        response = requests.get(api_url, timeout=HTTP_TIMEOUT)
+        response = requests.get(api_url, headers=_get_github_headers(), timeout=HTTP_TIMEOUT)
 
         if response.status_code != 200:
             frappe.throw(
@@ -132,7 +142,7 @@ def preview_sync(repo_url, branch, repo_files, local_file_path):
             raw_url = f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{repo_file_path}"
 
             try:
-                response = requests.get(raw_url, timeout=HTTP_TIMEOUT)
+                response = requests.get(raw_url, headers=_get_github_headers(), timeout=HTTP_TIMEOUT)
             except requests.exceptions.RequestException:
                 continue
 
@@ -294,7 +304,7 @@ def _apply_sync_internal(repo_url, branch, repo_files, local_file_path):
             raw_url = f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{repo_file_path}"
 
             try:
-                response = requests.get(raw_url, timeout=HTTP_TIMEOUT)
+                response = requests.get(raw_url, headers=_get_github_headers(), timeout=HTTP_TIMEOUT)
             except requests.exceptions.Timeout:
                 frappe.log_error(f"Timeout fetching {raw_url}")
                 continue

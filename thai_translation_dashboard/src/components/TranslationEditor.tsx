@@ -376,10 +376,7 @@ export default function TranslationEditor({
       if (result.data && typeof result.data === 'string') {
         try {
           const parsedData = JSON.parse(result.data);
-          if (
-            parsedData.message?.success &&
-            parsedData.message?.translation
-          ) {
+          if (parsedData.message?.success && parsedData.message?.translation) {
             translationData = parsedData.message.translation;
           }
         } catch (e) {
@@ -1081,6 +1078,7 @@ export default function TranslationEditor({
                       {pushToGithub ? (
                         <Button
                           variant="outline"
+                          className="cursor-pointer"
                           onClick={() =>
                             handleTestGitHubConnection(
                               settings.github_repo || '',
@@ -1099,6 +1097,7 @@ export default function TranslationEditor({
                         <Button
                           type="button"
                           variant={'outline'}
+                          className="cursor-pointer"
                           onClick={() => setShowTokenDialog(true)}
                         >
                           <div className="flex justify-center items-center">
@@ -1111,6 +1110,7 @@ export default function TranslationEditor({
                           id="push-to-github"
                           checked={pushToGithub}
                           onCheckedChange={setPushToGithub}
+                          className="cursor-pointer"
                         />
                         <Label
                           htmlFor="push-to-github"

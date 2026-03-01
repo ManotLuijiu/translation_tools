@@ -1,6 +1,7 @@
 import frappe
 from frappe.utils import now_datetime
 import json
+import subprocess
 
 def check_and_run_auto_sync():
     """Check if auto-sync is due and trigger sync for enabled apps"""
@@ -134,9 +135,20 @@ def run_background_sync(enabled_apps):
                 failed_apps.append(app_name)
                 frappe.log_error(f"Failed to sync app {app_name}: {str(e)}")
         
+        # Recompile MO files for successfully synced apps
+        if successful_apps:
+            bench_path = frappe.utils.get_bench_path()
+            for app_name in successful_apps:
+                try:
+                    cmd = f"bench compile-po-to-mo --app {app_name} --locale th --force"
+                    subprocess.run(cmd, shell=True, cwd=bench_path, capture_output=True, timeout=120)
+                    frappe.logger("auto_sync").info(f"🔄 [SYNC] Recompiled MO for {app_name}")
+                except Exception as mo_err:
+                    frappe.logger("auto_sync").warning(f"Could not recompile MO for {app_name}: {mo_err}")
+
         # Update final status
         settings = frappe.get_single("GitHub Sync Settings")
-        
+
         if failed_apps:
             status_message = f"Partial success: {len(successful_apps)} successful, {len(failed_apps)} failed"
             settings.update_sync_status("Failed", status_message)
@@ -155,3 +167,66 @@ def run_background_sync(enabled_apps):
             settings.update_sync_status("Failed", f"Background sync error: {str(e)}")
         except:
             pass
+
+
+def sync_translations_after_migrate():
+    """After-migrate hook: enqueue GitHub translation sync as a background job.
+
+    Runs AFTER existing hooks have regenerated POT/PO/MO (which rolls back translations).
+    This restores complete translations from the private GitHub repo.
+    """
+    try:
+        if not frappe.db.exists("DocType", "GitHub Sync Settings"):
+            return
+
+        settings = frappe.get_single("GitHub Sync Settings")
+
+        if not settings.enabled:
+            return
+
+        if not settings.repository_url:
+            return
+
+        if not frappe.conf.get("github_pat_token"):
+            frappe.logger("auto_sync").warning(
+                "🔄 [POST-MIGRATE] No github_pat_token found, skipping sync. "
+                "Add github_pat_token to site_config.json or common_site_config.json"
+            )
+            return
+
+        # Get enabled apps
+        app_settings = {}
+        if hasattr(settings, "app_sync_settings") and settings.app_sync_settings:
+            try:
+                app_settings = json.loads(settings.app_sync_settings)
+            except (json.JSONDecodeError, TypeError):
+                app_settings = {}
+
+        enabled_apps = [app for app, config in app_settings.items() if config.get("enabled")]
+
+        if not enabled_apps:
+            return
+
+        frappe.logger("auto_sync").info(
+            f"🔄 [POST-MIGRATE] Enqueueing GitHub sync for {len(enabled_apps)} apps: {', '.join(enabled_apps)}"
+        )
+        print(f"\n🔄 Enqueueing GitHub translation sync for: {', '.join(enabled_apps)}")
+
+        frappe.enqueue(
+            "translation_tools.tasks.github_auto_sync.run_background_sync",
+            enabled_apps=enabled_apps,
+            queue="long",
+            timeout=1800,
+            job_name="post_migrate_github_sync",
+            deduplicate=True,
+        )
+
+        print("✅ GitHub translation sync enqueued (runs in background)")
+
+    except Exception as e:
+        # Never break migrate
+        frappe.log_error(
+            f"Post-migrate GitHub sync scheduling failed: {str(e)}",
+            "Post-Migrate GitHub Sync Error",
+        )
+        print(f"⚠️ Could not schedule GitHub translation sync: {str(e)}")

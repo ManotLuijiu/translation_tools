@@ -184,7 +184,7 @@ export default function AiModelsSettings({
                 size="sm"
                 onClick={onTestOpenAI}
                 disabled={!settings.openai_api_key || loading}
-                className="h-full"
+                className="h-full cursor-pointer"
               >
                 {__('Test Connect')}
               </Button>
@@ -213,7 +213,7 @@ export default function AiModelsSettings({
                 size="sm"
                 onClick={onTestAnthropic}
                 disabled={!settings.anthropic_api_key || loading}
-                className="h-full"
+                className="h-full cursor-pointer"
               >
                 {__('Test Connect')}
               </Button>
@@ -222,7 +222,7 @@ export default function AiModelsSettings({
         </div>
       </CardContent>
       <CardFooter>
-        <Button onClick={onSave} disabled={loading}>
+        <Button className="cursor-pointer" onClick={onSave} disabled={loading}>
           {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           {__('Save All Settings')}
         </Button>

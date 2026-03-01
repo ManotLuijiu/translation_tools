@@ -85,7 +85,9 @@ export default function BatchTranslationView({
 
     setIsTranslating(true);
     toast.info(
-      __('Translating batch of') + ` ${selectedEntries.length} ` + __('entries...')
+      __('Translating batch of') +
+        ` ${selectedEntries.length} ` +
+        __('entries...')
     );
 
     try {
@@ -215,6 +217,7 @@ export default function BatchTranslationView({
             <Button
               variant="outline"
               onClick={() => setSelectedEntries(untranslatedEntries)}
+              className="cursor-pointer"
               disabled={untranslatedEntries.length === 0}
             >
               {__('Select All Untranslated')} ({untranslatedEntries.length})
@@ -222,6 +225,7 @@ export default function BatchTranslationView({
             <Button
               variant="outline"
               onClick={() => setSelectedEntries([])}
+              className="cursor-pointer"
               disabled={selectedEntries.length === 0}
             >
               {__('Clear Selection')}
@@ -330,6 +334,7 @@ export default function BatchTranslationView({
             <Button
               variant="outline"
               onClick={translateBatch}
+              className="cursor-pointer"
               disabled={
                 isTranslating ||
                 translateLoading ||
@@ -351,6 +356,7 @@ export default function BatchTranslationView({
 
             <Button
               onClick={saveBatchTranslations}
+              className="cursor-pointer"
               disabled={
                 isTranslating ||
                 saveLoading ||
