@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1](https://github.com/ManotLuijiu/translation_tools/compare/v1.3.0...v1.3.1) (2026-03-01)
+
+### ✨ Features
+
+* add Push to Github toggle in AI Batch Translation mode ([efec229](https://github.com/ManotLuijiu/translation_tools/commit/efec229))
+  - User-controlled toggle in BatchTranslationView footer (only visible when GitHub enabled)
+  - Replaces hardcoded push logic with explicit opt-in
+
+### 🐛 Bug Fixes
+
+* get_github_token() in po_files.py now falls back to site_config github_pat_token ([efec229](https://github.com/ManotLuijiu/translation_tools/commit/efec229))
+  - Push to GitHub works with default repo (site_config token) without requiring UI token
+
 ## [1.3.0](https://github.com/ManotLuijiu/translation_tools/compare/v1.2.3...v1.3.0) (2026-03-01)
 
 ### ✨ Features
