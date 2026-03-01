@@ -1,19 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from '@/components/ui/card';
-import { Loader2, RefreshCw, Save } from 'lucide-react';
-import { toast } from 'sonner';
-// import { useTranslateBatch, useSaveBatchTranslations } from '../api';
-import type { POFile, TranslationToolsSettings, POEntry } from '../types';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { useTranslation } from '@/context/TranslationContext';
 import { useFrappePostCall } from 'frappe-react-sdk';
+import { GitBranch, Loader2, RefreshCw, Save } from 'lucide-react';
+import { toast } from 'sonner';
+import type { POEntry, POFile, TranslationToolsSettings } from '../types';
 
 interface BatchTranslationViewProps {
   selectedFile: POFile | null;
@@ -37,6 +38,7 @@ export default function BatchTranslationView({
     [key: string]: string;
   }>({});
   const [isTranslating, setIsTranslating] = useState(false);
+  const [pushToGithub, setPushToGithub] = useState(false);
 
   // Select entries that need translation
   const untranslatedEntries = entries.filter((entry) => !entry.is_translated);
@@ -171,7 +173,7 @@ export default function BatchTranslationView({
       const result = await saveBatchCall({
         file_path: selectedFile.file_path,
         translations: translatedEntries,
-        push_to_github: settings?.github_enable && settings?.github_token,
+        push_to_github: pushToGithub,
       });
 
       // console.log('result saveBatchCall', result);
@@ -327,8 +329,27 @@ export default function BatchTranslationView({
         </CardContent>
 
         <CardFooter className="justify-between">
-          <div className="text-sm text-muted-foreground">
-            {selectedEntries.length} {__('entries selected')}
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-muted-foreground">
+              {selectedEntries.length} {__('entries selected')}
+            </div>
+            {settings?.github_enable ? (
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="batch-push-to-github"
+                  checked={pushToGithub}
+                  onCheckedChange={setPushToGithub}
+                  className="cursor-pointer"
+                />
+                <Label
+                  htmlFor="batch-push-to-github"
+                  className={`cursor-pointer whitespace-nowrap ${pushToGithub ? 'text-green-600' : ''}`}
+                >
+                  <GitBranch className="mr-1 inline h-3.5 w-3.5" />
+                  {__('Push to Github')}
+                </Label>
+              </div>
+            ) : null}
           </div>
           <div className="space-x-2">
             <Button

@@ -1960,6 +1960,10 @@ def get_github_token():
                 raise_exception=False,
             )
 
+            # Fall back to site_config / common_site_config token
+            if not token:
+                token = frappe.conf.get("github_pat_token")
+
             if not token:
                 return {"success": False, "error": "missing_token"}
 
