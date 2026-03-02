@@ -138,22 +138,28 @@ def sync_translation_files_from_github(installed_apps):
     try:
         bench_path = get_bench_path()
         github_base_url = "https://raw.githubusercontent.com/ManotLuijiu/erpnext-thai-translation/main"
-        
+
+        # Build auth headers for private repo access
+        headers = {"Accept": "application/vnd.github+json"}
+        token = frappe.conf.get("github_pat_token")
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+
         stats = {
             "synced_files": 0,
             "updated_apps": 0,
             "failed_apps": []
         }
-        
+
         for app_name in installed_apps:
             try:
                 # Try to download th.po file from GitHub for this app
                 github_file_url = f"{github_base_url}/{app_name}/locale/th.po"
-                
+
                 print(f"  📥 Checking GitHub for {app_name}/locale/th.po...")
-                
+
                 try:
-                    response = requests.get(github_file_url, timeout=30)
+                    response = requests.get(github_file_url, headers=headers, timeout=30)
                     
                     if response.status_code == 200:
                         # Validate that we got actual PO file content, not HTML error page

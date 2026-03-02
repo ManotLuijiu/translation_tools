@@ -1541,9 +1541,9 @@ def push_translation_to_github(
         frappe.log_error(str(e), "Failed to get GitHub repo URL")
         repo_url = "https://github.com/ManotLuijiu/erpnext-thai-translation.git"
 
-    # Create token URL
+    # Create token URL (use x-access-token for fine-grained PAT compatibility)
     if isinstance(repo_url, str) and isinstance(github_token, str):
-        token_url = repo_url.replace("https://", f"https://{github_token}@")
+        token_url = repo_url.replace("https://", f"https://x-access-token:{github_token}@")
     else:
         raise TypeError("repo_url and github_token must be strings")
 

@@ -56,7 +56,7 @@ export default function BatchTranslationView({
     loading: saveLoading,
     error: saveError,
   } = useFrappePostCall(
-    'translation_tools.api.ai_translation.save_batch_translations'
+    'translation_tools.api.ai_translation.save_batch_translations_with_single_github_push'
   );
 
   // Prepare batches for translation

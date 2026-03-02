@@ -1,4 +1,4 @@
-# Sync glossary from public GitHub raw URL
+# Sync glossary from GitHub raw URL (supports private repos via PAT)
 import json
 import requests
 import frappe
@@ -7,22 +7,31 @@ from frappe.utils import now_datetime
 from .common import logger
 
 
+def _get_github_headers():
+    """Build HTTP headers for GitHub API requests.
+    Reads github_pat_token from site_config.json or common_site_config.json."""
+    headers = {"Accept": "application/vnd.github+json"}
+    token = frappe.conf.get("github_pat_token")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    return headers
+
+
 @frappe.whitelist()
 def sync_glossary_from_public_github():
     """
-    Sync glossary terms from public GitHub raw URL without authentication
-    Uses: https://raw.githubusercontent.com/ManotLuijiu/erpnext-thai-translation/refs/heads/main/glossary/thai_glossary.json
+    Sync glossary terms from GitHub raw URL (supports private repos via PAT)
+    Uses: https://raw.githubusercontent.com/ManotLuijiu/erpnext-thai-translation/main/glossary/thai_glossary.json
     """
-    logger.info("Starting GitHub glossary sync from public raw URL")
-    
+    logger.info("Starting GitHub glossary sync")
+
     try:
-        # Use the public raw GitHub URL you provided
         public_url = "https://raw.githubusercontent.com/ManotLuijiu/erpnext-thai-translation/main/glossary/thai_glossary.json"
-        
+
         logger.info(f"Syncing glossary from: {public_url}")
-        
-        # Download the file from GitHub (no authentication needed for raw public files)
-        response = requests.get(public_url, timeout=30)
+
+        # Use PAT token for private repo access
+        response = requests.get(public_url, headers=_get_github_headers(), timeout=30)
         
         if response.status_code == 404:
             return {

@@ -64,7 +64,7 @@ export function useTranslateBatch() {
  */
 export function useSaveBatchTranslations() {
   return useFrappePostCall<BatchTranslationResult>(
-    'translation_tools.api.ai_translation.save_batch_translations'
+    'translation_tools.api.ai_translation.save_batch_translations_with_single_github_push'
   );
 }
 
