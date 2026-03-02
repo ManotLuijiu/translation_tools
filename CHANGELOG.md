@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.2](https://github.com/ManotLuijiu/translation_tools/compare/v1.3.1...v1.3.2) (2026-03-02)
+
+### 🐛 Bug Fixes
+
+* add GitHub PAT auth for private repo access in installation and glossary sync ([0ab2ff2](https://github.com/ManotLuijiu/translation_tools/commit/0ab2ff2))
+* use x-access-token prefix for fine-grained PAT compatibility in git push ([0ab2ff2](https://github.com/ManotLuijiu/translation_tools/commit/0ab2ff2))
+* switch batch save to single GitHub push API endpoint ([0ab2ff2](https://github.com/ManotLuijiu/translation_tools/commit/0ab2ff2))
+
 ## [1.3.1](https://github.com/ManotLuijiu/translation_tools/compare/v1.3.0...v1.3.1) (2026-03-01)
 
 ### ✨ Features
