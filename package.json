@@ -11,7 +11,11 @@
     "build-pwa": "cd thai_translation_dashboard && yarn build",
     "build": "yarn build-pwa",
     "prepare": "husky install",
-    "skip-commit": "HUSKY=0 git commit -m"
+    "skip-commit": "HUSKY=0 git commit -m",
+    "release": "standard-version",
+    "release:patch": "standard-version --release-as patch",
+    "release:minor": "standard-version --release-as minor",
+    "release:major": "standard-version --release-as major"
   },
   "keywords": [],
   "author": "Manot Luijiu",
@@ -27,6 +31,9 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "husky": "^8.0.0"
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "husky": "^8.0.0",
+    "standard-version": "^9.5.0"
   }
 }
