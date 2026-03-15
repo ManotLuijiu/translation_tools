@@ -1,6 +1,22 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to Translation Tools will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+
+## [1.4.0](https://github.com/ManotLuijiu/translation_tools/compare/v1.3.2...v1.4.0) (2026-03-15)
+
+
+### ✨ Features
+
+* add Lao language toggle and fix undefined language display ([4f65e48](https://github.com/ManotLuijiu/translation_tools/commit/4f65e482de98f12091f92a84a789836dccb0be16))
+
+
+### 🔧 Maintenance
+
+* add standard-version config and release scripts ([52e691f](https://github.com/ManotLuijiu/translation_tools/commit/52e691f8be613d4419380d90f4e97fcf3a1d7a0e))
 
 ## [1.3.2](https://github.com/ManotLuijiu/translation_tools/compare/v1.3.1...v1.3.2) (2026-03-02)
 
