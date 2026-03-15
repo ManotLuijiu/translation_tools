@@ -25,6 +25,13 @@ def boot_session(bootinfo):
     #     "retention_management": True,
     # }
 
+    # Supported languages for the navbar language toggle
+    bootinfo.languages = {
+        "en": "English",
+        "th": "ไทย",
+        "lo": "ລາວ",
+    }
+
     # User-specific company settings
     if frappe.session.user != "Guest":
         bootinfo.user_defaults = {

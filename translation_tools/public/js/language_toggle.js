@@ -5,8 +5,16 @@ frappe.ui.language_toggle = class LanguageToggle {
     this.languages = frappe.boot.languages || {
       en: 'English',
       th: 'ไทย',
+      lo: 'ລາວ',
     };
-    this.current_language = frappe.boot.lang || 'en';
+    const boot_lang = frappe.boot.lang || 'en';
+    // Resolve exact match first, then base code (en-GB → en), then default to 'en'
+    const base_lang = boot_lang.split('-')[0];
+    this.current_language = this.languages[boot_lang]
+      ? boot_lang
+      : this.languages[base_lang]
+        ? base_lang
+        : 'en';
     this.setup();
   }
 
