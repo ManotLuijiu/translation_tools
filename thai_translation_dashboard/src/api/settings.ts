@@ -13,8 +13,11 @@ export type TranslationPDFSettings = {
 
 export type TestGithubConnection = {
   success: boolean;
-  messages: string;
-  error: string;
+  message?: string;
+  messages?: string;
+  error?: string;
+  sync_triggered?: boolean;
+  sync_apps?: number;
 };
 
 export type TestAiConnection = {
@@ -72,10 +75,34 @@ export function useGetTranslationSettings() {
  * Test Github Connection
  */
 export function useTestGithubConnection() {
-  // console.log('Testing Github Connection...');
   return useFrappePostCall<{ message: TestGithubConnection }>(
     'translation_tools.api.settings.test_github_connection'
-    // {}
+  );
+}
+
+/**
+ * Test Github Sync — checks connection + lists all site apps with sync readiness
+ */
+export function useTestGithubSync() {
+  return useFrappePostCall<{ message: {
+    success: boolean;
+    error?: string;
+    message?: string;
+    repo?: string;
+    branch?: string;
+    github_apps_count?: number;
+    installed_apps_count?: number;
+    apps?: Array<{
+      app: string;
+      status: 'ready' | 'no_po' | 'no_github';
+      message?: string;
+      translated?: number;
+      total?: number;
+      percentage?: number;
+      github_file?: string;
+    }>;
+  } }>(
+    'translation_tools.api.settings.test_github_sync'
   );
 }
 

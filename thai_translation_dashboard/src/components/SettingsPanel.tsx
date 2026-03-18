@@ -3,6 +3,7 @@ import {
   useGetTranslationSettings,
   useSaveTranslationSettings,
   useTestGithubConnection,
+  useTestGithubSync,
   useTestAiConnection,
   useGetAiModels,
 } from '../api';
@@ -63,6 +64,7 @@ export default function SettingsPanel() {
   const { data, error, isLoading } = useGetTranslationSettings();
   const saveSettings = useSaveTranslationSettings();
   const testGithub = useTestGithubConnection();
+  const testSync = useTestGithubSync();
   const testAi = useTestAiConnection();
   const { modelData, modelLoading, modelError } = useGetAiModels();
   const { translate: __, isReady } = useTranslation();
@@ -137,21 +139,64 @@ export default function SettingsPanel() {
     toast.info('Testing GitHub connection...');
 
     try {
-      // Make an API call to test the GitHub connection
       const { message } = await testGithub.call({
         github_repo,
         github_token,
       });
 
-      // console.log('message from github testing', message);
-
       if (message?.success) {
-        toast.success('Successfully connected to GitHub!');
+        if (message.sync_triggered) {
+          toast.success(message.message || 'Connected', {
+            description: `Background sync started for ${message.sync_apps} apps. Progress will update in File Explorer.`,
+            duration: 10000,
+          });
+        } else {
+          toast.success(message.message || 'Successfully connected to GitHub!', { duration: 5000 });
+        }
       } else {
         toast.error(message?.error || 'Failed to connect to GitHub');
       }
     } catch (err: any) {
       toast.error(err.message || 'An error occurred while testing the connection');
+    }
+  };
+
+  const handleTestGitHubSync = async (
+    github_repo: string,
+    github_token: string
+  ) => {
+    toast.info('Testing GitHub sync for all site apps...');
+
+    try {
+      const { message } = await testSync.call({
+        github_repo,
+        github_token,
+      });
+
+      if (message?.success && message.apps) {
+        const ready = message.apps.filter((a: any) => a.status === 'ready');
+        const noPo = message.apps.filter((a: any) => a.status === 'no_po');
+        const noGithub = message.apps.filter((a: any) => a.status === 'no_github');
+
+        // Build detailed summary
+        const lines = ready.map((a: any) =>
+          `${a.app}: ${a.translated}/${a.total} (${a.percentage}%)`
+        );
+
+        toast.success(message.message, {
+          description: [
+            `Ready to sync: ${ready.length} apps`,
+            ...lines,
+            noPo.length ? `No PO file: ${noPo.map((a: any) => a.app).join(', ')}` : '',
+            noGithub.length ? `Not in repo: ${noGithub.map((a: any) => a.app).join(', ')}` : '',
+          ].filter(Boolean).join('\n'),
+          duration: 15000,
+        });
+      } else {
+        toast.error(message?.error || 'Sync test failed');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'An error occurred during sync test');
     }
   };
 
@@ -314,6 +359,7 @@ export default function SettingsPanel() {
             onSwitchChange={handleSwitchChange}
             onSave={handleSaveSettings}
             onTest={handleTestGitHubConnection}
+            onTestSync={handleTestGitHubSync}
             showPassword={showPassword}
             setShowPassword={setShowPassword}
             loading={saveSettings.loading}

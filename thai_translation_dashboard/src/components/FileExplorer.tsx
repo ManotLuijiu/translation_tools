@@ -140,91 +140,114 @@ export default function FileExplorer({
   }, [activeTab]);
 
   const handleToggleAppSync = async (appName: string, enabled: boolean) => {
-    console.log('=== Auto Sync Toggle Debug ===');
-    console.log('App Name:', appName);
-    console.log('Enabled:', enabled);
-    console.log('Current appSyncSettings:', appSyncSettings);
-    
     // Set sync status to show it's processing
-    setSyncStatus({ 
-      app: appName, 
-      status: 'syncing', 
-      message: enabled ? `Enabling auto-sync for ${appName}...` : `Disabling auto-sync for ${appName}...` 
+    setSyncStatus({
+      app: appName,
+      status: 'syncing',
+      message: enabled ? `Enabling auto-sync for ${appName}...` : `Disabling auto-sync for ${appName}...`
     });
-    
+
     try {
-      console.log('Calling toggleAppSync API...');
       const result = await toggleAppSync(appName, enabled);
-      console.log('API Response:', result);
-      
+
       // Handle both direct result and wrapped message response
       const actualResult = (result as any)?.message || result;
-      console.log('Actual Result:', actualResult);
-      
+
       if (actualResult?.success) {
-        console.log('Success! Updating local state...');
         // Update local state immediately for UI responsiveness
-        setAppSyncSettings(prev => {
-          const newSettings = {
-            ...prev,
-            [appName]: enabled
-          };
-          console.log('New appSyncSettings:', newSettings);
-          return newSettings;
-        });
-        
-        // Show success status
-        setSyncStatus({ 
-          app: appName, 
-          status: 'success', 
-          message: actualResult.message || `Auto-sync ${enabled ? 'enabled' : 'disabled'} for ${appName}` 
-        });
-        
-        // Small delay to ensure database commit completes
-        console.log('Waiting 100ms for database commit...');
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Refetch data to ensure consistency
-        console.log('Refetching app sync data...');
-        await refetchAppSyncData();
-        console.log('Refetch complete');
-        
-        // Clear status after 3 seconds
-        setTimeout(() => setSyncStatus(null), 3000);
+        setAppSyncSettings(prev => ({
+          ...prev,
+          [appName]: enabled
+        }));
+
+        if (enabled) {
+          // Sync was enqueued in background — show syncing toast and poll for completion
+          toast.info(`Syncing ${appName} from GitHub...`, {
+            description: 'Background sync started. Progress will update automatically.',
+            duration: 5000,
+          });
+
+          setSyncStatus({
+            app: appName,
+            status: 'syncing',
+            message: `Syncing ${appName} from GitHub...`
+          });
+
+          // Poll for sync completion by refreshing file stats
+          // Background sync typically takes 5-30 seconds per app
+          const pollInterval = 5000; // 5 seconds
+          const maxPolls = 12; // up to 60 seconds
+          let polls = 0;
+
+          const pollTimer = setInterval(async () => {
+            polls++;
+            try {
+              await mutate(); // Refresh PO file stats
+            } catch {
+              // ignore poll errors
+            }
+
+            if (polls >= maxPolls) {
+              clearInterval(pollTimer);
+              setSyncStatus({
+                app: appName,
+                status: 'success',
+                message: `Sync completed for ${appName}`
+              });
+              toast.success(`Sync completed for ${appName}`, {
+                description: 'Translation files have been updated from GitHub.',
+              });
+              setTimeout(() => setSyncStatus(null), 3000);
+            }
+          }, pollInterval);
+
+          // Also do an early check after 8 seconds (most single-app syncs finish by then)
+          setTimeout(async () => {
+            await mutate();
+            await refetchAppSyncData();
+          }, 8000);
+
+        } else {
+          // Disabling — just show success
+          setSyncStatus({
+            app: appName,
+            status: 'success',
+            message: `Auto-sync disabled for ${appName}`
+          });
+          toast.success(`Auto-sync disabled for ${appName}`);
+          await refetchAppSyncData();
+          setTimeout(() => setSyncStatus(null), 3000);
+        }
       } else {
-        console.error('API call was not successful:', actualResult);
-        setSyncStatus({ 
-          app: appName, 
-          status: 'error', 
-          message: actualResult?.error || 'Failed to toggle auto-sync' 
+        setSyncStatus({
+          app: appName,
+          status: 'error',
+          message: actualResult?.error || 'Failed to toggle auto-sync'
+        });
+        toast.error(`Failed to toggle auto-sync for ${appName}`, {
+          description: actualResult?.error || 'Unknown error',
         });
         setTimeout(() => setSyncStatus(null), 5000);
       }
     } catch (error) {
-      console.error('Error toggling app sync:', error);
-      console.error('Error details:', {
-        message: (error as any)?.message,
-        stack: (error as any)?.stack
-      });
-      
       // Show error status
-      setSyncStatus({ 
-        app: appName, 
-        status: 'error', 
-        message: `Error: ${(error as any)?.message || 'Failed to toggle auto-sync'}` 
+      setSyncStatus({
+        app: appName,
+        status: 'error',
+        message: `Error: ${(error as any)?.message || 'Failed to toggle auto-sync'}`
       });
-      
+      toast.error(`Error toggling auto-sync`, {
+        description: (error as any)?.message || 'Unknown error',
+      });
+
       // Revert local state on error
       setAppSyncSettings(prev => ({
         ...prev,
         [appName]: !enabled
       }));
-      console.log('Reverted appSyncSettings due to error');
-      
-      // Clear status after 5 seconds
+
       setTimeout(() => setSyncStatus(null), 5000);
     }
-    console.log('=== End Auto Sync Toggle Debug ===');
   };
 
   const handleScan = async () => {
@@ -667,15 +690,23 @@ export default function FileExplorer({
                         </TableCell>
                         <TableCell className="text-center">
                           {isFirstFileForApp ? (
-                            <div className="flex items-center justify-center">
+                            <div className="flex items-center justify-center gap-2">
+                              {syncStatus?.app === file.app && syncStatus.status === 'syncing' ? (
+                                <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+                              ) : syncStatus?.app === file.app && syncStatus.status === 'success' ? (
+                                <CheckCircle className="h-4 w-4 text-green-500" />
+                              ) : syncStatus?.app === file.app && syncStatus.status === 'error' ? (
+                                <AlertCircle className="h-4 w-4 text-red-500" />
+                              ) : null}
                               <Switch
                                 checked={appSyncSettings[file.app] || false}
+                                disabled={syncStatus?.app === file.app && syncStatus.status === 'syncing'}
                                 onCheckedChange={(checked) => {
                                   handleToggleAppSync(file.app, checked);
                                 }}
                                 className={
-                                  appSyncSettings[file.app] 
-                                    ? "data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500" 
+                                  appSyncSettings[file.app]
+                                    ? "data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
                                     : ""
                                 }
                               />

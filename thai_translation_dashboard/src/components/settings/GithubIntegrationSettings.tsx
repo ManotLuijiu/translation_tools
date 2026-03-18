@@ -21,6 +21,7 @@ export default function GithubIntegrationSettings({
   onSwitchChange,
   onSave,
   onTest,
+  onTestSync,
   showPassword,
   setShowPassword,
   loading,
@@ -246,6 +247,21 @@ export default function GithubIntegrationSettings({
         >
           {__('Test Connect')}
         </Button>
+        {onTestSync && (
+          <Button
+            variant="outline"
+            className="cursor-pointer"
+            onClick={() => onTestSync(settings.github_repo, useOwnRepo ? settings.github_token : null)}
+            disabled={
+              !settings.github_enable ||
+              !settings.github_repo ||
+              (useOwnRepo && !settings.github_token) ||
+              (!useOwnRepo && !hasSiteConfigToken)
+            }
+          >
+            {__('Test Sync')}
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
