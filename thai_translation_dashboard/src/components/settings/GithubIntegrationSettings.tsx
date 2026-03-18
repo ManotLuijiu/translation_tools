@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useTranslation } from '@/context/TranslationContext';
 import { useFrappeGetCall } from 'frappe-react-sdk';
+import { useRef, useEffect, useState } from 'react';
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import PasswordVisibilityToggle from '../PasswordVisibilityToggle';
 
@@ -27,6 +28,15 @@ export default function GithubIntegrationSettings({
   loading,
 }: any) {
   const { translate: __ } = useTranslation();
+
+  const saveButtonRef = useRef<HTMLButtonElement>(null);
+  const [btnMinWidth, setBtnMinWidth] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (saveButtonRef.current) {
+      setBtnMinWidth(saveButtonRef.current.offsetWidth);
+    }
+  }, [loading]);
 
   const useOwnRepo = !!settings.use_own_repo;
 
@@ -229,15 +239,20 @@ export default function GithubIntegrationSettings({
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex items-center gap-2">
-        <Button className="cursor-pointer" onClick={onSave} disabled={loading}>
-          {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-          {__('Save All Settings')}
-        </Button>
-        <div className="inline-grid grid-flow-col gap-2" style={{ gridAutoColumns: '1fr' }}>
+      <CardFooter className="flex gap-2">
+          <Button
+            ref={saveButtonRef}
+            className="cursor-pointer"
+            onClick={onSave}
+            disabled={loading}
+          >
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            {__('Save All Settings')}
+          </Button>
           <Button
             variant="outline"
             className="cursor-pointer"
+            style={btnMinWidth ? { minWidth: btnMinWidth } : undefined}
             onClick={() => onTest(settings.github_repo, useOwnRepo ? settings.github_token : null)}
             disabled={
               !settings.github_enable ||
@@ -252,6 +267,7 @@ export default function GithubIntegrationSettings({
             <Button
               variant="outline"
               className="cursor-pointer"
+              style={btnMinWidth ? { minWidth: btnMinWidth } : undefined}
               onClick={() => onTestSync(settings.github_repo, useOwnRepo ? settings.github_token : null)}
               disabled={
                 !settings.github_enable ||
@@ -263,7 +279,6 @@ export default function GithubIntegrationSettings({
               {__('Test Sync')}
             </Button>
           )}
-        </div>
       </CardFooter>
     </Card>
   );

@@ -187,15 +187,15 @@ def test_github_connection(github_repo=None, github_token=None):
             github_repo = settings.github_repo  # type: ignore
 
         if not github_token or set(github_token) == {"*"}:
-            # Try settings Password field first, then fall back to site_config
-            github_token = get_decrypted_password(
-                "Translation Tools Settings",
-                settings.name,
-                "github_token",
-                raise_exception=False,
-            )
+            # Prefer site_config token (common_site_config.json), fall back to DocType Password field
+            github_token = frappe.conf.get("github_pat_token")
             if not github_token:
-                github_token = frappe.conf.get("github_pat_token")
+                github_token = get_decrypted_password(
+                    "Translation Tools Settings",
+                    settings.name,
+                    "github_token",
+                    raise_exception=False,
+                )
 
         # Validate inputs
         if not github_repo:
@@ -336,11 +336,12 @@ def test_github_sync(github_repo=None, github_token=None):
 
         if not github_token or set(github_token) == {"*"}:
             from frappe.utils.password import get_decrypted_password
-            github_token = get_decrypted_password(
-                "Translation Tools Settings", settings.name, "github_token", raise_exception=False
-            )
+            # Prefer site_config token, fall back to DocType Password field
+            github_token = frappe.conf.get("github_pat_token")
             if not github_token:
-                github_token = frappe.conf.get("github_pat_token")
+                github_token = get_decrypted_password(
+                    "Translation Tools Settings", settings.name, "github_token", raise_exception=False
+                )
 
         if not github_repo:
             return {"success": False, "error": "GitHub repository URL not configured."}
