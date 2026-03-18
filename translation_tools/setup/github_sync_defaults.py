@@ -24,18 +24,35 @@ def setup_github_sync_defaults():
         settings.sync_status = "Ready"
         
         # Configure app-specific settings for all installed apps
+        # Preserve existing per-app enabled/disabled states
         installed_apps = frappe.get_installed_apps()
+
+        existing_settings = {}
+        if getattr(settings, 'app_sync_settings', None):
+            try:
+                existing_settings = json.loads(settings.app_sync_settings)
+            except (json.JSONDecodeError, TypeError):
+                existing_settings = {}
+
         app_settings = {}
-        
         for app in installed_apps:
-            app_settings[app] = {
-                "enabled": True,
-                "locale": "th",
-                "source_path": f"{app}/th.po",  # Path in the repository (app/th.po)
-                "target_path": f"apps/{app}/{app}/locale/th.po",  # Local path
-                "last_updated": frappe.utils.now()
-            }
-        
+            if app in existing_settings:
+                # Preserve existing config (especially user's enabled toggle)
+                app_settings[app] = existing_settings[app]
+                # Ensure required keys exist
+                app_settings[app].setdefault("locale", "th")
+                app_settings[app].setdefault("source_path", f"{app}/th.po")
+                app_settings[app].setdefault("target_path", f"apps/{app}/{app}/locale/th.po")
+            else:
+                # New app — default to enabled
+                app_settings[app] = {
+                    "enabled": True,
+                    "locale": "th",
+                    "source_path": f"{app}/th.po",
+                    "target_path": f"apps/{app}/{app}/locale/th.po",
+                    "last_updated": frappe.utils.now()
+                }
+
         settings.app_sync_settings = json.dumps(app_settings, indent=2)
         
         # Save settings
@@ -73,9 +90,9 @@ def check_and_setup_if_needed():
         settings = frappe.get_single("GitHub Sync Settings")
         
         # Check if basic configuration is missing
+        # Only check repository_url — enabled/auto_sync_enabled are user choices,
+        # not indicators of incomplete setup
         needs_setup = (
-            not getattr(settings, 'enabled', False) or
-            not getattr(settings, 'auto_sync_enabled', False) or  
             not getattr(settings, 'repository_url', None) or
             getattr(settings, 'repository_url', '') == ''
         )
