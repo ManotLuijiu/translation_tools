@@ -243,10 +243,61 @@ def test_github_connection(github_repo=None, github_token=None):
 
         if response.status_code == 200:
             repo_data = response.json()
-            return {
+            result = {
                 "success": True,
                 "message": f"Successfully connected to {repo_data.get('full_name', 'repository')}",
+                "sync_triggered": False,
             }
+
+            # Check if sync is needed (last sync > 4 hours ago)
+            try:
+                if frappe.db.exists("DocType", "GitHub Sync Settings"):
+                    sync_settings = frappe.get_single("GitHub Sync Settings")
+                    last_sync = getattr(sync_settings, "last_sync_datetime", None)
+                    hours_since_sync = None
+
+                    if last_sync:
+                        from frappe.utils import time_diff_in_hours, now_datetime
+                        hours_since_sync = time_diff_in_hours(now_datetime(), last_sync)
+
+                    # Trigger sync if never synced or last sync > 4 hours ago
+                    if last_sync is None or hours_since_sync is None or hours_since_sync > 4:
+                        # Get all installed apps with auto-sync enabled
+                        import json as json_mod
+                        app_settings = {}
+                        if getattr(sync_settings, "app_sync_settings", None):
+                            try:
+                                app_settings = json_mod.loads(sync_settings.app_sync_settings)
+                            except (json_mod.JSONDecodeError, TypeError):
+                                app_settings = {}
+
+                        enabled_apps = [
+                            app for app, config in app_settings.items()
+                            if config.get("enabled")
+                        ]
+
+                        if enabled_apps and sync_settings.enabled:
+                            frappe.enqueue(
+                                "translation_tools.tasks.github_auto_sync.run_background_sync",
+                                enabled_apps=enabled_apps,
+                                queue="long",
+                                timeout=1800,
+                                job_name="test_connect_github_sync",
+                                deduplicate=True,
+                            )
+                            sync_msg = f"Last sync was {int(hours_since_sync) if hours_since_sync else '?'}h ago. Sync triggered for {len(enabled_apps)} apps."
+                            result["sync_triggered"] = True
+                            result["sync_apps"] = len(enabled_apps)
+                            result["message"] += f" — {sync_msg}"
+                        else:
+                            result["message"] += " — No apps enabled for auto-sync."
+                    else:
+                        result["message"] += f" — Last sync {int(hours_since_sync)}h ago (< 4h, skipping sync)."
+            except Exception as sync_err:
+                # Never fail the connection test because of sync logic
+                frappe.log_error(f"Sync check during test_connect: {str(sync_err)}")
+
+            return result
         elif response.status_code == 401:
             return {"success": False, "error": "Authentication failed. Invalid token."}
         elif response.status_code == 404:
@@ -260,6 +311,138 @@ def test_github_connection(github_repo=None, github_token=None):
         return {"success": False, "error": f"Connection error: {str(e)}"}
     except Exception as e:
         frappe.log_error(f"GitHub connection test error: {str(e)}")
+        return {"success": False, "error": f"An error occurred: {str(e)}"}
+
+
+@frappe.whitelist()
+def test_github_sync(github_repo=None, github_token=None):
+    """Test GitHub sync for all installed apps on the current site.
+
+    Verifies connection, lists available translation files, and does a dry-run
+    sync check for each installed app that has both a local th.po and a
+    matching file in the GitHub translation repo.
+
+    Returns:
+        dict: Detailed results per app with before/after stats
+    """
+    import os
+
+    try:
+        # Step 1: Resolve credentials (same logic as test_github_connection)
+        settings = frappe.get_single("Translation Tools Settings")
+
+        if not github_repo:
+            github_repo = settings.github_repo
+
+        if not github_token or set(github_token) == {"*"}:
+            from frappe.utils.password import get_decrypted_password
+            github_token = get_decrypted_password(
+                "Translation Tools Settings", settings.name, "github_token", raise_exception=False
+            )
+            if not github_token:
+                github_token = frappe.conf.get("github_pat_token")
+
+        if not github_repo:
+            return {"success": False, "error": "GitHub repository URL not configured."}
+        if not github_token:
+            return {"success": False, "error": "GitHub token not available."}
+
+        # Step 2: Test connection
+        repo_path = github_repo.strip("/")
+        if "github.com/" in repo_path:
+            repo_path = repo_path.split("github.com/")[1]
+        if repo_path.endswith(".git"):
+            repo_path = repo_path[:-4]
+
+        import requests as req
+        api_url = f"https://api.github.com/repos/{repo_path}"
+        headers = {"Authorization": f"token {github_token}", "Accept": "application/vnd.github.v3+json"}
+        resp = req.get(api_url, headers=headers, timeout=10)
+
+        if resp.status_code != 200:
+            return {"success": False, "error": f"Connection failed (HTTP {resp.status_code})"}
+
+        # Step 3: Get GitHub Sync Settings for repo URL
+        sync_settings = None
+        if frappe.db.exists("DocType", "GitHub Sync Settings"):
+            sync_settings = frappe.get_single("GitHub Sync Settings")
+
+        sync_repo_url = sync_settings.repository_url if sync_settings else github_repo
+        sync_branch = (sync_settings.branch if sync_settings else None) or "main"
+        target_language = (sync_settings.target_language if sync_settings else None) or "th"
+
+        # Step 4: Find translation files in GitHub repo
+        from translation_tools.api.github_sync import find_translation_files
+
+        gh_result = find_translation_files(
+            repo_url=sync_repo_url, branch=sync_branch, target_language=target_language
+        )
+
+        if not gh_result.get("success"):
+            return {"success": False, "error": f"Cannot list repo files: {gh_result.get('error')}"}
+
+        github_apps = set()
+        for f in gh_result.get("files", []):
+            parts = f["path"].split("/")
+            if len(parts) == 2 and parts[1].endswith(".po"):
+                github_apps.add(parts[0])
+
+        # Step 5: Check each installed app
+        installed_apps = frappe.get_installed_apps()
+        bench_path = frappe.utils.get_bench_path()
+
+        app_results = []
+        for app_name in sorted(installed_apps):
+            local_po = os.path.join(bench_path, "apps", app_name, app_name, "locale", f"{target_language}.po")
+
+            if not os.path.exists(local_po):
+                app_results.append({
+                    "app": app_name, "status": "no_po",
+                    "message": f"No {target_language}.po file found"
+                })
+                continue
+
+            if app_name not in github_apps:
+                app_results.append({
+                    "app": app_name, "status": "no_github",
+                    "message": "Not in translation repo"
+                })
+                continue
+
+            # Read current stats
+            try:
+                import polib
+                po = polib.pofile(local_po)
+                translated = len([e for e in po if e.msgstr and e.msgstr != ""])
+                total = len(po)
+                pct = round(translated * 100 / total, 1) if total > 0 else 0
+            except Exception:
+                translated, total, pct = 0, 0, 0
+
+            app_results.append({
+                "app": app_name,
+                "status": "ready",
+                "translated": translated,
+                "total": total,
+                "percentage": pct,
+                "github_file": f"{app_name}/{target_language}.po",
+            })
+
+        ready_count = len([r for r in app_results if r["status"] == "ready"])
+        total_apps = len(installed_apps)
+
+        return {
+            "success": True,
+            "message": f"Connected to {repo_path}. {ready_count}/{total_apps} apps ready to sync.",
+            "repo": repo_path,
+            "branch": sync_branch,
+            "github_apps_count": len(github_apps),
+            "installed_apps_count": total_apps,
+            "apps": app_results,
+        }
+
+    except Exception as e:
+        frappe.log_error(f"GitHub sync test error: {str(e)}")
         return {"success": False, "error": f"An error occurred: {str(e)}"}
 
 
