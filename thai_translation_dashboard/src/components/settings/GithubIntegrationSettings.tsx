@@ -229,29 +229,16 @@ export default function GithubIntegrationSettings({
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex space-x-2">
+      <CardFooter className="flex items-center gap-2">
         <Button className="cursor-pointer" onClick={onSave} disabled={loading}>
           {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           {__('Save All Settings')}
         </Button>
-        <Button
-          variant="outline"
-          className="cursor-pointer"
-          onClick={() => onTest(settings.github_repo, useOwnRepo ? settings.github_token : null)}
-          disabled={
-            !settings.github_enable ||
-            !settings.github_repo ||
-            (useOwnRepo && !settings.github_token) ||
-            (!useOwnRepo && !hasSiteConfigToken)
-          }
-        >
-          {__('Test Connect')}
-        </Button>
-        {onTestSync && (
+        <div className="inline-grid grid-flow-col gap-2" style={{ gridAutoColumns: '1fr' }}>
           <Button
             variant="outline"
             className="cursor-pointer"
-            onClick={() => onTestSync(settings.github_repo, useOwnRepo ? settings.github_token : null)}
+            onClick={() => onTest(settings.github_repo, useOwnRepo ? settings.github_token : null)}
             disabled={
               !settings.github_enable ||
               !settings.github_repo ||
@@ -259,9 +246,24 @@ export default function GithubIntegrationSettings({
               (!useOwnRepo && !hasSiteConfigToken)
             }
           >
-            {__('Test Sync')}
+            {__('Test Connect')}
           </Button>
-        )}
+          {onTestSync && (
+            <Button
+              variant="outline"
+              className="cursor-pointer"
+              onClick={() => onTestSync(settings.github_repo, useOwnRepo ? settings.github_token : null)}
+              disabled={
+                !settings.github_enable ||
+                !settings.github_repo ||
+                (useOwnRepo && !settings.github_token) ||
+                (!useOwnRepo && !hasSiteConfigToken)
+              }
+            >
+              {__('Test Sync')}
+            </Button>
+          )}
+        </div>
       </CardFooter>
     </Card>
   );
