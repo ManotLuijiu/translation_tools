@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+### [1.4.1](https://github.com/ManotLuijiu/translation_tools/compare/v1.4.0...v1.4.1) (2026-03-18)
+
+
+### ✨ Features
+
+* Test Connect triggers sync when last sync > 4 hours ago ([e315e90](https://github.com/ManotLuijiu/translation_tools/commit/e315e90555b1dc0afd76c5971de446190a6e3a99))
+* UI feedback for auto-sync toggle and Test Sync button ([83a85d4](https://github.com/ManotLuijiu/translation_tools/commit/83a85d41222e3e54bfe48c3a4de8123604ec32e2))
+
+
+### ✅ Tests
+
+* add GitHub auto-sync integration tests and equal-width buttons ([d1dd385](https://github.com/ManotLuijiu/translation_tools/commit/d1dd385fdc34f2ca997d27448365209c9f4438b8))
+
+
+### 🐛 Bug Fixes
+
+* auto-sync uses centralized translation repo and filesystem fallback ([98cd592](https://github.com/ManotLuijiu/translation_tools/commit/98cd592cbc3efd9be8d420a619819814a98abfeb))
+* token resolution prefers site_config, button width from ref ([fdd5269](https://github.com/ManotLuijiu/translation_tools/commit/fdd5269f04830b229ecdf8ac73cffd4b60b972d6))
+
 ## [1.4.0](https://github.com/ManotLuijiu/translation_tools/compare/v1.3.2...v1.4.0) (2026-03-15)
 
 
