@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+### [1.4.2](https://github.com/ManotLuijiu/translation_tools/compare/v1.4.1...v1.4.2) (2026-03-23)
+
+
+### 🔧 Maintenance
+
+* update integrations workspace layout ([9cb9407](https://github.com/ManotLuijiu/translation_tools/commit/9cb9407f2a10d353ad01c209ed584c508fb20eb2))
+
 ### [1.4.1](https://github.com/ManotLuijiu/translation_tools/compare/v1.4.0...v1.4.1) (2026-03-18)
 
 
