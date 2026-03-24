@@ -1560,6 +1560,17 @@ def push_translation_to_github(
 
         language = os.path.basename(file_path).split(".")[0]
 
+        # Get target branch from GitHub Sync Settings (defaults to "main")
+        target_branch = "main"
+        try:
+            if frappe.db.exists("DocType", "GitHub Sync Settings"):
+                sync_settings = frappe.get_single("GitHub Sync Settings")
+                if sync_settings.branch:
+                    target_branch = sync_settings.branch
+        except Exception:
+            pass
+        logger.info(f"Target branch for push: {target_branch}")
+
         # Full path to the local PO file
         abs_file_path = os.path.join(frappe.get_site_path("../.."), file_path)
         if not os.path.exists(abs_file_path):
@@ -1575,9 +1586,9 @@ def push_translation_to_github(
             # Check if repo exists by trying to clone it
             repo_exists = False
             try:
-                # Try to clone the existing repository
+                # Try to clone the existing repository on the target branch
                 subprocess.run(
-                    ["git", "clone", str(token_url), str(temp_dir)],
+                    ["git", "clone", "-b", str(target_branch), str(token_url), str(temp_dir)],
                     check=True,
                     capture_output=True,
                     text=True,
@@ -1635,7 +1646,7 @@ def push_translation_to_github(
             )
 
             # Create feature branch for PR mode
-            branch_name = "main"
+            branch_name = target_branch
             if use_pr_mode and repo_exists:
                 # Generate unique branch name: translation/{user}-{app}-{timestamp}
                 safe_user = re.sub(r"[^a-zA-Z0-9]", "-", user_email.split("@")[0])[:20]
@@ -1719,12 +1730,12 @@ def push_translation_to_github(
             )
             logger.info(f"Committed changes: {commit_message}")
 
-            # Set branch to main if it's a new repo
+            # Set branch if it's a new repo
             if not repo_exists:
                 subprocess.run(
-                    ["git", "branch", "-M", "main"], cwd=temp_dir, check=True
+                    ["git", "branch", "-M", target_branch], cwd=temp_dir, check=True
                 )
-                logger.info("Set branch to main")
+                logger.info(f"Set branch to {target_branch}")
 
             # Push changes
             try:
@@ -1738,9 +1749,9 @@ def push_translation_to_github(
                         text=True,
                     )
                 else:
-                    # For new repo - push to main
+                    # For new repo - push to target branch
                     result = subprocess.run(
-                        ["git", "push", "-u", "origin", "main"],
+                        ["git", "push", "-u", "origin", target_branch],
                         cwd=temp_dir,
                         check=True,
                         capture_output=True,
@@ -1751,7 +1762,7 @@ def push_translation_to_github(
                 logger.info(f"Successfully pushed to GitHub branch: {branch_name}")
 
                 # If PR mode, create the Pull Request
-                if use_pr_mode and repo_exists and branch_name != "main":
+                if use_pr_mode and repo_exists and branch_name != target_branch:
                     owner, repo = parse_github_repo_url(repo_url)
                     if owner and repo:
                         pr_title = f"🌐 Translation update: {app_name}/{language}"
@@ -1772,6 +1783,7 @@ def push_translation_to_github(
                             branch_name=branch_name,
                             title=pr_title,
                             body=pr_body,
+                            base=target_branch,
                         )
 
                         if pr_result.get("success"):

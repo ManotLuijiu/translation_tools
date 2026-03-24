@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import {
   // useGetPOFileEntries,
@@ -207,8 +207,15 @@ export default function TranslationEditor({
   //   }
   // }, [selectedEntryId, data]);
 
+  // Sync editedTranslation when user selects a DIFFERENT entry
+  // Do NOT re-sync when entries refresh (would overwrite in-progress AI translations)
+  const prevSelectedEntryIdRef = useRef<string | null>(null);
   useEffect(() => {
     if (!entries || !selectedEntryId) return;
+
+    // Only update when the selected entry actually changes, not on every entries refresh
+    if (prevSelectedEntryIdRef.current === selectedEntryId) return;
+    prevSelectedEntryIdRef.current = selectedEntryId;
 
     const entry = entries.find((e) => e.id === selectedEntryId);
     if (entry) {
