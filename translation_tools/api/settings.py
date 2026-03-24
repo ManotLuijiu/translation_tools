@@ -283,6 +283,7 @@ def test_github_connection(github_repo=None, github_token=None):
                                 queue="long",
                                 timeout=1800,
                                 job_name="test_connect_github_sync",
+                                job_id="test_connect_github_sync",
                                 deduplicate=True,
                             )
                             sync_msg = f"Last sync was {int(hours_since_sync) if hours_since_sync else '?'}h ago. Sync triggered for {len(enabled_apps)} apps."

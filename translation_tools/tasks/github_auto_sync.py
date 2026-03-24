@@ -221,6 +221,7 @@ def sync_translations_after_migrate():
             queue="long",
             timeout=1800,
             job_name="post_migrate_github_sync",
+            job_id="post_migrate_github_sync",
             deduplicate=True,
         )
 
