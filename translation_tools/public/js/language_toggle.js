@@ -8,7 +8,6 @@ frappe.ui.language_toggle = class LanguageToggle {
       lo: 'ລາວ',
     };
     const boot_lang = frappe.boot.lang || 'en';
-    // Resolve exact match first, then base code (en-GB → en), then default to 'en'
     const base_lang = boot_lang.split('-')[0];
     this.current_language = this.languages[boot_lang]
       ? boot_lang
@@ -38,22 +37,36 @@ frappe.ui.language_toggle = class LanguageToggle {
       })
       .join('');
 
-    // v16 desk uses a flat flex layout, not Bootstrap navbar-collapse
+    const toggle_html = `
+      <div class="dropdown dropdown-language" style="position: relative;">
+        <button class="btn-reset nav-link text-muted" data-toggle="dropdown" style="cursor: pointer; font-size: 13px;">
+          🌐 ${this.languages[this.current_language]}
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right" role="menu" style="min-width: 120px;">
+          ${toggle_items}
+        </ul>
+      </div>`;
+
+    // Try multiple injection points in order of preference:
+
+    // 1. v16 desktop navbar (home/desk page)
     const navbar_flex = $('header.navbar > .flex');
     if (navbar_flex.length) {
-      // v16 desk: inject as a div inside the right-side flex container
-      const toggle_html_v16 = `
-        <div class="dropdown dropdown-language" style="position: relative;">
-          <button class="btn-reset nav-link text-muted" data-toggle="dropdown" style="cursor: pointer; font-size: 13px;">
-            🌐 ${this.languages[this.current_language]}
-          </button>
-          <ul class="dropdown-menu dropdown-menu-right" role="menu" style="min-width: 120px;">
-            ${toggle_items}
-          </ul>
-        </div>`;
-      navbar_flex.prepend(toggle_html_v16);
-    } else {
-      // v15 fallback: Bootstrap navbar-collapse layout
+      navbar_flex.prepend(toggle_html);
+      return;
+    }
+
+    // 2. v16 workspace/module pages — inject into the user dropdown area
+    //    These pages have a sidebar layout with no desktop navbar
+    const sidebarFooter = $('.desk-sidebar .sidebar-footer, .sidebar-footer');
+    if (sidebarFooter.length) {
+      sidebarFooter.prepend(toggle_html);
+      return;
+    }
+
+    // 3. v15 fallback: Bootstrap navbar-collapse layout
+    const navbar_nav = $('header.navbar .navbar-collapse .navbar-nav');
+    if (navbar_nav.length) {
       const toggle_html_v15 = `
         <li class="nav-item dropdown dropdown-language">
           <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -63,11 +76,23 @@ frappe.ui.language_toggle = class LanguageToggle {
             ${toggle_items}
           </ul>
         </li>`;
-      const navbar_nav = $('header.navbar .navbar-collapse .navbar-nav');
-      if (navbar_nav.length) {
-        navbar_nav.prepend(toggle_html_v15);
-      }
+      navbar_nav.prepend(toggle_html_v15);
+      return;
     }
+
+    // 4. Universal fallback: fixed position toggle in top-right corner
+    //    Works on any page layout where other methods fail
+    const fixed_toggle = `
+      <div class="dropdown dropdown-language" style="position: fixed; top: 8px; right: 80px; z-index: 1050;">
+        <button class="btn-reset nav-link text-muted" data-toggle="dropdown"
+          style="cursor: pointer; font-size: 13px; background: var(--bg-color); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+          🌐 ${this.languages[this.current_language]}
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right" role="menu" style="min-width: 120px;">
+          ${toggle_items}
+        </ul>
+      </div>`;
+    $('body').append(fixed_toggle);
   }
 
   setup_events() {
@@ -112,27 +137,24 @@ frappe.ui.language_toggle = class LanguageToggle {
 };
 
 // Initialize language toggle once navbar is available
-// v16 desk renders navbar after DOM ready and may load app bundles after app-ready
+// v16 has multiple page layouts (desktop, workspace, form) — re-check on navigation
 (function initLanguageToggle() {
   function tryInit() {
-    if (document.querySelector('.dropdown-language')) return; // already initialized
-    var navbar = document.querySelector('header.navbar');
-    if (navbar && (navbar.querySelector('.flex') || navbar.querySelector('.navbar-nav'))) {
+    if (document.querySelector('.dropdown-language')) return;
+    // Don't require specific navbar — the universal fallback handles any layout
+    if (typeof frappe !== 'undefined' && frappe.desk) {
       new frappe.ui.language_toggle();
     }
   }
 
-  // Try immediately (in case navbar is already rendered)
   if (document.readyState === 'complete') {
     setTimeout(tryInit, 300);
   }
 
-  // Also listen for page-change (fires on every navigation in v16)
   $(document).on('page-change', function () {
     setTimeout(tryInit, 300);
   });
 
-  // Fallback: try on app-ready
   $(document).on('app-ready', function () {
     setTimeout(tryInit, 500);
   });
