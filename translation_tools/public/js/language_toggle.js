@@ -80,12 +80,28 @@ frappe.ui.language_toggle = class LanguageToggle {
       return;
     }
 
-    // 4. Universal fallback: fixed position toggle in top-right corner
-    //    Works on any page layout where other methods fail
+    // 4. v16 workspace/form pages — inject into .standard-actions in page-head
+    const standardActions = $('.page-head .standard-actions');
+    if (standardActions.length) {
+      const inline_toggle = `
+        <div class="dropdown dropdown-language" style="display: inline-flex; align-items: center; margin-right: 8px;">
+          <button class="btn btn-default btn-sm" data-toggle="dropdown"
+            style="cursor: pointer; font-size: 12px; padding: 4px 10px; white-space: nowrap;">
+            🌐 ${this.languages[this.current_language]}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-right" role="menu" style="min-width: 120px;">
+            ${toggle_items}
+          </ul>
+        </div>`;
+      standardActions.prepend(inline_toggle);
+      return;
+    }
+
+    // 5. Universal fallback: fixed position toggle
     const fixed_toggle = `
-      <div class="dropdown dropdown-language" style="position: fixed; top: 8px; right: 80px; z-index: 1050;">
-        <button class="btn-reset nav-link text-muted" data-toggle="dropdown"
-          style="cursor: pointer; font-size: 13px; background: var(--bg-color); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+      <div class="dropdown dropdown-language" style="position: fixed; top: 6px; right: 120px; z-index: 1050;">
+        <button class="btn btn-default btn-xs" data-toggle="dropdown"
+          style="cursor: pointer; font-size: 12px; padding: 3px 8px; white-space: nowrap;">
           🌐 ${this.languages[this.current_language]}
         </button>
         <ul class="dropdown-menu dropdown-menu-right" role="menu" style="min-width: 120px;">
