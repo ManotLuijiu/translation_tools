@@ -28,7 +28,7 @@ def _get_github_headers():
 
 
 @frappe.whitelist()
-def find_translation_files(repo_url, branch="main", target_language="th"):
+def find_translation_files(repo_url, branch="version-15", target_language="th"):
     """Find PO translation files in a GitHub repository"""
     try:
         # Parse the GitHub URL

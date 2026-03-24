@@ -142,7 +142,7 @@ class TestSyncAppFromGithub(unittest.TestCase):
 
         original_find = github_sync.find_translation_files
 
-        def mock_find(repo_url, branch="main", target_language="th"):
+        def mock_find(repo_url, branch="version-15", target_language="th"):
             captured_repo_url["url"] = repo_url
             # Return empty so sync exits early (we just want to verify the repo_url)
             return {"success": True, "files": []}
@@ -273,7 +273,7 @@ class TestSyncAllSiteApps(unittest.TestCase):
         # Get list of apps available in the GitHub translation repo
         gh_result = find_translation_files(
             repo_url=self.settings.repository_url,
-            branch=self.settings.branch or "main",
+            branch=self.settings.branch or "version-15",
             target_language=self.settings.target_language or "th",
         )
         self.assertTrue(gh_result.get("success"), f"Failed to list GitHub files: {gh_result.get('error')}")
@@ -386,7 +386,7 @@ def run_sync_all_site_apps():
     # Get GitHub repo file list
     gh_result = find_translation_files(
         repo_url=settings.repository_url,
-        branch=settings.branch or "main",
+        branch=settings.branch or "version-15",
         target_language=settings.target_language or "th",
     )
 

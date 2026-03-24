@@ -560,7 +560,7 @@ def push_glossary_to_github():
             commit_data = {
                 "message": f"Update glossary terms - {len(terms)} terms",
                 "content": base64.b64encode(file_content.encode('utf-8')).decode('utf-8'),
-                "branch": "main"
+                "branch": "version-15"
             }
             
             if get_response.status_code == 200:

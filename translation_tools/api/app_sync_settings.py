@@ -181,7 +181,7 @@ def sync_app_from_github(app_name):
 
     try:
         from translation_tools.api.github_sync import apply_sync, find_translation_files, preview_sync
-        from translation_tools.api.po_files import get_cached_po_files
+        import os
 
         # Get settings
         settings = frappe.get_single("GitHub Sync Settings")
@@ -189,57 +189,39 @@ def sync_app_from_github(app_name):
         if not settings.enabled:
             frappe.logger("auto_sync").info(f"📥 [SYNC] Sync disabled, skipping {app_name}")
             return
-        
+
         # Always use the centralized translation repository (erpnext-thai-translation)
-        # Individual app repos (frappe/frappe, frappe/erpnext) don't contain translation PO files
         repo_url = settings.repository_url
 
         if not repo_url:
             frappe.log_error(f"No translation repository URL configured in GitHub Sync Settings")
             return
-        
-        # Get PO files for this app — try cache first, fall back to filesystem
-        import os
+
+        # Check filesystem directly (cache is unreliable for background jobs)
         target_language = settings.target_language or 'th'
+        bench_path = frappe.utils.get_bench_path()
+        po_path = os.path.join(bench_path, "apps", app_name, app_name, "locale", f"{target_language}.po")
 
-        frappe.logger("auto_sync").info(f"📥 [SYNC] Getting PO files for {app_name}")
-        po_files_result = get_cached_po_files()
+        if not os.path.exists(po_path):
+            frappe.logger("auto_sync").warning(f"📥 [SYNC] No {target_language}.po found for {app_name}")
+            return
 
-        # Handle both API-wrapped ({'message': [...]}) and direct call ([...]) formats
-        if isinstance(po_files_result, list):
-            po_files_list = po_files_result
-        elif isinstance(po_files_result, dict) and 'message' in po_files_result:
-            po_files_list = po_files_result['message']
-        else:
-            po_files_list = []
-
-        app_po_files = [f for f in po_files_list if f.get('app') == app_name and f.get('language') == target_language]
-
-        # Fallback: if cache doesn't have this app, check filesystem directly
-        if not app_po_files:
-            bench_path = frappe.utils.get_bench_path()
-            po_path = os.path.join(bench_path, "apps", app_name, app_name, "locale", f"{target_language}.po")
-
-            if os.path.exists(po_path):
-                relative_path = f"apps/{app_name}/{app_name}/locale/{target_language}.po"
-                app_po_files = [{
-                    "file_path": relative_path,
-                    "filename": f"{target_language}.po",
-                    "app": app_name,
-                    "language": target_language,
-                }]
-                frappe.logger("auto_sync").info(f"📥 [SYNC] Cache miss for {app_name}, using filesystem: {relative_path}")
-            else:
-                frappe.logger("auto_sync").warning(f"📥 [SYNC] No {target_language}.po found for {app_name}")
-                return
+        relative_path = f"apps/{app_name}/{app_name}/locale/{target_language}.po"
+        app_po_files = [{
+            "file_path": relative_path,
+            "filename": f"{target_language}.po",
+            "app": app_name,
+            "language": target_language,
+        }]
+        frappe.logger("auto_sync").info(f"📥 [SYNC] Found PO file for {app_name}: {relative_path}")
 
         frappe.logger("auto_sync").info(f"📥 [SYNC] Found {len(app_po_files)} PO file(s) for {app_name}")
         
         # Find translation files in GitHub
-        frappe.logger("auto_sync").info(f"📥 [SYNC] Finding GitHub files: repo={repo_url}, branch={settings.branch or 'main'}, lang={settings.target_language or 'th'}")
+        frappe.logger("auto_sync").info(f"📥 [SYNC] Finding GitHub files: repo={repo_url}, branch={settings.branch or 'version-15'}, lang={settings.target_language or 'th'}")
         github_files_result = find_translation_files(
             repo_url=repo_url,
-            branch=settings.branch or 'main',
+            branch=settings.branch or 'version-15',
             target_language=settings.target_language or 'th'
         )
 
@@ -289,7 +271,7 @@ def sync_app_from_github(app_name):
                 # Preview the sync first
                 preview_result = preview_sync(
                     repo_url=repo_url,
-                    branch=settings.branch or 'main',
+                    branch=settings.branch or 'version-15',
                     repo_files=[matched_path],
                     local_file_path=po_file['file_path']
                 )
@@ -305,7 +287,7 @@ def sync_app_from_github(app_name):
                         frappe.logger("auto_sync").info(f"📥 [SYNC] Applying changes to {po_file['file_path']}")
                         apply_result = apply_sync(
                             repo_url=repo_url,
-                            branch=settings.branch or 'main',
+                            branch=settings.branch or 'version-15',
                             repo_files=[matched_path],
                             local_file_path=po_file['file_path']
                         )

@@ -47,7 +47,7 @@ export default function GithubSync({
   const [repoUrl, setRepoUrl] = useState(
     'https://github.com/ManotLuijiu/erpnext-thai-translation.git'
   );
-  const [branch, setBranch] = useState('main');
+  const [branch, setBranch] = useState('version-15');
   const [syncMode, setSyncMode] = useState<'preview' | 'apply'>('preview');
 
   console.info('Sync Mode', syncMode);

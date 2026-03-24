@@ -23,12 +23,9 @@ def check_and_run_auto_sync():
             frappe.logger("auto_sync").info(f"🔄 [AUTO-SYNC] Global sync disabled (enabled={settings.enabled}, auto_sync_enabled={getattr(settings, 'auto_sync_enabled', 'N/A')})")
             return
 
-        # Check if sync is due based on schedule
-        is_due = settings.is_sync_due()
-        frappe.logger("auto_sync").info(f"🔄 [AUTO-SYNC] is_sync_due={is_due}, next_sync_datetime={getattr(settings, 'next_sync_datetime', 'N/A')}")
-        if not is_due:
-            return
-        
+        # Cron schedule in hooks.py (0 17 * * *) controls timing —
+        # no is_sync_due() gate needed here.
+
         # Get app-specific settings
         app_settings = {}
         if hasattr(settings, 'app_sync_settings') and settings.app_sync_settings:

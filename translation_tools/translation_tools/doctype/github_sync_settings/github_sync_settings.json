@@ -46,7 +46,7 @@
    "placeholder": "https://github.com/username/repository.git"
   },
   {
-   "default": "main",
+   "default": "version-15",
    "fieldname": "branch",
    "fieldtype": "Data",
    "label": "Branch",

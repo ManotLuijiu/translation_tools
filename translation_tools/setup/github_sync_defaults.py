@@ -16,7 +16,7 @@ def setup_github_sync_defaults():
         settings.enabled = 1
         settings.auto_sync_enabled = 1
         settings.repository_url = "https://github.com/ManotLuijiu/erpnext-thai-translation.git"
-        settings.branch = "main"
+        settings.branch = "version-15"
         settings.sync_frequency = "daily"
         settings.target_language = "th"
         settings.conflict_resolution_strategy = "github_wins"

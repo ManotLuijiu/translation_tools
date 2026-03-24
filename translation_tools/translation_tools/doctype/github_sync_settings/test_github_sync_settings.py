@@ -9,7 +9,7 @@ class TestGitHubSyncSettings(unittest.TestCase):
             "doctype": "GitHub Sync Settings",
             "enabled": 1,
             "repository_url": "https://github.com/test/repo.git",
-            "branch": "main",
+            "branch": "version-15",
             "target_language": "th",
             "sync_frequency": "daily",
             "auto_sync_enabled": 1

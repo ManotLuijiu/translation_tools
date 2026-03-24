@@ -1433,7 +1433,7 @@ def parse_github_repo_url(repo_url):
         return None, None
 
 
-def create_github_pull_request(token, owner, repo, branch_name, title, body, base="main"):
+def create_github_pull_request(token, owner, repo, branch_name, title, body, base="version-15"):
     """
     Create a Pull Request on GitHub using the REST API.
 
@@ -1572,18 +1572,27 @@ def push_translation_to_github(
         with tempfile.TemporaryDirectory() as temp_dir:
             logger.info(f"Working in temporary directory: {temp_dir}")
 
+            # Resolve the target branch from GitHub Sync Settings
+            target_branch = "version-15"
+            try:
+                if frappe.db.exists("DocType", "GitHub Sync Settings"):
+                    _sync_settings = frappe.get_single("GitHub Sync Settings")
+                    target_branch = _sync_settings.branch or "version-15"
+            except Exception:
+                pass
+
             # Check if repo exists by trying to clone it
             repo_exists = False
             try:
-                # Try to clone the existing repository
+                # Try to clone the existing repository on the configured branch
                 subprocess.run(
-                    ["git", "clone", str(token_url), str(temp_dir)],
+                    ["git", "clone", "--branch", target_branch, str(token_url), str(temp_dir)],
                     check=True,
                     capture_output=True,
                     text=True,
                 )
                 repo_exists = True
-                logger.info("Successfully cloned existing repository")
+                logger.info(f"Successfully cloned existing repository (branch: {target_branch})")
             except subprocess.CalledProcessError as e:
                 if "Repository not found" in e.stderr or "not found" in e.stderr:
                     # Repository doesn't exist yet - force direct push mode
@@ -1635,7 +1644,7 @@ def push_translation_to_github(
             )
 
             # Create feature branch for PR mode
-            branch_name = "main"
+            branch_name = "version-15"
             if use_pr_mode and repo_exists:
                 # Generate unique branch name: translation/{user}-{app}-{timestamp}
                 safe_user = re.sub(r"[^a-zA-Z0-9]", "-", user_email.split("@")[0])[:20]
@@ -1719,12 +1728,12 @@ def push_translation_to_github(
             )
             logger.info(f"Committed changes: {commit_message}")
 
-            # Set branch to main if it's a new repo
+            # Set branch to version-15 if it's a new repo
             if not repo_exists:
                 subprocess.run(
-                    ["git", "branch", "-M", "main"], cwd=temp_dir, check=True
+                    ["git", "branch", "-M", "version-15"], cwd=temp_dir, check=True
                 )
-                logger.info("Set branch to main")
+                logger.info("Set branch to version-15")
 
             # Push changes
             try:
@@ -1738,9 +1747,9 @@ def push_translation_to_github(
                         text=True,
                     )
                 else:
-                    # For new repo - push to main
+                    # For new repo - push to version-15
                     result = subprocess.run(
-                        ["git", "push", "-u", "origin", "main"],
+                        ["git", "push", "-u", "origin", "version-15"],
                         cwd=temp_dir,
                         check=True,
                         capture_output=True,
@@ -1751,7 +1760,7 @@ def push_translation_to_github(
                 logger.info(f"Successfully pushed to GitHub branch: {branch_name}")
 
                 # If PR mode, create the Pull Request
-                if use_pr_mode and repo_exists and branch_name != "main":
+                if use_pr_mode and repo_exists and branch_name != "version-15":
                     owner, repo = parse_github_repo_url(repo_url)
                     if owner and repo:
                         pr_title = f"🌐 Translation update: {app_name}/{language}"

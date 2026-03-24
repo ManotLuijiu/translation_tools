@@ -385,8 +385,9 @@ def save_batch_translations_with_single_github_push(
         if isinstance(push_to_github, str):
             push_to_github = push_to_github.lower() == "true"
 
-        # Load PO file
-        po_file = polib.pofile(file_path)
+        # Load PO file (use validated full path to avoid polib treating relative path as PO content)
+        full_path = validate_file_path(file_path)
+        po_file = polib.pofile(full_path)
 
         # Map of entries that will be updated
         updated_entries = []

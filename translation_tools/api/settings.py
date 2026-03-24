@@ -369,7 +369,7 @@ def test_github_sync(github_repo=None, github_token=None):
             sync_settings = frappe.get_single("GitHub Sync Settings")
 
         sync_repo_url = sync_settings.repository_url if sync_settings else github_repo
-        sync_branch = (sync_settings.branch if sync_settings else None) or "main"
+        sync_branch = (sync_settings.branch if sync_settings else None) or "version-15"
         target_language = (sync_settings.target_language if sync_settings else None) or "th"
 
         # Step 4: Find translation files in GitHub repo
@@ -445,6 +445,50 @@ def test_github_sync(github_repo=None, github_token=None):
     except Exception as e:
         frappe.log_error(f"GitHub sync test error: {str(e)}")
         return {"success": False, "error": f"An error occurred: {str(e)}"}
+
+
+@frappe.whitelist()
+def sync_all_apps_now():
+    """One-click sync of all apps that have a local th.po and a match in the GitHub translation repo.
+
+    Unlike auto-sync, this does NOT require the auto_sync_enabled toggle — it always runs.
+    """
+    import os
+
+    if not frappe.db.exists("DocType", "GitHub Sync Settings"):
+        return {"success": False, "error": "GitHub Sync Settings DocType not found"}
+
+    settings = frappe.get_single("GitHub Sync Settings")
+
+    if not settings.repository_url:
+        return {"success": False, "error": "No repository URL configured in GitHub Sync Settings"}
+
+    target_language = getattr(settings, "target_language", None) or "th"
+    bench_path = frappe.utils.get_bench_path()
+    installed_apps = frappe.get_installed_apps()
+
+    apps_to_sync = []
+    for app_name in installed_apps:
+        po_path = os.path.join(bench_path, "apps", app_name, app_name, "locale", f"{target_language}.po")
+        if os.path.exists(po_path):
+            apps_to_sync.append(app_name)
+
+    if not apps_to_sync:
+        return {"success": False, "error": f"No apps have a {target_language}.po file"}
+
+    frappe.enqueue(
+        "translation_tools.tasks.github_auto_sync.run_background_sync",
+        enabled_apps=apps_to_sync,
+        queue="long",
+        timeout=1800,
+        job_name="sync_all_apps_now",
+        deduplicate=True,
+    )
+
+    return {
+        "success": True,
+        "message": f"Sync enqueued for {len(apps_to_sync)} apps: {', '.join(apps_to_sync)}",
+    }
 
 
 @frappe.whitelist()
@@ -688,7 +732,7 @@ def create_translation_tools_settings_doctype():
                 "label": "GitHub Integration",
             },
             {
-                "default": "main",
+                "default": "version-15",
                 "fieldname": "default_branch",
                 "fieldtype": "Data",
                 "label": "Github Branch",
