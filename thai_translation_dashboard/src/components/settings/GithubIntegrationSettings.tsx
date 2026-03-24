@@ -23,6 +23,7 @@ export default function GithubIntegrationSettings({
   onSave,
   onTest,
   onTestSync,
+  onSyncAll,
   showPassword,
   setShowPassword,
   loading,
@@ -277,6 +278,22 @@ export default function GithubIntegrationSettings({
               }
             >
               {__('Test Sync')}
+            </Button>
+          )}
+          {onSyncAll && (
+            <Button
+              variant="default"
+              className="cursor-pointer bg-green-600 hover:bg-green-700 text-white"
+              style={btnMinWidth ? { minWidth: btnMinWidth } : undefined}
+              onClick={() => onSyncAll(settings.github_repo, useOwnRepo ? settings.github_token : null)}
+              disabled={
+                !settings.github_enable ||
+                !settings.github_repo ||
+                (useOwnRepo && !settings.github_token) ||
+                (!useOwnRepo && !hasSiteConfigToken)
+              }
+            >
+              {__('Sync Now')}
             </Button>
           )}
       </CardFooter>

@@ -367,14 +367,8 @@ def save_batch_translations_with_single_github_push(
     Returns:
         dict: Result of the operation
     """
-    # Validate and load the PO file
-    is_valid, po_result = validate_po_file(file_path)
-
-    if not is_valid:
-        return {"success": False, "error": po_result}
-
-    # po_result now contains the valid polib object
-    po_file = po_result
+    # Resolve full path first
+    full_path = validate_file_path(file_path)
 
     try:
         # Parse translations if it's a string
@@ -385,8 +379,8 @@ def save_batch_translations_with_single_github_push(
         if isinstance(push_to_github, str):
             push_to_github = push_to_github.lower() == "true"
 
-        # Load PO file
-        po_file = polib.pofile(file_path)
+        # Load PO file using resolved absolute path
+        po_file = polib.pofile(full_path)
 
         # Map of entries that will be updated
         updated_entries = []
@@ -412,8 +406,7 @@ def save_batch_translations_with_single_github_push(
                 entry.msgstr = new_translation
                 updated_count += 1
 
-        # Save the file
-        full_path = validate_file_path(file_path)
+        # Save the file (full_path already resolved at function start)
         po_file.save(full_path)
 
         # Update metadata

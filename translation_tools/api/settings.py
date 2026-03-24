@@ -448,6 +448,137 @@ def test_github_sync(github_repo=None, github_token=None):
 
 
 @frappe.whitelist()
+def sync_all_apps_now(github_repo=None, github_token=None):
+    """Sync translations from GitHub for all installed apps that have matching files.
+
+    Unlike test_github_sync (dry-run), this actually applies translations from
+    the GitHub repo to local PO files for every app that is ready.
+
+    Returns:
+        dict: Summary with per-app sync results
+    """
+    import os
+
+    try:
+        # Step 1: Resolve credentials
+        settings = frappe.get_single("Translation Tools Settings")
+
+        if not github_repo:
+            github_repo = settings.github_repo
+
+        if not github_token or set(github_token) == {"*"}:
+            from frappe.utils.password import get_decrypted_password
+            github_token = frappe.conf.get("github_pat_token")
+            if not github_token:
+                github_token = get_decrypted_password(
+                    "Translation Tools Settings", settings.name, "github_token", raise_exception=False
+                )
+
+        if not github_repo:
+            return {"success": False, "error": "GitHub repository URL not configured."}
+        if not github_token:
+            return {"success": False, "error": "GitHub token not available."}
+
+        # Step 2: Get sync settings
+        sync_settings = None
+        if frappe.db.exists("DocType", "GitHub Sync Settings"):
+            sync_settings = frappe.get_single("GitHub Sync Settings")
+
+        sync_repo_url = sync_settings.repository_url if sync_settings else github_repo
+        sync_branch = (sync_settings.branch if sync_settings else None) or "main"
+        target_language = (sync_settings.target_language if sync_settings else None) or "th"
+
+        # Step 3: Find translation files in GitHub repo
+        from translation_tools.api.github_sync import find_translation_files, apply_sync
+
+        gh_result = find_translation_files(
+            repo_url=sync_repo_url, branch=sync_branch, target_language=target_language
+        )
+
+        if not gh_result.get("success"):
+            return {"success": False, "error": f"Cannot list repo files: {gh_result.get('error')}"}
+
+        # Build map: app_name -> github file path
+        github_app_files = {}
+        for f in gh_result.get("files", []):
+            parts = f["path"].split("/")
+            if len(parts) >= 2 and f["path"].endswith(".po"):
+                app = parts[0]
+                if app not in github_app_files:
+                    github_app_files[app] = f["path"]
+
+        # Step 4: Sync each installed app
+        installed_apps = frappe.get_installed_apps()
+        bench_path = frappe.utils.get_bench_path()
+
+        app_results = []
+        total_added = 0
+        total_updated = 0
+
+        for app_name in sorted(installed_apps):
+            local_po = os.path.join(bench_path, "apps", app_name, app_name, "locale", f"{target_language}.po")
+
+            if not os.path.exists(local_po):
+                app_results.append({"app": app_name, "status": "skipped", "reason": "no_po"})
+                continue
+
+            if app_name not in github_app_files:
+                app_results.append({"app": app_name, "status": "skipped", "reason": "no_github"})
+                continue
+
+            github_file_path = github_app_files[app_name]
+            local_file_path = f"apps/{app_name}/{app_name}/locale/{target_language}.po"
+
+            try:
+                result = apply_sync(
+                    repo_url=sync_repo_url,
+                    branch=sync_branch,
+                    repo_files=[github_file_path],
+                    local_file_path=local_file_path,
+                )
+
+                if result.get("success"):
+                    changes = result.get("changes", {})
+                    added = changes.get("added", 0)
+                    updated = changes.get("updated", 0)
+                    total_added += added
+                    total_updated += updated
+                    app_results.append({
+                        "app": app_name,
+                        "status": "synced",
+                        "added": added,
+                        "updated": updated,
+                        "unchanged": changes.get("unchanged", 0),
+                    })
+                else:
+                    app_results.append({
+                        "app": app_name,
+                        "status": "error",
+                        "error": result.get("error", "Unknown error"),
+                    })
+            except Exception as e:
+                app_results.append({
+                    "app": app_name,
+                    "status": "error",
+                    "error": str(e),
+                })
+
+        synced_count = len([r for r in app_results if r["status"] == "synced"])
+
+        return {
+            "success": True,
+            "message": f"Synced {synced_count} apps. +{total_added} added, {total_updated} updated.",
+            "apps": app_results,
+            "total_added": total_added,
+            "total_updated": total_updated,
+        }
+
+    except Exception as e:
+        frappe.log_error(f"Sync all apps error: {str(e)}")
+        return {"success": False, "error": f"An error occurred: {str(e)}"}
+
+
+@frappe.whitelist()
 def save_translation_settings(settings):
     """Save Translation Tools Settings"""
     settings_data = (

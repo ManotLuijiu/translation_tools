@@ -107,6 +107,30 @@ export function useTestGithubSync() {
 }
 
 /**
+ * Sync All Apps Now — actually applies translations from GitHub to all local PO files
+ */
+export function useSyncAllAppsNow() {
+  return useFrappePostCall<{ message: {
+    success: boolean;
+    error?: string;
+    message?: string;
+    total_added?: number;
+    total_updated?: number;
+    apps?: Array<{
+      app: string;
+      status: 'synced' | 'skipped' | 'error';
+      added?: number;
+      updated?: number;
+      unchanged?: number;
+      reason?: string;
+      error?: string;
+    }>;
+  } }>(
+    'translation_tools.api.settings.sync_all_apps_now'
+  );
+}
+
+/**
  * Save translation settings
  */
 export function useSaveTranslationSettings() {

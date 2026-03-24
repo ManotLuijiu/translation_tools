@@ -38,19 +38,35 @@ frappe.ui.language_toggle = class LanguageToggle {
       })
       .join('');
 
-    const toggle_html = `
-      <li class="nav-item dropdown dropdown-language">
-        <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-          🌐 ${this.languages[this.current_language]}
-        </a>
-        <ul class="dropdown-menu dropdown-menu-right" role="menu">
-          ${toggle_items}
-        </ul>
-      </li>`;
-
-    const navbar = $('header.navbar .navbar-collapse .navbar-nav');
-    if (navbar.length) {
-      navbar.prepend(toggle_html);
+    // v16 desk uses a flat flex layout, not Bootstrap navbar-collapse
+    const navbar_flex = $('header.navbar > .flex');
+    if (navbar_flex.length) {
+      // v16 desk: inject as a div inside the right-side flex container
+      const toggle_html_v16 = `
+        <div class="dropdown dropdown-language" style="position: relative;">
+          <button class="btn-reset nav-link text-muted" data-toggle="dropdown" style="cursor: pointer; font-size: 13px;">
+            🌐 ${this.languages[this.current_language]}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-right" role="menu" style="min-width: 120px;">
+            ${toggle_items}
+          </ul>
+        </div>`;
+      navbar_flex.prepend(toggle_html_v16);
+    } else {
+      // v15 fallback: Bootstrap navbar-collapse layout
+      const toggle_html_v15 = `
+        <li class="nav-item dropdown dropdown-language">
+          <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+            🌐 ${this.languages[this.current_language]}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-right" role="menu">
+            ${toggle_items}
+          </ul>
+        </li>`;
+      const navbar_nav = $('header.navbar .navbar-collapse .navbar-nav');
+      if (navbar_nav.length) {
+        navbar_nav.prepend(toggle_html_v15);
+      }
     }
   }
 
@@ -95,6 +111,29 @@ frappe.ui.language_toggle = class LanguageToggle {
   }
 };
 
-$(function () {
-  new frappe.ui.language_toggle();
-});
+// Initialize language toggle once navbar is available
+// v16 desk renders navbar after DOM ready and may load app bundles after app-ready
+(function initLanguageToggle() {
+  function tryInit() {
+    if (document.querySelector('.dropdown-language')) return; // already initialized
+    var navbar = document.querySelector('header.navbar');
+    if (navbar && (navbar.querySelector('.flex') || navbar.querySelector('.navbar-nav'))) {
+      new frappe.ui.language_toggle();
+    }
+  }
+
+  // Try immediately (in case navbar is already rendered)
+  if (document.readyState === 'complete') {
+    setTimeout(tryInit, 300);
+  }
+
+  // Also listen for page-change (fires on every navigation in v16)
+  $(document).on('page-change', function () {
+    setTimeout(tryInit, 300);
+  });
+
+  // Fallback: try on app-ready
+  $(document).on('app-ready', function () {
+    setTimeout(tryInit, 500);
+  });
+})();

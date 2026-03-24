@@ -4,6 +4,7 @@ import {
   useSaveTranslationSettings,
   useTestGithubConnection,
   useTestGithubSync,
+  useSyncAllAppsNow,
   useTestAiConnection,
   useGetAiModels,
 } from '../api';
@@ -65,6 +66,7 @@ export default function SettingsPanel() {
   const saveSettings = useSaveTranslationSettings();
   const testGithub = useTestGithubConnection();
   const testSync = useTestGithubSync();
+  const syncAllApps = useSyncAllAppsNow();
   const testAi = useTestAiConnection();
   const { modelData, modelLoading, modelError } = useGetAiModels();
   const { translate: __, isReady } = useTranslation();
@@ -197,6 +199,41 @@ export default function SettingsPanel() {
       }
     } catch (err: any) {
       toast.error(err.message || 'An error occurred during sync test');
+    }
+  };
+
+  const handleSyncAllApps = async (
+    github_repo: string,
+    github_token: string
+  ) => {
+    toast.info('Syncing translations from GitHub for all apps...');
+
+    try {
+      const { message } = await syncAllApps.call({
+        github_repo,
+        github_token,
+      });
+
+      if (message?.success && message.apps) {
+        const synced = message.apps.filter((a: any) => a.status === 'synced');
+        const errors = message.apps.filter((a: any) => a.status === 'error');
+
+        const lines = synced.map((a: any) =>
+          `${a.app}: +${a.added} added, ${a.updated} updated`
+        );
+
+        toast.success(message.message, {
+          description: [
+            ...lines,
+            errors.length ? `Errors: ${errors.map((a: any) => `${a.app}: ${a.error}`).join(', ')}` : '',
+          ].filter(Boolean).join('\n'),
+          duration: 15000,
+        });
+      } else {
+        toast.error(message?.error || 'Sync failed');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'An error occurred during sync');
     }
   };
 
@@ -360,6 +397,7 @@ export default function SettingsPanel() {
             onSave={handleSaveSettings}
             onTest={handleTestGitHubConnection}
             onTestSync={handleTestGitHubSync}
+            onSyncAll={handleSyncAllApps}
             showPassword={showPassword}
             setShowPassword={setShowPassword}
             loading={saveSettings.loading}
