@@ -4,13 +4,13 @@
   "description": "An AI-powered translation utility for ERPNext that helps translate PO files using advanced language models like OpenAI GPT and Anthropic Claude.",
   "main": "index.js",
   "scripts": {
-    "install-pwa-deps": "cd thai_translation_dashboard && yarn install",
+    "install-pwa-deps": "cd thai_translation_dashboard && yarn install --check-files",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "yarn install-pwa-deps",
     "dev-pwa": "cd thai_translation_dashboard && yarn dev",
     "build-pwa": "cd thai_translation_dashboard && yarn build",
     "build": "yarn build-pwa",
-    "prepare": "husky install",
+    "prepare": "is-ci || husky install",
     "skip-commit": "HUSKY=0 git commit -m",
     "release": "standard-version",
     "release:patch": "standard-version --release-as patch",
@@ -21,11 +21,8 @@
   "author": "Manot Luijiu",
   "license": "ISC",
   "dependencies": {
-    "@tanstack/react-query": "4.29.19",
-    "buffer": "^6.0.3",
+    "@tanstack/react-query": "^5.90.5",
     "chart.js": "^4.5.0",
-    "frappe-ui": "^0.1.134",
-    "lucide-react": "^0.487.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
@@ -34,6 +31,7 @@
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
     "husky": "^8.0.0",
+    "is-ci": "^3.0.1",
     "standard-version": "^9.5.0"
   }
 }
