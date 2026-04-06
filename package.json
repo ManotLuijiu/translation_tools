@@ -9,7 +9,7 @@
     "postinstall": "yarn install-pwa-deps",
     "dev-pwa": "cd thai_translation_dashboard && yarn dev",
     "build-pwa": "cd thai_translation_dashboard && yarn build",
-    "build": "yarn build-pwa",
+    "build": "yarn install-pwa-deps && yarn build-pwa",
     "prepare": "is-ci || husky install",
     "skip-commit": "HUSKY=0 git commit -m",
     "release": "standard-version",
@@ -21,7 +21,7 @@
   "author": "Manot Luijiu",
   "license": "ISC",
   "dependencies": {
-    "@tanstack/react-query": "^5.90.5",
+    "@tanstack/react-query": "5.56.2",
     "chart.js": "^4.5.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
