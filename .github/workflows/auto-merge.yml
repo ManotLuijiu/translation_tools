@@ -1,4 +1,4 @@
-name: Auto Merge Develop Into Version-15
+name: Auto Merge Develop Into Version-15 and Version-16
 
 on:
     push:
@@ -9,7 +9,7 @@ permissions:
     contents: write
 
 jobs:
-    auto-merge:
+    merge-to-version-15:
         runs-on: ubuntu-latest
 
         steps:
@@ -30,3 +30,25 @@ jobs:
                   git checkout version-15
                   git merge origin/develop --no-edit
                   git push origin version-15
+
+    merge-to-version-16:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Configure Git
+              run: |
+                  git config user.name "GitHub Actions"
+                  git config user.email "actions@github.com"
+
+            - name: Merge develop → version-16
+              run: |
+                  git fetch origin
+                  git checkout version-16
+                  git merge origin/develop --no-edit
+                  git push origin version-16
