@@ -13,7 +13,8 @@ import { Switch } from '@/components/ui/switch';
 import { useTranslation } from '@/context/TranslationContext';
 import { useFrappeGetCall } from 'frappe-react-sdk';
 import { useRef, useEffect, useState } from 'react';
-import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
+import { CheckCircle2, ChevronDown, ChevronRight, Loader2, XCircle } from 'lucide-react';
+import { useGetAppSyncSettings, useUpdateGithubSyncGlobalSettings } from '@/api/appSyncSettings';
 import PasswordVisibilityToggle from '../PasswordVisibilityToggle';
 
 export default function GithubIntegrationSettings({
@@ -31,6 +32,8 @@ export default function GithubIntegrationSettings({
 
   const saveButtonRef = useRef<HTMLButtonElement>(null);
   const [btnMinWidth, setBtnMinWidth] = useState<number | undefined>(undefined);
+  const [showTokenPermissions, setShowTokenPermissions] = useState(false);
+  const [showRepoSetup, setShowRepoSetup] = useState(false);
 
   useEffect(() => {
     if (saveButtonRef.current) {
@@ -39,6 +42,31 @@ export default function GithubIntegrationSettings({
   }, [loading]);
 
   const useOwnRepo = !!settings.use_own_repo;
+
+  const { data: appSyncData, mutate: refetchAppSync } = useGetAppSyncSettings();
+  const { call: updateGlobalSync, loading: savingGlobalSync } = useUpdateGithubSyncGlobalSettings();
+
+  const syncSettings = appSyncData?.message;
+  const [globalEnabled, setGlobalEnabled] = useState(false);
+  const [autoSyncEnabled, setAutoSyncEnabled] = useState(false);
+
+  useEffect(() => {
+    if (syncSettings) {
+      setGlobalEnabled(!!syncSettings.global_enabled);
+      setAutoSyncEnabled(!!syncSettings.auto_sync_enabled);
+    }
+  }, [syncSettings]);
+
+  const handleSaveGlobalSync = async (newGlobal: boolean, newAuto: boolean) => {
+    try {
+      const res = await updateGlobalSync(newGlobal, newAuto);
+      if (!res?.message?.success) {
+        refetchAppSync(); // revert optimistic state to server truth
+      }
+    } catch {
+      refetchAppSync(); // revert optimistic state to server truth
+    }
+  };
 
   const { data: tokenCheck } = useFrappeGetCall<{
     message: { has_token: boolean };
@@ -63,6 +91,7 @@ export default function GithubIntegrationSettings({
             <Switch
               id="github_enable"
               checked={settings.github_enable}
+              className="data-[state=checked]:bg-green-500 dark:data-[state=checked]:bg-green-500"
               onCheckedChange={(checked) =>
                 onSwitchChange('github_enable', checked)
               }
@@ -76,6 +105,7 @@ export default function GithubIntegrationSettings({
               id="use_own_repo"
               checked={useOwnRepo}
               disabled={!settings.github_enable}
+              className="data-[state=checked]:bg-green-500 dark:data-[state=checked]:bg-green-500"
               onCheckedChange={(checked) =>
                 onSwitchChange('use_own_repo', checked)
               }
@@ -138,77 +168,98 @@ export default function GithubIntegrationSettings({
               </div>
             </div>
 
-            {/* Required permissions */}
-            <div className="rounded-md border border-border bg-muted/50 p-4 text-sm space-y-3">
-              <p className="font-medium">{__('Required Token Permissions')}</p>
-              <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
-                <li>{__('Read access to metadata (repo info)')}</li>
-                <li>{__('Read and Write access to code (commit/push files)')}</li>
-                <li>{__('Read and Write access to pull requests (create PRs)')}</li>
-              </ul>
-
-              <p className="font-medium pt-2">{__('How to create a Fine-grained Token')}</p>
-              <ol className="list-decimal pl-5 space-y-1 text-muted-foreground">
-                <li>
-                  {__('Go to')}{' '}
-                  <a
-                    href="https://github.com/settings/personal-access-tokens/new"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline text-foreground"
-                  >
-                    github.com/settings/personal-access-tokens/new
-                  </a>
-                </li>
-                <li>{__('Token name: any descriptive name (e.g. "Translation Tools")')}</li>
-                <li>{__('Expiration: choose your preferred duration')}</li>
-                <li>{__('Repository access: select "Only select repositories" and pick your translation repo')}</li>
-                <li>
-                  {__('Under "Repository permissions", set:')}
-                  <ul className="list-disc pl-5 mt-1">
-                    <li><strong>Contents</strong> — {__('Read and Write')}</li>
-                    <li><strong>Metadata</strong> — {__('Read-only (auto-selected)')}</li>
-                    <li><strong>Pull requests</strong> — {__('Read and Write')}</li>
+            {/* Required permissions — collapsible */}
+            <div className="rounded-md border border-border bg-muted/50 text-sm">
+              <button
+                type="button"
+                onClick={() => setShowTokenPermissions((v) => !v)}
+                className="w-full flex items-center justify-between p-4 font-medium hover:bg-muted/80 transition-colors rounded-md"
+              >
+                <span>{__('Required Token Permissions')}</span>
+                {showTokenPermissions ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              </button>
+              {showTokenPermissions && (
+                <div className="px-4 pb-4 space-y-3">
+                  <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+                    <li>{__('Read access to metadata (repo info)')}</li>
+                    <li>{__('Read and Write access to code (commit/push files)')}</li>
+                    <li>{__('Read and Write access to pull requests (create PRs)')}</li>
                   </ul>
-                </li>
-                <li>{__('Click "Generate token" and paste it above')}</li>
-              </ol>
+                  <p className="font-medium pt-2">{__('How to create a Fine-grained Token')}</p>
+                  <ol className="list-decimal pl-5 space-y-1 text-muted-foreground">
+                    <li>
+                      {__('Go to')}{' '}
+                      <a
+                        href="https://github.com/settings/personal-access-tokens/new"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline text-foreground"
+                      >
+                        github.com/settings/personal-access-tokens/new
+                      </a>
+                    </li>
+                    <li>{__('Token name: any descriptive name (e.g. "Translation Tools")')}</li>
+                    <li>{__('Expiration: choose your preferred duration')}</li>
+                    <li>{__('Repository access: select "Only select repositories" and pick your translation repo')}</li>
+                    <li>
+                      {__('Under "Repository permissions", set:')}
+                      <ul className="list-disc pl-5 mt-1">
+                        <li><strong>Contents</strong> — {__('Read and Write')}</li>
+                        <li><strong>Metadata</strong> — {__('Read-only (auto-selected)')}</li>
+                        <li><strong>Pull requests</strong> — {__('Read and Write')}</li>
+                      </ul>
+                    </li>
+                    <li>{__('Click "Generate token" and paste it above')}</li>
+                  </ol>
+                </div>
+              )}
             </div>
 
-            {/* Step-by-step: How to set up your own repo */}
-            <div className="rounded-md border border-border bg-muted/50 p-4 text-sm space-y-3">
-              <p className="font-medium">{__('How to Set Up Your Own Translation Repo')}</p>
-              <ol className="list-decimal pl-5 space-y-1 text-muted-foreground">
-                <li>
-                  {__('Go to')}{' '}
-                  <a
-                    href="https://github.com/new"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline text-foreground"
-                  >
-                    github.com/new
-                  </a>
-                  {' '}{__('to create a new repository')}
-                </li>
-                <li>{__('Repository name: e.g. "my-erpnext-translations"')}</li>
-                <li>{__('Set visibility to Private (recommended for proprietary translations)')}</li>
-                <li>{__('Check "Add a README file" to initialize the repo')}</li>
-                <li>{__('Click "Create repository"')}</li>
-                <li>
-                  {__('Copy the repo URL (e.g.')}{' '}
-                  <code className="bg-muted px-1 rounded text-foreground">
-                    https://github.com/your-org/my-erpnext-translations.git
-                  </code>
-                  {') '}{__('and paste it in the Repo URL field above')}
-                </li>
-                <li>{__('Create a Fine-grained Token with access to this repo (see steps above)')}</li>
-                <li>{__('Paste the token in the Github Token field above')}</li>
-                <li>{__('Click "Test Connect" to verify everything works')}</li>
-              </ol>
-              <p className="text-xs text-muted-foreground pt-2">
-                {__('The repo should contain .po translation files. When you sync, translations will be pushed to and pulled from this repo.')}
-              </p>
+            {/* How to set up your own repo — collapsible */}
+            <div className="rounded-md border border-border bg-muted/50 text-sm">
+              <button
+                type="button"
+                onClick={() => setShowRepoSetup((v) => !v)}
+                className="w-full flex items-center justify-between p-4 font-medium hover:bg-muted/80 transition-colors rounded-md"
+              >
+                <span>{__('How to Set Up Your Own Translation Repo')}</span>
+                {showRepoSetup ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              </button>
+              {showRepoSetup && (
+                <div className="px-4 pb-4 space-y-3">
+                  <ol className="list-decimal pl-5 space-y-1 text-muted-foreground">
+                    <li>
+                      {__('Go to')}{' '}
+                      <a
+                        href="https://github.com/new"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline text-foreground"
+                      >
+                        github.com/new
+                      </a>
+                      {' '}{__('to create a new repository')}
+                    </li>
+                    <li>{__('Repository name: e.g. "my-erpnext-translations"')}</li>
+                    <li>{__('Set visibility to Private (recommended for proprietary translations)')}</li>
+                    <li>{__('Check "Add a README file" to initialize the repo')}</li>
+                    <li>{__('Click "Create repository"')}</li>
+                    <li>
+                      {__('Copy the repo URL (e.g.')}{' '}
+                      <code className="bg-muted px-1 rounded text-foreground">
+                        https://github.com/your-org/my-erpnext-translations.git
+                      </code>
+                      {') '}{__('and paste it in the Repo URL field above')}
+                    </li>
+                    <li>{__('Create a Fine-grained Token with access to this repo (see steps above)')}</li>
+                    <li>{__('Paste the token in the Github Token field above')}</li>
+                    <li>{__('Click "Test Connect" to verify everything works')}</li>
+                  </ol>
+                  <p className="text-xs text-muted-foreground pt-2">
+                    {__('The repo should contain .po translation files. When you sync, translations will be pushed to and pulled from this repo.')}
+                  </p>
+                </div>
+              )}
             </div>
           </>
         ) : (
@@ -236,6 +287,48 @@ export default function GithubIntegrationSettings({
                 ? __('Authentication is handled via github_pat_token in site_config.json or common_site_config.json. No additional token is needed.')
                 : __('Ask your system administrator to add github_pat_token to site_config.json or common_site_config.json.')}
             </p>
+          </div>
+        )}
+        {/* Auto Sync Settings — separate from Translation Tools Settings */}
+        {settings.github_enable && (
+          <div className="rounded-md border border-border p-4 space-y-4">
+            <p className="text-sm font-medium">{__('Auto Sync (GitHub Sync Settings)')}</p>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="global_sync_enabled">{__('Enable Auto Sync')}</Label>
+                <p className="text-xs text-muted-foreground">
+                  {__('Master switch — required for both manual trigger and scheduled sync')}
+                </p>
+              </div>
+              <Switch
+                id="global_sync_enabled"
+                checked={globalEnabled}
+                disabled={savingGlobalSync}
+                className="data-[state=checked]:bg-green-500 dark:data-[state=checked]:bg-green-500"
+                onCheckedChange={(checked) => {
+                  setGlobalEnabled(checked);
+                  handleSaveGlobalSync(checked, autoSyncEnabled);
+                }}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="auto_sync_enabled">{__('Enable Scheduled Auto Sync')}</Label>
+                <p className="text-xs text-muted-foreground">
+                  {__('Runs daily at midnight Bangkok time (cron: 0 17 * * *)')}
+                </p>
+              </div>
+              <Switch
+                id="auto_sync_enabled"
+                checked={autoSyncEnabled}
+                disabled={!globalEnabled || savingGlobalSync}
+                className="data-[state=checked]:bg-green-500 dark:data-[state=checked]:bg-green-500"
+                onCheckedChange={(checked) => {
+                  setAutoSyncEnabled(checked);
+                  handleSaveGlobalSync(globalEnabled, checked);
+                }}
+              />
+            </div>
           </div>
         )}
       </CardContent>

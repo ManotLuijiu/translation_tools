@@ -14,6 +14,7 @@ export interface AppSyncSettingsData {
   success: boolean;
   app_settings: AppSyncSettings;
   global_enabled: boolean;
+  auto_sync_enabled: boolean;
   repository_url?: string;
   branch?: string;
 }
@@ -70,6 +71,21 @@ export function useToggleAppAutosync() {
     error,
     result,
     reset
+  };
+}
+
+// Hook to update GitHub Sync Settings global flags
+export function useUpdateGithubSyncGlobalSettings() {
+  const { call, loading, error, result } = useFrappePostCall(
+    'translation_tools.api.app_sync_settings.update_github_sync_global_settings'
+  );
+
+  return {
+    call: async (enabled: boolean, autoSyncEnabled: boolean) =>
+      call({ enabled, auto_sync_enabled: autoSyncEnabled }),
+    loading,
+    error,
+    result,
   };
 }
 

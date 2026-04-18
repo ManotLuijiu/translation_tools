@@ -17,18 +17,31 @@ MAX_FUZZY_CANDIDATES = 100  # limit fuzzy matching candidates
 FUZZY_MATCH_THRESHOLD = 0.9
 
 
+def _get_default_branch():
+    """Return version-15 or version-16 based on installed Frappe major version."""
+    try:
+        major = int(frappe.__version__.split(".")[0])
+        return f"version-{major}"
+    except Exception:
+        return "version-15"
+
+
 def _get_github_headers():
     """Build HTTP headers for GitHub API requests.
     Reads github_pat_token from site_config.json or common_site_config.json."""
     headers = {"Accept": "application/vnd.github+json"}
     token = frappe.conf.get("github_pat_token")
     if token:
+        if isinstance(token, bytes):
+            token = token.decode("utf-8")
         headers["Authorization"] = f"Bearer {token}"
     return headers
 
 
 @frappe.whitelist()
-def find_translation_files(repo_url, branch="version-15", target_language="th"):
+def find_translation_files(repo_url, branch=None, target_language="th"):
+    if branch is None:
+        branch = _get_default_branch()
     """Find PO translation files in a GitHub repository"""
     try:
         # Parse the GitHub URL

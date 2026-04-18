@@ -9,6 +9,16 @@ import configparser
 import requests
 
 DEFAULT_GITHUB_REPO = "https://github.com/ManotLuijiu/erpnext-thai-translation.git"
+PRIVATE_GITHUB_REPO = "https://github.com/ManotLuijiu/erpnext-thai-translation-private.git"
+
+
+def _get_default_branch():
+    """Return version-15 or version-16 based on installed Frappe major version."""
+    try:
+        major = int(frappe.__version__.split(".")[0])
+        return f"version-{major}"
+    except Exception:
+        return "version-15"
 
 
 @frappe.whitelist()
@@ -67,6 +77,7 @@ def get_translation_settings():
                 "github_enable": 0,
                 "github_repo": "",
                 "github_token_configured": False,
+                "default_branch": _get_default_branch(),
             }
         )
 
@@ -128,6 +139,7 @@ def get_translation_settings():
                 and doc.github_repo.strip().rstrip("/").rstrip(".git").rstrip("/")  # type: ignore
                 != DEFAULT_GITHUB_REPO.rstrip("/").rstrip(".git").rstrip("/")
             ),
+            "default_branch": _get_default_branch(),
         }
     )
 

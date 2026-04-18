@@ -1,6 +1,7 @@
 import frappe
 from frappe import _
 import json
+from translation_tools.api.github_sync import _get_default_branch
 
 
 @frappe.whitelist()
@@ -26,6 +27,7 @@ def get_app_sync_settings():
             "success": True,
             "app_settings": app_settings,
             "global_enabled": settings.enabled,
+            "auto_sync_enabled": bool(getattr(settings, "auto_sync_enabled", False)),
             "repository_url": settings.repository_url,
             "branch": settings.branch
         }
@@ -218,10 +220,10 @@ def sync_app_from_github(app_name):
         frappe.logger("auto_sync").info(f"📥 [SYNC] Found {len(app_po_files)} PO file(s) for {app_name}")
         
         # Find translation files in GitHub
-        frappe.logger("auto_sync").info(f"📥 [SYNC] Finding GitHub files: repo={repo_url}, branch={settings.branch or 'version-15'}, lang={settings.target_language or 'th'}")
+        frappe.logger("auto_sync").info(f"📥 [SYNC] Finding GitHub files: repo={repo_url}, branch={settings.branch or _get_default_branch()}, lang={settings.target_language or 'th'}")
         github_files_result = find_translation_files(
             repo_url=repo_url,
-            branch=settings.branch or 'version-15',
+            branch=settings.branch or _get_default_branch(),
             target_language=settings.target_language or 'th'
         )
 
@@ -271,7 +273,7 @@ def sync_app_from_github(app_name):
                 # Preview the sync first
                 preview_result = preview_sync(
                     repo_url=repo_url,
-                    branch=settings.branch or 'version-15',
+                    branch=settings.branch or _get_default_branch(),
                     repo_files=[matched_path],
                     local_file_path=po_file['file_path']
                 )
@@ -287,7 +289,7 @@ def sync_app_from_github(app_name):
                         frappe.logger("auto_sync").info(f"📥 [SYNC] Applying changes to {po_file['file_path']}")
                         apply_result = apply_sync(
                             repo_url=repo_url,
-                            branch=settings.branch or 'version-15',
+                            branch=settings.branch or _get_default_branch(),
                             repo_files=[matched_path],
                             local_file_path=po_file['file_path']
                         )
@@ -426,4 +428,40 @@ def test_sync_single_app(app_name):
 
     except Exception as e:
         frappe.log_error(f"Test sync error for {app_name}: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+
+@frappe.whitelist()
+def update_github_sync_global_settings(enabled=False, auto_sync_enabled=False):
+    """Update GitHub Sync Settings global flags (enabled + auto_sync_enabled)"""
+    if isinstance(enabled, str):
+        enabled = enabled.lower() in ['true', '1', 'yes']
+    if isinstance(auto_sync_enabled, str):
+        auto_sync_enabled = auto_sync_enabled.lower() in ['true', '1', 'yes']
+
+    try:
+        settings = frappe.get_single("GitHub Sync Settings")
+
+        # Sync repository_url from Translation Tools Settings if not yet set —
+        # needed to pass the controller's validate() which requires repository_url when enabled=1
+        if enabled and not settings.repository_url:
+            tt_settings = frappe.get_single("Translation Tools Settings")
+            repo = getattr(tt_settings, "github_repo", None)
+            if repo:
+                settings.repository_url = repo
+            if not settings.branch:
+                settings.branch = _get_default_branch()
+
+        settings.enabled = 1 if enabled else 0
+        settings.auto_sync_enabled = 1 if auto_sync_enabled else 0
+        settings.save(ignore_permissions=True)
+        frappe.db.commit()
+        frappe.clear_document_cache("GitHub Sync Settings", "GitHub Sync Settings")
+        return {
+            "success": True,
+            "enabled": bool(settings.enabled),
+            "auto_sync_enabled": bool(settings.auto_sync_enabled),
+        }
+    except Exception as e:
+        frappe.log_error(f"Error updating GitHub Sync global settings: {str(e)}")
         return {"success": False, "error": str(e)}

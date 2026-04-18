@@ -22,7 +22,7 @@ import {
 
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, Download, Check, AlertCircle } from 'lucide-react';
-import { useFrappePostCall } from 'frappe-react-sdk';
+import { useFrappePostCall, useFrappeGetCall } from 'frappe-react-sdk';
 import { useTranslation } from '@/context/TranslationContext';
 import type { POFile } from '../types';
 import githubIconLight from '../assets/github-mark/github-mark.svg';
@@ -43,11 +43,29 @@ export default function GithubSync({
   // console.log('selectedFile Accessing', selectedFile);
   // console.log('onFilesFound Beginning Access', onFilesFound);
 
+  // Use settings from backend if available, otherwise use defaults
+  // When using private repo (use_own_repo), use settings values; otherwise use defaults
+  const defaultRepo = 'https://github.com/ManotLuijiu/erpnext-thai-translation.git';
+  const defaultBranch = 'version-15';
+
+  // Fetch translation settings FIRST (hooks must be called before using their values)
+  const { data: settingsData } = useFrappeGetCall<{ message: {
+    github_enable?: boolean;
+    github_repo?: string;
+    github_token?: string;
+    use_own_repo?: boolean;
+    default_branch?: string;
+  } }>('translation_tools.api.settings.get_translation_settings', {}, undefined, {
+    revalidateOnFocus: false,
+  });
+
+  const settings = settingsData?.message;
+
   const [isOpen, setIsOpen] = useState(false);
   const [repoUrl, setRepoUrl] = useState(
-    'https://github.com/ManotLuijiu/erpnext-thai-translation.git'
+    settings?.use_own_repo ? (settings?.github_repo || defaultRepo) : defaultRepo
   );
-  const [branch, setBranch] = useState('version-15');
+  const [branch, setBranch] = useState(defaultBranch);
   const [syncMode, setSyncMode] = useState<'preview' | 'apply'>('preview');
 
   console.info('Sync Mode', syncMode);
@@ -73,6 +91,17 @@ export default function GithubSync({
   const [currentTab, setCurrentTab] = useState('repository');
 
   const { translate: __ } = useTranslation();
+
+  // Update repo URL and branch when settings load (after initial render)
+  useEffect(() => {
+    if (settings) {
+      const newRepo = settings.use_own_repo ? (settings.github_repo || defaultRepo) : defaultRepo;
+      setRepoUrl(newRepo);
+      if (settings.default_branch) {
+        setBranch(settings.default_branch);
+      }
+    }
+  }, [settings]);
 
   // console.log('syncMode GithubSync.tsx', syncMode);
   // console.log('selectedFile before api call', selectedFile);
@@ -293,6 +322,17 @@ export default function GithubSync({
           </TabsList>
 
           <TabsContent value="repository" className="space-y-4 py-4">
+            {/* Warning when using private repo but not enabled */}
+            {settings?.use_own_repo && !settings?.github_enable && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>{__('GitHub Integration Disabled')}</AlertTitle>
+                <AlertDescription>
+                  {__('Please enable "GitHub Integration" in settings to use your private repository.')}
+                </AlertDescription>
+              </Alert>
+            )}
+
             <div className="grid gap-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="repo-url" className="text-right">
