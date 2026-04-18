@@ -71,6 +71,27 @@ You can toggle between manual and AI translation modes:
 - **Manual Mode**: Translate entries yourself
 - **AI Mode**: Let AI suggest translations based on your selected service
 
+### Manual Translation Rebuild
+
+Translation extraction no longer runs automatically on every `bench migrate` (it was causing 30+ minute migrate times). Run it manually when you add new UI strings or before a release:
+
+```bash
+# Full rebuild — all apps, all ASEAN locales (th/vi/lo/km/my)
+bench --site <site> execute \
+  translation_tools.utils.migration_translations.run_translation_commands_after_migrate
+
+# Specific app/locale:
+bench --site <site> update-app-translations --app thai_business_suite --locale th
+bench --site <site> update-app-translations --app inpac_pharma --locale th
+
+# List apps with translation support:
+bench --site <site> list-translatable-apps
+```
+
+**When to run**: after adding new Python/JS/JSX strings, after pulling new code with new UI text, or before a production release.
+
+---
+
 ### Command Line Usage
 
 #### Basic Usage

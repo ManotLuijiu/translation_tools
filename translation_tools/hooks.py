@@ -53,9 +53,11 @@ after_install = [
 # Migration
 after_migrate = [
     # "translation_tools.setup.update_workspace.rebuild_workspace",  # REDUNDANT - replaced by workspace_manager API
-    "translation_tools.utils.migration_translations.run_translation_commands_after_migrate",
-    "translation_tools.utils.auto_extract.auto_extract_all_custom_apps",  # Auto-extract SPA translations for all languages
-    "translation_tools.utils.csv_to_po_with_spa.auto_migrate_csv_to_po",  # Auto-migrate CSV to PO (creates locale/ folder)
+    # Disabled: runs 200 subprocess commands (10 apps × 5 locales × 4 bench commands) - too slow for every migrate
+    # "translation_tools.utils.migration_translations.run_translation_commands_after_migrate",
+    # Disabled: heavy SPA extraction on every migrate - run manually with bench command instead
+    # "translation_tools.utils.auto_extract.auto_extract_all_custom_apps",
+    # "translation_tools.utils.csv_to_po_with_spa.auto_migrate_csv_to_po",
     "translation_tools.api.workspace_manager.setup_translation_tools",  # Setup workspace links using new API
     "translation_tools.tasks.github_auto_sync.sync_translations_after_migrate",  # Restore translations from GitHub (background)
 ]
