@@ -15,17 +15,71 @@ frappe.ui.language_toggle = class LanguageToggle {
       : this.languages[base_lang]
         ? base_lang
         : 'en';
+
+    // Detect Frappe major version from boot data
+    const frappe_ver_str = frappe.boot.versions?.frappe || '15.0.0';
+    this.frappe_major = parseInt(frappe_ver_str.split('.')[0], 10);
+
     this.setup();
   }
 
   setup() {
     if (!('desk' in frappe)) return;
 
-    this.create_toggle_element();
+    if (this.frappe_major >= 16) {
+      this.inject_sidebar_toggle();
+    } else {
+      this.create_navbar_toggle();
+    }
     this.setup_events();
   }
 
-  create_toggle_element() {
+  // v16+: inject below the user section in the body sidebar
+  inject_sidebar_toggle() {
+    if (document.querySelector('.dropdown-language-sidebar')) return;
+
+    const inject = () => {
+      if (document.querySelector('.dropdown-language-sidebar')) return true;
+
+      const user_section = $('.body-sidebar-bottom .dropdown-navbar-user');
+      if (!user_section.length) return false;
+
+      const toggle_items = Object.entries(this.languages)
+        .map(([code, label]) => {
+          const active = this.current_language === code ? 'active' : '';
+          return `<a href="#" data-lang="${code}" class="dropdown-item ${active}">${label}</a>`;
+        })
+        .join('');
+
+      const sidebar_html = `
+        <div class="dropdown-language-sidebar" style="padding: 2px 8px 6px;">
+          <div class="dropdown">
+            <a class="align-center btn-reset flex nav-link dropdown-toggle"
+               data-toggle="dropdown"
+               style="width: 100%; min-height: 32px; padding: 4px 10px; gap: 8px; cursor: pointer;">
+              <span style="font-size: 14px;">🌐</span>
+              <span class="text-small">${this.languages[this.current_language]}</span>
+            </a>
+            <div class="dropdown-menu">
+              ${toggle_items}
+            </div>
+          </div>
+        </div>`;
+
+      user_section.after(sidebar_html);
+      return true;
+    };
+
+    if (!inject()) {
+      const timer = setInterval(() => {
+        if (inject()) clearInterval(timer);
+      }, 300);
+      setTimeout(() => clearInterval(timer), 15000);
+    }
+  }
+
+  // v15: inject into Bootstrap navbar
+  create_navbar_toggle() {
     const toggle_items = Object.entries(this.languages)
       .map(([code, label]) => {
         const active = this.current_language === code ? 'active' : '';
@@ -55,6 +109,16 @@ frappe.ui.language_toggle = class LanguageToggle {
   }
 
   setup_events() {
+    // v16 sidebar toggle
+    $('body').on('click', '.dropdown-language-sidebar .dropdown-item', (e) => {
+      e.preventDefault();
+      const lang_code = $(e.currentTarget).data('lang');
+      if (lang_code && lang_code !== this.current_language) {
+        this.switch_language(lang_code);
+      }
+    });
+
+    // v15 navbar toggle
     $('body').on('click', '.dropdown-language .dropdown-item', (e) => {
       e.preventDefault();
       const lang_code = $(e.currentTarget).data('lang');
