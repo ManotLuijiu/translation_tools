@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.5.0](https://github.com/ManotLuijiu/translation_tools/compare/v1.4.2...v1.5.0) (2026-04-18)
+
+
+### ✨ Features
+
+* dual repo support, version-aware branch detection, auto sync UI controls ([462a340](https://github.com/ManotLuijiu/translation_tools/commit/462a34068001dd17f8a69f7092c5ddbfa92791e5))
+* modified:   print_designer/commands/install_company_thai_tax_fields.py ([3808dcf](https://github.com/ManotLuijiu/translation_tools/commit/3808dcf461b44c865a656f645f4fe1a06cb91194))
+
 ### [1.4.2](https://github.com/ManotLuijiu/translation_tools/compare/v1.4.1...v1.4.2) (2026-03-24)
 
 
