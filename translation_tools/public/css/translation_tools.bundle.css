@@ -1064,3 +1064,17 @@ textarea.form-control {
 .search-bar .awesomplete input {
   padding-left: 45px;
 }
+
+.bunchee-sidebar-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.bunchee-theme-trigger {
+  gap: 2px;
+}
+
+.bunchee-theme-icon {
+  margin-right: 6px;
+}

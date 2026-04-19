@@ -96,6 +96,8 @@ app_include_js = [
     "translation_tools.app.bundle.js",
 ]
 
+app_include_css = "translation_tools.app.bundle.css"
+
 # app_include_css = [
 #     "fonts.bundle.css",
 #     # "translation_tools.bundle.css",
