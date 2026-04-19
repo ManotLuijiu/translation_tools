@@ -24,9 +24,12 @@ frappe.ui.language_toggle = class LanguageToggle {
   setup() {
     if (!('desk' in frappe)) return;
 
+    console.log('[language_toggle] setup() frappe_major:', this.frappe_major);
     if (this.frappe_major >= 16) {
+      console.log('[language_toggle] Using v16 inject_sidebar_controls path');
       this.inject_sidebar_controls();
     } else {
+      console.log('[language_toggle] Using v15 create_navbar_toggle path');
       this.create_navbar_toggle();
     }
     this.setup_events();
@@ -132,6 +135,8 @@ frappe.ui.language_toggle = class LanguageToggle {
 
   // v15: inject into Bootstrap navbar
   create_navbar_toggle() {
+    if (document.querySelector('.v15-lang-toggle')) return;
+
     const toggle_items = Object.entries(this.languages)
       .map(([code, label]) => {
         const active = this.current_language === code ? 'active' : '';
@@ -145,7 +150,7 @@ frappe.ui.language_toggle = class LanguageToggle {
       .join('');
 
     const toggle_html = `
-      <li class="nav-item dropdown dropdown-language">
+      <li class="nav-item dropdown dropdown-language v15-lang-toggle">
         <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
           🌐 ${this.languages[this.current_language]}
         </a>
@@ -179,10 +184,11 @@ frappe.ui.language_toggle = class LanguageToggle {
       }
     });
 
-    // v15 navbar language switch
-    $('body').on('click', '.dropdown-language .dropdown-item', (e) => {
+    // v15 navbar language switch (guard to avoid v16 conflicts)
+    $('body').on('click', '.dropdown-language.v15-lang-toggle .dropdown-item', (e) => {
       e.preventDefault();
       const lang_code = $(e.currentTarget).data('lang');
+      console.log('[language_toggle] v15 toggle click, lang_code:', lang_code, 'current:', this.current_language);
       if (lang_code && lang_code !== this.current_language) {
         this.switch_language(lang_code);
       }
@@ -254,8 +260,20 @@ frappe.ui.language_toggle = class LanguageToggle {
 
 (function initLanguageToggle() {
   function tryInit() {
-    if (document.querySelector('.bunchee-sidebar-controls')) return;
+    // v16 renders its own language controls via inject_sidebar_controls()
+    // Only initialize v15 navbar toggle when frappe version is confirmed < 16
+    const frappe_ver_str = frappe.boot.versions?.frappe || '15.0.0';
+    const frappe_major = parseInt(frappe_ver_str.split('.')[0], 10);
+    console.log('[language_toggle] frappe boot versions:', frappe.boot.versions);
+    console.log('[language_toggle] frappe_ver_str:', frappe_ver_str, '-> frappe_major:', frappe_major);
+    if (frappe_major >= 16) {
+      console.log('[language_toggle] Skipping v15 toggle (v16 detected)');
+      return;
+    }
+
+    if (document.querySelector('.v15-lang-toggle')) return;
     if (typeof frappe !== 'undefined' && frappe.desk) {
+      console.log('[language_toggle] Creating v15 navbar toggle');
       new frappe.ui.language_toggle();
     }
   }
@@ -268,6 +286,8 @@ frappe.ui.language_toggle = class LanguageToggle {
     // Re-inject on page navigation (v16 renders dynamically)
     $('.bunchee-sidebar-controls').remove();
     $('.dropdown-language-sidebar').remove();
+    // v15: remove old toggle, will be re-created by tryInit on next page
+    $('.v15-lang-toggle').remove();
     setTimeout(tryInit, 300);
   });
 
