@@ -268,6 +268,8 @@ frappe.ui.language_toggle = class LanguageToggle {
     console.log('[language_toggle] frappe_ver_str:', frappe_ver_str, '-> frappe_major:', frappe_major);
     if (frappe_major >= 16) {
       console.log('[language_toggle] Skipping v15 toggle (v16 detected)');
+      // v16: do NOT create LanguageToggle here — the v16 path is handled
+      // below via new LanguageToggle() which calls inject_sidebar_controls()
       return;
     }
 
@@ -278,8 +280,23 @@ frappe.ui.language_toggle = class LanguageToggle {
     }
   }
 
+  // v16: always create LanguageToggle so inject_sidebar_controls() runs
+  // (v15 path is guarded inside the class via frappe_major check)
+  function tryInitV16() {
+    if (document.querySelector('.bunchee-sidebar-controls')) return;
+    if (typeof frappe !== 'undefined' && frappe.desk) {
+      const frappe_ver_str = frappe.boot.versions?.frappe || '15.0.0';
+      const frappe_major = parseInt(frappe_ver_str.split('.')[0], 10);
+      if (frappe_major >= 16) {
+        console.log('[language_toggle] Creating v16 sidebar controls');
+        new frappe.ui.language_toggle();
+      }
+    }
+  }
+
   $(document).on('toolbar_setup', function () {
     setTimeout(tryInit, 300);
+    setTimeout(tryInitV16, 300);
   });
 
   $(document).on('page-change', function () {
@@ -289,17 +306,21 @@ frappe.ui.language_toggle = class LanguageToggle {
     // v15: remove old toggle, will be re-created by tryInit on next page
     $('.v15-lang-toggle').remove();
     setTimeout(tryInit, 300);
+    setTimeout(tryInitV16, 300);
   });
 
   $(document).on('app-ready', function () {
     setTimeout(tryInit, 500);
+    setTimeout(tryInitV16, 500);
   });
 
   if (document.readyState === 'complete') {
     setTimeout(tryInit, 500);
+    setTimeout(tryInitV16, 500);
   } else {
     $(function () {
       setTimeout(tryInit, 500);
+      setTimeout(tryInitV16, 500);
     });
   }
 })();
