@@ -180,7 +180,9 @@ export default function SettingsPanel() {
 
         // Build detailed summary
         const lines = ready.map((a: any) =>
-          `${a.app}: ${a.translated}/${a.total} (${a.percentage}%)`
+          a.github_percentage !== undefined
+            ? `${a.app}: local ${a.percentage}% → GitHub ${a.github_percentage}%`
+            : `${a.app}: ${a.percentage}%`
         );
 
         toast.success(message.message, {

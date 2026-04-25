@@ -1270,6 +1270,7 @@ export default function TranslationEditor({
                       )}
                     </Button>
                     <Button
+                    id='translation__editor__save__translation__button'
                       onClick={handleSave}
                       disabled={saveTranslation.loading}
                     >

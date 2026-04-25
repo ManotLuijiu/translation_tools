@@ -7,6 +7,7 @@ from frappe.utils.password import get_decrypted_password, get_encryption_key, en
 from .common import logger, CONFIG_FILE, get_bench_path
 import configparser
 import requests
+import tempfile
 
 DEFAULT_GITHUB_REPO = "https://github.com/ManotLuijiu/erpnext-thai-translation.git"
 PRIVATE_GITHUB_REPO = "https://github.com/ManotLuijiu/erpnext-thai-translation-private.git"
@@ -422,7 +423,7 @@ def test_github_sync(github_repo=None, github_token=None):
                 })
                 continue
 
-            # Read current stats
+            # Read local stats
             try:
                 import polib
                 po = polib.pofile(local_po)
@@ -432,13 +433,35 @@ def test_github_sync(github_repo=None, github_token=None):
             except Exception:
                 translated, total, pct = 0, 0, 0
 
+            # Fetch GitHub stats (sync FROM GitHub, so show GitHub's translation percentage)
+            github_translated, github_total, github_pct = 0, 0, 0
+            try:
+                raw_url = f"https://raw.githubusercontent.com/{repo_path}/{sync_branch}/{app_name}/th.po"
+                gh_resp = requests.get(raw_url, headers={"Authorization": f"token {github_token}"}, timeout=30)
+                if gh_resp.status_code == 200:
+                    with tempfile.NamedTemporaryFile(suffix=".po", delete=False) as tmp:
+                        tmp.write(gh_resp.content)
+                        tmp_path = tmp.name
+                    try:
+                        gh_po = polib.pofile(tmp_path)
+                        github_translated = len([e for e in gh_po if e.msgstr and e.msgstr != ""])
+                        github_total = len(gh_po)
+                        github_pct = round(github_translated * 100 / github_total, 1) if github_total > 0 else 0
+                    finally:
+                        os.unlink(tmp_path)
+            except Exception:
+                pass  # GitHub stats are optional
+
             app_results.append({
                 "app": app_name,
                 "status": "ready",
                 "translated": translated,
                 "total": total,
                 "percentage": pct,
-                "github_file": f"{app_name}/{target_language}.po",
+                "github_translated": github_translated,
+                "github_total": github_total,
+                "github_percentage": github_pct,
+                "github_file": f"{app_name}/th.po",
             })
 
         ready_count = len([r for r in app_results if r["status"] == "ready"])

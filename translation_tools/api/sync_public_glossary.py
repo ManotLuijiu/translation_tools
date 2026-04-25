@@ -17,26 +17,84 @@ def _get_github_headers():
     return headers
 
 
+def _get_glossary_url():
+    """
+    Determine which GitHub URL to use for glossary sync.
+    Checks Translation Tools Settings for github_enable and use_own_repo.
+    Returns tuple: (url, source_name)
+
+    Logic (matches frontend GithubIntegrationSettings.tsx):
+    - github_enable = false → no GitHub sync (return public repo)
+    - github_enable = true AND use_own_repo = true → use custom github_repo
+    - github_enable = true AND use_own_repo = false → use default public repo
+    """
+    # Default public repo (no auth needed)
+    default_public_url = "https://raw.githubusercontent.com/ManotLuijiu/erpnext-thai-translation/main/glossary/thai_glossary.json"
+
+    try:
+        # Check Translation Tools Settings
+        settings = frappe.get_single("Translation Tools Settings")
+        github_enable = getattr(settings, "github_enable", 0)
+        github_repo = getattr(settings, "github_repo", None)
+
+        # Compute use_own_repo (same logic as backend settings.py)
+        default_repo_normalized = "https://github.com/ManotLuijiu/erpnext-thai-translation".strip().rstrip("/").rstrip(".git")
+        repo_normalized = (github_repo or "").strip().rstrip("/").rstrip(".git")
+        use_own_repo = bool(github_repo and repo_normalized != default_repo_normalized)
+
+        logger.info(f"Glossary sync settings: github_enable={github_enable}, use_own_repo={use_own_repo}, github_repo={github_repo}")
+
+        if github_enable and use_own_repo and github_repo and github_repo.strip():
+            # Use custom repo - derive raw URL from git URL
+            # Convert https://github.com/org/repo.git -> https://raw.githubusercontent.com/org/repo/BRANCH/glossary/...
+            repo_url = github_repo.strip().rstrip("/").rstrip(".git")
+            logger.info(f"Using custom GitHub repo: {repo_url}")
+
+            # Extract org and repo name
+            parts = repo_url.replace("https://github.com/", "").split("/")
+            if len(parts) >= 2:
+                org = parts[0]
+                repo = parts[1]
+
+                # Determine branch - use version-16 for private repo (ManotLuijiu convention)
+                if "private" in repo.lower():
+                    branch = "version-16"
+                else:
+                    branch = "main"
+
+                raw_url = f"https://raw.githubusercontent.com/{org}/{repo}/{branch}/glossary/thai_glossary.json"
+                logger.info(f"Custom glossary URL: {raw_url}")
+                return raw_url, f"custom repo ({org}/{repo})"
+
+        # Fallback to default public repo
+        return default_public_url, "public repo"
+
+    except Exception as e:
+        logger.warning(f"Could not read Translation Tools Settings: {e}")
+        return default_public_url, "public repo (fallback)"
+
+
 @frappe.whitelist()
 def sync_glossary_from_public_github():
     """
-    Sync glossary terms from GitHub raw URL (supports private repos via PAT)
-    Uses: https://raw.githubusercontent.com/ManotLuijiu/erpnext-thai-translation/main/glossary/thai_glossary.json
+    Sync glossary terms from GitHub.
+    - If github_enable is set in Translation Tools Settings, uses custom github_repo URL
+    - Otherwise falls back to public repo
+    - Supports private repos via github_pat_token in site_config
     """
     logger.info("Starting GitHub glossary sync")
 
     try:
-        public_url = "https://raw.githubusercontent.com/ManotLuijiu/erpnext-thai-translation/main/glossary/thai_glossary.json"
-
-        logger.info(f"Syncing glossary from: {public_url}")
+        glossary_url, source_name = _get_glossary_url()
+        logger.info(f"Syncing glossary from: {glossary_url} (source: {source_name})")
 
         # Use PAT token for private repo access
-        response = requests.get(public_url, headers=_get_github_headers(), timeout=30)
-        
+        response = requests.get(glossary_url, headers=_get_github_headers(), timeout=30)
+
         if response.status_code == 404:
             return {
                 "success": False,
-                "message": f"Glossary file not found at {public_url}",
+                "message": f"Glossary file not found at {glossary_url} ({source_name})",
                 "stats": {"added": 0, "updated": 0, "skipped": 0, "errors": 1}
             }
         
@@ -131,7 +189,7 @@ def sync_glossary_from_public_github():
         }
         
     except requests.RequestException as e:
-        error_msg = f"Failed to fetch glossary from GitHub: {str(e)}"
+        error_msg = f"Failed to fetch glossary from {glossary_url}: {str(e)}"
         logger.error(error_msg)
         return {
             "success": False,
@@ -139,7 +197,7 @@ def sync_glossary_from_public_github():
             "stats": {"added": 0, "updated": 0, "skipped": 0, "errors": 1}
         }
     except json.JSONDecodeError as e:
-        error_msg = f"Failed to parse JSON from GitHub: {str(e)}"
+        error_msg = f"Failed to parse JSON from {glossary_url}: {str(e)}"
         logger.error(error_msg)
         return {
             "success": False,

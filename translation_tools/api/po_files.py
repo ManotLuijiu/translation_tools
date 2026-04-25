@@ -1572,12 +1572,18 @@ def push_translation_to_github(
         with tempfile.TemporaryDirectory() as temp_dir:
             logger.info(f"Working in temporary directory: {temp_dir}")
 
-            # Resolve the target branch from GitHub Sync Settings
-            target_branch = "version-15"
+            # Resolve the target branch from GitHub Sync Settings or Frappe version
+            try:
+                major = int(frappe.__version__.split(".")[0])
+                default_branch = f"version-{major}"
+            except Exception:
+                default_branch = "version-15"
+
+            target_branch = default_branch
             try:
                 if frappe.db.exists("DocType", "GitHub Sync Settings"):
                     _sync_settings = frappe.get_single("GitHub Sync Settings")
-                    target_branch = _sync_settings.branch or "version-15"
+                    target_branch = _sync_settings.branch or default_branch
             except Exception:
                 pass
 

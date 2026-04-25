@@ -99,6 +99,9 @@ export function useTestGithubSync() {
       translated?: number;
       total?: number;
       percentage?: number;
+      github_translated?: number;
+      github_total?: number;
+      github_percentage?: number;
       github_file?: string;
     }>;
   } }>(
