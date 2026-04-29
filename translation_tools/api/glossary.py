@@ -454,7 +454,7 @@ def test_github_push_integration():
 def push_glossary_to_github():
     """
     Push ALL glossary terms from database to GitHub repository as JSON file
-    
+
     Returns:
         dict: Result with success status and GitHub push information
     """
@@ -463,43 +463,69 @@ def push_glossary_to_github():
     import json
     import tempfile
     import os
-    from .settings import get_github_token
-    
+    from .settings import get_github_token, DEFAULT_GITHUB_REPO, PRIVATE_GITHUB_REPO
+
     try:
         logger.info("Starting push glossary to GitHub")
-        
-        # Use static repository URL for reliability
-        github_repo = "https://github.com/ManotLuijiu/erpnext-thai-translation.git"
-        
-        # Get GitHub settings for enable check and token
+
+        # Get GitHub settings for enable check, repo, branch, and token
         settings = frappe.get_single("Translation Tools Settings")
         if not settings.github_enable:
             return {
                 "github_pushed": False,
                 "message": "GitHub integration is disabled"
             }
-        
+
+        # Token: same source as PO file push - from settings.github_token field
         github_token = get_github_token()
-        
+
         if not github_token:
             return {
                 "github_pushed": False,
                 "message": "GitHub token not configured"
             }
-        
-        # Parse static repository URL
-        repo_path = github_repo.replace("https://github.com/", "")
-        if repo_path.endswith('.git'):
-            repo_path = repo_path[:-4]
-            
+
+        # Resolve repo URL dynamically from settings
+        github_repo = getattr(settings, "github_repo", None) or DEFAULT_GITHUB_REPO
+
+        # Resolve branch dynamically - same logic as PO file push:
+        # 1. GitHub Sync Settings → branch field (user-configured per site)
+        # 2. Fall back to version-{major} based on Frappe version
+        branch = None
+        if frappe.db.exists("DocType", "GitHub Sync Settings"):
+            try:
+                sync_settings = frappe.get_single("GitHub Sync Settings")
+                if getattr(sync_settings, "branch", None):
+                    branch = sync_settings.branch.strip()
+                    logger.info(f"Using branch from GitHub Sync Settings: {branch}")
+            except Exception:
+                pass
+
+        if not branch:
+            # Derive from Frappe major version (same as po_files.py)
+            try:
+                bootinfo = getattr(frappe.local, "boot", None) or {}
+                frappe_version = bootinfo.get("versions", {}).get("frappe") or frappe.__version__
+                major = int(frappe_version.split(".")[0])
+                branch = f"version-{major}"
+            except Exception:
+                branch = "version-16"
+            logger.info(f"Using version-based branch: {branch}")
+
+        # Normalize repo URL
+        repo_path = github_repo.strip().replace("https://github.com/", "").rstrip("/").rstrip(".git")
         repo_parts = repo_path.strip("/").split("/")
+        if len(repo_parts) < 2:
+            return {
+                "github_pushed": False,
+                "message": f"Invalid repository URL: {github_repo}"
+            }
         owner, repo = repo_parts[0], repo_parts[1]
-        file_path = "glossary/thai_glossary.json"  # JSON file in glossary folder
-        
-        print(f"DEBUG: Repository owner: {owner}")
-        print(f"DEBUG: Repository name: {repo}")
-        print(f"DEBUG: File path: {file_path}")
-        
+        file_path = "glossary/thai_glossary.json"
+
+        logger.info(f"Pushing glossary to {owner}/{repo} branch={branch} path={file_path}")
+        logger.info(f"Token (first 4 chars): {github_token[:4]}... len={len(github_token)}")
+
         # Get ALL glossary terms from database (approved or not)
         terms = frappe.get_all(
             "Translation Glossary Term",
@@ -508,7 +534,6 @@ def push_glossary_to_github():
         )
         
         logger.info(f"Found {len(terms)} terms in database")
-        print(f"DEBUG: Found {len(terms)} terms in database")
         
         # Create JSON structure
         glossary_data = {
@@ -546,9 +571,9 @@ def push_glossary_to_github():
             
             logger.info(f"Created temp JSON file with {len(terms)} terms")
             
-            # GitHub API headers
+            # GitHub API headers - match github_sync.py pattern (Bearer token from site_config)
             headers = {
-                "Authorization": f"token {github_token}",
+                "Authorization": f"Bearer {github_token}",
                 "Accept": "application/vnd.github.v3+json",
                 "Content-Type": "application/json"
             }
@@ -556,11 +581,14 @@ def push_glossary_to_github():
             # Get current file SHA if it exists
             get_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
             get_response = requests.get(get_url, headers=headers)
-            
+            logger.info(f"GET response status: {get_response.status_code}")
+            if get_response.status_code != 200:
+                logger.error(f"GET failed: {get_response.text[:200]}")
+
             commit_data = {
                 "message": f"Update glossary terms - {len(terms)} terms",
                 "content": base64.b64encode(file_content.encode('utf-8')).decode('utf-8'),
-                "branch": "version-15"
+                "branch": branch
             }
             
             if get_response.status_code == 200:
@@ -574,8 +602,12 @@ def push_glossary_to_github():
             
             # Push to GitHub
             put_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
+            logger.info(f"PUT URL: {put_url}")
             response = requests.put(put_url, headers=headers, json=commit_data)
-            
+            logger.info(f"PUT response status: {response.status_code}")
+            if response.status_code not in [200, 201]:
+                logger.error(f"PUT failed: {response.text[:300]}")
+
             if response.status_code in [200, 201]:
                 logger.info(f"Successfully pushed glossary to GitHub: {len(terms)} terms")
                 return {

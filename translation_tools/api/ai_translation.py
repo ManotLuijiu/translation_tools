@@ -491,6 +491,8 @@ def push_batch_to_github(file_path, updated_entries):
                 "commit_message": commit_message,
                 "batch_size": len(updated_entries),
                 "details": result,
+                "user_email": result.get("user_email"),
+                "user_name": result.get("user_name"),
             }
 
         return {

@@ -256,6 +256,7 @@ export default function Dashboard({ onTabChange }: DashboardProps = {}) {
               onRefreshFunctionReady={(refreshFn) => {
                 fileExplorerRefreshRef.current = refreshFn;
               }}
+              isActiveTab={activeTab === 'files'}
             />
           </TabsContent>
 

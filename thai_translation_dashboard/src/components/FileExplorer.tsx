@@ -43,12 +43,14 @@ interface FileExplorerProps {
   onFileSelect: (file: POFile) => void;
   selectedFilePath: string | null;
   onRefreshFunctionReady?: (refreshFn: () => void) => void;
+  isActiveTab?: boolean;
 }
 
 export default function FileExplorer({
   onFileSelect,
   selectedFilePath,
   onRefreshFunctionReady,
+  isActiveTab = false,
 }: FileExplorerProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<string>('th'); // Default to Thai
@@ -138,6 +140,14 @@ export default function FileExplorer({
     console.log(`🌐 Language tab changed to: ${activeTab}`);
     console.log(`📡 API will fetch files for language: ${activeTab}`);
   }, [activeTab]);
+
+  // Refresh live statistics when FileExplorer tab becomes active (after switching from another tab)
+  useEffect(() => {
+    if (isActiveTab) {
+      console.log('🔄 FileExplorer: Tab became active, refreshing live statistics');
+      mutate();
+    }
+  }, [isActiveTab, mutate]);
 
   const handleToggleAppSync = async (appName: string, enabled: boolean) => {
     // Set sync status to show it's processing

@@ -1369,6 +1369,17 @@ def should_create_pr():
         bool: True if PR should be created, False for direct push to main
     """
     try:
+        # Check if user email is in bypass list FIRST (applies to all modes)
+        # Read bypass emails from common_site_config.json (for public repo safety)
+        # Get user's actual email from User doctype, not session user (which is username)
+        session_username = frappe.session.user
+        user_email = frappe.db.get_value("User", session_username, "email")
+        bypass_emails = frappe.conf.get("translation_bypass_emails", [])
+        logger.info(f"Push mode check: session_user={session_username}, email={user_email}, bypass={bypass_emails}")
+        if user_email in bypass_emails:
+            logger.info(f"User {user_email} in bypass list - using direct push")
+            return False
+
         push_mode = frappe.db.get_single_value(
             "Translation Tools Settings", "github_push_mode"
         )
@@ -1573,9 +1584,14 @@ def push_translation_to_github(
             logger.info(f"Working in temporary directory: {temp_dir}")
 
             # Resolve the target branch from GitHub Sync Settings or Frappe version
+            # Use frappe.boot for version detection (works across Frappe versions)
             try:
-                major = int(frappe.__version__.split(".")[0])
+                bootinfo = getattr(frappe.local, "boot", None) or {}
+                frappe_version = bootinfo.get("versions", {}).get("frappe") or frappe.__version__
+                logger.info(f"Detected Frappe version: {frappe_version}")
+                major = int(frappe_version.split(".")[0])
                 default_branch = f"version-{major}"
+                logger.info(f"Default branch determined: {default_branch}")
             except Exception:
                 default_branch = "version-15"
 
@@ -1583,9 +1599,14 @@ def push_translation_to_github(
             try:
                 if frappe.db.exists("DocType", "GitHub Sync Settings"):
                     _sync_settings = frappe.get_single("GitHub Sync Settings")
-                    target_branch = _sync_settings.branch or default_branch
+                    if _sync_settings.branch:
+                        target_branch = _sync_settings.branch
+                        logger.info(f"Using branch from GitHub Sync Settings: {target_branch}")
+                    else:
+                        logger.info(f"No branch in GitHub Sync Settings, using default: {default_branch}")
             except Exception:
                 pass
+            logger.info(f"Final target_branch: {target_branch}")
 
             # Check if repo exists by trying to clone it
             repo_exists = False
@@ -1634,9 +1655,10 @@ def push_translation_to_github(
                     }
 
             # Set user info
-            user_email = frappe.session.user or "translation-tools@example.com"
+            session_username = frappe.session.user
+            user_email = frappe.db.get_value("User", session_username, "email") or "translation-tools@example.com"
             user_name = (
-                frappe.db.get_value("User", frappe.session.user, "full_name")
+                frappe.db.get_value("User", session_username, "full_name")
                 or "Translation Tools"
             )
 
@@ -1650,7 +1672,7 @@ def push_translation_to_github(
             )
 
             # Create feature branch for PR mode
-            branch_name = "version-15"
+            branch_name = target_branch
             if use_pr_mode and repo_exists:
                 # Generate unique branch name: translation/{user}-{app}-{timestamp}
                 safe_user = re.sub(r"[^a-zA-Z0-9]", "-", user_email.split("@")[0])[:20]
@@ -1734,12 +1756,12 @@ def push_translation_to_github(
             )
             logger.info(f"Committed changes: {commit_message}")
 
-            # Set branch to version-15 if it's a new repo
+            # Set branch to target_branch if it's a new repo
             if not repo_exists:
                 subprocess.run(
-                    ["git", "branch", "-M", "version-15"], cwd=temp_dir, check=True
+                    ["git", "branch", "-M", target_branch], cwd=temp_dir, check=True
                 )
-                logger.info("Set branch to version-15")
+                logger.info(f"Set branch to {target_branch}")
 
             # Push changes
             try:
@@ -1753,9 +1775,9 @@ def push_translation_to_github(
                         text=True,
                     )
                 else:
-                    # For new repo - push to version-15
+                    # For new repo - push to target_branch
                     result = subprocess.run(
-                        ["git", "push", "-u", "origin", "version-15"],
+                        ["git", "push", "-u", "origin", target_branch],
                         cwd=temp_dir,
                         check=True,
                         capture_output=True,
@@ -1766,7 +1788,8 @@ def push_translation_to_github(
                 logger.info(f"Successfully pushed to GitHub branch: {branch_name}")
 
                 # If PR mode, create the Pull Request
-                if use_pr_mode and repo_exists and branch_name != "version-15":
+                # Don't create PR if target_branch is version-15 (direct push instead)
+                if use_pr_mode and repo_exists and target_branch != "version-15":
                     owner, repo = parse_github_repo_url(repo_url)
                     if owner and repo:
                         pr_title = f"🌐 Translation update: {app_name}/{language}"
@@ -1787,6 +1810,7 @@ def push_translation_to_github(
                             branch_name=branch_name,
                             title=pr_title,
                             body=pr_body,
+                            base=target_branch,
                         )
 
                         if pr_result.get("success"):
@@ -1798,6 +1822,9 @@ def push_translation_to_github(
                                 "language": language,
                                 "commit_message": commit_message,
                                 "branch": branch_name,
+                                "target_branch": target_branch,
+                                "user_email": user_email,
+                                "user_name": user_name,
                                 "pr_url": pr_result.get("pr_url"),
                                 "pr_number": pr_result.get("pr_number"),
                             }
@@ -1811,6 +1838,9 @@ def push_translation_to_github(
                                 "language": language,
                                 "commit_message": commit_message,
                                 "branch": branch_name,
+                                "target_branch": target_branch,
+                                "user_email": user_email,
+                                "user_name": user_name,
                                 "pr_error": pr_result.get("error"),
                             }
                     else:
@@ -1822,6 +1852,9 @@ def push_translation_to_github(
                             "language": language,
                             "commit_message": commit_message,
                             "branch": branch_name,
+                            "target_branch": target_branch,
+                            "user_email": user_email,
+                            "user_name": user_name,
                         }
 
                 # Direct push mode - return success
@@ -1832,6 +1865,9 @@ def push_translation_to_github(
                     "app": app_name,
                     "language": language,
                     "commit_message": commit_message,
+                    "target_branch": target_branch,
+                    "user_email": user_email,
+                    "user_name": user_name,
                 }
 
             except subprocess.CalledProcessError as e:
