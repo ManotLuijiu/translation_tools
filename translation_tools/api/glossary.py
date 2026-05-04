@@ -1,3 +1,4 @@
+import html
 import json
 
 import frappe
@@ -329,7 +330,19 @@ def add_glossary_term(term, push_to_github=False):
 
     doc.is_approved = cint(term_data.is_approved)  # type: ignore
 
-    doc.insert()
+    try:
+        doc.insert()
+    except frappe.model.naming.InvalidNamingSeriesError as e:
+        return {
+            "success": False,
+            "message": html.escape(str(e)),
+            "exc_type": "InvalidNamingSeriesError",
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "message": str(e),
+        }
     frappe.db.commit()
 
     # Push to GitHub if requested
