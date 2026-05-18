@@ -81,8 +81,8 @@ bench --site <site> execute \
   translation_tools.utils.migration_translations.run_translation_commands_after_migrate
 
 # Specific app/locale:
-bench --site <site> update-app-translations --app thai_business_suite --locale th
-bench --site <site> update-app-translations --app inpac_pharma --locale th
+bench --site <site> update-app-translations --app {app_name} --locale th
+bench --site <site> update-app-translations --app {app_name} --locale th
 
 # List apps with translation support:
 bench --site <site> list-translatable-apps
@@ -91,6 +91,129 @@ bench --site <site> list-translatable-apps
 **When to run**: after adding new Python/JS/JSX strings, after pulling new code with new UI text, or before a production release.
 
 ---
+
+## SPA Translation Workflow (React/TypeScript)
+
+Since Frappe's standard translation system only extracts from Python files, translation_tools provides SPA support for React/TypeScript (.tsx/.jsx) files.
+
+
+### Understanding the Translation Files
+
+| File Type | Purpose | Location |
+|-----------|---------|----------|
+| `.csv` | Source strings extracted from SPA | `apps/{app}/{app}/translations/` |
+| `.pot` | POT template (Python only) | `apps/{app}/{app}/locale/` |
+| `.po` | Merged translations | `apps/{app}/{app}/locale/` |
+| `.mo` | Compiled runtime | `sites/assets/locale/{locale}/LC_MESSAGES/` |
+
+### The Gap: Frappe Standard vs SPA
+
+Frappe's `migrate-csv-to-po` only copies strings that exist in `.pot` file. Since Frappe's extractor (Babel) only scans Python files, SPA strings in `.csv` are **skipped**.
+
+```
+th.csv has:    "Apply" → "ใช้"
+main.pot has:  ❌ "Apply" not found (SPA string)
+Result:        ❌ SKIPPED by standard migrate-csv-to-po
+```
+
+
+### Solution: Custom Bench Commands
+
+translation_tools provides custom commands to bridge this gap:
+
+| Command | Purpose |
+|---------|---------|
+| `bench gen-po` | Full workflow: CSV + POT + PO + MO |
+| `bench migrate-csv-to-po-spa` | CSV → PO (SPA-aware, includes ALL CSV entries) |
+| `bench compile-mo-files` | PO → MO only |
+
+
+### Usage
+
+#### Full workflow (recommended after code changes)
+
+```bash
+# Extract SPA strings to CSV, then CSV → PO → MO for all custom apps
+bench gen-po --site <site_name>
+
+# Specific app
+bench gen-po --site <site_name> --app {app_name}
+```
+
+#### CSV already exists (Thai team already translated)
+
+```bash
+# Skip CSV extraction (use existing CSV from GitHub), only PO → MO
+bench gen-po --site <site_name> --app {app_name} --skip-csv
+```
+
+#### Manual commands (if needed)
+
+```bash
+# Step 1: Extract SPA strings to CSV (overwrites existing CSV)
+bench gen-po --app {app_name}
+
+# Step 2: CSV → PO (SPA-aware, includes all CSV entries)
+bench migrate-csv-to-po-spa --app {app_name} --locale th
+
+# Step 3: Compile PO → MO for runtime
+bench compile-mo-files --app {app_name} --locale th
+```
+
+### How CSV Extraction Works
+
+The SPA extractor scans `.tsx/.jsx/.ts` files for patterns:
+
+```tsx
+// Pattern 1: JSX text content
+<Label>Apply</Label>
+
+// Pattern 2: Props
+<FormInput label="Personal Expenses" />
+
+// Pattern 3: Translation wrapper
+{__("Total Monthly Obligations")}
+```
+
+Extracts to `translations/th.csv`:
+
+```csv
+"Apply","ใช้",""
+"Personal Expenses","ค่าใช้จ่ายส่วนตัว",""
+"Total Monthly Obligations","ยอดรวมค่าใช้จ่ายรายเดือน",""
+```
+
+### Best Practices
+
+1. **Commit CSV to GitHub** - CSV is versioned, so Thai team can edit and commit translations
+2. **GitHub backup** - If CSV gets overwritten, simply `git checkout` to restore
+3. **Git diff** - See exactly what strings changed/added after `gen-po`
+4. **Run before release** - Always run `gen-po` before production deployment to capture new strings
+
+### Troubleshooting
+
+#### Command not found: migrate-csv-to-po-spa
+
+```bash
+# Clear bench cache and retry
+bench clear-cache
+bench migrate-csv-to-po-spa --help
+```
+
+#### CSV strings not in PO
+
+Ensure you're using `migrate-csv-to-po-spa` (not the standard `migrate-csv-to-po`).
+
+```bash
+# Check if string exists in CSV
+grep "Apply" apps/{app_name}/{app_name}/translations/th.csv
+
+# Check if string exists in PO (should be there after migrate-csv-to-po-spa)
+grep "Apply" apps/{app_name}/{app_name}/locale/th.po
+```
+
+---
+
 
 ### Command Line Usage
 
