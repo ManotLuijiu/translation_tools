@@ -9,3 +9,4 @@ from .compile_mo_files import *
 from .update_translations import *
 from .cleanup_translations import cleanup_non_asean_translations
 from .gen_po import *  # Generate PO files command
+from .migrate_csv_with_spa import *  # CSV to PO migration with SPA support
