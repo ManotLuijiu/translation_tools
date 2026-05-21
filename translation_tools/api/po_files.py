@@ -1671,6 +1671,25 @@ def push_translation_to_github(
                 ["git", "config", "user.name", str(user_name)], cwd=temp_dir, check=True
             )
 
+            # 2-WAY SYNC: Pull latest changes before pushing (prevents data loss)
+            # This ensures we don't overwrite remote changes with our local copy
+            if repo_exists:
+                try:
+                    logger.info("Pulling latest changes from remote (2-way sync)...")
+                    pull_result = subprocess.run(
+                        ["git", "pull", "--rebase", "origin", target_branch],
+                        cwd=temp_dir,
+                        capture_output=True,
+                        text=True,
+                    )
+                    if pull_result.returncode == 0:
+                        logger.info("Successfully pulled latest changes from remote")
+                    else:
+                        # Log but don't fail - there might be nothing to pull
+                        logger.warning(f"Pull warning (non-fatal): {pull_result.stderr}")
+                except Exception as pull_err:
+                    logger.warning(f"Could not pull from remote (continuing anyway): {pull_err}")
+
             # Create feature branch for PR mode
             branch_name = target_branch
             if use_pr_mode and repo_exists:

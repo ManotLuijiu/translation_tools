@@ -14,7 +14,7 @@ def run_translation_commands_after_migrate():
     3. Deletes existing main.pot files (Frappe doesn't update existing POT files)
     4. Runs all 4 translation commands:
        - bench generate-pot-file --app {app}
-       - bench migrate-csv-to-po-spa --app {app} --locale {locale}
+       - bench migrate-csv-to-po --app {app} --locale {locale}
        - bench update-po-files --app {app} --locale {locale}
        - bench compile-po-to-mo --app {app} --locale {locale} --force
          (--force ensures MO files are always recompiled even if PO didn't change)
@@ -101,7 +101,7 @@ def run_translation_commands_after_migrate():
                     # Run translation commands for each locale
                     commands = [
                         f"bench generate-pot-file --app {app}",
-                        f"bench migrate-csv-to-po-spa --app {app} --locale {locale}",
+                        f"bench migrate-csv-to-po --app {app} --locale {locale}",
                         f"bench update-po-files --app {app} --locale {locale}",
                         f"bench compile-po-to-mo --app {app} --locale {locale} --force"
                     ]
@@ -183,7 +183,7 @@ def run_full_translation_setup():
                     # Run translation commands for each locale
                     commands = [
                         f"bench generate-pot-file --app {app}",
-                        f"bench migrate-csv-to-po-spa --app {app} --locale {locale}",
+                        f"bench migrate-csv-to-po --app {app} --locale {locale}",
                         f"bench update-po-files --app {app} --locale {locale}",
                         f"bench compile-po-to-mo --app {app} --locale {locale} --force"
                     ]
@@ -289,7 +289,7 @@ def run_translation_commands_for_single_app(app_name, locale="th"):
     
     commands = [
         f"bench generate-pot-file --app {app_name}",
-        f"bench migrate-csv-to-po-spa --app {app_name} --locale {locale}",
+        f"bench migrate-csv-to-po --app {app_name} --locale {locale}",
         f"bench update-po-files --app {app_name} --locale {locale}",
         f"bench compile-po-to-mo --app {app_name} --locale {locale} --force"
     ]

@@ -127,7 +127,7 @@ def migrate_csv_to_po_with_spa(app: str, locale: str, silent: bool = False):
 	return added_count, updated_count, skipped_count
 
 
-def migrate_all_custom_apps(languages=None):
+def migrate_all_custom_apps(site=None, languages=None):
 	"""
 	Migrate CSV to PO for all custom apps with SPA support.
 
@@ -135,12 +135,26 @@ def migrate_all_custom_apps(languages=None):
 	across all ASEAN languages.
 
 	Args:
+		site: Site name to use for Frappe initialization
 		languages: List of language codes to migrate. If None, migrates all ASEAN languages.
 	"""
 	from translation_tools.overrides.translate import is_custom_app, ASEAN_LOCALES
 
-	# Get all installed apps
-	all_apps = frappe.get_all_apps()
+	# Initialize frappe if not already done
+	if not frappe.local.site:
+		if site:
+			frappe.init(site=site)
+			frappe.connect()
+		else:
+			# Get apps from filesystem instead
+			import os
+			apps_path = os.path.join(frappe.get_app_path(".."), "..", "..")
+			all_apps = [d for d in os.listdir(apps_path) 
+						if os.path.isdir(os.path.join(apps_path, d)) 
+						and os.path.exists(os.path.join(apps_path, d, d, "__init__.py"))]
+	else:
+		# Get all installed apps via Frappe
+		all_apps = frappe.get_all_apps()
 
 	# Filter to custom apps
 	custom_apps = [app for app in all_apps if is_custom_app(app)]

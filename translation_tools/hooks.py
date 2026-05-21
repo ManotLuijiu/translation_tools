@@ -31,6 +31,16 @@ modules = {
     }
 }
 
+add_to_apps_screen = [
+    {
+        "name": "translation_tools",
+        "logo": "/assets/translation_tools/images/icons/translation-svgrepo-com.svg",
+        "title": "ASEAN Translation Tools",
+        "route": "/desk/translation-tools",
+        # "has_permission": "inpac_pharma.api.permission.has_app_permission"
+    }
+]
+
 # Desk page configuration removed - redundant with desk_page definition below
 
 # Boot session for client-side data injection

@@ -5,8 +5,17 @@
 from translation_tools.overrides import setup_translation_override
 setup_translation_override()
 
-from .compile_mo_files import *
-from .update_translations import *
+# Import sub-modules and collect their commands lists
+from . import compile_mo_files
+from . import update_translations
+from . import gen_po
+from . import migrate_csv_with_spa
 from .cleanup_translations import cleanup_non_asean_translations
-from .gen_po import *  # Generate PO files command
-from .migrate_csv_with_spa import *  # CSV to PO migration with SPA support
+
+# Aggregate ALL command lists from sub-modules
+commands = (
+    compile_mo_files.commands
+    + update_translations.commands
+    + gen_po.commands
+    + migrate_csv_with_spa.commands
+)
