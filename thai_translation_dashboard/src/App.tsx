@@ -150,7 +150,7 @@ const App: React.FC = () => {
               setCurrentTab={setCurrentTab}
             />
 
-            <Toaster />
+            <Toaster position='top-right' />
           </SidebarProvider>
         </AutoSaveProvider>
       </BrowserRouter>
