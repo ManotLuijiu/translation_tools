@@ -150,7 +150,10 @@ const App: React.FC = () => {
               setCurrentTab={setCurrentTab}
             />
 
-            <Toaster position='top-right' />
+            <Toaster position='top-right' style={{
+              backgroundColor: "green",
+              color: "black"
+            }} className='bg-green-100 dark:bg-green-200 text-gray-900' />
           </SidebarProvider>
         </AutoSaveProvider>
       </BrowserRouter>
