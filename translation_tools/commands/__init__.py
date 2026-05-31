@@ -10,6 +10,7 @@ from . import compile_mo_files
 from . import update_translations
 from . import gen_po
 from . import migrate_csv_with_spa
+from . import sync_desktop_icon
 from .cleanup_translations import cleanup_non_asean_translations
 
 # Aggregate ALL command lists from sub-modules
@@ -18,4 +19,5 @@ commands = (
     + update_translations.commands
     + gen_po.commands
     + migrate_csv_with_spa.commands
+    + sync_desktop_icon.commands
 )

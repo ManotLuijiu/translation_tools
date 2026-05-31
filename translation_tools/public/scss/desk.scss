@@ -1,0 +1,32 @@
+// ============================================
+// Desk Page Overrides
+// ============================================
+// Override Frappe desk styles for desktop icons
+// Fixes label overflow for long app names
+
+// Desktop Icon label truncation fix
+.desktop-icon {
+    .icon-caption {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .icon-title {
+        max-width: 100%;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+// Allow icon container to shrink for proper text truncation
+.icon-container {
+    flex-shrink: 0;
+}
+
+// Ensure text doesn't push container width
+.icon-caption {
+    flex-shrink: 1;
+    min-width: 0;
+}

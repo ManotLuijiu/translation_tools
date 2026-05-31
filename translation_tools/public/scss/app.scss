@@ -1,25 +1,149 @@
+// ============================================================================
+// Sidebar Controls - Language & Theme Dropdowns
+// ============================================================================
 .bunchee-sidebar-controls {
     display: flex;
-    align-items: center;
-    justify-content: space-evenly;
-  }
-  
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color);
+    overflow: visible !important;
+
+    .dropdown { width: 100%; }
+
+    .nav-link {
+        width: 100%;
+        padding: 6px 8px;
+        border-radius: 6px;
+        transition: background-color 0.15s ease;
+        overflow: visible;
+
+        &:hover { background-color: var(--sidebar-hover-color); }
+        &::after { margin-left: auto; }
+    }
+
+    .dropdown-menu {
+        width: 100%;
+        padding: 4px 0;
+        border-radius: 6px;
+        box-shadow: var(--shadow-lg);
+    }
+}
+
+.bunchee-lang-trigger,
 .bunchee-theme-trigger {
     gap: 2px;
-  }
+    overflow: visible;
+}
 
-.bunchee-lang-trigger {
-    gap: 2px;
-  }
-  
+.bunchee-lang-icon,
 .bunchee-theme-icon {
     margin-right: 6px;
-    align-items: center;
     display: flex;
-  }
+    align-items: center;
+    flex-shrink: 0;
 
-.bunchee-lang-icon {
-    margin-right: 6px;
-    align-items: center;
-    display: flex;
-  }
+    .icon { width: 16px; height: 16px; }
+}
+
+// ============================================================================
+// MINIMIZED SIDEBAR: Show icons only, hide text labels
+// ============================================================================
+.body-sidebar.collapsed,
+.sidebar-collapsed {
+    .bunchee-sidebar-controls {
+        .bunchee-lang-label,
+        .bunchee-theme-label {
+            display: none !important;
+        }
+
+        .bunchee-lang-trigger,
+        .bunchee-theme-trigger {
+            justify-content: center;
+            padding: 8px;
+        }
+
+        .bunchee-lang-icon,
+        .bunchee-theme-icon {
+            margin-right: 0;
+        }
+    }
+
+    .bunchee-user-info {
+        display: none !important;
+    }
+}
+
+// ============================================================================
+// User Dropdown Menu
+// ============================================================================
+.dropdown-navbar-user-wrapper {
+    width: 100%;
+    position: relative;
+
+    .bunchee-user-dropdown-toggle {
+        width: 100%;
+        min-height: 40px;
+        padding: 6px 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+
+        &:hover { background-color: var(--sidebar-hover-color); }
+        &::after { display: none; }
+    }
+
+    .bunchee-user-avatar {
+        flex-shrink: 0;
+        .avatar { margin-right: 0; }
+    }
+
+    .bunchee-user-info {
+        width: calc(100% - 40px);
+        transition: opacity 0.2s ease;
+    }
+}
+
+// User dropdown menu styling
+.bunchee-user-menu {
+    width: 220px;
+    padding: 8px 0;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+
+    .bunchee-user-menu-header { padding: 8px 12px; }
+
+    .dropdown-item {
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        font-size: var(--text-sm);
+        color: var(--text-color);
+        transition: background-color 0.15s ease;
+
+        &:hover {
+            background-color: var(--sidebar-hover-color);
+            color: var(--text-color);
+        }
+
+        &.text-danger {
+            color: var(--red-600);
+            &:hover { background-color: var(--red-50); color: var(--red-700); }
+        }
+
+        .icon { width: 14px; height: 14px; flex-shrink: 0; }
+    }
+
+    .dropdown-divider { margin: 4px 0; border-color: var(--border-color); }
+}
+
+// ============================================================================
+// Always show sidebar toggle button on ALL screen sizes
+// ============================================================================
+@media (min-width: 992px) {
+    .page-title .sidebar-toggle-btn {
+        display: flex !important;
+    }
+}

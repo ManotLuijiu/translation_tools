@@ -43,6 +43,149 @@ bench get-app https://github.com/ManotLuijiu/translation_tools.git
 bench --site your-site.local install-app translation_tools
 ```
 
+### Updating Desktop Icon After Installation
+
+The app's desktop icon configuration in `hooks.py` is read **only once** during installation. If you later update `add_to_apps_screen` settings (logo, title, route), the desktop icon won't automatically reflect those changes.
+
+#### Using the Sync Command
+
+```bash
+# Check what would change (dry-run mode)
+bench --site your-site.local sync-app-desktop-icon --app translation_tools --check
+
+# Apply changes to match hooks.py
+bench --site your-site.local sync-app-desktop-icon --app translation_tools
+
+# Force delete and recreate from hooks.py
+bench --site your-site.local sync-app-desktop-icon --app translation_tools --force
+```
+
+The command compares:
+- `logo` from `add_to_apps_screen` → `logo_url` in DB
+- `title` from `add_to_apps_screen` → `label` in DB
+- `route` from `add_to_apps_screen` → `link` in DB
+
+#### Manual Update (Alternative)
+
+If the command is unavailable, update directly:
+
+```bash
+# Update logo
+bench --site your-site.local execute \
+  "frappe.db.set_value('Desktop Icon', 'Translation Tools', 'logo_url', '/assets/translation_tools/images/icons/icon.svg')"
+
+# Update route
+bench --site your-site.local execute \
+  "frappe.db.set_value('Desktop Icon', 'Translation Tools', 'link', '/desk/translation-tools')"
+
+# Clear cache to see changes
+bench --site your-site.local clear-cache
+```
+
+### ⚠️ Important: `name` and `title` Must Match Workspace Name
+
+The `name` and `title` in `add_to_apps_screen` **must match** the `name` field in Workspace Sidebar. This is because Frappe uses `title.lower()` as the lookup key.
+
+**Correct `add_to_apps_screen` config in `hooks.py`:**
+```python
+add_to_apps_screen = [
+    {
+        "name": "translation_tools",                              # Must match Workspace name
+        "logo": "/assets/translation_tools/images/icons/translation-svgrepo-com.svg",
+        "title": "Translation Tools",                             # Must match Workspace name
+        "route": "/desk/translation-tools",
+        # "has_permission": "inpac_pharma.api.permission.has_app_permission"
+    }
+]
+```
+
+### ⚠️ Dead Code: `modules` Dict is NOT a Valid Hook
+
+You may see a `modules` dict in `hooks.py` from boilerplate templates:
+
+```python
+# ❌ DO NOT USE - This is dead code, NOT a valid Frappe hook
+modules = {
+    "Translation Tools": {
+        "color": "blue",
+        "icon": "/assets/translation_tools/images/translation_icon.svg",
+        "type": "module",
+        "label": "Translation Tools",
+    }
+}
+```
+
+**Why it's dead:**
+- Frappe does NOT call `get_hooks("modules")`
+- `bootinfo.modules` is NOT populated from this
+- No JS code reads `frappe.boot.modules`
+
+**What to use instead:**
+| Instead of | Use |
+|------------|-----|
+| `modules[].color` | `app_color` or `desk_page[].color` |
+| `modules[].icon` | `app_icon` or `desk_page[].icon` |
+| `modules[].label` | `add_to_apps_screen[].title` |
+
+**Action:** Remove the `modules` dict from your `hooks.py` - it's unused and causes confusion.
+
+### ⚠️ Dead Code: `config/desktop.py` and `desktop/config.py`
+
+Both files are **boilerplate orphans** - NOT used by Frappe v15+:
+
+```
+translation_tools/config/desktop.py      # Created Jan 24 - NEVER used
+translation_tools/desktop/config.py     # Created May 5 - NEVER used
+```
+
+**Why they're dead:**
+- Frappe does NOT call these files
+- No `get_hooks()` references them
+- No JS/Python code imports them
+- Never modified since creation (git shows no history)
+
+**What they were for (v14):**
+| File | Was Used For |
+|------|-------------|
+| `config/desktop.py` | Old module listing system |
+| `desktop/config.py` | Old app listing system |
+
+**What to use instead:**
+| Instead of | Use |
+|------------|-----|
+| `config/desktop.py` | `add_to_apps_screen` in hooks.py |
+| `desktop/config.py` | `desk_page` in hooks.py |
+
+**Action:** Delete these files to reduce confusion:
+
+```bash
+rm translation_tools/config/desktop.py
+rm translation_tools/desktop/config.py
+rm -rf translation_tools/desktop/  # if empty
+```
+
+### ⚠️ Critical: `name` and `title` must both equal the Workspace name
+
+- `"name": "Translation Tools"` → matches `Workspace.name`
+- `"title": "Translation Tools"` → used for lookup key `"translation tools"`
+
+**Example of broken config (icon will be hidden):**
+```
+add_to_apps_screen.title = "ASEAN Translation Tools"  → lookup key: "asean translation tools"
+Workspace.name = "Translation Tools"                  → stored under: "translation tools"
+                                                               ↓
+                                                      KeyError → icon hidden!
+```
+
+**Fix if broken:**
+```sql
+-- Update Desktop Icon label to match Workspace name
+UPDATE `tabDesktop Icon` SET label = 'Translation Tools' WHERE name = 'Translation Tools';
+
+-- Update Workspace Sidebar title if different
+UPDATE `tabWorkspace Sidebar` SET title = 'Translation Tools' WHERE name = 'Translation Tools';
+```
+
 ### Using the Dashboard
 
 After installation, you can access the Translation Dashboard from the ERPNext desktop:
@@ -445,6 +588,43 @@ bench get-app https://github.com/ManotLuijiu/translation_tools.git
 
 # ติดตั้งแอปบนไซต์ของคุณ
 bench --site your-site.local install-app translation_tools
+```
+
+### การอัปเดตไอคอนเดสก์ท็อปหลังการติดตั้ง
+
+การตั้งค่าไอคอนเดสก์ท็อปใน `hooks.py` จะถูกอ่าน **เพียงครั้งเดียว** ระหว่างการติดตั้ง หากคุณอัปเดตการตั้งค่า `add_to_apps_screen` (โลโก้, ชื่อ, เส้นทาง) ในภายหลัง ไอคอนเดสก์ท็อปจะไม่อัปเดตโดยอัตโนมัติ
+
+#### ใช้คำสั่ง Sync
+
+```bash
+# ตรวจสอบว่าจะเปลี่ยนแปลงอะไร (โหมด dry-run)
+bench --site your-site.local sync-app-desktop-icon --app translation_tools --check
+
+# อัปเดตให้ตรงกับ hooks.py
+bench --site your-site.local sync-app-desktop-icon --app translation_tools
+
+# บังคับลบและสร้างใหม่จาก hooks.py
+bench --site your-site.local sync-app-desktop-icon --app translation_tools --force
+```
+
+คำสั่งจะเปรียบเทียบ:
+- `logo` จาก `add_to_apps_screen` → `logo_url` ในฐานข้อมูล
+- `title` จาก `add_to_apps_screen` → `label` ในฐานข้อมูล
+- `route` จาก `add_to_apps_screen` → `link` ในฐานข้อมูล
+
+#### การอัปเดตด้วยตนเอง (ทางเลือก)
+
+```bash
+# อัปเดตโลโก้
+bench --site your-site.local execute \
+  "frappe.db.set_value('Desktop Icon', 'Translation Tools', 'logo_url', '/assets/translation_tools/images/icons/icon.svg')"
+
+# อัปเดตเส้นทาง
+bench --site your-site.local execute \
+  "frappe.db.set_value('Desktop Icon', 'Translation Tools', 'link', '/desk/translation-tools')"
+
+# ล้างแคชเพื่อดูการเปลี่ยนแปลง
+bench --site your-site.local clear-cache
 ```
 
 ### การใช้แดชบอร์ด

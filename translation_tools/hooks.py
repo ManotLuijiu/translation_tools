@@ -22,20 +22,20 @@ required_apps = ["print_designer"]
 
 # Modules Definition
 # -----------------
-modules = {
-    "Translation Tools": {
-        "color": "blue",
-        "icon": "/assets/translation_tools/images/translation_icon.svg",  # Consistent absolute path
-        "type": "module",
-        "label": "Translation Tools",
-    }
-}
+# modules = {
+#     "Translation Tools": {
+#         "color": "blue",
+#         "icon": "/assets/translation_tools/images/translation_icon.svg",  # Consistent absolute path
+#         "type": "module",
+#         "label": "Translation Tools",
+#     }
+# }
 
 add_to_apps_screen = [
     {
         "name": "translation_tools",
         "logo": "/assets/translation_tools/images/icons/translation-svgrepo-com.svg",
-        "title": "ASEAN Translation Tools",
+        "title": "Translation Tools",
         "route": "/desk/translation-tools",
         # "has_permission": "inpac_pharma.api.permission.has_app_permission"
     }
@@ -85,6 +85,7 @@ commands = [
     "translation_tools.commands.update_translations",
     "translation_tools.commands.migrate_csv_with_spa",  # CSV to PO migration with SPA support
     "translation_tools.commands.gen_po",  # Generate PO files for custom apps
+    "translation_tools.commands.sync_desktop_icon",  # Sync App Desktop Icon with hooks.py
 ]
 
 website_route_rules = [
