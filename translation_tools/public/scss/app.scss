@@ -19,19 +19,133 @@
         transition: background-color 0.15s ease;
         overflow: visible;
 
-        &:hover { background-color: var(--sidebar-hover-color); }
+        &:hover { background-color: unset; }
         &::after { margin-left: auto; }
     }
 
     .dropdown-menu {
         width: 100%;
-        padding: 4px 0;
-        border-radius: 6px;
+        padding: 4px;
+        border-radius: 8px;
         box-shadow: var(--shadow-lg);
+        background-color: var(--bg-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
     }
 
-    .dropdown-menu a {
-        color: var(--fg-color);
+    #theme__items__dropdown__menu.dropdown-menu {
+        width: 100%;
+        padding: 4px;
+        border-radius: 8px;
+        box-shadow: var(--shadow-lg);
+        background-color: var(--bg-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+    }
+
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        color: unset;
+        background-color: transparent;
+        transition: background-color 0.15s ease, color 0.15s ease;
+
+        // Defensive: ensure spans inside also inherit the correct color
+        > span { color: inherit; }
+
+        &:hover,
+        &:focus {
+            background-color: unset;
+            color: unset;
+            text-decoration: none;
+        }
+
+        // CRITICAL: Override Frappe's `.dropdown-item.active { color: var(--fg-color) }`
+        // which makes active items invisible (text = background). Force a contrasting color.
+        &.active,
+        &:active {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .dropdown-item-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            color: var(--primary-color);
+
+            .icon { width: 14px; height: 14px; }
+        }
+
+        #theme__items__dropdown__menu .dropdown-item[data-theme="dark"] .dropdown-item-label {
+            color: var(--text-color);
+        }
+
+        .dropdown-item[data-theme="light"] .dropdown-item-label {
+            color: var(--gray-700);
+        }
+
+        .dropdown-item-spacer {
+            display: inline-block;
+            width: 14px;
+            flex-shrink: 0;
+        }
+    }
+}
+
+// ============================================================================
+// Theme-aware overrides for the sidebar dropdowns
+// <html data-theme="..."> is set by frappe.ui.set_theme()
+// <html data-theme-mode="..."> is set by switch_theme() in language_toggle.js
+// Both selectors are needed because Frappe v15 may only set data-theme.
+// ============================================================================
+html[data-theme="dark"] .bunchee-sidebar-controls .dropdown-menu,
+html[data-theme-mode="dark"] .bunchee-sidebar-controls .dropdown-menu {
+    background-color: var(--fg-color);
+    border-color: var(--dark-border-color);
+    color: var(--text-color);
+
+    .dropdown-item {
+        color: var(--text-color);
+
+        &:hover,
+        &:focus {
+            background-color: unset;
+            color: var(--text-color);
+        }
+
+        // Override Frappe's default `.dropdown-item.active { color: var(--fg-color) }`
+        // which would render the active item invisible (text === background).
+        &.active,
+        &:active {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+    }
+}
+
+// Auto mode: follow OS color-scheme when no explicit data-theme-mode is applied
+@media (prefers-color-scheme: dark) {
+    html[data-theme-mode="automatic"] .bunchee-sidebar-controls .dropdown-menu {
+        background-color: var(--fg-color);
+        border-color: var(--dark-border-color);
+
+        .dropdown-item {
+            color: var(--text-color);
+        }
+
+        .dropdown-item.active,
+        .dropdown-item:active {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
     }
 }
 
@@ -108,7 +222,7 @@
         cursor: pointer;
         transition: background-color 0.15s ease;
 
-        &:hover { background-color: var(--sidebar-hover-color); }
+        &:hover { background-color: unset; }
         &::after { display: none; }
     }
 
@@ -142,7 +256,7 @@
         transition: background-color 0.15s ease;
 
         &:hover {
-            background-color: var(--sidebar-hover-color);
+            background-color: unset;
             color: var(--text-color);
         }
 

@@ -16,7 +16,7 @@ frappe.ui.language_toggle = class LanguageToggle {
         : 'en';
 
     const frappe_ver_str = frappe.boot.versions?.frappe || '15.0.0';
-    this.frappe_major = parseInt(frappe_ver_str.split('.')[0], 10);
+    this.frappe_major = Number.parseInt(frappe_ver_str.split('.')[0], 10);
   }
 
   get_current_theme() {
@@ -114,7 +114,13 @@ frappe.ui.language_toggle = class LanguageToggle {
     const theme_items = theme_options
       .map(({ key, label }) => {
         const active = current_theme === key ? 'active' : '';
-        return `<a href="#" data-theme="${key}" class="dropdown-item ${active}">${label}</a>`;
+        const icon_html = active
+          ? '<span class="dropdown-item-icon"><svg class="icon icon-xs"><use href="#icon-check"></use></svg></span>'
+          : '<span class="dropdown-item-spacer"></span>';
+        return `<a href="#" data-theme="${key}" class="dropdown-item ${active}">
+          ${icon_html}
+          <span class="dropdown-item-label">${label}</span>
+        </a>`;
       })
       .join('');
 
@@ -145,7 +151,7 @@ frappe.ui.language_toggle = class LanguageToggle {
             <span class="bunchee-theme-icon">${theme_icon}</span>
             <span class="bunchee-theme-label sidebar-item-label">${theme_label}</span>
           </a>
-          <div class="dropdown-menu">
+          <div id="theme__items__dropdown__menu" class="dropdown-menu">
             ${theme_items}
           </div>
         </div>
@@ -220,13 +226,30 @@ frappe.ui.language_toggle = class LanguageToggle {
     const new_icon = `<svg class="icon icon-sm"><use href="#icon-${chosen.icon}"></use></svg>`;
     $('.bunchee-theme-icon').html(new_icon);
 
-    // Mark active item
-    $('.bunchee-sidebar-controls .dropdown-item[data-theme]').removeClass('active');
-    $(`.bunchee-sidebar-controls .dropdown-item[data-theme="${theme}"]`).addClass('active');
+    // Refresh theme dropdown items: update both .active class AND the icon
+    // (icon was rendered only at init, so without this the tick stays on the initial choice)
+    this.refresh_theme_items(theme);
 
     // Persist via Frappe API
     frappe.xcall('frappe.core.doctype.user.user.switch_theme', {
       theme: theme.charAt(0).toUpperCase() + theme.slice(1),
+    });
+  }
+
+  // Refresh the .active class and the leading icon on each theme dropdown item.
+  refresh_theme_items(current_theme) {
+    const check_icon =
+      '<span class="dropdown-item-icon"><svg class="icon icon-xs"><use href="#icon-check"></use></svg></span>';
+    const spacer = '<span class="dropdown-item-spacer"></span>';
+    $('.bunchee-sidebar-controls .dropdown-item[data-theme]').each((_, el) => {
+      const $el = $(el);
+      const key = $el.data('theme');
+      const is_active = key === current_theme;
+      $el.toggleClass('active', is_active);
+      // Replace whichever leading slot element exists (icon OR spacer) with the right one.
+      $el.find('.dropdown-item-icon, .dropdown-item-spacer').first().replaceWith(
+        is_active ? check_icon : spacer
+      );
     });
   }
 };
@@ -269,7 +292,7 @@ frappe.ui.language_toggle = class LanguageToggle {
   if (document.readyState === 'complete') {
     setTimeout(injectControls, 2000);
   } else {
-    $(window).on('load', function() {
+    $(window).on('load', () => {
       setTimeout(injectControls, 2000);
     });
   }
