@@ -29,6 +29,10 @@
         border-radius: 6px;
         box-shadow: var(--shadow-lg);
     }
+
+    .dropdown-menu a {
+        color: var(--fg-color);
+    }
 }
 
 .bunchee-lang-trigger,
@@ -50,9 +54,14 @@
 // ============================================================================
 // MINIMIZED SIDEBAR: Show icons only, hide text labels
 // ============================================================================
-.body-sidebar.collapsed,
-.sidebar-collapsed {
+.body-sidebar-container:not(.expanded) {
     .bunchee-sidebar-controls {
+        align-items: center;
+
+        .dropdown {
+            width: auto;
+        }
+
         .bunchee-lang-label,
         .bunchee-theme-label {
             display: none !important;
@@ -61,12 +70,21 @@
         .bunchee-lang-trigger,
         .bunchee-theme-trigger {
             justify-content: center;
+            width: 32px;
+            height: 32px;
             padding: 8px;
+
+            &::after { display: none; }
         }
 
         .bunchee-lang-icon,
         .bunchee-theme-icon {
             margin-right: 0;
+        }
+
+        .dropdown-menu {
+            width: max-content;
+            min-width: 10rem;
         }
     }
 

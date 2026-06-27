@@ -1,0 +1,88 @@
+# ─────────────────────────────────────────────────────────────────────
+# .dockerignore — files NOT copied into Docker build context
+# (shared template for all ManotLuijiu Frappe apps)
+# ─────────────────────────────────────────────────────────────────────
+
+# Git metadata (re-cloned in stage 1)
+.git
+.gitignore
+.gitattributes
+.github
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Node (for frontend)
+node_modules
+**/node_modules
+.npm
+.eslintcache
+.parcel-cache
+.next
+dist
+
+# Virtualenvs / build artifacts
+.venv
+venv
+*.egg-info
+build
+dist
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# IDE / OS
+.idea
+.vscode
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Tests (not needed at runtime — slimmer image)
+tests
+**/test_*.py
+**/*_test.py
+
+# Docs & planning artifacts (regenerate from repo)
+README.md
+CHANGELOG.md
+DESIGN.md
+CODECHANGE.md
+context.md
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
+harness
+scripts
+graphify-out
+Documentation
+
+# Binary artifacts (skip unless explicitly needed)
+*.png
+*.jpg
+*.gif
+*.pdf
+*.tgz
+*.gz
+*.tar
+*.zip
+
+# Editor / IDE specifics
+*.iml
+*.sublime-project
+*.sublime-workspace
+
+# Docker artifacts (avoid recursion)
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml

@@ -46,7 +46,7 @@ frappe.ui.language_toggle = class LanguageToggle {
     // Build user dropdown HTML
     const user_dropdown_html = `
       <div class="dropdown-navbar-user-wrapper">
-        <a class="align-center btn-reset flex nav-link sidebar-user-button bunchee-user-dropdown-toggle"
+        <a class="align-center justify-content-center btn-reset flex nav-link sidebar-user-button bunchee-user-dropdown-toggle"
            data-toggle="dropdown"
            href="#"
            aria-label="${__('User Menu')}">
