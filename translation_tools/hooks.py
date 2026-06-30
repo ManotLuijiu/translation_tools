@@ -1,5 +1,3 @@
-from . import __version__ as app_version
-from frappe import __version__ as frappe_version
 from frappe import _
 
 app_name = "translation_tools"
@@ -8,7 +6,7 @@ app_publisher = "Manot Luijiu"
 app_description = "Translate text to ASEAN languages in Frappe/ERPNext ecosystem"
 app_email = "moocoding@gmail.com"
 app_license = "mit"
-app_icon = "/assets/translation_tools/images/translation_icon.svg"
+app_icon = "/assets/translation_tools/images/icons/translation-svgrepo-com.svg"
 app_color = "#4183c4"  # A nice blue color
 guest_title = app_title
 
