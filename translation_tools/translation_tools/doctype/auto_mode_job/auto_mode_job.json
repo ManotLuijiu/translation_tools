@@ -1,0 +1,230 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-08 21:15:06.462565",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_status",
+  "column_job_info",
+  "job_id",
+  "status",
+  "section_break_job_info",
+  "file_path",
+  "column_progress",
+  "total_untranslated",
+  "translated_count",
+  "saved_count",
+  "skipped_count",
+  "failed_entry_ids",
+  "section_break_chunk",
+  "current_chunk_size",
+  "planned_entry_ids",
+  "column_github",
+  "push_to_github",
+  "github_branch",
+  "final_push_result",
+  "column_config",
+  "model_provider",
+  "model",
+  "max_chunk_size",
+  "section_break_timestamps",
+  "column_timestamps",
+  "started_at",
+  "updated_at",
+  "completed_at",
+  "last_error"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_status",
+   "fieldtype": "Section Break",
+   "label": "Job Status"
+  },
+  {
+   "fieldname": "column_job_info",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "job_id",
+   "fieldtype": "Data",
+   "label": "Job ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "queued\nrunning\npaused\ncompleted\ncompleted_with_skips\nfailed\ncancelled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_job_info",
+   "fieldtype": "Section Break",
+   "label": "Job Info"
+  },
+  {
+   "fieldname": "file_path",
+   "fieldtype": "Data",
+   "label": "File Path",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_progress",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_untranslated",
+   "fieldtype": "Int",
+   "label": "Total Untranslated",
+   "read_only": 1
+  },
+  {
+   "fieldname": "translated_count",
+   "fieldtype": "Int",
+   "label": "Translated Count",
+   "read_only": 1
+  },
+  {
+   "fieldname": "saved_count",
+   "fieldtype": "Int",
+   "label": "Saved Count",
+   "read_only": 1
+  },
+  {
+   "fieldname": "skipped_count",
+   "fieldtype": "Int",
+   "label": "Skipped Count",
+   "read_only": 1
+  },
+  {
+   "fieldname": "failed_entry_ids",
+   "fieldtype": "Small Text",
+   "label": "Failed Entry IDs (JSON)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_chunk",
+   "fieldtype": "Section Break",
+   "label": "Chunk Info"
+  },
+  {
+   "fieldname": "current_chunk_size",
+   "fieldtype": "Int",
+   "label": "Current Chunk Size",
+   "read_only": 1
+  },
+  {
+   "fieldname": "planned_entry_ids",
+   "fieldtype": "Long Text",
+   "label": "Planned Entry IDs (JSON)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_github",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "push_to_github",
+   "fieldtype": "Check",
+   "label": "Push to GitHub",
+   "read_only": 1
+  },
+  {
+   "fieldname": "github_branch",
+   "fieldtype": "Data",
+   "label": "GitHub Branch",
+   "read_only": 1
+  },
+  {
+   "fieldname": "final_push_result",
+   "fieldtype": "Small Text",
+   "label": "Final Push Result (JSON)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_config",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "model_provider",
+   "fieldtype": "Data",
+   "label": "Model Provider",
+   "read_only": 1
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "label": "Model",
+   "read_only": 1
+  },
+  {
+   "fieldname": "max_chunk_size",
+   "fieldtype": "Int",
+   "label": "Max Chunk Size",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_timestamps",
+   "fieldtype": "Section Break",
+   "label": "Timestamps"
+  },
+  {
+   "fieldname": "column_timestamps",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "started_at",
+   "fieldtype": "Datetime",
+   "label": "Started At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "updated_at",
+   "fieldtype": "Datetime",
+   "label": "Updated At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "completed_at",
+   "fieldtype": "Datetime",
+   "label": "Completed At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_error",
+   "fieldtype": "Small Text",
+   "label": "Last Error",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 0,
+ "links": [],
+ "modified": "2026-07-08 21:15:06.462565",
+ "modified_by": "Administrator",
+ "module": "Translation Tools",
+ "name": "Auto Mode Job",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

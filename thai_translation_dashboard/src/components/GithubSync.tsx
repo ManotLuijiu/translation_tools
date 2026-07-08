@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
+import { useGetGithubBranches } from '@/api/settings';
 import {
   Dialog,
   DialogContent,
@@ -21,7 +22,7 @@ import {
 } from '@/components/ui/tooltip';
 
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, Download, Check, AlertCircle } from 'lucide-react';
+import { Loader2, Download, Check, AlertCircle, Search } from 'lucide-react';
 import { useFrappePostCall, useFrappeGetCall } from 'frappe-react-sdk';
 import { useTranslation } from '@/context/TranslationContext';
 import type { POFile } from '../types';
@@ -46,7 +47,7 @@ export default function GithubSync({
   // Use settings from backend if available, otherwise use defaults
   // When using private repo (use_own_repo), use settings values; otherwise use defaults
   const defaultRepo = 'https://github.com/ManotLuijiu/erpnext-thai-translation.git';
-  const defaultBranch = 'version-15';
+  const defaultBranch = 'version-16';
 
   // Fetch translation settings FIRST (hooks must be called before using their values)
   const { data: settingsData } = useFrappeGetCall<{ message: {
@@ -54,7 +55,7 @@ export default function GithubSync({
     github_repo?: string;
     github_token?: string;
     use_own_repo?: boolean;
-    default_branch?: string;
+    github_branch?: string;
   } }>('translation_tools.api.settings.get_translation_settings', {}, undefined, {
     revalidateOnFocus: false,
   });
@@ -65,8 +66,11 @@ export default function GithubSync({
   const [repoUrl, setRepoUrl] = useState(
     settings?.use_own_repo ? (settings?.github_repo || defaultRepo) : defaultRepo
   );
-  const [branch, setBranch] = useState(defaultBranch);
+  const [branch, setBranch] = useState(settings?.github_branch || defaultBranch);
   const [syncMode, setSyncMode] = useState<'preview' | 'apply'>('preview');
+  const { call: fetchBranches } = useGetGithubBranches();
+  // Prevent re-fetching the same repo on every revalidation
+  const lastFetchedRepoRef = useRef<string | undefined>(undefined);
 
   console.info('Sync Mode', syncMode);
 
@@ -77,6 +81,7 @@ export default function GithubSync({
   const { statusMessage, showMessage } = useStatusMessage();
 
   const [selectedRepoFiles, setSelectedRepoFiles] = useState<string[]>([]);
+  const [fileSearch, setFileSearch] = useState('');
   const [previewData, setPreviewData] = useState<{
     added: number;
     updated: number;
@@ -97,11 +102,30 @@ export default function GithubSync({
     if (settings) {
       const newRepo = settings.use_own_repo ? (settings.github_repo || defaultRepo) : defaultRepo;
       setRepoUrl(newRepo);
-      if (settings.default_branch) {
-        setBranch(settings.default_branch);
+      if (settings.github_branch) {
+        setBranch(settings.github_branch);
       }
     }
   }, [settings]);
+
+  // Auto-fetch default branch when repo URL changes (when dialog opens or repo is typed)
+  useEffect(() => {
+    if (!repoUrl?.trim()) return;
+    const currentRepo = repoUrl.trim();
+    // Skip if already fetched this exact URL this session
+    if (lastFetchedRepoRef.current === currentRepo) return;
+    if (currentRepo) lastFetchedRepoRef.current = currentRepo;
+
+    fetchBranches({ github_repo: currentRepo })
+      .then((result) => {
+        const msg = result?.message;
+        if (msg?.success && msg.default_branch) {
+          setBranch(msg.default_branch);
+        }
+      })
+      .catch(() => { /* silent — user can still type manually */ });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [repoUrl]);
 
   // console.log('syncMode GithubSync.tsx', syncMode);
   // console.log('selectedFile before api call', selectedFile);
@@ -389,57 +413,80 @@ export default function GithubSync({
                 {__('Available Translation Files')}
               </h3>
 
+              {/* Search filter */}
+              {availableFiles.length > 0 && (
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder={__('Search files...')}
+                    value={fileSearch}
+                    onChange={(e) => setFileSearch(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              )}
+
+              {/* File list — search-filtered */}
               {availableFiles.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   {__('No translation files found')}
                 </p>
-              ) : (
-                <div className="max-h-[300px] overflow-y-auto">
-                  {availableFiles.map((file) => (
-                    <div
-                      key={file.path}
-                      className="flex items-start space-x-3 p-2 hover:bg-muted/50 rounded"
-                    >
-                      <Checkbox
-                        checked={selectedRepoFiles.includes(file.path)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            const newSelectedFiles = [
-                              ...selectedRepoFiles,
-                              file.path,
-                            ];
-                            setSelectedRepoFiles(newSelectedFiles);
-                            handleFileSelect(file.path);
-                          } else {
-                            setSelectedRepoFiles(
-                              selectedRepoFiles.filter(
-                                (path) => path !== file.path
-                              )
-                            );
-                          }
-                        }}
-                        id={`file-${file.path}`}
-                      />
-                      <div className="flex-1">
-                        <label
-                          htmlFor={`file-${file.path}`}
-                          className="text-sm font-medium cursor-pointer"
-                        >
-                          {file.path}
-                        </label>
-                        <div className="text-xs text-muted-foreground">
-                          {__('Match score')}:{' '}
-                          {Math.round(file.matchScore * 100)}%
+              ) : (() => {
+                const filtered = fileSearch.trim()
+                  ? availableFiles.filter((f) =>
+                      f.path.toLowerCase().includes(fileSearch.toLowerCase())
+                    )
+                  : availableFiles;
+                if (filtered.length === 0) {
+                  return (
+                    <p className="text-sm text-muted-foreground">
+                      {__('No files matching "{query}"', { query: fileSearch })}
+                    </p>
+                  );
+                }
+                return (
+                  <div className="max-h-[300px] overflow-y-auto">
+                    {filtered.map((file) => (
+                      <div
+                        key={file.path}
+                        className="flex items-start space-x-3 p-2 hover:bg-muted/50 rounded"
+                      >
+                        <Checkbox
+                          checked={selectedRepoFiles.includes(file.path)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedRepoFiles([...selectedRepoFiles, file.path]);
+                              handleFileSelect(file.path);
+                            } else {
+                              setSelectedRepoFiles(
+                                selectedRepoFiles.filter((path) => path !== file.path)
+                              );
+                            }
+                          }}
+                          id={`file-${file.path}`}
+                        />
+                        <div className="flex-1">
+                          <label
+                            htmlFor={`file-${file.path}`}
+                            className="text-sm font-medium cursor-pointer"
+                          >
+                            {file.path}
+                          </label>
+                          <div className="text-xs text-muted-foreground">
+                            {__('Match score')}:{' '}
+                            {Math.round(file.matchScore * 100)}%
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
 
             <DialogFooter>
               <Button
+               className='cursor-pointer'
                 onClick={handlePreviewSync}
                 disabled={selectedRepoFiles.length === 0 || previewLoading}
               >
@@ -632,10 +679,10 @@ export default function GithubSync({
             )}
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => setCurrentTab('files')}>
+              <Button variant="outline" onClick={() => setCurrentTab('files')} className='cursor-pointer'>
                 {__('Back')}
               </Button>
-              <Button onClick={handleApplySync} disabled={applyLoading}>
+              <Button onClick={handleApplySync} disabled={applyLoading} className='cursor-pointer'>
                 {applyLoading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (

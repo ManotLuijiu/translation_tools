@@ -333,8 +333,8 @@ export default function TranslationEditor({
       // console.log('message from github testing', message);
 
       if (message?.success) {
-        // console.log('github_test_success', message?.success);
-        toast.success('Github Test Success');
+        // Show full message from backend (includes repo + branch info)
+        toast.success(message.message || 'Github Test Success');
       } else {
         toast.warning('Github Test has warning');
         // console.log('else_github_test');
@@ -536,6 +536,7 @@ export default function TranslationEditor({
           translation: pendingPushEntry.translation,
           push_to_github: true,
           msgid: pendingPushEntry.msgid, // For reliable fallback lookup
+          github_branch: settings.github_branch, // Pass selected branch directly
         });
 
         // console.log('Push result after token save:', pushResult);
@@ -681,6 +682,8 @@ export default function TranslationEditor({
 
     showMessage('Saving...', 'info');
 
+    console.log('[TranslationEditor] handleSave — push_to_github:', pushToGithub);
+
     try {
       const result = await saveTranslation.call({
         file_path: selectedFile.file_path,
@@ -688,7 +691,17 @@ export default function TranslationEditor({
         translation: editedTranslation,
         push_to_github: pushToGithub,
         msgid: selectedEntry.msgid, // For reliable fallback lookup if index shifted
+        github_branch: settings.github_branch, // Pass selected branch directly
       });
+
+      const msg = typeof result?.message === 'string' ? JSON.parse(result.message) : result?.message;
+      console.log('[TranslationEditor] handleSave result:', JSON.stringify({
+        success: msg?.success,
+        github_pushed: msg?.github?.github_pushed,
+        push_mode: msg?.github?.push_mode,
+        branch: msg?.github?.target_branch,
+        error: msg?.github?.error,
+      }, null, 2));
 
       // console.log('Save result:', result);
 

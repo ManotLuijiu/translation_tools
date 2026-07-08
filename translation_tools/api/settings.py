@@ -3,23 +3,36 @@ import frappe
 import json
 from frappe import _
 from frappe.utils import cint, flt
-from frappe.utils.password import get_decrypted_password, get_encryption_key, encrypt
-from .common import logger, CONFIG_FILE, get_bench_path
-import configparser
+from frappe.utils.password import get_decrypted_password
+from .common import CONFIG_FILE
 import requests
 import tempfile
 
 DEFAULT_GITHUB_REPO = "https://github.com/ManotLuijiu/erpnext-thai-translation.git"
-PRIVATE_GITHUB_REPO = "https://github.com/ManotLuijiu/erpnext-thai-translation-private.git"
+PRIVATE_GITHUB_REPO = (
+    "https://github.com/ManotLuijiu/erpnext-thai-translation-private.git"
+)
 
 
 def _get_default_branch():
-    """Return version-15 or version-16 based on installed Frappe major version."""
+    """Return version-16 or version-{major} based on installed Frappe major version.
+
+    Defaults to version-16 as Frappe transitions from v15 to v16.
+    """
+    frappe_version = frappe.__version__
     try:
-        major = int(frappe.__version__.split(".")[0])
-        return f"version-{major}"
+        major = int(frappe_version.split(".")[0])
+        branch = f"version-{major}"
+        print(
+            f"[translation_tools] Frappe version detected: {frappe_version} → using branch: {branch}"
+        )
+        return branch
     except Exception:
-        return "version-15"
+        fallback = "version-16"
+        print(
+            f"[translation_tools] Could not parse Frappe version '{frappe_version}' → using fallback branch: {fallback}"
+        )
+        return fallback
 
 
 @frappe.whitelist()
@@ -41,9 +54,140 @@ def get_github_token():
     """Decrypt and get the GitHub token"""
     settings = frappe.get_single("Translation Tools Settings")
     decrypted_token = get_decrypted_password(
-        "Translation Tools Settings", settings.name, "github_token", raise_exception=False
+        "Translation Tools Settings",
+        settings.name,
+        "github_token",
+        raise_exception=False,
     )
     return decrypted_token
+
+
+@frappe.whitelist()
+def get_github_branches(github_repo=None, github_token=None, show_all=False):
+    """List all branches from a GitHub repository.
+
+
+    Token resolution order:
+        1. Passed github_token argument
+        2. frappe.conf.get("github_pat_token")
+        3. Saved Translation Tools Settings.github_token (decrypted)
+
+    Returns:
+        dict with success, branches[], default_branch, error
+    """
+    try:
+        # Step 1: Resolve repo URL — use passed-in value, else settings, else DEFAULT
+        if not github_repo:
+            settings = frappe.get_single("Translation Tools Settings")
+            github_repo = settings.github_repo or DEFAULT_GITHUB_REPO  # type: ignore
+
+        # Normalize to owner/repo
+        repo_path = github_repo.strip("/")
+        if "github.com/" in repo_path:
+            repo_path = repo_path.split("github.com/")[1]
+        if repo_path.endswith(".git"):
+            repo_path = repo_path[:-4]
+        repo_path = repo_path.strip("/")
+
+        if not repo_path:
+            return {
+                "success": False,
+                "error": "Invalid repository URL",
+                "branches": [],
+                "default_branch": None,
+            }
+
+        # Step 2: Resolve token
+        token = github_token
+        if not token or set(token or "") == {"*"}:
+            token = frappe.conf.get("github_pat_token")
+            if not token:
+                token = get_github_token()
+
+        if not token:
+            return {
+                "success": False,
+                "error": "GitHub token is required to list branches",
+                "branches": [],
+                "default_branch": None,
+            }
+
+        # Step 3: Call GitHub branches API.
+        # Default (show_all=False): return only version-*, main, develop — saves traffic.
+        # show_all=True: return all branches (triggered by "Show More" click).
+        headers = {
+            "Authorization": f"token {token}",
+            "Accept": "application/vnd.github.v3+json",
+        }
+
+        branches_url = f"https://api.github.com/repos/{repo_path}/branches"
+        filtered_branches = []
+        all_branch_names = []
+        page = 1
+
+        while True:
+            response = requests.get(
+                branches_url,
+                headers=headers,
+                params={"per_page": 100, "page": page},
+                timeout=30,
+            )
+            if response.status_code == 200:
+                batch = response.json()
+                if not batch:
+                    break
+                for b in batch:
+                    name = b["name"]
+                    all_branch_names.append(name)
+                    if (
+                        show_all
+                        or name.startswith("version-")
+                        or name in ("main", "develop")
+                    ):
+                        filtered_branches.append(name)
+                if len(batch) < 100:
+                    break
+                page += 1
+            else:
+                break
+
+        print(
+            f"[translation_tools] get_github_branches(show_all={show_all}): "
+            f"scanned {len(all_branch_names)} total, "
+            f"returning {len(filtered_branches)} branches"
+        )
+
+        # Also fetch the repo's default branch for auto-selection
+        repo_url = f"https://api.github.com/repos/{repo_path}"
+        default_branch = None
+        if all_branch_names:  # only try if we have auth
+            repo_resp = requests.get(repo_url, headers=headers, timeout=15)
+            if repo_resp.status_code == 200:
+                default_branch = repo_resp.json().get("default_branch")
+
+        return {
+            "success": True,
+            "branches": filtered_branches,
+            "total_count": len(all_branch_names),
+            "has_more": len(all_branch_names) > len(filtered_branches),
+            "default_branch": default_branch,
+            "repo": repo_path,
+        }
+    except requests.RequestException as e:
+        return {
+            "success": False,
+            "error": f"Connection error: {str(e)}",
+            "branches": [],
+            "default_branch": None,
+        }
+    except Exception as e:
+        frappe.log_error(f"get_github_branches error: {str(e)}")
+        return {
+            "success": False,
+            "error": str(e),
+            "branches": [],
+            "default_branch": None,
+        }
 
 
 def cast_to_float(value, default=0.0):
@@ -58,7 +202,7 @@ def cast_to_float(value, default=0.0):
 def get_translation_settings():
     """Get translation tools settings (sensitive fields are masked for security)"""
     # No permission check needed for reading settings (they're masked anyway)
-    
+
     # Get all settings in a single query to improve performance
     settings_doctype = "Translation Tools Settings"
 
@@ -78,7 +222,7 @@ def get_translation_settings():
                 "github_enable": 0,
                 "github_repo": "",
                 "github_token_configured": False,
-                "default_branch": _get_default_branch(),
+                "github_branch": _get_default_branch(),
             }
         )
 
@@ -122,11 +266,17 @@ def get_translation_settings():
         {
             "default_model_provider": doc.default_model_provider or "openai",  # type: ignore
             "default_model": doc.default_model or "gpt-4.1-mini-2025-04-14",  # type: ignore
-            "openai_api_key": "****" if openai_configured else "",  # Masked value for frontend
+            "openai_api_key": "****"
+            if openai_configured
+            else "",  # Masked value for frontend
             "openai_api_key_configured": openai_configured,  # Boolean flag
-            "anthropic_api_key": "****" if anthropic_configured else "",  # Masked value for frontend
+            "anthropic_api_key": "****"
+            if anthropic_configured
+            else "",  # Masked value for frontend
             "anthropic_api_key_configured": anthropic_configured,  # Boolean flag
-            "github_token": "****" if github_token_configured else "",  # Masked value for frontend
+            "github_token": "****"
+            if github_token_configured
+            else "",  # Masked value for frontend
             "github_token_configured": github_token_configured,  # Boolean flag
             "batch_size": cint(doc.batch_size or 10),  # type: ignore
             "temperature": cast_to_float(doc.temperature, default=0.3),  # type: ignore
@@ -140,7 +290,7 @@ def get_translation_settings():
                 and doc.github_repo.strip().rstrip("/").rstrip(".git").rstrip("/")  # type: ignore
                 != DEFAULT_GITHUB_REPO.rstrip("/").rstrip(".git").rstrip("/")
             ),
-            "default_branch": _get_default_branch(),
+            "github_branch": doc.default_branch or _get_default_branch(),  # type: ignore
         }
     )
 
@@ -151,27 +301,45 @@ def get_decrypted_api_keys():
     """Internal function to get decrypted API keys - DO NOT expose as @frappe.whitelist()"""
     # This function is for internal server-side use only, never exposed to web API
     settings_doctype = "Translation Tools Settings"
-    
+
     if not frappe.db.exists(settings_doctype):
         return {"openai_api_key": "", "anthropic_api_key": "", "github_token": ""}
-    
+
     try:
-        openai_api_key = get_decrypted_password(
-            settings_doctype, settings_doctype, "openai_api_key", raise_exception=False
-        ) or ""
-        
-        anthropic_api_key = get_decrypted_password(
-            settings_doctype, settings_doctype, "anthropic_api_key", raise_exception=False
-        ) or ""
-        
-        github_token = get_decrypted_password(
-            settings_doctype, settings_doctype, "github_token", raise_exception=False
-        ) or ""
-        
+        openai_api_key = (
+            get_decrypted_password(
+                settings_doctype,
+                settings_doctype,
+                "openai_api_key",
+                raise_exception=False,
+            )
+            or ""
+        )
+
+        anthropic_api_key = (
+            get_decrypted_password(
+                settings_doctype,
+                settings_doctype,
+                "anthropic_api_key",
+                raise_exception=False,
+            )
+            or ""
+        )
+
+        github_token = (
+            get_decrypted_password(
+                settings_doctype,
+                settings_doctype,
+                "github_token",
+                raise_exception=False,
+            )
+            or ""
+        )
+
         return {
             "openai_api_key": openai_api_key,
             "anthropic_api_key": anthropic_api_key,
-            "github_token": github_token
+            "github_token": github_token,
         }
     except Exception as e:
         frappe.log_error(f"Error decrypting API keys: {str(e)}")
@@ -256,9 +424,28 @@ def test_github_connection(github_repo=None, github_token=None):
 
         if response.status_code == 200:
             repo_data = response.json()
+            # Get the configured branch from settings
+            github_branch = getattr(settings, "default_branch", None) or ""
+            branch_info = ""
+            if github_branch:
+                # Check if the branch exists in the repo
+                branch_resp = requests.get(
+                    f"https://api.github.com/repos/{repo_path}/branches/{github_branch}",
+                    headers=headers,
+                    timeout=10,
+                )
+                if branch_resp.status_code == 200:
+                    branch_data = branch_resp.json()
+                    is_default = branch_data.get("name") == repo_data.get(
+                        "default_branch"
+                    )
+                    branch_info = f", branch `{github_branch}`{' (default)' if is_default else ''}"
+                else:
+                    branch_info = f", branch `{github_branch}` ⚠️ (branch not found)"
+
             result = {
                 "success": True,
-                "message": f"Successfully connected to {repo_data.get('full_name', 'repository')}",
+                "message": f"Successfully connected to {repo_data.get('full_name', 'repository')}{branch_info}",
                 "sync_triggered": False,
             }
 
@@ -271,21 +458,30 @@ def test_github_connection(github_repo=None, github_token=None):
 
                     if last_sync:
                         from frappe.utils import time_diff_in_hours, now_datetime
+
                         hours_since_sync = time_diff_in_hours(now_datetime(), last_sync)
 
                     # Trigger sync if never synced or last sync > 4 hours ago
-                    if last_sync is None or hours_since_sync is None or hours_since_sync > 4:
+                    if (
+                        last_sync is None
+                        or hours_since_sync is None
+                        or hours_since_sync > 4
+                    ):
                         # Get all installed apps with auto-sync enabled
                         import json as json_mod
+
                         app_settings = {}
                         if getattr(sync_settings, "app_sync_settings", None):
                             try:
-                                app_settings = json_mod.loads(sync_settings.app_sync_settings)
+                                app_settings = json_mod.loads(
+                                    sync_settings.app_sync_settings
+                                )
                             except (json_mod.JSONDecodeError, TypeError):
                                 app_settings = {}
 
                         enabled_apps = [
-                            app for app, config in app_settings.items()
+                            app
+                            for app, config in app_settings.items()
                             if config.get("enabled")
                         ]
 
@@ -305,7 +501,9 @@ def test_github_connection(github_repo=None, github_token=None):
                         else:
                             result["message"] += " — No apps enabled for auto-sync."
                     else:
-                        result["message"] += f" — Last sync {int(hours_since_sync)}h ago (< 4h, skipping sync)."
+                        result["message"] += (
+                            f" — Last sync {int(hours_since_sync)}h ago (< 4h, skipping sync)."
+                        )
             except Exception as sync_err:
                 # Never fail the connection test because of sync logic
                 frappe.log_error(f"Sync check during test_connect: {str(sync_err)}")
@@ -328,7 +526,7 @@ def test_github_connection(github_repo=None, github_token=None):
 
 
 @frappe.whitelist()
-def test_github_sync(github_repo=None, github_token=None):
+def test_github_sync(github_repo=None, github_token=None, github_branch=None):
     """Test GitHub sync for all installed apps on the current site.
 
     Verifies connection, lists available translation files, and does a dry-run
@@ -349,11 +547,15 @@ def test_github_sync(github_repo=None, github_token=None):
 
         if not github_token or set(github_token) == {"*"}:
             from frappe.utils.password import get_decrypted_password
+
             # Prefer site_config token, fall back to DocType Password field
             github_token = frappe.conf.get("github_pat_token")
             if not github_token:
                 github_token = get_decrypted_password(
-                    "Translation Tools Settings", settings.name, "github_token", raise_exception=False
+                    "Translation Tools Settings",
+                    settings.name,
+                    "github_token",
+                    raise_exception=False,
                 )
 
         if not github_repo:
@@ -369,31 +571,49 @@ def test_github_sync(github_repo=None, github_token=None):
             repo_path = repo_path[:-4]
 
         import requests as req
+
         api_url = f"https://api.github.com/repos/{repo_path}"
-        headers = {"Authorization": f"token {github_token}", "Accept": "application/vnd.github.v3+json"}
+        headers = {
+            "Authorization": f"token {github_token}",
+            "Accept": "application/vnd.github.v3+json",
+        }
         resp = req.get(api_url, headers=headers, timeout=10)
 
         if resp.status_code != 200:
-            return {"success": False, "error": f"Connection failed (HTTP {resp.status_code})"}
+            return {
+                "success": False,
+                "error": f"Connection failed (HTTP {resp.status_code})",
+            }
 
-        # Step 3: Get GitHub Sync Settings for repo URL
+        # Step 3: Use ONE resolved repo consistently throughout
+        # The resolved github_repo is the single source of truth (from request or settings)
         sync_settings = None
         if frappe.db.exists("DocType", "GitHub Sync Settings"):
             sync_settings = frappe.get_single("GitHub Sync Settings")
 
-        sync_repo_url = sync_settings.repository_url if sync_settings else github_repo
-        sync_branch = (sync_settings.branch if sync_settings else None) or "version-15"
-        target_language = (sync_settings.target_language if sync_settings else None) or "th"
+        # Branch: explicit > sync_settings > version-aware default
+        sync_branch = (
+            github_branch
+            or (sync_settings.branch if sync_settings else None)
+            or _get_default_branch()
+        )
+        # Language: sync_settings > default 'th'
+        target_language = (
+            sync_settings.target_language if sync_settings else None
+        ) or "th"
 
-        # Step 4: Find translation files in GitHub repo
+        # Step 4: Find translation files in the ONE resolved repo
         from translation_tools.api.github_sync import find_translation_files
 
         gh_result = find_translation_files(
-            repo_url=sync_repo_url, branch=sync_branch, target_language=target_language
+            repo_url=github_repo, branch=sync_branch, target_language=target_language
         )
 
         if not gh_result.get("success"):
-            return {"success": False, "error": f"Cannot list repo files: {gh_result.get('error')}"}
+            return {
+                "success": False,
+                "error": f"Cannot list repo files: {gh_result.get('error')}",
+            }
 
         github_apps = set()
         for f in gh_result.get("files", []):
@@ -407,25 +627,39 @@ def test_github_sync(github_repo=None, github_token=None):
 
         app_results = []
         for app_name in sorted(installed_apps):
-            local_po = os.path.join(bench_path, "apps", app_name, app_name, "locale", f"{target_language}.po")
+            local_po = os.path.join(
+                bench_path,
+                "apps",
+                app_name,
+                app_name,
+                "locale",
+                f"{target_language}.po",
+            )
 
             if not os.path.exists(local_po):
-                app_results.append({
-                    "app": app_name, "status": "no_po",
-                    "message": f"No {target_language}.po file found"
-                })
+                app_results.append(
+                    {
+                        "app": app_name,
+                        "status": "no_po",
+                        "message": f"No {target_language}.po file found",
+                    }
+                )
                 continue
 
             if app_name not in github_apps:
-                app_results.append({
-                    "app": app_name, "status": "no_github",
-                    "message": "Not in translation repo"
-                })
+                app_results.append(
+                    {
+                        "app": app_name,
+                        "status": "no_github",
+                        "message": "Not in translation repo",
+                    }
+                )
                 continue
 
             # Read local stats
             try:
                 import polib
+
                 po = polib.pofile(local_po)
                 translated = len([e for e in po if e.msgstr and e.msgstr != ""])
                 total = len(po)
@@ -437,32 +671,44 @@ def test_github_sync(github_repo=None, github_token=None):
             github_translated, github_total, github_pct = 0, 0, 0
             try:
                 raw_url = f"https://raw.githubusercontent.com/{repo_path}/{sync_branch}/{app_name}/th.po"
-                gh_resp = requests.get(raw_url, headers={"Authorization": f"token {github_token}"}, timeout=30)
+                gh_resp = requests.get(
+                    raw_url,
+                    headers={"Authorization": f"token {github_token}"},
+                    timeout=30,
+                )
                 if gh_resp.status_code == 200:
                     with tempfile.NamedTemporaryFile(suffix=".po", delete=False) as tmp:
                         tmp.write(gh_resp.content)
                         tmp_path = tmp.name
                     try:
                         gh_po = polib.pofile(tmp_path)
-                        github_translated = len([e for e in gh_po if e.msgstr and e.msgstr != ""])
+                        github_translated = len(
+                            [e for e in gh_po if e.msgstr and e.msgstr != ""]
+                        )
                         github_total = len(gh_po)
-                        github_pct = round(github_translated * 100 / github_total, 1) if github_total > 0 else 0
+                        github_pct = (
+                            round(github_translated * 100 / github_total, 1)
+                            if github_total > 0
+                            else 0
+                        )
                     finally:
                         os.unlink(tmp_path)
             except Exception:
                 pass  # GitHub stats are optional
 
-            app_results.append({
-                "app": app_name,
-                "status": "ready",
-                "translated": translated,
-                "total": total,
-                "percentage": pct,
-                "github_translated": github_translated,
-                "github_total": github_total,
-                "github_percentage": github_pct,
-                "github_file": f"{app_name}/th.po",
-            })
+            app_results.append(
+                {
+                    "app": app_name,
+                    "status": "ready",
+                    "translated": translated,
+                    "total": total,
+                    "percentage": pct,
+                    "github_translated": github_translated,
+                    "github_total": github_total,
+                    "github_percentage": github_pct,
+                    "github_file": f"{app_name}/th.po",
+                }
+            )
 
         ready_count = len([r for r in app_results if r["status"] == "ready"])
         total_apps = len(installed_apps)
@@ -496,7 +742,10 @@ def sync_all_apps_now():
     settings = frappe.get_single("GitHub Sync Settings")
 
     if not settings.repository_url:
-        return {"success": False, "error": "No repository URL configured in GitHub Sync Settings"}
+        return {
+            "success": False,
+            "error": "No repository URL configured in GitHub Sync Settings",
+        }
 
     target_language = getattr(settings, "target_language", None) or "th"
     bench_path = frappe.utils.get_bench_path()
@@ -504,7 +753,9 @@ def sync_all_apps_now():
 
     apps_to_sync = []
     for app_name in installed_apps:
-        po_path = os.path.join(bench_path, "apps", app_name, app_name, "locale", f"{target_language}.po")
+        po_path = os.path.join(
+            bench_path, "apps", app_name, app_name, "locale", f"{target_language}.po"
+        )
         if os.path.exists(po_path):
             apps_to_sync.append(app_name)
 
@@ -592,8 +843,22 @@ def save_translation_settings(settings):
         # Default repo: save default URL, don't touch token (uses site_config)
         doc.github_repo = DEFAULT_GITHUB_REPO  # type: ignore
 
+    # Save github_branch (stored as default_branch in DocType)
+    # Empty/falsy github_branch explicitly clears and falls back to version-aware default
+    print(
+        f"[translation_tools] save_translation_settings: github_branch in settings_data={('github_branch' in settings_data)}, value={settings_data.get('github_branch', 'NOT_IN_DATA')}"
+    )
+    if "github_branch" in settings_data:
+        if settings_data.github_branch:
+            doc.default_branch = settings_data.github_branch  # type: ignore
+        else:
+            doc.default_branch = None  # type: ignore — clear stored value, will use fallback
+
     doc.save()
     frappe.db.commit()
+    print(
+        f"[translation_tools] after save: doc.default_branch={getattr(doc, 'default_branch', None)}"
+    )
 
     # Check if any API keys are configured and create a warning if not
     warnings = []
@@ -767,7 +1032,7 @@ def create_translation_tools_settings_doctype():
                 "label": "GitHub Integration",
             },
             {
-                "default": "version-15",
+                "default": "version-16",
                 "fieldname": "default_branch",
                 "fieldtype": "Data",
                 "label": "Github Branch",
@@ -988,7 +1253,7 @@ def save_api_key(api_key, model_provider="openai"):
         doc.anthropic_api_key = api_key
         doc.default_model_provider = "anthropic"
         doc.default_model = "claude-3-haiku-20240307"
-    
+
     # Set default values if not already set
     if not doc.batch_size:
         doc.batch_size = 10
@@ -998,7 +1263,7 @@ def save_api_key(api_key, model_provider="openai"):
         doc.auto_save = 0
     if not doc.preserve_formatting:
         doc.preserve_formatting = 1
-    
+
     doc.save()
     frappe.db.commit()
 

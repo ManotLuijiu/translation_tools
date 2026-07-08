@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Harness Task Plan",
+  "type": "object",
+  "required": ["goal", "context", "tasks", "approval_gates", "final_outputs"],
+  "properties": {
+    "goal": {
+      "type": "string"
+    },
+    "context": {
+      "type": "object",
+      "required": ["app", "framework", "source_doctype", "target_doctype"],
+      "properties": {
+        "app": { "type": "string" },
+        "framework": { "type": "string" },
+        "source_doctype": { "type": "string" },
+        "target_doctype": { "type": "string" },
+        "risk_level": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "agent", "description", "output"],
+        "properties": {
+          "id": { "type": "string" },
+          "agent": { "type": "string" },
+          "description": { "type": "string" },
+          "depends_on": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "input_files": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "output": { "type": "string" },
+          "acceptance_criteria": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "approval_gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["gate", "reason"],
+        "properties": {
+          "gate": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "final_outputs": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

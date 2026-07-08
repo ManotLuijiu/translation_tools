@@ -1,4 +1,3 @@
-
 export interface TranslationToolsSettings{
 	name: string
 	creation: string
@@ -10,4 +9,16 @@ export interface TranslationToolsSettings{
 	parentfield?: string
 	parenttype?: string
 	idx?: number
+	// GitHub settings
+	github_enable?: boolean
+	github_repo?: string
+	github_token?: string
+	github_branch?: string
+	use_own_repo?: boolean
+	default_model_provider?: string
+	default_model?: string
+	batch_size?: number
+	temperature?: number
+	auto_save?: boolean
+	preserve_formatting?: boolean
 }

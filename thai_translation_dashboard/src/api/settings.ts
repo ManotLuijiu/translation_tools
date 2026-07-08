@@ -42,6 +42,7 @@ export type TranslationToolsSettings = {
   github_enable: boolean;
   github_repo: string;
   github_token: string;
+  github_branch: string;
 };
 
 /**
@@ -82,6 +83,9 @@ export function useTestGithubConnection() {
 
 /**
  * Test Github Sync — checks connection + lists all site apps with sync readiness
+ * @param github_repo - Repository URL (optional, uses settings if not provided)
+ * @param github_token - GitHub token (optional, uses settings if not provided)
+ * @param github_branch - Branch to sync against (optional, uses settings/default if not provided)
  */
 export function useTestGithubSync() {
   return useFrappePostCall<{ message: {
@@ -113,8 +117,36 @@ export function useTestGithubSync() {
  * Save translation settings
  */
 export function useSaveTranslationSettings() {
-  return useFrappePostCall<{ success: boolean }>(
+  return useFrappePostCall<{
+    success: boolean;
+    message?: {
+      success: boolean;
+      message: string;
+      warnings?: string[];
+    };
+  }>(
     'translation_tools.api.settings.save_translation_settings'
+  );
+}
+
+/**
+ * Get GitHub repository branches via PAT-authenticated GitHub API.
+ * - show_all=False (default): returns only version-*, main, develop + has_more flag.
+ * - show_all=True: returns ALL branches.
+ */
+export function useGetGithubBranches() {
+  return useFrappePostCall<{
+    message?: {
+      success: boolean;
+      branches?: string[];
+      total_count?: number;
+      has_more?: boolean;
+      default_branch?: string | null;
+      repo?: string;
+      error?: string;
+    };
+  }>(
+    'translation_tools.api.settings.get_github_branches'
   );
 }
 

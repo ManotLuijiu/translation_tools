@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   useGetTranslationSettings,
   useSaveTranslationSettings,
@@ -8,7 +8,7 @@ import {
   useGetAiModels,
 } from '../api';
 import { toast } from 'sonner';
-import { TranslationPDFSettings, TranslationToolsSettings } from '../types';
+import { TranslationToolsSettings } from '../types';
 
 import AiModelsSettings from './settings/AiModelsSettings';
 import TranslationOptionsSettings from './settings/TranslationOptionsSettings';
@@ -19,47 +19,34 @@ import { AlertCircle, Loader2 } from 'lucide-react';
 import { useTranslation } from '@/context/TranslationContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-// const modelOptions = {
-//   openai: [
-//     { value: 'gpt-4.1-mini-2025-04-14', label: 'GPT-4.1 mini' },
-//     { value: 'gpt-4.1-2025-04-14', label: 'GPT-4.1' },
-//     { value: 'chatgpt-4o-latest', label: 'ChatGPT-4o' },
-//     { value: 'gpt-4o-mini-2024-07-18', label: 'GPT-4o mini' },
-//     { value: 'o4-mini-2025-04-16', label: 'o4-mini' },
-//   ],
-//   claude: [
-//     { value: 'claude-3-7-sonnet-20250219', label: 'Claude 3.7 Sonnet' },
-//     { value: 'claude-3-5-haiku-20241022', label: 'Claude 3.5 Haiku' },
-//     { value: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet v2' },
-//     { value: 'claude-3-opus-20240229', label: 'Claude 3 Opus' },
-//     { value: 'claude-3-sonnet-20240229', label: 'Claude 3 Sonnet' },
-//     { value: 'claude-3-haiku-20240307', label: 'Claude 3 Haiku' },
-//   ],
-// };
+const DEFAULT_SETTINGS: Partial<TranslationToolsSettings> = {
+  default_model_provider: 'openai',
+  default_model: '',
+  openai_api_key: '',
+  anthropic_api_key: '',
+  batch_size: 10,
+  temperature: 0.3,
+  auto_save: false,
+  preserve_formatting: true,
+  github_enable: false,
+  github_repo: '',
+  github_token: '',
+  github_branch: '',
+};
 
 export default function SettingsPanel() {
-  const [settings, setSettings] = useState<Partial<TranslationToolsSettings>>({
-    default_model_provider: 'openai',
-    default_model: '',
-    openai_api_key: '',
-    anthropic_api_key: '',
-    batch_size: 10,
-    temperature: 0.3,
-    auto_save: false,
-    preserve_formatting: true,
-    github_enable: false,
-    github_repo: '',
-    github_token: '',
-  });
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [showOpenAi, setShowOpenAi] = useState(false);
-  const [showClaudeAi, setShowClaudeAi] = useState(false);
+  const [settings, setSettings] = useState<Partial<TranslationToolsSettings>>(DEFAULT_SETTINGS);
+  // isDirty blocks revalidation from clobbering unsaved user edits
+  const [isDirty, setIsDirty] = useState(false);
 
   const [statusMessage, setStatusMessage] = useState<{
     type: 'success' | 'error' | 'info' | 'warning';
     message: string;
   } | null>(null);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showOpenAi, setShowOpenAi] = useState(false);
+  const [showClaudeAi, setShowClaudeAi] = useState(false);
 
   const { data, error, isLoading } = useGetTranslationSettings();
   const saveSettings = useSaveTranslationSettings();
@@ -69,80 +56,76 @@ export default function SettingsPanel() {
   const { modelData, modelLoading, modelError } = useGetAiModels();
   const { translate: __, isReady } = useTranslation();
 
-  // console.log('useGetTranslationSettings data: ', data);
-  // console.log('useGetTranslationSettings data.message: ', data?.message);
-  // console.log('useGetAiModels modelData: ', modelData);
-  // console.log('useGetTranslationSettings settings: ', settings);
-
+  // Load server settings when data arrives — but never clobber unsaved edits
   useEffect(() => {
-    if (data?.message) {
-      const provider = data.message.default_model_provider || 'openai';
-
-      // console.log('provider from Parent', provider);
-      const default_model =
-        data.message.default_model ||
-        (provider === 'openai'
-          ? modelData?.message?.openai?.[0]?.id || ''
-          : modelData?.message?.claude?.[0]?.id || '');
-
-      setSettings({
-        ...data.message,
-        default_model_provider: provider,
-        default_model,
-      });
-    }
-  }, [data, modelData]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setSettings((prev: any) => ({
+    if (!data?.message || isDirty) return;
+    const serverSettings = data.message as TranslationToolsSettings;
+    setSettings((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      ...serverSettings,
     }));
+  }, [data, isDirty]);
+
+  // Apply model default fallback when model list or provider changes
+  useEffect(() => {
+    if (!modelData?.message) return;
+    const provider = settings.default_model_provider || 'openai';
+    const models = provider === 'openai'
+      ? modelData.message.openai
+      : modelData.message.claude;
+    if (!models?.length) return;
+    // Only apply default if model is not already set
+    if (!settings.default_model) {
+      setSettings((prev) => ({
+        ...prev,
+        default_model: models[0].id,
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modelData, settings.default_model_provider]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    setSettings((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+    }));
+    setIsDirty(true);
   };
 
-  const handleSelectChange = (name: string, value: string) => {
-    // console.log('name SettingsPanel.tsx', name);
-    // console.log('value SettingsPanel.tsx', value);
-    // console.log('handleSelectChange clicked');
+  const handleSelectChange = useCallback((name: string, value: string) => {
     if (name === 'default_model_provider') {
-      // When provider changes, reset the model selection or select first available model
       const newModels =
         value === 'openai'
-          ? modelData.message.openai
-          : modelData.message.claude;
-
-      // console.log('newModels', newModels);
+          ? modelData?.message?.openai
+          : modelData?.message?.claude;
 
       setSettings((prev) => ({
         ...prev,
-        [name]: value as 'openai' | 'anthropic', // Ensure the type matches the expected union type
-        default_model: newModels.length > 0 ? newModels[0].id : '', // Select first model or empty
+        [name]: value as 'openai' | 'anthropic',
+        default_model: newModels?.[0]?.id || '',
       }));
     } else {
-      setSettings((prev: any) => ({ ...prev, [name]: value }));
+      setSettings((prev) => ({ ...prev, [name]: value }));
     }
-  };
+    setIsDirty(true);
+  }, [modelData]);
 
-  const handleSwitchChange = (name: string, checked: boolean) => {
-    setSettings((prev: any) => ({ ...prev, [name]: checked }));
-  };
+  const handleSwitchChange = useCallback((name: string, checked: boolean) => {
+    setSettings((prev) => ({ ...prev, [name]: checked }));
+    setIsDirty(true);
+  }, []);
 
-  const handleSliderChange = (name: string, value: number[]) => {
-    setSettings((prev: any) => ({ ...prev, [name]: value[0] }));
-  };
+  const handleSliderChange = useCallback((name: string, value: number[]) => {
+    setSettings((prev) => ({ ...prev, [name]: value[0] }));
+    setIsDirty(true);
+  }, []);
 
-  const handleTestGitHubConnection = async (
-    github_repo: string,
-    github_token: string
-  ) => {
+  const handleTestGitHubConnection = useCallback(async (github_repo: string, github_token: string) => {
     toast.info('Testing GitHub connection...');
 
     try {
-      const { message } = await testGithub.call({
-        github_repo,
-        github_token,
-      });
+      const { message } = await testGithub.call({ github_repo, github_token });
 
       if (message?.success) {
         if (message.sync_triggered) {
@@ -156,14 +139,16 @@ export default function SettingsPanel() {
       } else {
         toast.error(message?.error || 'Failed to connect to GitHub');
       }
-    } catch (err: any) {
-      toast.error(err.message || 'An error occurred while testing the connection');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An error occurred while testing the connection';
+      toast.error(msg);
     }
-  };
+  }, [testGithub]);
 
-  const handleTestGitHubSync = async (
+  const handleTestGitHubSync = useCallback(async (
     github_repo: string,
-    github_token: string
+    github_token: string,
+    github_branch?: string
   ) => {
     toast.info('Testing GitHub sync for all site apps...');
 
@@ -171,15 +156,15 @@ export default function SettingsPanel() {
       const { message } = await testSync.call({
         github_repo,
         github_token,
+        github_branch,
       });
 
       if (message?.success && message.apps) {
-        const ready = message.apps.filter((a: any) => a.status === 'ready');
-        const noPo = message.apps.filter((a: any) => a.status === 'no_po');
-        const noGithub = message.apps.filter((a: any) => a.status === 'no_github');
+        const ready = message.apps.filter((a) => a.status === 'ready');
+        const noPo = message.apps.filter((a) => a.status === 'no_po');
+        const noGithub = message.apps.filter((a) => a.status === 'no_github');
 
-        // Build detailed summary
-        const lines = ready.map((a: any) =>
+        const lines = ready.map((a) =>
           a.github_percentage !== undefined
             ? `${a.app}: local ${a.percentage}% → GitHub ${a.github_percentage}%`
             : `${a.app}: ${a.percentage}%`
@@ -189,78 +174,64 @@ export default function SettingsPanel() {
           description: [
             `Ready to sync: ${ready.length} apps`,
             ...lines,
-            noPo.length ? `No PO file: ${noPo.map((a: any) => a.app).join(', ')}` : '',
-            noGithub.length ? `Not in repo: ${noGithub.map((a: any) => a.app).join(', ')}` : '',
+            noPo.length ? `No PO file: ${noPo.map((a) => a.app).join(', ')}` : '',
+            noGithub.length ? `Not in repo: ${noGithub.map((a) => a.app).join(', ')}` : '',
           ].filter(Boolean).join('\n'),
           duration: 15000,
         });
       } else {
         toast.error(message?.error || 'Sync test failed');
       }
-    } catch (err: any) {
-      toast.error(err.message || 'An error occurred during sync test');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An error occurred during sync test';
+      toast.error(msg);
     }
-  };
+  }, [testSync]);
 
-  const handleTestOpenAI = async () => {
+  const handleTestOpenAI = useCallback(async () => {
     toast.info('Testing OpenAI connection...');
 
     try {
-      const { message } = await testAi.call({
-        provider: 'openai',
-      });
-
-      // console.log('message from openai testing', message);
+      const { message } = await testAi.call({ provider: 'openai' });
 
       if (message?.success) {
         toast.success(`Successfully connected to OpenAI! Model: ${message.model}`);
       } else {
         toast.error(message?.error || 'Failed to connect to OpenAI');
       }
-    } catch (err: any) {
-      toast.error(err.message || 'An error occurred while testing OpenAI connection');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An error occurred while testing OpenAI connection';
+      toast.error(msg);
     }
-  };
+  }, [testAi]);
 
-  const handleTestAnthropic = async () => {
+  const handleTestAnthropic = useCallback(async () => {
     toast.info('Testing Anthropic connection...');
 
     try {
-      const { message } = await testAi.call({
-        provider: 'anthropic',
-      });
-
-      // console.log('message from anthropic testing', message);
+      const { message } = await testAi.call({ provider: 'anthropic' });
 
       if (message?.success) {
         toast.success(`Successfully connected to Anthropic! Model: ${message.model}`);
       } else {
         toast.error(message?.error || 'Failed to connect to Anthropic');
       }
-    } catch (err: any) {
-      toast.error(err.message || 'An error occurred while testing Anthropic connection');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An error occurred while testing Anthropic connection';
+      toast.error(msg);
     }
-  };
+  }, [testAi]);
 
-  const handleSaveSettings = async () => {
+  const handleSaveSettings = useCallback(async () => {
     setStatusMessage({ type: 'info', message: 'Saving settings...' });
 
+    console.log('[SettingsPanel] handleSaveSettings — saving github_branch:', settings.github_branch);
+
     try {
-      const result: {
-        success: boolean;
-        warnings?: string[];
-        _server_messages?: [];
-        message?: {
-          success: boolean;
-          message: string;
-          warnings: [];
-        };
-      } = await saveSettings.call({ settings });
+      const result = await saveSettings.call({ settings });
 
-      // console.log('result SettingsPanel.tsx', result);
-
-      if (result.message?.success) {
-        // Check if there are any warnings
+      if (result?.message?.success) {
+        setIsDirty(false);  // clear dirty flag — settings now match server
         setStatusMessage({
           type: result.message.warnings?.length ? 'warning' : 'success',
           message:
@@ -269,20 +240,13 @@ export default function SettingsPanel() {
             'Settings saved successfully',
         });
       } else {
-        setStatusMessage({
-          type: 'error',
-          message: 'Failed to save settings',
-        });
+        setStatusMessage({ type: 'error', message: 'Failed to save settings' });
       }
-    } catch (err: any) {
-      const errorMessage =
-        err.message || 'An error occurred while saving settings';
-      setStatusMessage({
-        type: 'error',
-        message: errorMessage,
-      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An error occurred while saving settings';
+      setStatusMessage({ type: 'error', message: msg });
     }
-  };
+  }, [saveSettings, settings]);
 
   if (isLoading || !isReady) {
     return (

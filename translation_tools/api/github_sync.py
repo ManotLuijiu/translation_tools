@@ -4,7 +4,6 @@ import os
 import tempfile
 import requests
 import polib
-import re
 from urllib.parse import urlparse
 import difflib
 from .po_files import validate_file_path
@@ -18,12 +17,14 @@ FUZZY_MATCH_THRESHOLD = 0.9
 
 
 def _get_default_branch():
-    """Return version-15 or version-16 based on installed Frappe major version."""
+    """Return version-16 or version-{major} based on installed Frappe major version.
+    Defaults to version-16 as Frappe transitions from v15 to v16.
+    """
     try:
         major = int(frappe.__version__.split(".")[0])
         return f"version-{major}"
     except Exception:
-        return "version-15"
+        return "version-16"
 
 
 def _get_github_headers():
@@ -40,9 +41,14 @@ def _get_github_headers():
 
 @frappe.whitelist()
 def find_translation_files(repo_url, branch=None, target_language="th"):
+    """Find PO translation files in a GitHub repository.
+    Args:
+        repo_url: GitHub repository URL
+        branch: Branch name (defaults to _get_default_branch() if None)
+        target_language: Language code (default: th)
+    """
     if branch is None:
         branch = _get_default_branch()
-    """Find PO translation files in a GitHub repository"""
     try:
         # Parse the GitHub URL
         parsed_url = urlparse(repo_url)
@@ -66,7 +72,9 @@ def find_translation_files(repo_url, branch=None, target_language="th"):
         # Use GitHub API to fetch repository contents
         api_url = f"https://api.github.com/repos/{owner}/{repo}/git/trees/{branch}?recursive=1"
 
-        response = requests.get(api_url, headers=_get_github_headers(), timeout=HTTP_TIMEOUT)
+        response = requests.get(
+            api_url, headers=_get_github_headers(), timeout=HTTP_TIMEOUT
+        )
 
         if response.status_code != 200:
             frappe.throw(
@@ -148,14 +156,18 @@ def preview_sync(repo_url, branch, repo_files, local_file_path):
         local_untranslated = len([e for e in local_po if not e.msgstr])
 
         # Create a dictionary of existing translations for O(1) lookup
-        existing_translations = {entry.msgid: entry.msgstr for entry in local_po if entry.msgid}
+        existing_translations = {
+            entry.msgid: entry.msgstr for entry in local_po if entry.msgid
+        }
 
         # Process each selected GitHub file
         for repo_file_path in repo_files:
             raw_url = f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{repo_file_path}"
 
             try:
-                response = requests.get(raw_url, headers=_get_github_headers(), timeout=HTTP_TIMEOUT)
+                response = requests.get(
+                    raw_url, headers=_get_github_headers(), timeout=HTTP_TIMEOUT
+                )
             except requests.exceptions.RequestException:
                 continue
 
@@ -228,19 +240,21 @@ def apply_sync(repo_url, branch, repo_files, local_file_path, run_async=False):
     # For large syncs, run in background
     if run_async:
         frappe.enqueue(
-            'translation_tools.api.github_sync._apply_sync_worker',
+            "translation_tools.api.github_sync._apply_sync_worker",
             repo_url=repo_url,
             branch=branch,
             repo_files=repo_files,
             local_file_path=local_file_path,
-            queue='long',
+            queue="long",
             timeout=1800,  # 30 minutes for large files
-            job_name=f"github_sync_{local_file_path}"
+            job_name=f"github_sync_{local_file_path}",
         )
         return {
             "success": True,
-            "message": _("Sync started in background. Check Translation History for results."),
-            "async": True
+            "message": _(
+                "Sync started in background. Check Translation History for results."
+            ),
+            "async": True,
         }
 
     return _apply_sync_internal(repo_url, branch, repo_files, local_file_path)
@@ -251,22 +265,19 @@ def _apply_sync_worker(repo_url, branch, repo_files, local_file_path):
     try:
         result = _apply_sync_internal(repo_url, branch, repo_files, local_file_path)
         frappe.publish_realtime(
-            'github_sync_complete',
-            {
-                'local_file_path': local_file_path,
-                'result': result
-            },
-            after_commit=True
+            "github_sync_complete",
+            {"local_file_path": local_file_path, "result": result},
+            after_commit=True,
         )
     except Exception as e:
         frappe.log_error(f"Background GitHub sync failed: {str(e)}")
         frappe.publish_realtime(
-            'github_sync_complete',
+            "github_sync_complete",
             {
-                'local_file_path': local_file_path,
-                'result': {'success': False, 'error': str(e)}
+                "local_file_path": local_file_path,
+                "result": {"success": False, "error": str(e)},
             },
-            after_commit=True
+            after_commit=True,
         )
 
 
@@ -317,7 +328,9 @@ def _apply_sync_internal(repo_url, branch, repo_files, local_file_path):
             raw_url = f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{repo_file_path}"
 
             try:
-                response = requests.get(raw_url, headers=_get_github_headers(), timeout=HTTP_TIMEOUT)
+                response = requests.get(
+                    raw_url, headers=_get_github_headers(), timeout=HTTP_TIMEOUT
+                )
             except requests.exceptions.Timeout:
                 frappe.log_error(f"Timeout fetching {raw_url}")
                 continue
@@ -372,7 +385,9 @@ def _apply_sync_internal(repo_url, branch, repo_files, local_file_path):
                         best_ratio = FUZZY_MATCH_THRESHOLD
 
                         # Limit candidates for fuzzy matching
-                        candidates = list(unmatched_local.items())[:MAX_FUZZY_CANDIDATES]
+                        candidates = list(unmatched_local.items())[
+                            :MAX_FUZZY_CANDIDATES
+                        ]
 
                         for local_msgid, local_entry in candidates:
                             ratio = difflib.SequenceMatcher(
@@ -419,6 +434,7 @@ def _update_po_file_cache(resolved_path):
     """Update the PO File DocType cache after sync"""
     try:
         from translation_tools.api.po_files import process_po_file
+
         bench_path = get_bench_path()
 
         file_data = process_po_file(resolved_path, bench_path)
@@ -428,10 +444,18 @@ def _update_po_file_cache(resolved_path):
 
             if frappe.db.exists("PO File", po_doc_name):
                 existing_doc = frappe.get_doc("PO File", po_doc_name)
-                existing_doc.translated_entries = file_data.get('translated_entries', existing_doc.translated_entries)
-                existing_doc.total_entries = file_data.get('total_entries', existing_doc.total_entries)
-                existing_doc.translation_status = file_data.get('translated_percentage', existing_doc.translation_status)
-                existing_doc.last_modified = file_data.get('last_modified', existing_doc.last_modified)
+                existing_doc.translated_entries = file_data.get(
+                    "translated_entries", existing_doc.translated_entries
+                )
+                existing_doc.total_entries = file_data.get(
+                    "total_entries", existing_doc.total_entries
+                )
+                existing_doc.translation_status = file_data.get(
+                    "translated_percentage", existing_doc.translation_status
+                )
+                existing_doc.last_modified = file_data.get(
+                    "last_modified", existing_doc.last_modified
+                )
                 existing_doc.save(ignore_permissions=True)
                 frappe.db.commit()
     except Exception as cache_error:

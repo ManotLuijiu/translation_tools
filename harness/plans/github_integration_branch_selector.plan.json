@@ -1,0 +1,144 @@
+{
+  "goal": "Add a branch field to the Translation Tools GitHub Integration tab and make branch defaults/persistence align with Frappe v16 plus GitHub Sync Settings.",
+  "context": {
+    "app": "translation_tools",
+    "framework": "Frappe + React dashboard",
+    "source_doctype": "Translation Tools Settings",
+    "target_doctype": "GitHub Sync Settings",
+    "risk_level": "medium"
+  },
+  "tasks": [
+    {
+      "id": "T1",
+      "agent": "frappe_architect",
+      "description": "Audit the current branch flow across Translation Tools Settings, GitHub Sync Settings, dashboard settings UI, and GitHub sync modal. Confirm all hardcoded version-15 defaults and define the final source-of-truth/fallback order.",
+      "input_files": [
+        "translation_tools/api/settings.py",
+        "translation_tools/api/app_sync_settings.py",
+        "translation_tools/setup/github_sync_defaults.py",
+        "thai_translation_dashboard/src/api/settings.ts",
+        "thai_translation_dashboard/src/components/SettingsPanel.tsx",
+        "thai_translation_dashboard/src/components/settings/GithubIntegrationSettings.tsx",
+        "thai_translation_dashboard/src/components/GithubSync.tsx"
+      ],
+      "output": "harness/reports/github_branch_field_mapping.md",
+      "acceptance_criteria": [
+        "Lists every place where version-15 is hardcoded in this settings/sync flow",
+        "Defines fallback order for branch resolution",
+        "Separates in-scope settings/sync fixes from out-of-scope push workflow behavior"
+      ]
+    },
+    {
+      "id": "T2",
+      "agent": "business_logic_agent",
+      "description": "Define the branch ownership model and save behavior. Translation Tools Settings.default_branch should be the user-facing source, mirrored to GitHub Sync Settings.branch for scheduled sync compatibility.",
+      "depends_on": ["T1"],
+      "input_files": [
+        "translation_tools/api/settings.py",
+        "translation_tools/api/app_sync_settings.py",
+        "translation_tools/setup/github_sync_defaults.py"
+      ],
+      "output": "harness/reports/github_branch_workflow.md",
+      "acceptance_criteria": [
+        "Documents source-of-truth decision",
+        "Documents unsaved Test Sync behavior",
+        "Documents mirror behavior without overwriting unrelated auto-sync flags"
+      ]
+    },
+    {
+      "id": "T3",
+      "agent": "python_frappe_agent",
+      "description": "Implement backend changes so get/save settings, sync tests, and setup defaults all use a version-aware branch and persist/mirror default_branch correctly.",
+      "depends_on": ["T2"],
+      "input_files": [
+        "translation_tools/api/settings.py",
+        "translation_tools/api/app_sync_settings.py",
+        "translation_tools/setup/github_sync_defaults.py"
+      ],
+      "output": "Updated backend source files with branch persistence and sync alignment.",
+      "acceptance_criteria": [
+        "get_translation_settings returns saved default_branch when present",
+        "save_translation_settings persists default_branch and mirrors it to GitHub Sync Settings.branch",
+        "test_github_sync accepts/request-uses an explicit branch before falling back",
+        "setup defaults resolve to version-16 on v16 instead of version-15"
+      ]
+    },
+    {
+      "id": "T4",
+      "agent": "frappe_js_agent",
+      "description": "Implement the dashboard UI updates: add branch field to GitHub Integration, wire settings types/state, pass branch to Test Sync, and remove hardcoded version-15 fallback from the GitHub sync modal.",
+      "depends_on": ["T3"],
+      "input_files": [
+        "thai_translation_dashboard/src/api/settings.ts",
+        "thai_translation_dashboard/src/components/SettingsPanel.tsx",
+        "thai_translation_dashboard/src/components/settings/GithubIntegrationSettings.tsx",
+        "thai_translation_dashboard/src/components/GithubSync.tsx"
+      ],
+      "output": "Updated React source files for branch-aware GitHub settings and sync UI.",
+      "acceptance_criteria": [
+        "GitHub Integration tab shows a branch field",
+        "Settings state includes default_branch",
+        "Test Sync sends the current branch value",
+        "GitHub sync modal no longer boots with version-15 on v16 sites"
+      ]
+    },
+    {
+      "id": "T5",
+      "agent": "test_agent",
+      "description": "Add or update regression coverage for version-aware fallback, saved branch persistence, sync-settings mirroring, and explicit branch handling in sync tests.",
+      "depends_on": ["T3", "T4"],
+      "input_files": [
+        "translation_tools/tests/test_github_auto_sync.py",
+        "translation_tools/translation_tools/doctype/github_sync_settings/test_github_sync_settings.py"
+      ],
+      "output": "Updated Python test coverage for branch-selection behavior.",
+      "acceptance_criteria": [
+        "Covers saved default_branch override",
+        "Covers version-based fallback",
+        "Covers sync settings mirror behavior",
+        "Updates stale version-15-only expectations"
+      ]
+    },
+    {
+      "id": "T6",
+      "agent": "verifier_agent",
+      "description": "Run static verification only on the changed files and produce a short residual-risk report. Do not run bench operations.",
+      "depends_on": ["T5"],
+      "input_files": [
+        "translation_tools/api/settings.py",
+        "translation_tools/api/app_sync_settings.py",
+        "translation_tools/setup/github_sync_defaults.py",
+        "thai_translation_dashboard/src/api/settings.ts",
+        "thai_translation_dashboard/src/components/SettingsPanel.tsx",
+        "thai_translation_dashboard/src/components/settings/GithubIntegrationSettings.tsx",
+        "thai_translation_dashboard/src/components/GithubSync.tsx"
+      ],
+      "output": "harness/reports/github_branch_verification.md",
+      "acceptance_criteria": [
+        "Python syntax verified for changed backend files",
+        "Frontend source syntax/type safety checked with non-heavy commands if available",
+        "Residual version-15 references are explained and intentional"
+      ]
+    }
+  ],
+  "approval_gates": [
+    {
+      "gate": "No bench operations",
+      "reason": "User did not approve migrations, restarts, or other heavy framework commands."
+    },
+    {
+      "gate": "No commit or push",
+      "reason": "User wants a coding plan/handoff for Minimax, not a VCS operation."
+    },
+    {
+      "gate": "Do not change push/PR semantics in po_files.py unless separately approved",
+      "reason": "This task is about settings + sync branch selection, not the broader GitHub publish workflow."
+    }
+  ],
+  "final_outputs": [
+    "harness/plans/github_integration_branch_selector.plan.md",
+    "harness/plans/github_integration_branch_selector.plan.json",
+    "harness/plans/github_integration_branch_selector.handoff.md",
+    "Updated harness agent instructions aligned to translation_tools GitHub branch work"
+  ]
+}

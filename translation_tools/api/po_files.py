@@ -12,8 +12,20 @@ import subprocess
 import shutil
 import hashlib
 import requests
-from urllib.parse import urlparse
-from frappe.utils.password import get_decrypted_password, get_encryption_key, encrypt
+
+
+def _get_default_branch():
+    """Return version-16 or version-{major} based on installed Frappe major version.
+    Defaults to version-16 as Frappe transitions from v15 to v16.
+    """
+    try:
+        major = int(frappe.__version__.split(".")[0])
+        return f"version-{major}"
+    except Exception:
+        return "version-16"
+
+
+from frappe.utils.password import get_decrypted_password
 
 import frappe.utils
 from .common import get_bench_path
@@ -239,7 +251,9 @@ def get_po_file_entries_paginated(
                     "msgid": entry.msgid,
                     "msgstr": entry.msgstr if hasattr(entry, "msgstr") else "",
                     "is_translated": (
-                        bool(entry.msgstr and entry.msgstr.strip()) if hasattr(entry, "msgstr") else False
+                        bool(entry.msgstr and entry.msgstr.strip())
+                        if hasattr(entry, "msgstr")
+                        else False
                     ),
                     "context": entry.msgctxt if hasattr(entry, "msgctxt") else None,
                     "comments": entry.comment if hasattr(entry, "comment") else [],
@@ -471,7 +485,9 @@ def get_po_files(language=None):
         logger.info(f"Fetching PO files for language '{language}' on site '{site}'")
     else:
         filename_patterns = [f"{lang}.po" for lang in ASEAN_LANGUAGES]
-        logger.info(f"Fetching all ASEAN PO files for site '{site}' - languages: {ASEAN_LANGUAGES}")
+        logger.info(
+            f"Fetching all ASEAN PO files for site '{site}' - languages: {ASEAN_LANGUAGES}"
+        )
 
     print(f"🚀 SCAN START - Site: {site}, Languages: {filename_patterns}")
     print(f"📱 Installed Apps ({len(installed_apps)}): {', '.join(installed_apps)}")
@@ -482,7 +498,11 @@ def get_po_files(language=None):
             "PO File",
             filters=[
                 ["filename", "in", filename_patterns],
-                ["app_name", "in", installed_apps]  # Filter by site-specific installed apps
+                [
+                    "app_name",
+                    "in",
+                    installed_apps,
+                ],  # Filter by site-specific installed apps
             ],
             fields=[
                 "file_path",
@@ -505,7 +525,7 @@ def get_po_files(language=None):
                 "PO File",
                 filters=[
                     ["filename", "in", filename_patterns],
-                    ["app_name", "in", installed_apps]
+                    ["app_name", "in", installed_apps],
                 ],
                 fields=["MAX(last_scanned) as last_scan"],
                 limit=1,
@@ -516,16 +536,22 @@ def get_po_files(language=None):
                 cache_age = datetime.now() - last_scan_time
 
                 if cache_age.total_seconds() < 3600:  # Less than 1 hour old
-                    logger.debug(f"Using {len(po_files)} cached PO files for site '{site}'")
+                    logger.debug(
+                        f"Using {len(po_files)} cached PO files for site '{site}'"
+                    )
                     return po_files
 
         # If we got here, either no cache or cache is stale
         # Scan the filesystem for PO files (this will also filter by installed apps)
-        logger.info(f"No fresh cache found, scanning filesystem for PO files on site '{site}'")
+        logger.info(
+            f"No fresh cache found, scanning filesystem for PO files on site '{site}'"
+        )
         return scan_and_cache_po_files(filename_patterns=filename_patterns)
 
     except Exception as e:
-        logger.error(f"Error fetching PO files for site '{site}': {str(e)}", exc_info=True)
+        logger.error(
+            f"Error fetching PO files for site '{site}': {str(e)}", exc_info=True
+        )
         raise
 
 
@@ -680,9 +706,11 @@ def parse_po_file(file_path):
 
     # Get language from filename (more reliable than metadata)
     filename = os.path.basename(file_path)
-    if filename.endswith('.po'):
-        language_parts = filename[:-3].split('.')  # Remove .po extension and split
-        language = language_parts[0]  # First part is the language code (e.g., 'th' from 'th.po')
+    if filename.endswith(".po"):
+        language_parts = filename[:-3].split(".")  # Remove .po extension and split
+        language = language_parts[
+            0
+        ]  # First part is the language code (e.g., 'th' from 'th.po')
     else:
         language = po.metadata.get("Language", "unknown")
 
@@ -721,56 +749,66 @@ def get_cached_po_files():
             ],
             order_by="app_name, filename",
         )
-        
+
         # Check for stale files and auto-refresh them
         bench_path = get_bench_path()
         stale_files = []
         refreshed_count = 0
-        
+
         for po_file in po_files:
             try:
                 # Build full path
                 full_path = os.path.join(bench_path, po_file.file_path)
-                
+
                 if os.path.exists(full_path):
                     # Check if file is newer than last scan
                     file_modified = datetime.fromtimestamp(os.path.getmtime(full_path))
                     last_scanned = po_file.last_scanned
-                    
+
                     if isinstance(last_scanned, str):
-                        last_scanned = datetime.fromisoformat(last_scanned.replace('Z', '+00:00'))
-                    
+                        last_scanned = datetime.fromisoformat(
+                            last_scanned.replace("Z", "+00:00")
+                        )
+
                     # If file is newer than last scan, refresh its stats
                     if file_modified > last_scanned:
                         logger.info(f"Auto-refreshing stale file: {po_file.file_path}")
                         fresh_stats = parse_po_file(full_path)
-                        
+
                         # Update database record
-                        frappe.db.set_value("PO File", po_file.name, {
-                            "total_entries": fresh_stats["total_entries"],
-                            "translated_entries": fresh_stats["translated_entries"],
-                            "translation_status": fresh_stats["translation_status"],
-                            "last_scanned": frappe.utils.now_datetime()
-                        })
-                        
+                        frappe.db.set_value(
+                            "PO File",
+                            po_file.name,
+                            {
+                                "total_entries": fresh_stats["total_entries"],
+                                "translated_entries": fresh_stats["translated_entries"],
+                                "translation_status": fresh_stats["translation_status"],
+                                "last_scanned": frappe.utils.now_datetime(),
+                            },
+                        )
+
                         # Update the returned data too
                         po_file.total_entries = fresh_stats["total_entries"]
                         po_file.translated_entries = fresh_stats["translated_entries"]
-                        po_file.translated_percentage = fresh_stats["translation_status"]
-                        
+                        po_file.translated_percentage = fresh_stats[
+                            "translation_status"
+                        ]
+
                         refreshed_count += 1
                         stale_files.append(po_file.file_path)
             except Exception as e:
                 logger.warning(f"Error checking file {po_file.file_path}: {str(e)}")
                 continue
-        
+
         if refreshed_count > 0:
             frappe.db.commit()
-            logger.info(f"Auto-refreshed {refreshed_count} stale PO files: {stale_files}")
-        
+            logger.info(
+                f"Auto-refreshed {refreshed_count} stale PO files: {stale_files}"
+            )
+
         logger.debug(f"Found {len(po_files)} cached PO files")
         return po_files
-        
+
     except Exception as e:
         logger.error(f"Error fetching cached PO files: {str(e)}", exc_info=True)
         raise
@@ -785,15 +823,15 @@ def process_po_file(file_path, bench_path):
 
         # Always use relative path from bench root (not apps root)
         rel_path = os.path.relpath(file_path, bench_path)
-        
+
         # Extract app name from path: apps/app_name/app_name/locale/th.po
         path_parts = rel_path.split(os.path.sep)
-        if len(path_parts) >= 2 and path_parts[0] == 'apps':
+        if len(path_parts) >= 2 and path_parts[0] == "apps":
             app_name = path_parts[1]
         else:
             # Fallback for non-standard paths
-            app_name = path_parts[0] if path_parts else 'unknown'
-            
+            app_name = path_parts[0] if path_parts else "unknown"
+
         filename = os.path.basename(file_path)
 
         # Get file stats
@@ -808,8 +846,8 @@ def process_po_file(file_path, bench_path):
         translated = len(po.translated_entries())
         translation_status = int((translated / total) * 100) if total > 0 else 0
         # Extract language from filename (more reliable than metadata)
-        if filename.endswith('.po'):
-            language_parts = filename[:-3].split('.')  # Remove .po extension and split
+        if filename.endswith(".po"):
+            language_parts = filename[:-3].split(".")  # Remove .po extension and split
             language = language_parts[0]  # First part is the language code
         else:
             language = po.metadata.get("Language", "th")
@@ -840,16 +878,18 @@ def scan_po_files():
         return {"success": False, "error": "Scan already in progress"}
 
     SCAN_IN_PROGRESS = True
-    
+
     # Suppress validation messages for duplicate entries during scan
     frappe.flags.ignore_validation_messages = True
     frappe.flags.ignore_validate = True
     frappe.flags.ignore_links = True
-    
+
     site = frappe.local.site
     installed_apps = frappe.get_installed_apps()
-    
-    logger.info(f"Starting scan for PO files on site '{site}' - installed apps: {installed_apps}")
+
+    logger.info(
+        f"Starting scan for PO files on site '{site}' - installed apps: {installed_apps}"
+    )
     print(f"🔍 SCANNING PO FILES - Site: {site}")
     print(f"📱 Apps to scan ({len(installed_apps)}): {', '.join(installed_apps)}")
 
@@ -876,7 +916,9 @@ def scan_po_files():
             for app_name in installed_apps
             if os.path.isdir(os.path.join(apps_path, app_name))
         ]
-        logger.debug(f"Found {len(app_dirs)} installed app directories for site '{site}': {app_dirs}")
+        logger.debug(
+            f"Found {len(app_dirs)} installed app directories for site '{site}': {app_dirs}"
+        )
 
         # Find all th.po files
         matching_files = []
@@ -905,79 +947,113 @@ def scan_po_files():
                 continue
 
             # Bulletproof duplicate handling to prevent SQL IntegrityError
-            print(f"🔍 Processing PO file [{i+1}/{len(matching_files)}]: {file_path}")
+            print(f"🔍 Processing PO file [{i + 1}/{len(matching_files)}]: {file_path}")
             try:
                 file_data.update({"doctype": "PO File"})
-                
+
                 # Method 1: Check if document already exists by name (primary key)
                 # Use the relative path from file_data as the document name, not the absolute file_path
-                po_doc_name = file_data["file_path"]  # This is the relative path that serves as the primary key
+                po_doc_name = file_data[
+                    "file_path"
+                ]  # This is the relative path that serves as the primary key
                 print(f"   📋 Checking if exists in database: {po_doc_name}")
-                
+
                 if frappe.db.exists("PO File", po_doc_name):
-                    print(f"   ✅ FOUND - Document exists in database")
+                    print("   ✅ FOUND - Document exists in database")
                     # Document exists - check if we should update it
                     try:
                         existing_doc = frappe.get_doc("PO File", po_doc_name)
-                        print(f"   📊 Comparing: DB({existing_doc.translated_entries}/{existing_doc.total_entries}) vs File({file_data.get('translated_entries')}/{file_data.get('total_entries')})")
-                        
+                        print(
+                            f"   📊 Comparing: DB({existing_doc.translated_entries}/{existing_doc.total_entries}) vs File({file_data.get('translated_entries')}/{file_data.get('total_entries')})"
+                        )
+
                         # Update if file is newer or stats are different
                         should_update = (
-                            file_data.get("last_modified") != existing_doc.last_modified or
-                            file_data.get("translated_entries") != existing_doc.translated_entries or
-                            file_data.get("total_entries") != existing_doc.total_entries
+                            file_data.get("last_modified") != existing_doc.last_modified
+                            or file_data.get("translated_entries")
+                            != existing_doc.translated_entries
+                            or file_data.get("total_entries")
+                            != existing_doc.total_entries
                         )
-                        
+
                         if should_update:
-                            print(f"   🔄 UPDATING - Changes detected, updating existing document")
+                            print(
+                                "   🔄 UPDATING - Changes detected, updating existing document"
+                            )
                             # Update existing document
                             for key, value in file_data.items():
                                 if key != "doctype" and hasattr(existing_doc, key):
                                     setattr(existing_doc, key, value)
-                            
-                            existing_doc.save(ignore_permissions=True, ignore_validate=True)
+
+                            existing_doc.save(
+                                ignore_permissions=True, ignore_validate=True
+                            )
                             stats["updated_files"] += 1
-                            logger.info(f"🔄 Updated existing th.po in database: {file_path}")
-                            print(f"   ✅ UPDATE SUCCESS - Document updated in database")
+                            logger.info(
+                                f"🔄 Updated existing th.po in database: {file_path}"
+                            )
+                            print("   ✅ UPDATE SUCCESS - Document updated in database")
                         else:
                             stats["updated_files"] += 1
-                            logger.debug(f"⏭️ Skipping - th.po unchanged in database: {file_path}")
-                            print(f"   ⏭️ SKIPPING - No changes detected")
-                            
+                            logger.debug(
+                                f"⏭️ Skipping - th.po unchanged in database: {file_path}"
+                            )
+                            print("   ⏭️ SKIPPING - No changes detected")
+
                     except Exception as update_error:
                         print(f"   ❌ UPDATE FAILED - Error: {str(update_error)}")
-                        logger.warning(f"⚠️ Could not update existing th.po {file_path}: {str(update_error)}")
+                        logger.warning(
+                            f"⚠️ Could not update existing th.po {file_path}: {str(update_error)}"
+                        )
                         stats["failed_files"] += 1
                 else:
-                    print(f"   🆕 NEW - Document doesn't exist, creating new record")
+                    print("   🆕 NEW - Document doesn't exist, creating new record")
                     # Document doesn't exist - try to create it with duplicate protection
                     try:
                         new_doc = frappe.get_doc(file_data)
-                        new_doc.insert(ignore_permissions=True, ignore_if_duplicate=True)
+                        new_doc.insert(
+                            ignore_permissions=True, ignore_if_duplicate=True
+                        )
                         stats["new_files"] += 1
                         logger.info(f"✅ Added new th.po to database: {file_path}")
-                        print(f"   ✅ INSERT SUCCESS - New document created in database")
-                        
+                        print("   ✅ INSERT SUCCESS - New document created in database")
+
                     except frappe.DuplicateEntryError:
-                        print(f"   ⚠️ RACE CONDITION - Duplicate entry detected during insert (another process got there first)")
+                        print(
+                            "   ⚠️ RACE CONDITION - Duplicate entry detected during insert (another process got there first)"
+                        )
                         # Handle race condition where another process inserted between our check and insert
-                        logger.info(f"⚠️ Duplicate entry detected during insert (race condition) - skipping: {file_path}")
+                        logger.info(
+                            f"⚠️ Duplicate entry detected during insert (race condition) - skipping: {file_path}"
+                        )
                         stats["updated_files"] += 1
-                        
+
                     except Exception as insert_error:
                         # Check if it's a duplicate error we can handle
-                        if "Duplicate entry" in str(insert_error) or "1062" in str(insert_error):
-                            print(f"   ⚠️ SQL DUPLICATE ERROR - MySQL error 1062 (race condition): {str(insert_error)}")
-                            logger.info(f"⚠️ SQL duplicate entry error (race condition) - skipping: {file_path}")
+                        if "Duplicate entry" in str(insert_error) or "1062" in str(
+                            insert_error
+                        ):
+                            print(
+                                f"   ⚠️ SQL DUPLICATE ERROR - MySQL error 1062 (race condition): {str(insert_error)}"
+                            )
+                            logger.info(
+                                f"⚠️ SQL duplicate entry error (race condition) - skipping: {file_path}"
+                            )
                             stats["updated_files"] += 1
                         else:
-                            print(f"   ❌ INSERT FAILED - Unexpected error: {str(insert_error)}")
-                            logger.error(f"❌ Failed to add th.po to database: {file_path} - {str(insert_error)}")
+                            print(
+                                f"   ❌ INSERT FAILED - Unexpected error: {str(insert_error)}"
+                            )
+                            logger.error(
+                                f"❌ Failed to add th.po to database: {file_path} - {str(insert_error)}"
+                            )
                             stats["failed_files"] += 1
-                            
+
             except Exception as e:
                 print(f"   💥 CRITICAL ERROR - Exception during processing: {str(e)}")
-                logger.error(f"❌ Critical error processing th.po file: {file_path} - {str(e)}")
+                logger.error(
+                    f"❌ Critical error processing th.po file: {file_path} - {str(e)}"
+                )
                 stats["failed_files"] += 1
 
             # Commit every BATCH_SIZE files to avoid long transactions
@@ -993,19 +1069,19 @@ def scan_po_files():
             f"{stats['new_files']} new, {stats['updated_files']} updated, "
             f"{stats['failed_files']} failed"
         )
-        print(f"🏁 SCAN COMPLETED - Summary:")
+        print("🏁 SCAN COMPLETED - Summary:")
         print(f"   📊 Total files processed: {stats['total_files']}")
         print(f"   🆕 New files added: {stats['new_files']}")
         print(f"   🔄 Files updated: {stats['updated_files']}")
         print(f"   ❌ Files failed: {stats['failed_files']}")
-        print(f"✅ SCAN SUCCESS - All files processed without SQL errors!")
+        print("✅ SCAN SUCCESS - All files processed without SQL errors!")
         return {"success": True, **stats}
 
     except Exception as e:
         logger.exception("Critical error during scan")
-        print(f"💥 SCAN FAILED - Critical error occurred:")
+        print("💥 SCAN FAILED - Critical error occurred:")
         print(f"   ❌ Error: {str(e)}")
-        print(f"   🔄 Database rollback performed")
+        print("   🔄 Database rollback performed")
         frappe.db.rollback()
         return {
             "success": False,
@@ -1128,7 +1204,9 @@ def get_po_file_contents(file_path, limit=100, offset=0):
                     "entry_type": (
                         "fuzzy"
                         if "fuzzy" in entry.flags
-                        else "translated" if entry.msgstr else "untranslated"
+                        else "translated"
+                        if entry.msgstr
+                        else "untranslated"
                     ),
                 }
             )
@@ -1156,7 +1234,14 @@ def get_po_file_contents(file_path, limit=100, offset=0):
 
 @frappe.whitelist()
 @enhanced_error_handler
-def save_translation(file_path, entry_id, translation, push_to_github=False, msgid=None):
+def save_translation(
+    file_path,
+    entry_id,
+    translation,
+    push_to_github=False,
+    msgid=None,
+    github_branch=None,
+):
     """
     Save a single translation to local file and optionally push to Github
     Args:
@@ -1165,6 +1250,7 @@ def save_translation(file_path, entry_id, translation, push_to_github=False, msg
         translation (str): The translated text
         push_to_github (bool): Whether to also push to GitHub
         msgid (str, optional): Original msgid for fallback lookup if hash doesn't match
+        github_branch (str, optional): Branch to push to. If not provided, falls back to DB settings.
     """
 
     loggerJson.info("Start save translation")
@@ -1225,33 +1311,49 @@ def save_translation(file_path, entry_id, translation, push_to_github=False, msg
         # Fallback: If hash lookup failed, try msgid-based lookup
         # This handles cases where the PO file was modified (index shifted)
         if entry is None and msgid:
-            logger.warning(f"Entry with hash ID {entry_id} not found, trying msgid fallback with provided msgid...")
+            logger.warning(
+                f"Entry with hash ID {entry_id} not found, trying msgid fallback with provided msgid..."
+            )
 
             # Use the msgid provided by frontend for reliable lookup
             for index, potential_entry in enumerate(po):
                 if potential_entry.msgid == msgid:
                     entry = potential_entry
                     orig_index = index
-                    logger.info(f"Found entry by exact msgid match at index {index} (fallback)")
+                    logger.info(
+                        f"Found entry by exact msgid match at index {index} (fallback)"
+                    )
                     break
 
         # Second fallback: try msgid-only hash if msgid wasn't provided
         if entry is None:
-            logger.warning(f"Entry with hash ID {entry_id} not found, trying msgid hash fallback...")
+            logger.warning(
+                f"Entry with hash ID {entry_id} not found, trying msgid hash fallback..."
+            )
 
             for index, potential_entry in enumerate(po):
                 # Try matching just by msgid hash (without index)
-                msgid_only_hash = hashlib.md5(potential_entry.msgid.encode("utf-8")).hexdigest()
+                msgid_only_hash = hashlib.md5(
+                    potential_entry.msgid.encode("utf-8")
+                ).hexdigest()
 
                 if msgid_only_hash == entry_id:
                     entry = potential_entry
                     orig_index = index
-                    logger.info(f"Found entry by msgid-only hash at index {index} (fallback)")
+                    logger.info(
+                        f"Found entry by msgid-only hash at index {index} (fallback)"
+                    )
                     break
 
         if entry is None:
-            logger.warning(f"Entry with ID {entry_id} not found even with fallback. msgid provided: {bool(msgid)}")
-            frappe.throw(_("Entry not found. The file may have been modified. Please refresh the page and try again."))
+            logger.warning(
+                f"Entry with ID {entry_id} not found even with fallback. msgid provided: {bool(msgid)}"
+            )
+            frappe.throw(
+                _(
+                    "Entry not found. The file may have been modified. Please refresh the page and try again."
+                )
+            )
 
         # Check if this is a new translation (i.e., previously untranslated)
         was_untranslated = entry is not None and not entry.msgstr
@@ -1342,7 +1444,9 @@ def save_translation(file_path, entry_id, translation, push_to_github=False, msg
         # Push to Github if requested
         github_result = {"github_pushed": False}
         if push_to_github:
-            github_result = push_translation_to_github(file_path, entry, translation)
+            github_result = push_translation_to_github(
+                file_path, entry, translation, github_branch=github_branch
+            )
 
         logger.info(f"Successfully saved translation for entry {entry_id}")
         result = {"success": True, "github": github_result}
@@ -1375,7 +1479,9 @@ def should_create_pr():
         session_username = frappe.session.user
         user_email = frappe.db.get_value("User", session_username, "email")
         bypass_emails = frappe.conf.get("translation_bypass_emails", [])
-        logger.info(f"Push mode check: session_user={session_username}, email={user_email}, bypass={bypass_emails}")
+        logger.info(
+            f"Push mode check: session_user={session_username}, email={user_email}, bypass={bypass_emails}"
+        )
         if user_email in bypass_emails:
             logger.info(f"User {user_email} in bypass list - using direct push")
             return False
@@ -1444,7 +1550,13 @@ def parse_github_repo_url(repo_url):
         return None, None
 
 
-def create_github_pull_request(token, owner, repo, branch_name, title, body, base="version-15"):
+def create_github_pull_request(token, owner, repo, branch_name, title, body, base=None):
+    """Create a Pull Request on GitHub using the REST API.
+
+    Args:
+        base (str|None): Target branch. Defaults to the version-aware default branch
+                         ("version-N" based on installed Frappe version).
+    """
     """
     Create a Pull Request on GitHub using the REST API.
 
@@ -1489,7 +1601,9 @@ def create_github_pull_request(token, owner, repo, branch_name, title, body, bas
         elif response.status_code == 422:
             # Might be duplicate PR or no changes
             error_data = response.json()
-            error_msg = error_data.get("errors", [{}])[0].get("message", "Unknown error")
+            error_msg = error_data.get("errors", [{}])[0].get(
+                "message", "Unknown error"
+            )
             if "A pull request already exists" in str(error_data):
                 logger.info("PR already exists for this branch")
                 return {
@@ -1513,7 +1627,11 @@ def create_github_pull_request(token, owner, repo, branch_name, title, body, bas
 
 
 def push_translation_to_github(
-    file_path, entry=None, translation=None, custom_commit_message=None
+    file_path,
+    entry=None,
+    translation=None,
+    custom_commit_message=None,
+    github_branch=None,
 ):
     """
     Push a translation PO file to GitHub, handling existing repositories properly.
@@ -1554,7 +1672,9 @@ def push_translation_to_github(
 
     # Create token URL (use x-access-token for fine-grained PAT compatibility)
     if isinstance(repo_url, str) and isinstance(github_token, str):
-        token_url = repo_url.replace("https://", f"https://x-access-token:{github_token}@")
+        token_url = repo_url.replace(
+            "https://", f"https://x-access-token:{github_token}@"
+        )
     else:
         raise TypeError("repo_url and github_token must be strings")
 
@@ -1583,29 +1703,55 @@ def push_translation_to_github(
         with tempfile.TemporaryDirectory() as temp_dir:
             logger.info(f"Working in temporary directory: {temp_dir}")
 
-            # Resolve the target branch from GitHub Sync Settings or Frappe version
-            # Use frappe.boot for version detection (works across Frappe versions)
-            try:
-                bootinfo = getattr(frappe.local, "boot", None) or {}
-                frappe_version = bootinfo.get("versions", {}).get("frappe") or frappe.__version__
-                logger.info(f"Detected Frappe version: {frappe_version}")
-                major = int(frappe_version.split(".")[0])
-                default_branch = f"version-{major}"
-                logger.info(f"Default branch determined: {default_branch}")
-            except Exception:
-                default_branch = "version-15"
+            # Resolve the target branch — strict priority, no later override:
+            target_branch = ""
+            # 1. github_branch param passed directly from frontend (highest)
+            # 2. Translation Tools Settings default_branch
+            # 3. GitHub Sync Settings branch
+            # 4. _get_default_branch() (version-based fallback)
+            if github_branch:
+                target_branch = github_branch
+                logger.info(f"Branch from frontend: {target_branch}")
+            else:
+                # Check Translation Tools Settings
+                _tts_branch = ""
+                try:
+                    if frappe.db.exists("DocType", "Translation Tools Settings"):
+                        _tts = frappe.get_single("Translation Tools Settings")
+                        _tts_branch = getattr(_tts, "default_branch", None) or ""
+                        logger.info(
+                            f"Translation Tools Settings default_branch: '{_tts_branch}'"
+                        )
+                except Exception as e:
+                    logger.warning(f"Could not read Translation Tools Settings: {e}")
+                if _tts_branch:
+                    target_branch = _tts_branch
+                    logger.info(
+                        f"Using branch from Translation Tools Settings: {target_branch}"
+                    )
+                else:
+                    # Check GitHub Sync Settings
+                    try:
+                        if frappe.db.exists("DocType", "GitHub Sync Settings"):
+                            _sync_settings = frappe.get_single("GitHub Sync Settings")
+                            if _sync_settings.branch:
+                                target_branch = _sync_settings.branch
+                                logger.info(
+                                    f"Using branch from GitHub Sync Settings: {target_branch}"
+                                )
+                            else:
+                                logger.info(
+                                    "No branch in GitHub Sync Settings, using default"
+                                )
+                    except Exception:
+                        pass
 
-            target_branch = default_branch
-            try:
-                if frappe.db.exists("DocType", "GitHub Sync Settings"):
-                    _sync_settings = frappe.get_single("GitHub Sync Settings")
-                    if _sync_settings.branch:
-                        target_branch = _sync_settings.branch
-                        logger.info(f"Using branch from GitHub Sync Settings: {target_branch}")
-                    else:
-                        logger.info(f"No branch in GitHub Sync Settings, using default: {default_branch}")
-            except Exception:
-                pass
+                    if not target_branch:
+                        target_branch = _get_default_branch()
+                        logger.info(
+                            f"Final target_branch (fallback to _get_default_branch): {target_branch}"
+                        )
+
             logger.info(f"Final target_branch: {target_branch}")
 
             # Check if repo exists by trying to clone it
@@ -1613,17 +1759,28 @@ def push_translation_to_github(
             try:
                 # Try to clone the existing repository on the configured branch
                 subprocess.run(
-                    ["git", "clone", "--branch", target_branch, str(token_url), str(temp_dir)],
+                    [
+                        "git",
+                        "clone",
+                        "--branch",
+                        target_branch,
+                        str(token_url),
+                        str(temp_dir),
+                    ],
                     check=True,
                     capture_output=True,
                     text=True,
                 )
                 repo_exists = True
-                logger.info(f"Successfully cloned existing repository (branch: {target_branch})")
+                logger.info(
+                    f"Successfully cloned existing repository (branch: {target_branch})"
+                )
             except subprocess.CalledProcessError as e:
                 if "Repository not found" in e.stderr or "not found" in e.stderr:
                     # Repository doesn't exist yet - force direct push mode
-                    logger.info("Repository doesn't exist, will create a new one (forcing direct push)")
+                    logger.info(
+                        "Repository doesn't exist, will create a new one (forcing direct push)"
+                    )
                     repo_exists = False
                     use_pr_mode = False  # Can't create PR for new repo
 
@@ -1656,7 +1813,10 @@ def push_translation_to_github(
 
             # Set user info
             session_username = frappe.session.user
-            user_email = frappe.db.get_value("User", session_username, "email") or "translation-tools@example.com"
+            user_email = (
+                frappe.db.get_value("User", session_username, "email")
+                or "translation-tools@example.com"
+            )
             user_name = (
                 frappe.db.get_value("User", session_username, "full_name")
                 or "Translation Tools"
@@ -1686,9 +1846,13 @@ def push_translation_to_github(
                         logger.info("Successfully pulled latest changes from remote")
                     else:
                         # Log but don't fail - there might be nothing to pull
-                        logger.warning(f"Pull warning (non-fatal): {pull_result.stderr}")
+                        logger.warning(
+                            f"Pull warning (non-fatal): {pull_result.stderr}"
+                        )
                 except Exception as pull_err:
-                    logger.warning(f"Could not pull from remote (continuing anyway): {pull_err}")
+                    logger.warning(
+                        f"Could not pull from remote (continuing anyway): {pull_err}"
+                    )
 
             # Create feature branch for PR mode
             branch_name = target_branch
@@ -1807,8 +1971,12 @@ def push_translation_to_github(
                 logger.info(f"Successfully pushed to GitHub branch: {branch_name}")
 
                 # If PR mode, create the Pull Request
-                # Don't create PR if target_branch is version-15 (direct push instead)
-                if use_pr_mode and repo_exists and target_branch != "version-15":
+                # Don't create PR for version-N branches — push directly instead
+                if (
+                    use_pr_mode
+                    and repo_exists
+                    and target_branch != _get_default_branch()
+                ):
                     owner, repo = parse_github_repo_url(repo_url)
                     if owner and repo:
                         pr_title = f"🌐 Translation update: {app_name}/{language}"
@@ -1836,7 +2004,9 @@ def push_translation_to_github(
                             return {
                                 "github_pushed": True,
                                 "push_mode": "pr",
-                                "message": _("Successfully created Pull Request for review"),
+                                "message": _(
+                                    "Successfully created Pull Request for review"
+                                ),
                                 "app": app_name,
                                 "language": language,
                                 "commit_message": commit_message,
@@ -1866,7 +2036,9 @@ def push_translation_to_github(
                         return {
                             "github_pushed": True,
                             "push_mode": "pr",
-                            "message": _("Pushed to branch but could not parse repo URL for PR"),
+                            "message": _(
+                                "Pushed to branch but could not parse repo URL for PR"
+                            ),
                             "app": app_name,
                             "language": language,
                             "commit_message": commit_message,
@@ -1906,7 +2078,9 @@ def push_translation_to_github(
                     logger.warning(f"Full GitHub error: {error_msg}")
                     return {
                         "github_pushed": False,
-                        "error": _("GitHub secret scanning blocked the push. The translation content may contain text that looks like an API key or token. Check the translation for long alphanumeric strings."),
+                        "error": _(
+                            "GitHub secret scanning blocked the push. The translation content may contain text that looks like an API key or token. Check the translation for long alphanumeric strings."
+                        ),
                         "details": error_msg,
                     }
                 else:
@@ -2109,93 +2283,105 @@ def save_translations(file_path, translations):
 def delete_po_files(file_paths):
     """
     Delete multiple PO files from the filesystem and database
-    
+
     Args:
         file_paths: List of file paths to delete
-        
+
     Returns:
         dict: Result of deletion operation
     """
     if not file_paths:
         return {"success": False, "error": "No files provided"}
-    
+
     if isinstance(file_paths, str):
         file_paths = [file_paths]
-    
+
     deleted_count = 0
     failed_files = []
-    
+
     try:
         for file_path in file_paths:
             try:
                 # Validate and resolve path
                 resolved_path = validate_file_path(file_path)
-                
+
                 # Check if file exists
                 if os.path.exists(resolved_path):
                     # Create backup first (in case of accidental deletion)
-                    backup_dir = os.path.join(get_bench_path(), "backups", "deleted_po_files")
+                    backup_dir = os.path.join(
+                        get_bench_path(), "backups", "deleted_po_files"
+                    )
                     os.makedirs(backup_dir, exist_ok=True)
-                    
+
                     # Generate unique backup filename with timestamp
                     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                     backup_filename = f"{os.path.basename(file_path)}_{timestamp}.bak"
                     backup_path = os.path.join(backup_dir, backup_filename)
-                    
+
                     # Copy to backup
                     shutil.copy2(resolved_path, backup_path)
                     logger.info(f"Backed up {file_path} to {backup_path}")
-                    
+
                     # Delete the file
                     os.remove(resolved_path)
                     logger.info(f"Deleted file: {file_path}")
-                    
+
                     # Remove from database cache
                     if frappe.db.exists("PO File", {"file_path": file_path}):
-                        frappe.delete_doc("PO File", frappe.get_value("PO File", {"file_path": file_path}, "name"))
+                        frappe.delete_doc(
+                            "PO File",
+                            frappe.get_value(
+                                "PO File", {"file_path": file_path}, "name"
+                            ),
+                        )
                         logger.info(f"Removed {file_path} from database cache")
-                    
+
                     deleted_count += 1
                 else:
                     # File doesn't exist on filesystem, but might be in database
                     if frappe.db.exists("PO File", {"file_path": file_path}):
-                        frappe.delete_doc("PO File", frappe.get_value("PO File", {"file_path": file_path}, "name"))
-                        logger.info(f"Removed stale entry {file_path} from database cache")
+                        frappe.delete_doc(
+                            "PO File",
+                            frappe.get_value(
+                                "PO File", {"file_path": file_path}, "name"
+                            ),
+                        )
+                        logger.info(
+                            f"Removed stale entry {file_path} from database cache"
+                        )
                         deleted_count += 1
                     else:
-                        failed_files.append({"file": file_path, "error": "File not found"})
-                        
+                        failed_files.append(
+                            {"file": file_path, "error": "File not found"}
+                        )
+
             except Exception as e:
                 logger.error(f"Failed to delete {file_path}: {str(e)}")
                 failed_files.append({"file": file_path, "error": str(e)})
-        
+
         frappe.db.commit()
-        
+
         result = {
             "success": True,
             "deleted_count": deleted_count,
             "total_requested": len(file_paths),
-            "message": f"Successfully deleted {deleted_count} file(s)"
+            "message": f"Successfully deleted {deleted_count} file(s)",
         }
-        
+
         if failed_files:
             result["failed_files"] = failed_files
             result["partial_success"] = True
-            
+
         return result
-        
+
     except Exception as e:
         frappe.db.rollback()
         logger.error(f"Critical error during bulk delete: {str(e)}")
-        return {
-            "success": False,
-            "error": str(e),
-            "deleted_count": deleted_count
-        }
+        return {"success": False, "error": str(e), "deleted_count": deleted_count}
 
 
 @frappe.whitelist()
-@enhanced_error_handler  
+@enhanced_error_handler
 def debug_po_file_stats(file_path=None):
     """
     Debug function to check PO file statistics both from database cache and filesystem
@@ -2208,15 +2394,15 @@ def debug_po_file_stats(file_path=None):
                 fields=[
                     "file_path",
                     "app_name",
-                    "filename", 
+                    "filename",
                     "total_entries",
                     "translated_entries",
                     "translation_status",
-                    "last_scanned"
+                    "last_scanned",
                 ],
-                order_by="app_name, filename"
+                order_by="app_name, filename",
             )
-            
+
             results = []
             for cached in cached_files:
                 # Get fresh stats from filesystem
@@ -2224,63 +2410,67 @@ def debug_po_file_stats(file_path=None):
                     full_path = validate_file_path(cached.file_path)
                     if os.path.exists(full_path):
                         fresh_stats = parse_po_file(full_path)
-                        results.append({
-                            "file_path": cached.file_path,
-                            "app_name": cached.app_name,
-                            "filename": cached.filename,
-                            "cached_stats": {
-                                "total": cached.total_entries,
-                                "translated": cached.translated_entries, 
-                                "percentage": cached.translation_status
-                            },
-                            "fresh_stats": fresh_stats,
-                            "needs_update": (
-                                cached.translated_entries != fresh_stats["translated_entries"] or
-                                cached.total_entries != fresh_stats["total_entries"]
-                            ),
-                            "last_scanned": cached.last_scanned
-                        })
+                        results.append(
+                            {
+                                "file_path": cached.file_path,
+                                "app_name": cached.app_name,
+                                "filename": cached.filename,
+                                "cached_stats": {
+                                    "total": cached.total_entries,
+                                    "translated": cached.translated_entries,
+                                    "percentage": cached.translation_status,
+                                },
+                                "fresh_stats": fresh_stats,
+                                "needs_update": (
+                                    cached.translated_entries
+                                    != fresh_stats["translated_entries"]
+                                    or cached.total_entries
+                                    != fresh_stats["total_entries"]
+                                ),
+                                "last_scanned": cached.last_scanned,
+                            }
+                        )
                     else:
-                        results.append({
-                            "file_path": cached.file_path,
-                            "error": "File not found on filesystem"
-                        })
+                        results.append(
+                            {
+                                "file_path": cached.file_path,
+                                "error": "File not found on filesystem",
+                            }
+                        )
                 except Exception as e:
-                    results.append({
-                        "file_path": cached.file_path,
-                        "error": str(e)
-                    })
-            
-            return {
-                "success": True,
-                "files": results,
-                "total_files": len(results)
-            }
+                    results.append({"file_path": cached.file_path, "error": str(e)})
+
+            return {"success": True, "files": results, "total_files": len(results)}
         else:
             # Debug specific file
             full_path = validate_file_path(file_path)
             if not os.path.exists(full_path):
                 return {"success": False, "error": "File not found"}
-            
+
             # Get cached data
             cached = frappe.get_value(
                 "PO File",
                 {"file_path": file_path},
-                ["total_entries", "translated_entries", "translation_status", "last_scanned"],
-                as_dict=True
+                [
+                    "total_entries",
+                    "translated_entries",
+                    "translation_status",
+                    "last_scanned",
+                ],
+                as_dict=True,
             )
-            
+
             # Get fresh stats
             fresh_stats = parse_po_file(full_path)
-            
+
             return {
                 "success": True,
                 "file_path": file_path,
                 "cached_stats": cached,
                 "fresh_stats": fresh_stats,
-                "file_exists": True
+                "file_exists": True,
             }
-            
+
     except Exception as e:
         logger.error(f"Debug error: {str(e)}")
         return {"success": False, "error": str(e)}
@@ -2326,7 +2516,7 @@ def get_live_po_files(locale=None):
 
             # Find all .po files in locale directory
             for filename in os.listdir(locale_dir):
-                if not filename.endswith('.po'):
+                if not filename.endswith(".po"):
                     continue
 
                 # Extract language from filename (e.g., 'th.po' -> 'th')
@@ -2363,7 +2553,9 @@ def get_live_po_files(locale=None):
                         "translated_entries": stats["translated_entries"],
                         "translated_percentage": stats["translation_status"],
                         "last_modified": file_modified.strftime("%Y-%m-%d %H:%M:%S"),
-                        "last_scanned": frappe.utils.now_datetime().strftime("%Y-%m-%d %H:%M:%S")
+                        "last_scanned": frappe.utils.now_datetime().strftime(
+                            "%Y-%m-%d %H:%M:%S"
+                        ),
                     }
 
                     po_files.append(po_file)
@@ -2392,43 +2584,47 @@ def force_refresh_po_stats():
     try:
         # Get all cached PO files
         po_files = frappe.get_all("PO File", fields=["name", "file_path"])
-        
+
         updated_count = 0
         failed_count = 0
-        
+
         for po_file in po_files:
             try:
                 # Get fresh stats from filesystem
                 full_path = validate_file_path(po_file.file_path)
                 if os.path.exists(full_path):
                     fresh_stats = parse_po_file(full_path)
-                    
+
                     # Update database record
-                    frappe.db.set_value("PO File", po_file.name, {
-                        "total_entries": fresh_stats["total_entries"],
-                        "translated_entries": fresh_stats["translated_entries"],
-                        "translation_status": fresh_stats["translation_status"],
-                        "last_scanned": frappe.utils.now_datetime()
-                    })
+                    frappe.db.set_value(
+                        "PO File",
+                        po_file.name,
+                        {
+                            "total_entries": fresh_stats["total_entries"],
+                            "translated_entries": fresh_stats["translated_entries"],
+                            "translation_status": fresh_stats["translation_status"],
+                            "last_scanned": frappe.utils.now_datetime(),
+                        },
+                    )
                     updated_count += 1
                 else:
                     # File doesn't exist, mark as failed
                     failed_count += 1
                     logger.warning(f"PO file not found: {po_file.file_path}")
-                    
+
             except Exception as e:
                 logger.error(f"Error updating {po_file.file_path}: {str(e)}")
                 failed_count += 1
-        
+
         frappe.db.commit()
-        
+
         return {
             "success": True,
             "message": f"Force refreshed statistics for {updated_count} PO files",
             "updated_count": updated_count,
-            "failed_count": failed_count
+            "failed_count": failed_count,
         }
-        
+
     except Exception as e:
         logger.error(f"Force refresh error: {str(e)}")
         return {"success": False, "error": str(e)}
@@ -2441,53 +2637,65 @@ def auto_refresh_stale_po_files():
     """
     try:
         logger.info("Starting scheduled auto-refresh of stale PO files")
-        
+
         # Get all cached PO files
         po_files = frappe.get_all(
             "PO File",
             fields=["name", "file_path", "last_scanned"],
         )
-        
+
         bench_path = get_bench_path()
         refreshed_count = 0
-        
+
         for po_file in po_files:
             try:
                 full_path = os.path.join(bench_path, po_file.file_path)
-                
+
                 if os.path.exists(full_path):
                     # Check if file is newer than last scan
                     file_modified = datetime.fromtimestamp(os.path.getmtime(full_path))
                     last_scanned = po_file.last_scanned
-                    
+
                     if isinstance(last_scanned, str):
-                        last_scanned = datetime.fromisoformat(last_scanned.replace('Z', '+00:00'))
-                    
+                        last_scanned = datetime.fromisoformat(
+                            last_scanned.replace("Z", "+00:00")
+                        )
+
                     # If file is newer than last scan (with 5 minute buffer to avoid constant updates)
                     time_diff = (file_modified - last_scanned).total_seconds()
                     if time_diff > 300:  # 5 minutes buffer
-                        logger.info(f"Scheduled refresh of stale file: {po_file.file_path}")
+                        logger.info(
+                            f"Scheduled refresh of stale file: {po_file.file_path}"
+                        )
                         fresh_stats = parse_po_file(full_path)
-                        
+
                         # Update database record
-                        frappe.db.set_value("PO File", po_file.name, {
-                            "total_entries": fresh_stats["total_entries"],
-                            "translated_entries": fresh_stats["translated_entries"],
-                            "translation_status": fresh_stats["translation_status"],
-                            "last_scanned": frappe.utils.now_datetime()
-                        })
-                        
+                        frappe.db.set_value(
+                            "PO File",
+                            po_file.name,
+                            {
+                                "total_entries": fresh_stats["total_entries"],
+                                "translated_entries": fresh_stats["translated_entries"],
+                                "translation_status": fresh_stats["translation_status"],
+                                "last_scanned": frappe.utils.now_datetime(),
+                            },
+                        )
+
                         refreshed_count += 1
             except Exception as e:
-                logger.warning(f"Error in scheduled refresh for {po_file.file_path}: {str(e)}")
+                logger.warning(
+                    f"Error in scheduled refresh for {po_file.file_path}: {str(e)}"
+                )
                 continue
-        
+
         if refreshed_count > 0:
             frappe.db.commit()
-            logger.info(f"Scheduled auto-refresh completed: {refreshed_count} files updated")
+            logger.info(
+                f"Scheduled auto-refresh completed: {refreshed_count} files updated"
+            )
         else:
             logger.debug("Scheduled auto-refresh: No stale files found")
-            
+
     except Exception as e:
         logger.error(f"Error in scheduled auto-refresh: {str(e)}")
 
@@ -2612,71 +2820,82 @@ def standardize_existing_po_file_paths():
     try:
         bench_path = get_bench_path()
         logger.info("Starting path standardization for existing PO File records")
-        
+
         # Get all existing PO File records
-        existing_files = frappe.get_all("PO File", 
-            fields=["name", "file_path", "app_name", "language"],
-            filters={})
-        
+        existing_files = frappe.get_all(
+            "PO File", fields=["name", "file_path", "app_name", "language"], filters={}
+        )
+
         updated_count = 0
         skipped_count = 0
         error_count = 0
-        
+
         for po_file_record in existing_files:
             try:
                 current_path = po_file_record.get("file_path", "")
-                
+
                 # Skip if already using relative path format
                 if not current_path.startswith("/"):
                     logger.debug(f"Skipping already standardized path: {current_path}")
                     skipped_count += 1
                     continue
-                
+
                 # Convert absolute path to relative path from bench root
                 if current_path.startswith(bench_path):
                     # Remove bench path prefix and leading slash
-                    relative_path = current_path[len(bench_path):].lstrip("/")
-                    
+                    relative_path = current_path[len(bench_path) :].lstrip("/")
+
                     # Verify the file actually exists
                     full_path = os.path.join(bench_path, relative_path)
                     if not os.path.exists(full_path):
-                        logger.warning(f"File no longer exists, skipping: {current_path}")
+                        logger.warning(
+                            f"File no longer exists, skipping: {current_path}"
+                        )
                         continue
-                    
+
                     # Update the database record
-                    frappe.db.set_value("PO File", po_file_record["name"], 
-                                      "file_path", relative_path, update_modified=True)
-                    
+                    frappe.db.set_value(
+                        "PO File",
+                        po_file_record["name"],
+                        "file_path",
+                        relative_path,
+                        update_modified=True,
+                    )
+
                     logger.info(f"Updated path: {current_path} -> {relative_path}")
                     updated_count += 1
-                    
+
                 else:
-                    logger.warning(f"Path not under bench directory, skipping: {current_path}")
+                    logger.warning(
+                        f"Path not under bench directory, skipping: {current_path}"
+                    )
                     skipped_count += 1
-                    
+
             except Exception as e:
-                logger.error(f"Error updating record {po_file_record['name']}: {str(e)}")
+                logger.error(
+                    f"Error updating record {po_file_record['name']}: {str(e)}"
+                )
                 error_count += 1
                 continue
-        
+
         # Commit the changes
         frappe.db.commit()
-        
+
         result = {
             "success": True,
             "message": f"Path standardization completed: {updated_count} updated, {skipped_count} skipped, {error_count} errors",
             "updated_count": updated_count,
             "skipped_count": skipped_count,
-            "error_count": error_count
+            "error_count": error_count,
         }
-        
+
         logger.info(result["message"])
         return result
-        
+
     except Exception as e:
         logger.error(f"Error in path standardization: {str(e)}", exc_info=True)
         return {
             "success": False,
             "error": str(e),
-            "message": "Failed to standardize PO file paths"
+            "message": "Failed to standardize PO file paths",
         }
