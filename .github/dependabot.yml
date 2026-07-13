@@ -7,7 +7,6 @@ updates:
     schedule:
       interval: "weekly"
     target-branch: "develop"
-    open-pull-request-strategy: auto
     commit-message:
       prefix: "chore"
       include: scope
@@ -23,7 +22,6 @@ updates:
     schedule:
       interval: "weekly"
     target-branch: "develop"
-    open-pull-request-strategy: auto
     commit-message:
       prefix: "chore"
 
@@ -33,6 +31,5 @@ updates:
     schedule:
       interval: "weekly"
     target-branch: "develop"
-    open-pull-request-strategy: auto
     commit-message:
       prefix: "chore"
