@@ -1,0 +1,37 @@
+# Dependabot configuration for translation_tools
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # Python dependencies (pyproject.toml)
+  - package-ecosystem: "pip"
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "weekly"
+    open-pull-request-strategy: auto
+    target-branch: "develop"
+    # Auto-merge when CI passes (no review needed for dep bumps)
+    automerge: true
+    # Only auto-merge minor/patch updates, not major
+    commit-message:
+      prefix: "chore"
+      include: scope
+    # Ignore Python packages that should be managed by Frappe
+    ignore:
+      - dependency-name: "frappe"
+      - dependency-name: "erpnext"
+      - dependency-name: "hrms"
+      - dependency-name: "payments"
+
+  # Node.js dependencies (package.json in frontend)
+  - package-ecosystem: "npm"
+    directory: "/thai_translation_dashboard" # Frontend directory
+    schedule:
+      interval: "weekly"
+    open-pull-request-strategy: auto
+    target-branch: "develop"
+    # Auto-merge when CI passes (no review needed for dep bumps)
+    automerge: true
+    commit-message:
+      prefix: "chore"
+      include: scope
