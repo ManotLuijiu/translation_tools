@@ -415,7 +415,11 @@ export default function GithubIntegrationSettings({
                     id="github_token"
                     name="github_token"
                     type={showPassword ? 'text' : 'password'}
-                    value={settings.github_token || ''}
+                    value={
+                      (settings as any).github_token_configured && !settings.github_token
+                        ? '****'  // Show masked when configured but no current value
+                        : settings.github_token || ''
+                    }
                     onChange={onInputChange}
                     disabled={!settings.github_enable}
                     placeholder={__('Enter Github Personal Access Token')}
@@ -425,6 +429,9 @@ export default function GithubIntegrationSettings({
                     onToggle={() => setShowPassword(!showPassword)}
                   />
                 </div>
+                {settings.github_token_configured && !settings.github_token && (
+                  <p className="text-xs text-green-600 mt-1">✓ {__('Token configured. Clear field and enter new token to replace.')}</p>
+                )}
               </div>
             ) : (
               /* Default repo — compact token status */
@@ -617,8 +624,8 @@ export default function GithubIntegrationSettings({
             disabled={
               !settings.github_enable ||
               !settings.github_repo ||
-              (useOwnRepo && !settings.github_token) ||
-              (!useOwnRepo && !hasSiteConfigToken)
+              (useOwnRepo && !settings.github_token && !(settings as any).github_token_configured) ||
+              (!useOwnRepo && !hasSiteConfigToken && !(settings as any).github_token_configured)
             }
           >
             {__('Test Connect')}
@@ -636,8 +643,8 @@ export default function GithubIntegrationSettings({
               disabled={
                 !settings.github_enable ||
                 !settings.github_repo ||
-                (useOwnRepo && !settings.github_token) ||
-                (!useOwnRepo && !hasSiteConfigToken)
+                (useOwnRepo && !settings.github_token && !(settings as any).github_token_configured) ||
+                (!useOwnRepo && !hasSiteConfigToken && !(settings as any).github_token_configured)
               }
             >
               {__('Test Sync')}

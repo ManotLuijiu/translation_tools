@@ -1,5 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -8,15 +7,21 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { useTranslation } from '@/context/TranslationContext';
 import { useFrappePostCall } from 'frappe-react-sdk';
-import { GitBranch, Loader2, RefreshCw, Save, Pause, Play, Square } from 'lucide-react';
+import { __ } from '@/utils/translation';
+import { Button } from '@/components/ui/button';
+import { Loader2, RefreshCw, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import type { POEntry, POFile, TranslationToolsSettings } from '../types';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
+
+// Thai text detection
+const THAI_PATTERN = /[\u0E00-\u0E7F]/;
+const containsThai = (text: string) => THAI_PATTERN.test(text);
+
+// New components
+import AutoModeConfigCard from './AutoModeConfigCard';
+import AutoModeProgressPanel from './AutoModeProgressPanel';
+import BatchActionFooter from './BatchActionFooter';
 
 interface BatchTranslationViewProps {
   selectedFile: POFile | null;
@@ -33,8 +38,6 @@ export default function BatchTranslationView({
   batchSize,
   onTranslationComplete,
 }: BatchTranslationViewProps) {
-  // console.log('batchSize BatchTranslationView.tsx', batchSize);
-
   const [selectedEntries, setSelectedEntries] = useState<POEntry[]>([]);
   const [translatedEntries, setTranslatedEntries] = useState<{
     [key: string]: string;
@@ -44,6 +47,7 @@ export default function BatchTranslationView({
 
   // ── Auto Mode state ──
   const [autoMode, setAutoMode] = useState(false);
+  const [englishOnly, setEnglishOnly] = useState(true); // Default: skip Thai entries
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [jobStatus, setJobStatus] = useState<string>('idle');
   const [jobProgress, setJobProgress] = useState({
@@ -54,20 +58,64 @@ export default function BatchTranslationView({
     current_chunk_size: 20,
     last_error: '',
   });
+
+  // ── Budget estimation state ──
+  const [budgetInfo, setBudgetInfo] = useState<{
+    balance: number;
+    currency: string;
+    model: string;
+    modelLabel: string;
+    costPerEntry: number;
+    estimatedEntries: number;
+    estimatedWords: number;
+    avgWordsPerEntry: number;
+  } | null>(null);
+  const [loadingBudget, setLoadingBudget] = useState(false);
+
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Select entries that need translation
-  const untranslatedEntries = entries.filter((entry) => !entry.is_translated);
-  const { translate: __, isReady } = useTranslation();
+  // Select entries that need translation, filtered by English Only if enabled
+  const untranslatedEntries = useMemo(() => {
+    const untranslated = entries.filter((entry) => !entry.is_translated);
+    if (englishOnly) {
+      return untranslated.filter((entry) => !containsThai(entry.msgid));
+    }
+    return untranslated;
+  }, [entries, englishOnly]);
+  const isReady = true; // Simplified - assume ready since no context needed
 
-  // Use frappe-react-sdk hooks
+  // Calculate chunks based on budget and untranslated entries
+  const maxChunksFromBudget = useMemo(() => {
+    if (!budgetInfo || budgetInfo.estimatedEntries === 0) return 0;
+    return Math.floor(budgetInfo.estimatedEntries / 20);
+  }, [budgetInfo]);
+
+  const maxChunksFromEntries = useMemo(() => {
+    return Math.ceil(untranslatedEntries.length / 20);
+  }, [untranslatedEntries.length]);
+
+  const maxChunks = useMemo(() => {
+    return maxChunksFromEntries; // Don't limit by budget - user chooses
+  }, [maxChunksFromEntries]);
+
+  // selectedChunks state for user selection
+  const [chunksToProcess, setChunksToProcess] = useState<number>(5);
+
+  // Set initial chunksToProcess based on budget when budgetInfo loads
+  useEffect(() => {
+    if (budgetInfo && maxChunks > 0) {
+      const recommended = Math.min(Math.max(5, Math.ceil(maxChunks * 0.25)), 10);
+      setChunksToProcess(recommended);
+    }
+  }, [budgetInfo, maxChunks]);
+
+  // Frappe hooks
   const {
     call: translateBatchCall,
     loading: translateLoading,
     error: translateError,
   } = useFrappePostCall('translation_tools.api.ai_translation.translate_batch');
 
-  // ── Auto Mode API hooks ──
   const { call: startJob } = useFrappePostCall(
     'translation_tools.api.ai_translation.start_auto_mode_job'
   );
@@ -80,6 +128,41 @@ export default function BatchTranslationView({
   const { call: cancelJob } = useFrappePostCall(
     'translation_tools.api.ai_translation.cancel_auto_mode_job'
   );
+
+  // Fetch budget info when Auto Mode is enabled
+  useEffect(() => {
+    if (autoMode && !activeJobId) {
+      fetchBudgetInfo();
+    }
+  }, [autoMode, activeJobId, settings?.default_model_provider]);
+
+  const fetchBudgetInfo = async () => {
+    setLoadingBudget(true);
+    try {
+      const result = await fetch(
+        `/api/method/translation_tools.api.ai_models.get_api_balance_and_estimation?model_provider=${encodeURIComponent(settings?.default_model_provider || 'openai')}&model=${encodeURIComponent(settings?.default_model || 'gpt-4o-mini-2024-07-18')}`
+      );
+      const msg = await result.json();
+      if (msg?.message?.success) {
+        setBudgetInfo({
+          balance: msg.message.balance,
+          currency: msg.message.currency,
+          model: msg.message.model,
+          modelLabel: msg.message.model_label,
+          costPerEntry: msg.message.cost_per_entry_usd,
+          estimatedEntries: msg.message.estimated_entries,
+          estimatedWords: msg.message.estimated_words,
+          avgWordsPerEntry: msg.message.avg_words_per_entry,
+        });
+      }
+    } catch (err) {
+      console.error('Failed to fetch budget info:', err);
+    } finally {
+      setLoadingBudget(false);
+    }
+  };
+
+  // Polling for job status
   const pollJobStatus = useCallback(async (jobId: string) => {
     if (!jobId) return;
     try {
@@ -99,19 +182,30 @@ export default function BatchTranslationView({
         last_error: msg.message.last_error || '',
       });
 
-      if (msg.message.status && ['completed', 'completed_with_skips', 'failed', 'cancelled'].includes(msg.message.status)) {
+      if (
+        msg.message.status &&
+        ['completed', 'completed_with_skips', 'failed', 'cancelled'].includes(
+          msg.message.status
+        )
+      ) {
         if (pollingRef.current) clearInterval(pollingRef.current);
         setIsTranslating(false);
         onTranslationComplete();
-        if (msg.message.status === 'completed' || msg.message.status === 'completed_with_skips') {
-          const skippedInfo = msg.message.skipped_count > 0 ? `, ${msg.message.skipped_count} skipped` : '';
+        if (
+          msg.message.status === 'completed' ||
+          msg.message.status === 'completed_with_skips'
+        ) {
+          const skippedInfo =
+            msg.message.skipped_count > 0
+              ? `, ${msg.message.skipped_count} skipped`
+              : '';
           toast.success(
-            `${__('Auto Mode finished')} — ${msg.message.translated_count}/${msg.message.total_untranslated}${skippedInfo} ${__('entries')}`
+            `Auto Mode finished — ${msg.message.translated_count}/${msg.message.total_untranslated}${skippedInfo} entries`
           );
         } else if (msg.message.status === 'failed') {
-          toast.error(msg.message.last_error || __('Auto Mode job failed'));
+          toast.error(msg.message.last_error || 'Auto Mode job failed');
         } else {
-          toast.info(`${__('Auto Mode job')} ${msg.message.status}`);
+          toast.info(`Auto Mode job ${msg.message.status}`);
         }
       }
     } catch {
@@ -119,6 +213,7 @@ export default function BatchTranslationView({
     }
   }, [onTranslationComplete]);
 
+  // Batch translation
   const {
     call: saveBatchCall,
     loading: saveLoading,
@@ -127,148 +222,23 @@ export default function BatchTranslationView({
     'translation_tools.api.ai_translation.save_batch_translations_with_single_github_push'
   );
 
-  // Prepare batches for translation
-  const batches = [];
-  for (let i = 0; i < untranslatedEntries.length; i += batchSize) {
-    batches.push(untranslatedEntries.slice(i, i + batchSize));
-  }
-
-  // Monitor errors from SDK
+  // Monitor errors
   useEffect(() => {
     if (translateError) {
-      toast.error(translateError.message || __('Translation failed'));
+      toast.error(translateError.message || 'Translation failed');
     }
     if (saveError) {
-      toast.error(saveError.message || __('Failed to save translations'));
+      toast.error(saveError.message || 'Failed to save translations');
     }
   }, [translateError, saveError, __]);
 
-  // Clear selection when entries change
-  // useEffect(() => {
-  //   setSelectedEntries([]);
-  //   setTranslatedEntries({});
-  //   clearMessage();
-  // }, [entries, clearMessage]);
-
-  const translateBatch = async () => {
-    if (!selectedFile?.file_path || selectedEntries.length === 0) return;
-
-    setIsTranslating(true);
-    toast.info(
-      __('Translating batch of') +
-        ` ${selectedEntries.length} ` +
-        __('entries...')
-    );
-
-    try {
-      // API call to translate batch
-      // const result = await fetch(
-      //   '/api/method/translation_tools.api.ai_translation.translate_batch',
-      //   {
-      //     method: 'POST',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //     },
-      //     body: JSON.stringify({
-      //       file_path: selectedFile.file_path,
-      //       entry_ids: selectedEntries.map((e) => e.id),
-      //       model_provider: settings?.default_model_provider || 'openai',
-      //       model: settings?.default_model || undefined,
-      //     }),
-      //   }
-      // );
-
-      // const data = await result.json();
-
-      // Use SDK hook instead of fetch
-      const response = await translateBatchCall({
-        file_path: selectedFile.file_path,
-        entry_ids: selectedEntries.map((e) => e.id),
-        model_provider: settings?.default_model_provider || 'openai',
-        model: settings?.default_model || undefined,
-      });
-
-      // console.log('response translateBatchCall', response);
-
-      if (response?.message?.success) {
-        // Update translations
-        const newTranslations = response?.message?.translations;
-        setTranslatedEntries((prev) => ({ ...prev, ...newTranslations }));
-
-        toast.success(__('Batch translation completed successfully'));
-
-        // If auto-save is enabled
-        if (settings?.auto_save) {
-          await saveBatchTranslations();
-        }
-      } else {
-        console.error('Translation error:', response?.message?.error);
-        toast.error(response?.message?.error || __('Translation failed'));
-      }
-    } catch (err) {
-      console.error('Translation error:', err);
-      toast.error(__('Translation failed'));
-    } finally {
-      setIsTranslating(false);
-    }
-  };
-
-  const saveBatchTranslations = async () => {
-    if (!selectedFile?.file_path || Object.keys(translatedEntries).length === 0)
-      return;
-
-    toast.info(__('Saving translations...'));
-
-    try {
-      // const result = await fetch(
-      //   '/api/method/translation_tools.api.ai_translation.save_batch_translations',
-      //   {
-      //     method: 'POST',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //     },
-      //     body: JSON.stringify({
-      //       file_path: selectedFile.file_path,
-      //       translations: translatedEntries,
-      //       push_to_github: settings?.github_enable && settings?.github_token,
-      //     }),
-      //   }
-      // );
-
-      // const data = await result.json();
-
-      // Use SDK hook instead of fetch
-      const result = await saveBatchCall({
-        file_path: selectedFile.file_path,
-        translations: translatedEntries,
-        push_to_github: pushToGithub,
-      });
-
-      // console.log('result saveBatchCall', result);
-
-      if (result?.message?.success) {
-        toast.success(__('Translations saved successfully'));
-        onTranslationComplete(); // Refresh data
-        setTranslatedEntries({});
-        setSelectedEntries([]);
-      } else {
-        toast.error(
-          result?.message?.error || __('Failed to save translations')
-        );
-      }
-    } catch (err) {
-      console.error('Save error:', err);
-      toast.error(__('Failed to save translations'));
-    }
-  };
-
-  // ── Auto Mode: start whole-file job ──────────────────────────────────────────
-
+  // Auto Mode handlers
   const handleStartAutoMode = async () => {
     if (!selectedFile?.file_path) return;
     setIsTranslating(true);
-    toast.info(__('Starting Auto Mode…'));
+    toast.info('Starting Auto Mode…');
 
+    const maxEntries = chunksToProcess * 20;
     const result = await startJob({
       file_path: selectedFile.file_path,
       push_to_github: pushToGithub,
@@ -276,6 +246,8 @@ export default function BatchTranslationView({
       model_provider: settings?.default_model_provider || 'openai',
       model: settings?.default_model || undefined,
       max_chunk_size: 20,
+      max_entries: maxEntries,
+      english_only: englishOnly,
     });
 
     const msg = result?.message;
@@ -291,13 +263,15 @@ export default function BatchTranslationView({
         last_error: '',
       });
       toast.success(
-        `${__('Auto Mode started')} — ${msg.total_untranslated} ${__('entries to translate')}`
+        `Auto Mode started — ${msg.total_untranslated} entries to translate`
       );
-      // Start polling
       if (pollingRef.current) clearInterval(pollingRef.current);
-      pollingRef.current = setInterval(() => pollJobStatus(msg.job_id), 2000);
+      pollingRef.current = setInterval(
+        () => pollJobStatus(msg.job_id),
+        2000
+      );
     } else {
-      toast.error(msg?.error || __('Failed to start Auto Mode'));
+      toast.error(msg?.error || 'Failed to start Auto Mode');
       setIsTranslating(false);
     }
   };
@@ -308,7 +282,7 @@ export default function BatchTranslationView({
     if (result?.message?.success) {
       setJobStatus('paused');
       if (pollingRef.current) clearInterval(pollingRef.current);
-      toast.info(__('Auto Mode paused'));
+      toast.info('Auto Mode paused');
     }
   };
 
@@ -318,11 +292,14 @@ export default function BatchTranslationView({
     const result = await resumeJob({ job_id: activeJobId });
     if (result?.message?.success) {
       setJobStatus('running');
-      toast.info(__('Auto Mode resumed'));
+      toast.info('Auto Mode resumed');
       if (pollingRef.current) clearInterval(pollingRef.current);
-      pollingRef.current = setInterval(() => pollJobStatus(activeJobId), 2000);
+      pollingRef.current = setInterval(
+        () => pollJobStatus(activeJobId),
+        2000
+      );
     } else {
-      toast.error(result?.message?.error || __('Failed to resume'));
+      toast.error(result?.message?.error || 'Failed to resume');
       setIsTranslating(false);
     }
   };
@@ -335,16 +312,81 @@ export default function BatchTranslationView({
       if (pollingRef.current) clearInterval(pollingRef.current);
       setIsTranslating(false);
       onTranslationComplete();
-      toast.info(__('Auto Mode cancelled'));
+      toast.info('Auto Mode cancelled');
     }
   };
 
-  // When file changes, clear any active job
-  useEffect(() => {
-    if (activeJobId && jobStatus === 'idle') {
-      setActiveJobId(null);
+  // Manual batch translation
+  const translateBatch = async () => {
+    if (!selectedFile?.file_path || selectedEntries.length === 0) return;
+
+    setIsTranslating(true);
+    toast.info(
+      `Translating batch of ${selectedEntries.length} entries...`
+    );
+
+    try {
+      const response = await translateBatchCall({
+        file_path: selectedFile.file_path,
+        entry_ids: selectedEntries.map((e) => e.id),
+        model_provider: settings?.default_model_provider || 'openai',
+        model: settings?.default_model || undefined,
+      });
+
+      if (response?.message?.success) {
+        const newTranslations = response?.message?.translations;
+        setTranslatedEntries((prev) => ({ ...prev, ...newTranslations }));
+        toast.success('Batch translation completed successfully');
+
+        if (settings?.auto_save) {
+          await saveBatchTranslations();
+        }
+      } else {
+        toast.error(
+          response?.message?.error || 'Translation failed'
+        );
+      }
+    } catch (err) {
+      toast.error('Translation failed');
+    } finally {
+      setIsTranslating(false);
     }
-  }, [selectedFile?.file_path]);
+  };
+
+  const saveBatchTranslations = async () => {
+    if (
+      !selectedFile?.file_path ||
+      Object.keys(translatedEntries).length === 0
+    )
+      return;
+
+    toast.info('Saving translations...');
+
+    try {
+      const result = await saveBatchCall({
+        file_path: selectedFile.file_path,
+        translations: translatedEntries,
+        push_to_github: pushToGithub,
+      });
+
+      if (result?.message?.success) {
+        toast.success('Translations saved successfully');
+        onTranslationComplete();
+        setTranslatedEntries({});
+        setSelectedEntries([]);
+      } else {
+        toast.error(result?.message?.error || 'Failed to save translations');
+      }
+    } catch (err) {
+      toast.error('Failed to save translations');
+    }
+  };
+
+  // Prepare batches
+  const batches = [];
+  for (let i = 0; i < untranslatedEntries.length; i += batchSize) {
+    batches.push(untranslatedEntries.slice(i, i + batchSize));
+  }
 
   if (!isReady) {
     return (
@@ -361,8 +403,7 @@ export default function BatchTranslationView({
         <CardHeader>
           <CardTitle>{__('AI Batch Translation')}</CardTitle>
           <div className="text-sm text-muted-foreground">
-            {__('Select entries to translate in batch')} (
-            {__('current batch size:')} {batchSize})
+            {__('Select entries to translate in batch')} ({__('current batch size:')} {batchSize})
           </div>
         </CardHeader>
 
@@ -398,12 +439,11 @@ export default function BatchTranslationView({
                   className="border rounded-md p-4"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-medium">Batch {batchIndex + 1}</h3>
+                    <h3 className="font-medium">{__('Batch')} {batchIndex + 1}</h3>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        // Select or deselect all entries in this batch
                         const allSelected = batch.every((entry) =>
                           selectedEntries.some((e) => e.id === entry.id)
                         );
@@ -411,7 +451,8 @@ export default function BatchTranslationView({
                         if (allSelected) {
                           setSelectedEntries(
                             selectedEntries.filter(
-                              (entry) => !batch.some((e) => e.id === entry.id)
+                              (entry) =>
+                                !batch.some((e) => e.id === entry.id)
                             )
                           );
                         } else {
@@ -419,7 +460,9 @@ export default function BatchTranslationView({
                             ...selectedEntries,
                             ...batch.filter(
                               (entry) =>
-                                !selectedEntries.some((e) => e.id === entry.id)
+                                !selectedEntries.some(
+                                  (e) => e.id === entry.id
+                                )
                             ),
                           ]);
                         }
@@ -428,8 +471,8 @@ export default function BatchTranslationView({
                       {batch.every((entry) =>
                         selectedEntries.some((e) => e.id === entry.id)
                       )
-                        ? 'Deselect All'
-                        : 'Select All'}
+                        ? __('Deselect All')
+                        : __('Select All')}
                     </Button>
                   </div>
 
@@ -448,7 +491,9 @@ export default function BatchTranslationView({
                               setSelectedEntries([...selectedEntries, entry]);
                             } else {
                               setSelectedEntries(
-                                selectedEntries.filter((e) => e.id !== entry.id)
+                                selectedEntries.filter(
+                                  (e) => e.id !== entry.id
+                                )
                               );
                             }
                           }}
@@ -477,196 +522,57 @@ export default function BatchTranslationView({
           )}
         </CardContent>
 
+        {/* ── Auto Mode Configuration Card ─────────────────────────────── */}
+        <CardContent className="pt-0">
+          <AutoModeConfigCard
+            autoMode={autoMode}
+            budgetInfo={budgetInfo}
+            jobProgress={jobProgress}
+            isJobRunning={jobStatus === 'running' || jobStatus === 'paused'}
+            loadingBudget={loadingBudget}
+            chunksToProcess={chunksToProcess}
+            setChunksToProcess={setChunksToProcess}
+            maxChunks={maxChunks}
+            untranslatedCount={untranslatedEntries.length}
+          />
+        </CardContent>
+
         {/* ── Auto Mode progress panel ───────────────────────────────────── */}
         {activeJobId && (jobStatus === 'running' || jobStatus === 'paused') && (
           <CardContent className="pt-0 pb-2">
-            <div className="bg-muted/30 rounded-md p-3 space-y-2">
-              {/* Status label */}
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium">
-                  {jobStatus === 'running' ? __('Auto Mode: processing…') : __('Auto Mode: paused')}
-                </span>
-                <Badge
-                  variant={jobStatus === 'running' ? 'default' : 'secondary'}
-                  className="text-xs"
-                >
-                  {jobStatus}
-                </Badge>
-              </div>
-
-              {/* Progress bar */}
-              <Progress
-                value={
-                  jobProgress.total_untranslated > 0
-                    ? (jobProgress.translated_count / jobProgress.total_untranslated) * 100
-                    : 0
-                }
-                className="h-2"
-              />
-
-              {/* Stats row */}
-              <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                <div>
-                  <div className="font-semibold tabular-nums">
-                    {jobProgress.translated_count}/{jobProgress.total_untranslated}
-                  </div>
-                  <div className="text-muted-foreground text-[10px]">{__('Translated')}</div>
-                </div>
-                <div>
-                  <div className="font-semibold tabular-nums">
-                    {jobProgress.saved_count}
-                  </div>
-                  <div className="text-muted-foreground text-[10px]">{__('Saved')}</div>
-                </div>
-                <div>
-                  <div className="font-semibold tabular-nums text-orange-600">
-                    {jobProgress.skipped_count}
-                  </div>
-                  <div className="text-muted-foreground text-[10px]">{__('Skipped')}</div>
-                </div>
-                <div>
-                  <div className="font-semibold tabular-nums">
-                    {jobProgress.current_chunk_size}
-                  </div>
-                  <div className="text-muted-foreground text-[10px]">{__('Chunk')}</div>
-                </div>
-              </div>
-
-              {/* Error hint */}
-              {jobProgress.last_error && (
-                <p className="text-xs text-orange-500 truncate">
-                  ⚠ {jobProgress.last_error}
-                </p>
-              )}
-
-              {/* Controls */}
-              <div className="flex gap-2 justify-end">
-                {jobStatus === 'running' ? (
-                  <Button size="sm" variant="outline" onClick={handlePauseAutoMode}>
-                    <Pause className="mr-1 h-3.5 w-3.5" />
-                    {__('Pause')}
-                  </Button>
-                ) : (
-                  <Button size="sm" variant="outline" onClick={handleResumeAutoMode}>
-                    <Play className="mr-1 h-3.5 w-3.5" />
-                    {__('Resume')}
-                  </Button>
-                )}
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={handleStopAutoMode}
-                >
-                  <Square className="mr-1 h-3.5 w-3.5" />
-                  {__('Stop')}
-                </Button>
-              </div>
-            </div>
+            <AutoModeProgressPanel
+              jobStatus={jobStatus}
+              jobProgress={jobProgress}
+              onPause={handlePauseAutoMode}
+              onResume={handleResumeAutoMode}
+              onStop={handleStopAutoMode}
+            />
           </CardContent>
         )}
 
-        <CardFooter id="batch__translation__view__footer__card" className="justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-4 flex-wrap">
-            {/* Auto Mode toggle — only shown when not actively running */}
-            {!activeJobId && (
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="batch-auto-mode"
-                  checked={autoMode}
-                  onCheckedChange={setAutoMode}
-                  className="cursor-pointer"
-                />
-                <Label
-                  htmlFor="batch-auto-mode"
-                  className={`cursor-pointer whitespace-nowrap text-sm ${autoMode ? 'text-primary font-medium' : 'text-muted-foreground'}`}
-                >
-                  {__('Auto Mode')}
-                </Label>
-              </div>
-            )}
-            {autoMode && !activeJobId && (
-              <p className="text-xs text-muted-foreground">
-                {__('Translates all remaining untranslated entries automatically in safe batches of up to 20.')}
-              </p>
-            )}
-
-            {/* Manual mode: entry count */}
-            {!autoMode && (
-              <div className="text-sm text-muted-foreground">
-                {selectedEntries.length} {__('entries selected')}
-              </div>
-            )}
-
-            {/* Push to Github */}
-            {settings?.github_enable ? (
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="batch-push-to-github"
-                  checked={pushToGithub}
-                  onCheckedChange={setPushToGithub}
-                  className="cursor-pointer"
-                />
-                <Label
-                  htmlFor="batch-push-to-github"
-                  className={`cursor-pointer whitespace-nowrap text-sm ${pushToGithub ? 'text-green-600' : ''}`}
-                >
-                  <GitBranch className="mr-1 inline h-3.5 w-3.5" />
-                  {__('Push to Github')}
-                </Label>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="space-x-2">
-            {/* Primary action button */}
-            <Button
-              variant="outline"
-              onClick={autoMode ? handleStartAutoMode : translateBatch}
-              className="cursor-pointer"
-              disabled={
-                isTranslating ||
-                translateLoading ||
-                (!autoMode && selectedEntries.length === 0) ||
-                !selectedFile?.file_path
-              }
-            >
-              {isTranslating || translateLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {autoMode ? __('Processing…') : __('Translating...')}
-                </>
-              ) : (
-                <>
-                  {autoMode ? (
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                  ) : (
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                  )}
-                  {autoMode ? __('Start Auto Translation') : __('AI Translate Batch')}
-                </>
-              )}
-            </Button>
-
-            {/* Save — manual mode only */}
-            {!autoMode && (
-              <Button
-                onClick={saveBatchTranslations}
-                className="cursor-pointer"
-                disabled={
-                  isTranslating ||
-                  saveLoading ||
-                  Object.keys(translatedEntries).length === 0
-                }
-              >
-                {saveLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="mr-2 h-4 w-4" />
-                )}
-                {__('Save Translations')}
-              </Button>
-            )}
-          </div>
+        {/* ── Action Footer ─────────────────────────────────────────────── */}
+        <CardFooter
+          id="batch__translation__view__footer__card"
+          className="justify-between flex-wrap gap-2"
+        >
+          <BatchActionFooter
+            autoMode={autoMode}
+            setAutoMode={setAutoMode}
+            englishOnly={englishOnly}
+            setEnglishOnly={setEnglishOnly}
+            selectedEntriesLength={selectedEntries.length}
+            translatedEntriesCount={Object.keys(translatedEntries).length}
+            githubEnabled={!!settings?.github_enable}
+            pushToGithub={pushToGithub}
+            setPushToGithub={setPushToGithub}
+            isTranslating={isTranslating}
+            translateLoading={translateLoading}
+            saveLoading={saveLoading}
+            hasFile={!!selectedFile?.file_path}
+            onStartAutoMode={handleStartAutoMode}
+            onTranslateBatch={translateBatch}
+            onSaveBatch={saveBatchTranslations}
+          />
         </CardFooter>
       </Card>
     </div>

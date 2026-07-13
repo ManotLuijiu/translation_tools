@@ -14,9 +14,11 @@
     "default_model",
     "openai_section",
     "openai_api_key",
+    "openai_balance_usd",
     "openai_model",
     "anthropic_section",
     "anthropic_api_key",
+    "anthropic_balance_usd",
     "anthropic_model",
     "translation_settings_section",
     "batch_size",
@@ -28,6 +30,7 @@
     "default_branch",
     "github_push_mode",
     "github_enable",
+    "use_own_repo",
     "github_repo",
     "github_token",
     "api_keys_section",
@@ -93,6 +96,12 @@
       "label": "OpenAI API Key"
     },
     {
+      "fieldname": "openai_balance_usd",
+      "fieldtype": "Currency",
+      "label": "OpenAI Balance (USD)",
+      "description": "Your current OpenAI credit balance (enter from platform.openai.com/billing)"
+    },
+    {
       "fieldname": "openai_model",
       "fieldtype": "Data",
       "label": "OpenAI Model",
@@ -109,6 +118,12 @@
       "fieldname": "anthropic_api_key",
       "fieldtype": "Password",
       "label": "Anthropic API Key"
+    },
+    {
+      "fieldname": "anthropic_balance_usd",
+      "fieldtype": "Currency",
+      "label": "Anthropic Balance (USD)",
+      "description": "Your current Anthropic credit balance"
     },
     {
       "fieldname": "anthropic_model",
@@ -171,6 +186,12 @@
       "fieldname": "github_enable",
       "fieldtype": "Check",
       "label": "Enable GitHub Integration"
+    },
+    {
+      "default": "0",
+      "fieldname": "use_own_repo",
+      "fieldtype": "Check",
+      "label": "Use Own Repository"
     },
     {
       "default": "https://github.com/ManotLuijiu/erpnext-thai-translation.git",

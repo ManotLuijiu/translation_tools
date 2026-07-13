@@ -44,6 +44,54 @@ RETRYABLE_ANTHROPIC_ERRORS = (
 )
 
 
+# Thai Unicode character detection
+THAI_PATTERN = re.compile(r'[\u0E00-\u0E7F]')
+
+
+def is_thai_text(text: str) -> bool:
+    """
+    Detect if text contains Thai characters.
+    
+    Args:
+        text: Input string to check
+        
+    Returns:
+        True if text contains Thai Unicode characters (U+0E00–U+0E7F)
+    """
+    if not text or not isinstance(text, str):
+        return False
+    return bool(THAI_PATTERN.search(text))
+
+
+def contains_substantial_thai(text: str, threshold: float = 0.3) -> bool:
+    """
+    Detect if text is substantially Thai (not just a few characters).
+    
+    This is more robust than is_thai_text() - it checks if at least
+    `threshold` (30%) of the text's characters are Thai.
+    
+    Args:
+        text: Input string to check
+        threshold: Minimum proportion of Thai characters (0.0-1.0)
+        
+    Returns:
+        True if >= threshold proportion of characters are Thai
+    """
+    if not text or not isinstance(text, str):
+        return False
+    
+    # Remove whitespace and control characters for counting
+    clean_text = ''.join(c for c in text if not c.isspace() and not c.iscntrl())
+    
+    if not clean_text:
+        return False
+    
+    thai_chars = THAI_PATTERN.findall(text)
+    thai_ratio = len(thai_chars) / len(clean_text)
+    
+    return thai_ratio >= threshold
+
+
 def retry_with_backoff(func, max_retries=MAX_RETRIES, retryable_errors=None):
     """
     Retry a function with exponential backoff for transient errors.
@@ -621,12 +669,20 @@ def test_translation_api():
         logger.info(f"Testing translation API with: {test_text}")
         
         if model_provider == "claude":
-            translation = _translate_with_claude(api_key, model, test_text)
+            result = _translate_with_claude(api_key, model, test_text)
         else:
-            translation = _translate_with_openai(api_key, model, test_text)
+            result = _translate_with_openai(api_key, model, test_text)
+        
+        # Handle new return format
+        if isinstance(result, dict):
+            translation = result.get("text", "")
+            skipped = result.get("skipped", False)
+        else:
+            translation = result
+            skipped = False
             
         if translation:
-            return {"success": True, "test_text": test_text, "translation": translation, "provider": model_provider, "model": model}
+            return {"success": True, "test_text": test_text, "translation": translation, "provider": model_provider, "model": model, "skipped": skipped}
         else:
             return {"error": "Translation failed"}
             
@@ -666,13 +722,26 @@ def translate_entry(file_path, msgid, entry_id):
 
         # Use the appropriate translation service with timeout handling
         if model_provider == "claude":
-            translation = _translate_with_claude(api_key, model, msgid)
+            result = _translate_with_claude(api_key, model, msgid)
         else:
-            translation = _translate_with_openai(api_key, model, msgid)
+            result = _translate_with_openai(api_key, model, msgid)
             
-        logger.info(f"Translation result: {translation}")
-        logger.info(f"Translation result repr: {repr(translation)}")
-        logger.info(f"Translation result type: {type(translation)}")
+        logger.info(f"Translation result: {result}")
+        logger.info(f"Translation result repr: {repr(result)}")
+        logger.info(f"Translation result type: {type(result)}")
+        
+        # Handle new return format with skipped flag
+        if isinstance(result, dict):
+            if result.get("skipped"):
+                translation = result.get("text", msgid)
+                logger.info(f"Entry already Thai, skipping translation")
+            elif result.get("text"):
+                translation = result["text"]
+            else:
+                translation = None
+        else:
+            # Legacy: result is just the translated text string
+            translation = result
 
         if translation:
             # Update the PO file
@@ -1116,6 +1185,11 @@ Only return the translation, no explanations."""
 
 def _translate_with_openai(api_key, model, text):
     """Translate text using OpenAI API with automatic retry for transient errors"""
+    # 🚨 Smart Skip: If text is already Thai, return as-is
+    if is_thai_text(text):
+        logger.info(f"Skipping Thai text (already translated): {text[:50]}...")
+        return {"text": text, "skipped": True, "reason": "already_thai"}
+    
     client = openai.OpenAI(api_key=api_key)
 
     # Format the glossary with timeout protection
@@ -1226,6 +1300,11 @@ Only respond with the translated text, nothing else.""",
 
 def _translate_with_claude(api_key, model, text):
     """Translate text using Anthropic Claude API with automatic retry for transient errors"""
+    # 🚨 Smart Skip: If text is already Thai, return as-is
+    if is_thai_text(text):
+        logger.info(f"Skipping Thai text (already translated): {text[:50]}...")
+        return {"text": text, "skipped": True, "reason": "already_thai"}
+    
     client = anthropic.Anthropic(api_key=api_key)
 
     # Format the glossary with timeout protection

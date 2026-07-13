@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardHeader,
@@ -11,7 +11,6 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-
 import {
   Select,
   SelectContent,
@@ -19,36 +18,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2 } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
 import { useTranslation } from '@/context/TranslationContext';
-import PasswordVisibilityToggle from '../PasswordVisibilityToggle';
+import { Loader2, ExternalLink, DollarSign, AlertCircle, Check } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { ModelWithPricing } from '@/types';
 
-// const modelOptions = {
-//   openai: [
-//     { value: 'gpt-4.1-mini-2025-04-14', label: 'GPT-4.1 mini' },
-//     { value: 'gpt-4.1-2025-04-14', label: 'GPT-4.1' },
-//     { value: 'chatgpt-4o-latest', label: 'ChatGPT-4o' },
-//     { value: 'gpt-4o-mini-2024-07-18', label: 'GPT-4o mini' },
-//     { value: 'o4-mini-2025-04-16', label: 'o4-mini' },
-//   ],
-//   claude: [
-//     { value: 'claude-3-7-sonnet-20250219', label: 'Claude 3.7 Sonnet' },
-//     { value: 'claude-3-5-haiku-20241022', label: 'Claude 3.5 Haiku' },
-//     { value: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet v2' },
-//     { value: 'claude-3-opus-20240229', label: 'Claude 3 Opus' },
-//     { value: 'claude-3-sonnet-20240229', label: 'Claude 3 Sonnet' },
-//     { value: 'claude-3-haiku-20240307', label: 'Claude 3 Haiku' },
-//   ],
-// };
-
-type Props = {
+interface Props {
   settings: any;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSelectChange: (name: string, value: string) => void;
   onSave: () => void;
   onTestOpenAI: () => void;
   onTestAnthropic: () => void;
+  onRefreshPricing: () => void;
   showOpenAi: boolean;
   setShowOpenAi: (val: boolean) => void;
   showClaudeAi: boolean;
@@ -56,13 +38,62 @@ type Props = {
   loading: boolean;
   models: {
     message: {
-      openai: { id: string; label: string }[];
-      claude: { id: string; label: string }[];
+      openai: ModelWithPricing[];
+      openai_recommended?: ModelWithPricing[];
+      claude: ModelWithPricing[];
+      claude_recommended?: ModelWithPricing[];
     };
   };
   modelLoading: boolean;
   modelError: any;
+  pricingRefreshLoading?: boolean;
 };
+
+// Model pricing URL helper (matches backend get_model_pricing_url)
+function getModelPricingUrl(modelId: string): string {
+  // OpenAI models: gpt-4.1-mini-2025-04-14 -> https://developers.openai.com/api/docs/models/gpt-4.1-mini
+  if (modelId.startsWith('gpt-') || modelId.startsWith('o4-') || modelId.startsWith('o3-') || modelId.startsWith('chatgpt-')) {
+    const parts = modelId.split('-');
+    // Check if last parts are date (YYYY-MM-DD)
+    const lastPart = parts[parts.length - 1];
+    const secondLastPart = parts[parts.length - 2];
+    if (/^\d{2}$/.test(lastPart) && /^\d{4}$/.test(secondLastPart)) {
+      // Remove date suffix
+      const slug = parts.slice(0, -3).join('-');
+      return `https://developers.openai.com/api/docs/models/${slug}`;
+    }
+    return `https://developers.openai.com/api/docs/models/${modelId}`;
+  }
+  // Anthropic models
+  if (modelId.startsWith('claude-')) {
+    return 'https://docs.anthropic.com/en/docs/models-overview';
+  }
+  return 'https://developers.openai.com/api/docs/models';
+}
+
+// Password visibility toggle component
+function PasswordVisibilityToggle({ isVisible, onToggle }: { isVisible: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
+      tabIndex={-1}
+    >
+      {isVisible ? (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.94-5.94m-2.76-2.76a18.45 18.45 0 0 1-5.94-5.94" />
+          <line x1="1" y1="1" x2="23" y2="23" />
+        </svg>
+      ) : (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-8-8-11-8z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      )}
+    </button>
+  );
+}
 
 export default function AiModelsSettings({
   settings,
@@ -71,6 +102,7 @@ export default function AiModelsSettings({
   onSave,
   onTestOpenAI,
   onTestAnthropic,
+  onRefreshPricing,
   showOpenAi,
   setShowOpenAi,
   showClaudeAi,
@@ -79,22 +111,31 @@ export default function AiModelsSettings({
   models,
   modelLoading,
   modelError,
+  pricingRefreshLoading,
 }: Props) {
   const { translate: __ } = useTranslation();
+  const [refreshingPricing, setRefreshingPricing] = useState(false);
+  const [showAllModels, setShowAllModels] = useState(false);
+
+  const handleRefreshPricing = async () => {
+    setRefreshingPricing(true);
+    await onRefreshPricing();
+    setRefreshingPricing(false);
+  };
 
   const currentModels =
     settings.default_model_provider === 'openai'
-      ? (models?.message?.openai ?? [])
+      ? (showAllModels
+          ? (models?.message?.openai ?? [])
+          : (models?.message?.openai_recommended ?? models?.message?.openai ?? []))
       : (models?.message?.claude ?? []);
 
-  // console.log('models', models);
-
-  // console.log(
-  //   'settings.default_model_provider',
-  //   settings.default_model_provider
-  // );
-  // console.log('settings in AiModelsSettings.tsx', settings);
-  // console.log('currentModels in AiModelsSettings.tsx', currentModels);
+  // Match by id OR by snapshot (for legacy saved settings)
+  const selectedModel = currentModels.find(
+    m => m.id === settings.default_model || m.snapshot === settings.default_model
+  );
+  // Use pricing_url from backend, fallback to local mapping
+  const selectedModelUrl = selectedModel?.pricing_url || getModelPricingUrl(settings.default_model || '');
 
   return (
     <Card>
@@ -105,121 +146,294 @@ export default function AiModelsSettings({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-2">
-          <Label>{__('Default Model Provider')}</Label>
-          <Select
-            value={settings.default_model_provider}
-            onValueChange={(value) =>
-              onSelectChange('default_model_provider', value)
-            }
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="openai">{__('OpenAI')}</SelectItem>
-              <SelectItem value="anthropic">
-                {__('Anthropic Claude')}
-              </SelectItem>
-            </SelectContent>
-          </Select>
+        <div id='ai__models__settings__wrapper' className="grid grid-cols-2 gap-6">
+          {/* Left Panel - Model Selection */}
+          <div id='ai__models__settings__left__panel' className="space-y-4">
+            <div id='ai__models__settings__default__model__provider' className="space-y-2">
+              <Label>{__('Default Model Provider')}</Label>
+              <Select
+                value={settings.default_model_provider}
+                onValueChange={(value) =>
+                  onSelectChange('default_model_provider', value)
+                }
+              >
+                <SelectTrigger className='text-left p-2 w-full cursor-pointer'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="openai">{__('OpenAI')}</SelectItem>
+                  <SelectItem value="anthropic">
+                    {__('Anthropic Claude')}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div id='ai__models__settings__default__model' className="space-y-2">
+              <Label>{__('Default Model')}</Label>
+              {modelLoading ? (
+                <Skeleton className="h-10 w-full rounded-md" />
+              ) : (
+                <Select
+                  value={settings.default_model || ''}
+                  onValueChange={(value) => onSelectChange('default_model', value)}
+                >
+                  <SelectTrigger id='ai__models__settings__default__model__select__trigger' className="text-left p-2 w-full cursor-pointer">
+                    <SelectValue placeholder={__('Select model')} />
+                  </SelectTrigger>
+                  <SelectContent id='ai__models__settings__default__model__select__content'>
+                    {currentModels.length > 0 ? (
+                      <>
+                        {currentModels.map((model: any) => (
+                          <SelectItem id={`ai__models__settings__default__model__select__item__${model.id}`} key={model.id} value={model.id} className="py-2">
+                            <div className="flex flex-col leading-none">
+                              <span className="font-medium leading-none">{model.label || model.id}</span>
+                              {model.snapshot && (
+                                <span className="text-xs text-muted-foreground">{model.snapshot}</span>
+                              )}
+                            </div>
+                          </SelectItem>
+                        ))}
+                        {/* Show All / Show Recommended toggle inside dropdown */}
+                        {settings.default_model_provider === 'openai' && (models?.message?.openai?.length ?? 0) > (models?.message?.openai_recommended?.length ?? 0) && (
+                          <div className="border-t mt-1 pt-1">
+                            {showAllModels ? (
+                              <div
+                                className="px-2 py-2 text-xs text-blue-600 cursor-pointer hover:text-blue-800 hover:underline text-center"
+                                onClick={() => setShowAllModels(false)}
+                              >
+                                {__('Show Recommended Only')} ({models?.message?.openai_recommended?.length ?? 0})
+                              </div>
+                            ) : (
+                              <div
+                                className="px-2 py-2 text-xs text-blue-600 cursor-pointer hover:text-blue-800 hover:underline text-center"
+                                onClick={() => setShowAllModels(true)}
+                              >
+                                {__('Show All Models')} ({models?.message?.openai?.length ?? 0})
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="px-4 py-2 text-muted-foreground text-sm">
+                        {__('No models available')}
+                      </div>
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
+              
+              {/* Pricing URL Link */}
+              {selectedModelUrl && (
+                <a
+                  href={selectedModelUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  {__('Pricing source')}: {selectedModelUrl.replace('https://', '')}
+                </a>
+              )}
+              
+              {modelError && (
+                <p className="text-sm text-red-600">
+                  {__('Failed to fetch models. Please refresh or check API key.')}
+                </p>
+              )}
+            </div>
+
+            {/* Refresh Pricing Button */}
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefreshPricing}
+                disabled={refreshingPricing || pricingRefreshLoading}
+                className="cursor-pointer"
+              >
+                {refreshingPricing || pricingRefreshLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : null}
+                {__('Refresh Pricing')}
+              </Button>
+            </div>
+          </div>
+
+          {/* Right Panel - Pricing Display */}
+          <div id='ai__models__settings__right__panel' className="space-y-4">
+            <div className="space-y-2">
+              <Label>{__('Model Pricing')}</Label>
+              {selectedModel ? (
+                <div className="p-4 border rounded-lg space-y-3">
+                <div className="flex justify-between text-sm font-medium">
+                  <span>{__('Model')}</span>
+                  <span className="font-mono text-sm">{selectedModel.id}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between text-sm">
+                  <span>{__('Input (per 1M tokens)')}</span>
+                  <span className="font-mono">${selectedModel.input_cost.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>{__('Output (per 1M tokens)')}</span>
+                  <span className="font-mono">${selectedModel.output_cost.toFixed(2)}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between text-sm font-medium">
+                  <span>{__('Total/1M')}</span>
+                  <span className="font-mono text-green-600">
+                    ${(selectedModel.input_cost + selectedModel.output_cost).toFixed(2)}/1M
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <DollarSign className="h-4 w-4" />
+                {__('Select a model to see pricing')}
+              </div>
+            )}
+          </div>
+        </div>
         </div>
 
-        <div className="space-y-2">
-          <Label>{__('Default Model')}</Label>
-          {modelLoading ? (
-            <Skeleton className="h-10 w-full rounded-md" />
-          ) : (
-            <Select
-              value={settings.default_model || ''}
-              onValueChange={(value) => onSelectChange('default_model', value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={__('Select model')} />
-              </SelectTrigger>
-              <SelectContent>
-                {currentModels.length > 0 ? (
-                  currentModels.map((model) => (
-                    <SelectItem key={model.id} value={model.id}>
-                      {model.label}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <div className="px-4 py-2 text-muted-foreground text-sm">
-                    {__('No models available')}
-                  </div>
-                )}
-              </SelectContent>
-            </Select>
-          )}
-          {modelError && (
-            <p className="text-sm text-red-600">
-              {__('Failed to fetch models. Please refresh or check API key.')}
-            </p>
-          )}
-        </div>
-
-        <Separator />
-
+        {/* API Keys Section */}
         <div className="space-y-4">
-          <Label htmlFor="openai_api_key">{__('OpenAI API Key')}</Label>
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Input
-                id="openai_api_key"
-                type={showOpenAi ? 'text' : 'password'}
-                name="openai_api_key"
-                value={settings.openai_api_key || ''}
-                onChange={onInputChange}
-                placeholder={__('Enter OpenAI API Key')}
-              />
-              <PasswordVisibilityToggle
-                isVisible={showOpenAi}
-                onToggle={() => setShowOpenAi(!showOpenAi)}
-              />
+          <h3 className="text-sm font-medium">{__('API Keys')}</h3>
+          
+          {/* OpenAI API Key */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="openai_api_key">{__('OpenAI API Key')}</Label>
+              {(settings as any).openai_api_key_configured && (
+                <span className="text-xs text-green-600">✓ API Key configured</span>
+              )}
             </div>
-            <div className="flex flex-none justify-end">
+            <div className="flex justify-center items-center gap-2">
+              <div className="relative flex-1">
+                <Input
+                  id="openai_api_key"
+                  type={showOpenAi ? 'text' : 'password'}
+                  name="openai_api_key"
+                  value={
+                    (settings as any).openai_api_key_configured && !settings.openai_api_key
+                      ? '****'
+                      : settings.openai_api_key || ''
+                  }
+                  onChange={onInputChange}
+                  placeholder={__('Enter OpenAI API Key')}
+                />
+                <PasswordVisibilityToggle
+                  isVisible={showOpenAi}
+                  onToggle={() => setShowOpenAi(!showOpenAi)}
+                />
+              </div>
               <Button
                 variant="outline"
-                size="sm"
+                size="lg"
                 onClick={onTestOpenAI}
-                disabled={!settings.openai_api_key || loading}
-                className="h-full cursor-pointer"
+                disabled={
+                  (!settings.openai_api_key && !(settings as any).openai_api_key_configured) || loading
+                }
+                className="h-stretch min-w-[120px] cursor-pointer"
               >
-                {__('Test Connect')}
+                {__('Test')}
               </Button>
             </div>
           </div>
 
-          <Label htmlFor="anthropic_api_key">{__('Anthropic API Key')}</Label>
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Input
-                id="anthropic_api_key"
-                type={showClaudeAi ? 'text' : 'password'}
-                name="anthropic_api_key"
-                value={settings.anthropic_api_key || ''}
-                onChange={onInputChange}
-                placeholder={__('Enter Anthropic API Key')}
-              />
-              <PasswordVisibilityToggle
-                isVisible={showClaudeAi}
-                onToggle={() => setShowClaudeAi(!showClaudeAi)}
-              />
+          {/* Anthropic API Key */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="anthropic_api_key">{__('Anthropic API Key')}</Label>
+              {(settings as any).anthropic_api_key_configured && (
+                <span className="text-xs text-green-600">✓ API Key configured</span>
+              )}
             </div>
-            <div className="flex flex-none justify-end">
+            <div className="flex justify-center items-center gap-2">
+              <div className="relative flex-1">
+                <Input
+                  id="anthropic_api_key"
+                  type={showClaudeAi ? 'text' : 'password'}
+                  name="anthropic_api_key"
+                  value={
+                    (settings as any).anthropic_api_key_configured && !settings.anthropic_api_key
+                      ? '****'
+                      : settings.anthropic_api_key || ''
+                  }
+                  onChange={onInputChange}
+                  placeholder={__('Enter Anthropic API Key')}
+                />
+                <PasswordVisibilityToggle
+                  isVisible={showClaudeAi}
+                  onToggle={() => setShowClaudeAi(!showClaudeAi)}
+                />
+              </div>
               <Button
                 variant="outline"
-                size="sm"
+                size="lg"
                 onClick={onTestAnthropic}
-                disabled={!settings.anthropic_api_key || loading}
-                className="h-full cursor-pointer"
+                disabled={
+                  (!settings.anthropic_api_key && !(settings as any).anthropic_api_key_configured) || loading
+                }
+                className="h-stretch min-w-[120px] cursor-pointer"
               >
-                {__('Test Connect')}
+                {__('Test')}
               </Button>
             </div>
           </div>
         </div>
+
+        {/* Cost Estimation */}
+        <div className="space-y-2 p-4 border rounded-lg">
+          <h3 className="text-sm font-medium">{__('Cost Estimation')}</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label htmlFor="openai_balance_usd" className="text-xs">
+                {__('OpenAI Balance (USD)')}
+              </Label>
+              <Input
+                id="openai_balance_usd"
+                name="openai_balance_usd"
+                type="number"
+                step="0.01"
+                min="0"
+                value={settings.openai_balance_usd ?? ''}
+                onChange={onInputChange}
+                placeholder="0.00"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="anthropic_balance_usd" className="text-xs">
+                {__('Anthropic Balance (USD)')}
+              </Label>
+              <Input
+                id="anthropic_balance_usd"
+                name="anthropic_balance_usd"
+                type="number"
+                step="0.01"
+                min="0"
+                value={settings.anthropic_balance_usd ?? ''}
+                onChange={onInputChange}
+                placeholder="0.00"
+              />
+            </div>
+            {selectedModel && (
+              <>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">{__('Cost/Entry')}</span>
+                  <span className="font-mono">${selectedModel.cost_per_entry_usd?.toFixed(4) || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">{__('Est. Entries')}</span>
+                  <span className="font-mono">{selectedModel.estimated_entries || 'N/A'}</span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
       </CardContent>
       <CardFooter>
         <Button className="cursor-pointer" onClick={onSave} disabled={loading}>

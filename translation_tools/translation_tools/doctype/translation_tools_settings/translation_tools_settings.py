@@ -48,3 +48,15 @@ class TranslationToolsSettings(Document):
                             f'Claude Model "{self.anthropic_model}" is not available. Try one of {models_str}'
                         )
                     )
+
+    @frappe.whitelist()
+    def refresh_pricing(self):
+        """Refresh model pricing from OpenAI public documentation"""
+        from translation_tools.api.ai_models import fetch_openai_model_pricing
+        try:
+            fetch_openai_model_pricing()
+            # Clear the cache so new prices are used
+            frappe.cache().delete_value("ai_translation_models")
+            return {"success": True, "message": "Pricing refreshed successfully"}
+        except Exception as e:
+            return {"success": False, "error": str(e)}

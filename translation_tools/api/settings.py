@@ -212,7 +212,7 @@ def get_translation_settings():
         return frappe._dict(
             {
                 "default_model_provider": "openai",
-                "default_model": "gpt-4.1-mini-2025-04-14",
+                "default_model": "gpt-4o-mini-2024-07-18",
                 "openai_api_key_configured": False,
                 "anthropic_api_key_configured": False,
                 "batch_size": 10,
@@ -265,18 +265,17 @@ def get_translation_settings():
     settings = frappe._dict(
         {
             "default_model_provider": doc.default_model_provider or "openai",  # type: ignore
-            "default_model": doc.default_model or "gpt-4.1-mini-2025-04-14",  # type: ignore
-            "openai_api_key": "****"
-            if openai_configured
-            else "",  # Masked value for frontend
+            "default_model": doc.default_model or "gpt-4o-mini-2024-07-18",  # type: ignore
+            # Return empty string - password will be masked in UI
+            "openai_api_key": "",
             "openai_api_key_configured": openai_configured,  # Boolean flag
-            "anthropic_api_key": "****"
-            if anthropic_configured
-            else "",  # Masked value for frontend
+            "openai_balance_usd": cast_to_float(getattr(doc, "openai_balance_usd", 0)),
+            # Return empty string - password will be masked in UI
+            "anthropic_api_key": "",
             "anthropic_api_key_configured": anthropic_configured,  # Boolean flag
-            "github_token": "****"
-            if github_token_configured
-            else "",  # Masked value for frontend
+            "anthropic_balance_usd": cast_to_float(getattr(doc, "anthropic_balance_usd", 0)),
+            # Return empty string - password will be masked in UI
+            "github_token": "",
             "github_token_configured": github_token_configured,  # Boolean flag
             "batch_size": cint(doc.batch_size or 10),  # type: ignore
             "temperature": cast_to_float(doc.temperature, default=0.3),  # type: ignore
@@ -780,13 +779,22 @@ def sync_all_apps_now():
 @frappe.whitelist()
 def save_translation_settings(settings):
     """Save Translation Tools Settings"""
+    import sys
+    print(f"[Tier1:Backend:save_translation_settings] Called!", flush=True)
+    print(f"[Tier1:Backend] settings type: {type(settings)}", flush=True)
+    print(f"[Tier1:Backend] settings keys: {list(settings.keys()) if hasattr(settings, 'keys') else 'N/A'}", flush=True)
+    
     settings_data = (
         frappe._dict(settings)
         if isinstance(settings, dict)
         else frappe._dict(json.loads(settings))
     )
-
-    # Security: Removed debug print to prevent API key exposure
+    
+    print(f"[Tier1:Backend] openai_api_key in data: {'openai_api_key' in settings_data}", flush=True)
+    if 'openai_api_key' in settings_data:
+        val = settings_data.openai_api_key
+        print(f"[Tier1:Backend] openai_api_key value: {val[:20] if val and len(str(val)) > 20 else val}... (len={len(str(val)) if val else 0})", flush=True)
+    print(f"[Tier1:Backend] all keys: {list(settings_data.keys())}", flush=True)
 
     # Check if Translation Tools Settings doctype exists, create if not
     if not frappe.db.exists("DocType", "Translation Tools Settings"):
@@ -802,12 +810,24 @@ def save_translation_settings(settings):
 
     # Update settings
     doc.default_model_provider = settings_data.get("default_model_provider", "openai")  # type: ignore
-    doc.default_model = settings_data.get("default_model", "gpt-4.1-mini-2025-04-14")  # type: ignore
+    doc.default_model = settings_data.get("default_model", "gpt-4o-mini-2024-07-18")  # type: ignore
+
+    # Save balance fields
+    if "openai_balance_usd" in settings_data:
+        doc.openai_balance_usd = cast_to_float(settings_data.openai_balance_usd)  # type: ignore
+    if "anthropic_balance_usd" in settings_data:
+        doc.anthropic_balance_usd = cast_to_float(settings_data.anthropic_balance_usd)  # type: ignore
 
     if "openai_api_key" in settings_data and settings_data.openai_api_key:
         # Only update if key is provided and not just asterisks
-        if not set(settings_data.openai_api_key) == {"*"}:
-            doc.openai_api_key = settings_data.openai_api_key  # type: ignore
+        key_val = settings_data.openai_api_key
+        if not set(key_val) == {"*"}:
+            print(f"[Tier1:Backend] Saving openai_api_key: {key_val[:20]}... (len={len(key_val)})", flush=True)
+            doc.openai_api_key = key_val  # type: ignore
+        else:
+            print("[Tier1:Backend] openai_api_key is masked with ***, not saving", flush=True)
+    else:
+        print(f"[Tier1:Backend] openai_api_key NOT in data or empty", flush=True)
 
     if "anthropic_api_key" in settings_data and settings_data.anthropic_api_key:
         # Only update if key is provided and not just asterisks
@@ -836,9 +856,15 @@ def save_translation_settings(settings):
         # Client's own repo: save both repo URL and token
         if "github_repo" in settings_data:
             doc.github_repo = settings_data.github_repo  # type: ignore
+        print(f"[Tier1:Backend] github_token in data: {'github_token' in settings_data}, value: {settings_data.get('github_token', 'NOT_IN_DATA')[:20] if settings_data.get('github_token') else 'empty'}", flush=True)
         if "github_token" in settings_data and settings_data.github_token:
             if not set(settings_data.github_token) == {"*"}:
+                print(f"[Tier1:Backend] Saving github_token: {settings_data.github_token[:20]}...", flush=True)
                 doc.github_token = settings_data.github_token  # type: ignore
+            else:
+                print("[Tier1:Backend] github_token is masked with ***, not saving", flush=True)
+        else:
+            print(f"[Tier1:Backend] github_token NOT in data or empty", flush=True)
     else:
         # Default repo: save default URL, don't touch token (uses site_config)
         doc.github_repo = DEFAULT_GITHUB_REPO  # type: ignore
@@ -856,8 +882,19 @@ def save_translation_settings(settings):
 
     doc.save()
     frappe.db.commit()
+    print(f"[Tier1:Backend] after doc.save(), checking DB value...", flush=True)
+    
+    # Check if API key was saved by reading directly from DB
+    raw_value = frappe.db.get_value("Translation Tools Settings", "Translation Tools Settings", "openai_api_key")
+    print(f"[Tier1:Backend] DB raw openai_api_key: {raw_value}", flush=True)
+    print(f"[Tier1:Backend] DB raw type: {type(raw_value)}", flush=True)
+    
+    # Check github_token from DB
+    raw_github_token = frappe.db.get_value("Translation Tools Settings", "Translation Tools Settings", "github_token")
+    print(f"[Tier1:Backend] DB raw github_token: {raw_github_token}", flush=True)
+    
     print(
-        f"[translation_tools] after save: doc.default_branch={getattr(doc, 'default_branch', None)}"
+        f"[Tier1:Backend] after save: openai_balance_usd={getattr(doc, 'openai_balance_usd', None)}, anthropic_balance_usd={getattr(doc, 'anthropic_balance_usd', None)}"
     )
 
     # Check if any API keys are configured and create a warning if not
@@ -958,7 +995,7 @@ def create_translation_tools_settings_doctype():
                 "options": "openai\nanthropic",
             },
             {
-                "default": "gpt-4.1-mini-2025-04-14",
+                "default": "gpt-4o-mini-2024-07-18",
                 "fieldname": "default_model",
                 "fieldtype": "Data",
                 "label": "Default Model",
@@ -974,11 +1011,11 @@ def create_translation_tools_settings_doctype():
                 "label": "OpenAI API Key",
             },
             {
-                "default": "gpt-4.1-mini-2025-04-14",
+                "default": "gpt-4o-mini-2024-07-18",
                 "fieldname": "openai_model",
                 "fieldtype": "Select",
                 "label": "OpenAI Model",
-                "options": "gpt-4.1-mini-2025-04-14\ngpt-4.1-2025-04-14\nchatgpt-4o-latest\ngpt-4o-mini-2024-07-18\no4-mini-2025-04-16",
+                "options": "gpt-4o-mini-2024-07-18\ngpt-4.1-mini-2025-04-14\ngpt-4.1-2025-04-14\nchatgpt-4o-latest\no4-mini-2025-04-16",
             },
             {
                 "fieldname": "anthropic_section",
@@ -1122,7 +1159,7 @@ def get_translation_tools_settings_file():
     settings = {
         "api_key": "",
         "model_provider": "openai",
-        "model": "gpt-4.1-mini-2025-04-14",
+        "model": "gpt-4o-mini-2024-07-18",
         "batch_size": 10,
         "temperature": 0.3,
         "max_tokens": 512,

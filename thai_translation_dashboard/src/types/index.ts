@@ -28,3 +28,18 @@ export interface StatusMessage {
   message: string;
   key?: string;
 }
+
+// AI Model with pricing info (from OpenAI API)
+export interface ModelWithPricing {
+  id: string;
+  label: string;
+  snapshot: string | null;
+  cost_per_million: number;
+  input_cost: number;
+  output_cost: number;
+  pricing_url: string;
+  is_recommended: boolean;
+  has_known_pricing: boolean;
+  cost_per_entry_usd?: number;
+  estimated_entries?: number;
+}

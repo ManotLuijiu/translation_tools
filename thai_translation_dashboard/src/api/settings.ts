@@ -34,7 +34,9 @@ export type TranslationToolsSettings = {
   openai_model?: string;
   anthropic_model?: string;
   openai_api_key: string;
+  openai_balance_usd?: number;
   anthropic_api_key: string;
+  anthropic_balance_usd?: number;
   batch_size: number;
   temperature: number;
   auto_save: boolean;

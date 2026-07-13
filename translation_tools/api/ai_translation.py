@@ -742,17 +742,31 @@ def _run_auto_mode_chunk(
 
     translations = {}
     errors = []
+    skipped_thai = []
     for entry_id, msgid in msgid_map.items():
         try:
             if model_provider == "claude":
                 result = _translate_with_claude(api_key, model, msgid)
             else:
                 result = _translate_with_openai(api_key, model, msgid)
-            if result:
+            
+            # Handle new return format with skipped flag
+            if isinstance(result, dict):
+                if result.get("skipped"):
+                    # Already Thai - copy as-is (already translated)
+                    translations[entry_id] = result.get("text", msgid)
+                    skipped_thai.append(entry_id)
+                    logger.info(f"Skipped Thai entry: {entry_id[:8]}...")
+                elif result.get("text"):
+                    translations[entry_id] = result["text"]
+            elif result:
+                # Legacy: result is just the translated text string
                 translations[entry_id] = result
         except Exception as e:
             errors.append(f"{entry_id}: {e}")
 
+    if skipped_thai:
+        logger.info(f"Chunk: {len(skipped_thai)} entries skipped (already Thai)")
     if errors:
         logger.warning(f"Chunk errors ({len(errors)}): {errors[:3]}")
 
@@ -767,6 +781,8 @@ def start_auto_mode_job(
     model_provider="openai",
     model=None,
     max_chunk_size=20,
+    max_entries=None,  # NEW: Limit total entries to process
+    english_only=True,  # NEW: Skip Thai/mixed entries
 ):
     """
     Start an Auto Mode job for a file. Creates a job record and queues
@@ -779,18 +795,41 @@ def start_auto_mode_job(
         model_provider (str): AI provider (openai / claude)
         model (str): Model name
         max_chunk_size (int): Max entries per chunk (default 20)
+        max_entries (int): Maximum total entries to translate (None = all)
 
     Returns:
         dict: {success, job_id, total_untranslated, planned_chunk_count}
     """
     try:
         # Get untranslated entry IDs
-        entry_ids = _get_untranslated_entry_ids(file_path)
-        if not entry_ids:
+        all_entry_ids = _get_untranslated_entry_ids(file_path)
+        if not all_entry_ids:
             return {
                 "success": False,
                 "error": "No untranslated entries found in this file.",
             }
+        
+        # Filter English-only if requested
+        if english_only:
+            from .translation import contains_substantial_thai
+            english_entry_ids = []
+            # Use validate_and_parse_po_file to handle BOM and encoding
+            success, po_or_error = validate_and_parse_po_file(file_path)
+            if not success:
+                logger.error(f"English-only filter: {po_or_error}")
+            else:
+                po = po_or_error
+                for po_index, entry in enumerate(po):
+                    if not isinstance(entry, polib.POEntry) or not entry.msgid or entry.is_translated():
+                        continue
+                    unique_string = f"{po_index}-{entry.msgid}"
+                    entry_id = hashlib.md5(unique_string.encode("utf-8")).hexdigest()
+                    if entry_id in all_entry_ids and not contains_substantial_thai(entry.msgid):
+                        english_entry_ids.append(entry_id)
+            all_entry_ids = english_entry_ids
+        
+        # Limit entries if max_entries is specified
+        entry_ids = all_entry_ids[:max_entries] if max_entries else all_entry_ids
 
         # Resolve model
         settings = get_translation_settings()
@@ -834,6 +873,8 @@ def start_auto_mode_job(
             "success": True,
             "job_id": job_id,
             "total_untranslated": len(entry_ids),
+            "total_available": len(all_entry_ids),
+            "remaining_after": len(all_entry_ids) - len(entry_ids),
             "planned_chunk_count": (len(entry_ids) + max_chunk_size - 1)
             // max_chunk_size,
             "planned_initial_chunk_size": max_chunk_size,

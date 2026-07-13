@@ -24,6 +24,8 @@ const DEFAULT_SETTINGS: Partial<TranslationToolsSettings> = {
   default_model: '',
   openai_api_key: '',
   anthropic_api_key: '',
+  openai_balance_usd: 0,
+  anthropic_balance_usd: 0,
   batch_size: 10,
   temperature: 0.3,
   auto_save: false,
@@ -60,6 +62,7 @@ export default function SettingsPanel() {
   useEffect(() => {
     if (!data?.message || isDirty) return;
     const serverSettings = data.message as TranslationToolsSettings;
+    console.log('[SettingsPanel] Loading server settings, openai_api_key present:', !!serverSettings.openai_api_key, serverSettings.openai_api_key?.substring(0, 20));
     setSettings((prev) => ({
       ...prev,
       ...serverSettings,
@@ -86,10 +89,15 @@ export default function SettingsPanel() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    setSettings((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
-    }));
+    console.log(`[handleInputChange] ${name} = "${value}"`);
+    setSettings((prev) => {
+      const newSettings = {
+        ...prev,
+        [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+      };
+      console.log(`[handleInputChange] settings state after update:`, JSON.stringify(newSettings, null, 2));
+      return newSettings;
+    });
     setIsDirty(true);
   };
 
@@ -222,16 +230,56 @@ export default function SettingsPanel() {
     }
   }, [testAi]);
 
+  const handleRefreshPricing = useCallback(async () => {
+    toast.info('Refreshing pricing from OpenAI docs...');
+
+    try {
+      const response = await fetch(
+        '/api/method/translation_tools.api.ai_models.refresh_model_pricing'
+      );
+      const result = await response.json();
+
+      if (result?.message?.success) {
+        toast.success('Pricing refreshed successfully!');
+      } else {
+        toast.error(result?.message?.error || 'Failed to refresh pricing');
+      }
+    } catch (err) {
+      console.error('Refresh pricing error:', err);
+      toast.error('Failed to refresh pricing');
+    }
+  }, []);
+
   const handleSaveSettings = useCallback(async () => {
     setStatusMessage({ type: 'info', message: 'Saving settings...' });
 
-    console.log('[SettingsPanel] handleSaveSettings — saving github_branch:', settings.github_branch);
+    const settingsToSave = {
+      openai_api_key: settings.openai_api_key,
+      anthropic_api_key: settings.anthropic_api_key,
+      openai_balance_usd: settings.openai_balance_usd,
+      anthropic_balance_usd: settings.anthropic_balance_usd,
+      default_model: settings.default_model,
+      default_model_provider: settings.default_model_provider,
+      github_enable: settings.github_enable,
+      github_repo: settings.github_repo,
+      github_token: settings.github_token,
+      github_branch: settings.github_branch,
+      use_own_repo: settings.use_own_repo,
+    };
+
+    console.log('[handleSaveSettings] github_token:', settings.github_token);
+    console.log('[handleSaveSettings] github_enable type:', typeof settings.github_enable, settings.github_enable);
+    console.log('[handleSaveSettings] github_repo:', settings.github_repo);
+    console.log('[handleSaveSettings] use_own_repo:', settings.use_own_repo);
 
     try {
-      const result = await saveSettings.call({ settings });
+      const result = await saveSettings.call({ settings: settingsToSave });
+      console.log('[handleSaveSettings] API result:', result);
 
       if (result?.message?.success) {
         setIsDirty(false);  // clear dirty flag — settings now match server
+        // Update settings state to reflect saved values (including openai_api_key)
+        setSettings(settingsToSave);
         setStatusMessage({
           type: result.message.warnings?.length ? 'warning' : 'success',
           message:
@@ -294,6 +342,7 @@ export default function SettingsPanel() {
             onSave={handleSaveSettings}
             onTestOpenAI={handleTestOpenAI}
             onTestAnthropic={handleTestAnthropic}
+            onRefreshPricing={handleRefreshPricing}
             showOpenAi={showOpenAi}
             setShowOpenAi={setShowOpenAi}
             showClaudeAi={showClaudeAi}
