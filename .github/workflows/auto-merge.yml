@@ -7,11 +7,16 @@ on:
 
 permissions:
     contents: write
+    pull-requests: write
+    statuses: read
+
+concurrency:
+    group: auto-merge-${{ github.ref }}
+    cancel-in-progress: true
 
 jobs:
     merge-to-version-15:
         runs-on: ubuntu-latest
-
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -23,6 +28,40 @@ jobs:
               run: |
                   git config user.name "GitHub Actions"
                   git config user.email "actions@github.com"
+
+            - name: Wait for CI checks on develop
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  echo "Waiting for CI checks on develop branch..."
+                  TIMEOUT=600
+                  INTERVAL=15
+                  ELAPSED=0
+                  while [ $ELAPSED -lt $TIMEOUT ]; do
+                      COMMIT_SHA=$(git rev-parse origin/develop)
+                      echo "Checking commit: $COMMIT_SHA"
+                      ALL_PASSING=true
+                      for CHECK_STATUS in $(gh api repos/{owner}/{repo}/commits/$COMMIT_SHA/status | jq -r '.statuses[] | .state'); do
+                          if [ "$CHECK_STATUS" != "success" ] && [ "$CHECK_STATUS" != "skipped" ]; then
+                              ALL_PASSING=false
+                              break
+                          fi
+                      done
+                      # Also check GitHub Actions workflow status
+                      RUNNING=$(gh api repos/{owner}/{repo}/actions/runs?branch=develop --jq '.workflow_runs[] | select(.status == "in_progress") | .id' | wc -l)
+                      if [ "$RUNNING" -gt 0 ]; then
+                          ALL_PASSING=false
+                      fi
+                      if [ "$ALL_PASSING" = true ]; then
+                          echo "All CI checks passed!"
+                          exit 0
+                      fi
+                      sleep $INTERVAL
+                      ELAPSED=$((ELAPSED + INTERVAL))
+                      echo "Waited ${ELAPSED}s..."
+                  done
+                  echo "TIMEOUT: CI checks did not pass within ${TIMEOUT}s"
+                  exit 1
 
             - name: Merge develop → version-15
               run: |
@@ -33,7 +72,6 @@ jobs:
 
     merge-to-version-16:
         runs-on: ubuntu-latest
-
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -45,6 +83,40 @@ jobs:
               run: |
                   git config user.name "GitHub Actions"
                   git config user.email "actions@github.com"
+
+            - name: Wait for CI checks on develop
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  echo "Waiting for CI checks on develop branch..."
+                  TIMEOUT=600
+                  INTERVAL=15
+                  ELAPSED=0
+                  while [ $ELAPSED -lt $TIMEOUT ]; do
+                      COMMIT_SHA=$(git rev-parse origin/develop)
+                      echo "Checking commit: $COMMIT_SHA"
+                      ALL_PASSING=true
+                      for CHECK_STATUS in $(gh api repos/{owner}/{repo}/commits/$COMMIT_SHA/status | jq -r '.statuses[] | .state'); do
+                          if [ "$CHECK_STATUS" != "success" ] && [ "$CHECK_STATUS" != "skipped" ]; then
+                              ALL_PASSING=false
+                              break
+                          fi
+                      done
+                      # Also check GitHub Actions workflow status
+                      RUNNING=$(gh api repos/{owner}/{repo}/actions/runs?branch=develop --jq '.workflow_runs[] | select(.status == "in_progress") | .id' | wc -l)
+                      if [ "$RUNNING" -gt 0 ]; then
+                          ALL_PASSING=false
+                      fi
+                      if [ "$ALL_PASSING" = true ]; then
+                          echo "All CI checks passed!"
+                          exit 0
+                      fi
+                      sleep $INTERVAL
+                      ELAPSED=$((ELAPSED + INTERVAL))
+                      echo "Waited ${ELAPSED}s..."
+                  done
+                  echo "TIMEOUT: CI checks did not pass within ${TIMEOUT}s"
+                  exit 1
 
             - name: Merge develop → version-16
               run: |
