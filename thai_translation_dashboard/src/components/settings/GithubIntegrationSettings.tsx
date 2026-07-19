@@ -52,8 +52,16 @@ export default function GithubIntegrationSettings({
   const useOwnRepo = !!settings.use_own_repo;
   // Track the last-fetched repo URL — only updates when the URL actually changes,
   // so a new URL always triggers a fresh branch fetch.
-  const lastFetchedRepoRef = useRef<string | undefined>(undefined);
-  const [fetchedBranches, setFetchedBranches] = useState<string[]>([]);
+  // sessionStorage key prefix — persists across component mounts (tab switches)
+  const STORAGE_KEY_REPO = 'github-branches-repo';
+  const STORAGE_KEY_BRANCHES = 'github-branches-data';
+  const [fetchedBranches, setFetchedBranches] = useState<string[]>(() => {
+    // Restore branches from sessionStorage on init (survives tab switches)
+    try {
+      const stored = sessionStorage.getItem(STORAGE_KEY_BRANCHES);
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
   const [hasMoreBranches, setHasMoreBranches] = useState(false);
   const [showAllBranches, setShowAllBranches] = useState(false);
   const [branchDropdownOpen, setBranchDropdownOpen] = useState(false);
@@ -69,67 +77,49 @@ export default function GithubIntegrationSettings({
   }, [loading]);
 
   // Auto-fetch branches when repo URL, token, or own-repo toggle changes.
-  // The backend resolves the token: passed-in value → site_config → saved settings.
   useEffect(() => {
-    // Skip if own-repo is disabled or no repo URL
-    if (!useOwnRepo || !settings.github_repo?.trim()) return;
+        // Skip if own-repo is disabled or no repo URL
+      if (!useOwnRepo || !settings.github_repo?.trim()) return;
+      const currentRepo = settings.github_repo.trim();
+      // sessionStorage persists across component mounts — skip if we already fetched this repo
+      const storedRepo = sessionStorage.getItem(STORAGE_KEY_REPO);
+      if (storedRepo === currentRepo) return;
 
-    const currentRepo = settings.github_repo.trim();
+      setIsFetchingBranches(true);
+      setBranchFetchError(null);
+      // Mark this repo as fetched BEFORE the call (prevents double-fetch on retry)
+      sessionStorage.setItem(STORAGE_KEY_REPO, currentRepo);
 
-    // DEBUG: log the repo URL being used for auto-fetch
-    console.log('[GithubIntegrationSettings] auto-fetch repo URL:', currentRepo);
-
-    // On first run, settings.github_repo is empty ("") — skip so we don't fetch the default repo.
-    // When server settings arrive, settings.github_repo becomes the user's real URL — then we fetch.
-    // After that, lastFetchedRepoRef blocks re-fetching the same URL on every revalidation.
-    if (lastFetchedRepoRef.current === currentRepo) return;
-
-    // Don't update lastFetchedRepoRef for empty string — keep it undefined
-    // so the real URL (when it arrives) always triggers a fetch
-    if (currentRepo) {
-      lastFetchedRepoRef.current = currentRepo;
-    }
-
-    setIsFetchingBranches(true);
-    setBranchFetchError(null);
-
-    // Always pass undefined for token — the backend resolves it via
-    // frappe.conf github_pat_token → Translation Tools Settings github_token → error.
-    // Passing settings.github_token would send masked "****" which breaks the fallback.
-    fetchBranches({ github_repo: settings.github_repo })
-      .then((result: any) => {
-        const msg = result?.message;
-        if (msg?.success) {
-          console.log('[GithubIntegrationSettings] fetched branches:', msg.branches);
-          console.log('[GithubIntegrationSettings] total_count:', msg.total_count, 'has_more:', msg.has_more);
-          setFetchedBranches(msg.branches || []);
-          setHasMoreBranches(msg.has_more || false);
-          setShowAllBranches(false);
-          setRepoDefaultBranch(msg.default_branch || null);
-          // Auto-select saved branch if it exists in fetched list,
-          // otherwise auto-select the GitHub repo's default branch
-          if (settings.github_branch && (msg.branches || []).includes(settings.github_branch)) {
-            // saved branch is valid, keep it — no change needed
-          } else if (msg.default_branch) {
-            console.log('[GithubIntegrationSettings] auto-selecting default_branch:', msg.default_branch);
-            onInputChange({ target: { name: 'github_branch', value: msg.default_branch } } as any);
-            console.log('[GithubIntegrationSettings] after onInputChange — github_branch in settings:', settings.github_branch);
+      fetchBranches({ github_repo: settings.github_repo })
+        .then((result: any) => {
+          const msg = result?.message;
+          if (msg?.success) {
+            const branches = msg.branches || [];
+            setFetchedBranches(branches);
+            sessionStorage.setItem(STORAGE_KEY_BRANCHES, JSON.stringify(branches));
+            setHasMoreBranches(msg.has_more || false);
+            setShowAllBranches(false);
+            setRepoDefaultBranch(msg.default_branch || null);
+            // BUG FIX: Only auto-select default branch when github_branch is EMPTY.
+            // Keep user's existing branch selection even if not in fetched list.
+            if (!settings.github_branch && msg.default_branch) {
+              onInputChange({ target: { name: 'github_branch', value: msg.default_branch } } as any);
+            }
+            if (!msg.branches?.length) {
+              setBranchFetchError('No branches found in this repository.');
+            }
+          } else {
+            setBranchFetchError(msg?.error || 'Failed to fetch branches.');
           }
-          if (!msg.branches?.length) {
-            setBranchFetchError('No branches found in this repository.');
-          }
-        } else {
-          setBranchFetchError(msg?.error || 'Failed to fetch branches.');
-        }
-      })
-      .catch(() => {
-        setBranchFetchError('Failed to fetch branches. Check your token and repo URL.');
-      })
-      .finally(() => {
-        setIsFetchingBranches(false);
-      });
+        })
+        .catch(() => {
+          setBranchFetchError('Failed to fetch branches. Check your token and repo URL.');
+        })
+        .finally(() => {
+          setIsFetchingBranches(false);
+        });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [useOwnRepo, settings.github_repo, settings.github_token]);
+  }, [useOwnRepo, settings.github_repo]);
 
   const { data: appSyncData, mutate: refetchAppSync } = useGetAppSyncSettings();
   const { call: updateGlobalSync, loading: savingGlobalSync } = useUpdateGithubSyncGlobalSettings();
@@ -257,16 +247,16 @@ export default function GithubIntegrationSettings({
                         });
                         const msg = result?.message;
                         if (msg?.success) {
-                          setFetchedBranches(msg.branches || []);
+                          const branches = msg.branches || [];
+                          setFetchedBranches(branches);
+                          sessionStorage.setItem(STORAGE_KEY_BRANCHES, JSON.stringify(branches));
+                          sessionStorage.setItem(STORAGE_KEY_REPO, settings.github_repo || '');
                           setHasMoreBranches(showAllBranches ? false : (msg.has_more || false));
                           if (!showAllBranches) setShowAllBranches(false);
                           setRepoDefaultBranch(msg.default_branch || null);
-                          if (
-                            settings.github_branch &&
-                            (msg.branches || []).includes(settings.github_branch)
-                          ) {
-                            // already selected, keep it
-                          } else if (msg.default_branch) {
+                          // BUG FIX: Only auto-select default when github_branch is empty.
+                          // Keep user's existing branch selection even if not in fetched list.
+                          if (!settings.github_branch && msg.default_branch) {
                             onInputChange({
                               target: { name: 'github_branch', value: msg.default_branch },
                             } as any);

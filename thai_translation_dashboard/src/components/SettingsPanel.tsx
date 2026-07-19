@@ -60,13 +60,25 @@ export default function SettingsPanel() {
 
   // Load server settings when data arrives — but never clobber unsaved edits
   useEffect(() => {
-    if (!data?.message || isDirty) return;
+    if (!data?.message) return;
     const serverSettings = data.message as TranslationToolsSettings;
-    console.log('[SettingsPanel] Loading server settings, openai_api_key present:', !!serverSettings.openai_api_key, serverSettings.openai_api_key?.substring(0, 20));
-    setSettings((prev) => ({
-      ...prev,
-      ...serverSettings,
-    }));
+    // Only clobber local edits if isDirty is false (no unsaved user changes)
+    // If isDirty=true, user has made edits — keep their values (except for sensitive masked fields)
+    setSettings((prev) => {
+      if (isDirty) {
+        // Merge server settings for fields user hasn't touched
+        return {
+          ...prev,
+          ...serverSettings,
+          // Preserve user edits for these fields
+          openai_api_key: prev.openai_api_key,
+          anthropic_api_key: prev.anthropic_api_key,
+          github_token: prev.github_token,
+        };
+      }
+      // No unsaved edits — load everything from server
+      return { ...prev, ...serverSettings };
+    });
   }, [data, isDirty]);
 
   // Apply model default fallback when model list or provider changes
@@ -267,25 +279,26 @@ export default function SettingsPanel() {
       use_own_repo: settings.use_own_repo,
     };
 
-    console.log('[handleSaveSettings] github_token:', settings.github_token);
-    console.log('[handleSaveSettings] github_enable type:', typeof settings.github_enable, settings.github_enable);
-    console.log('[handleSaveSettings] github_repo:', settings.github_repo);
-    console.log('[handleSaveSettings] use_own_repo:', settings.use_own_repo);
+
 
     try {
       const result = await saveSettings.call({ settings: settingsToSave });
-      console.log('[handleSaveSettings] API result:', result);
 
       if (result?.message?.success) {
         setIsDirty(false);  // clear dirty flag — settings now match server
         // Update settings state to reflect saved values (including openai_api_key)
         setSettings(settingsToSave);
+
+        // Build descriptive success message
+        const branchInfo = settingsToSave.use_own_repo && settingsToSave.github_branch
+          ? ` (branch: ${settingsToSave.github_branch})`
+          : '';
+        const warnings = result.message.warnings?.length
+          ? result.message.warnings.join(' ')
+          : null;
         setStatusMessage({
-          type: result.message.warnings?.length ? 'warning' : 'success',
-          message:
-            result.message.warnings?.join(' ') ||
-            result.message.message ||
-            'Settings saved successfully',
+          type: warnings ? 'warning' : 'success',
+          message: warnings || `Settings saved successfully${branchInfo}`,
         });
       } else {
         setStatusMessage({ type: 'error', message: 'Failed to save settings' });

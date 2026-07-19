@@ -870,10 +870,6 @@ def save_translation_settings(settings):
         doc.github_repo = DEFAULT_GITHUB_REPO  # type: ignore
 
     # Save github_branch (stored as default_branch in DocType)
-    # Empty/falsy github_branch explicitly clears and falls back to version-aware default
-    print(
-        f"[translation_tools] save_translation_settings: github_branch in settings_data={('github_branch' in settings_data)}, value={settings_data.get('github_branch', 'NOT_IN_DATA')}"
-    )
     if "github_branch" in settings_data:
         if settings_data.github_branch:
             doc.default_branch = settings_data.github_branch  # type: ignore
