@@ -2,7 +2,7 @@
 
 import { Slot } from '@radix-ui/react-slot';
 import { cva, VariantProps } from 'class-variance-authority';
-import { FileText, Hash, PanelLeftIcon, Upload, Wrench } from 'lucide-react';
+import { FileText, Hash, PanelLeftIcon, QrCode, Upload, Wrench } from 'lucide-react';
 import * as React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import tbsLogo from '@/assets/tbs_logo.png';
@@ -94,7 +94,7 @@ function SidebarProvider({
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
-  }, [isMobile, setOpen, setOpenMobile]);
+  }, [isMobile, setOpen]);
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
@@ -126,7 +126,7 @@ function SidebarProvider({
       setOpenMobile,
       toggleSidebar,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+    [state, open, setOpen, isMobile, openMobile, toggleSidebar]
   );
 
   return (
@@ -591,9 +591,8 @@ function SidebarMenuSkeleton({
   showIcon?: boolean;
 }) {
   // Random width between 50 to 90%.
-  const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`;
-  }, []);
+  const randomWidth = React.useId();
+  const width = `${50 + (parseInt(randomWidth.slice(-2), 16) % 40)}%`;
 
   return (
     <div
@@ -725,6 +724,12 @@ const AppSidebar = React.forwardRef<
       url: '/account-mapper',
       icon: Wrench,
       isActive: isPathActive('/account-mapper'),
+    },
+    {
+      title: __('QRCode Generator'),
+      url: '/qrcode-generator',
+      icon: QrCode,
+      isActive: isPathActive('/qrcode-generator'),
     },
   ];
 

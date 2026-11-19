@@ -3,6 +3,7 @@ import {
   Globe,
   Hash,
   Languages,
+  QrCode,
   Sparkles,
   Wrench,
 } from 'lucide-react';
@@ -187,6 +188,53 @@ const LandingPage: React.FC = () => {
                 >
                   {__('Enter UUID Generator')}
                   <Hash className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          {/* QRCode Generator Card */}
+          <Card className="hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/50 group">
+            <CardHeader className="space-y-4">
+              <div className="flex items-center justify-between">
+                <QrCode className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
+                <FileSpreadsheet className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <CardTitle className="text-2xl">QRCode Generator</CardTitle>
+              <CardDescription className="text-base">
+                {__('Generate QR codes for various purposes')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col justify-between space-y-4 h-full">
+              <p className="text-sm text-muted-foreground">
+                {__('Coming soon - Generate QR codes for URLs, text, WiFi, vCards, and more with PNG/SVG export')}
+              </p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="text-cyan-500">✓</span>
+                  <span>{__('URL, Text, WiFi, and vCard QR codes')}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-cyan-500">✓</span>
+                  <span>{__('PNG and SVG export')}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-cyan-500">✓</span>
+                  <span>{__('Logo embedding support')}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-cyan-500">✓</span>
+                  <span>{__('Dynamic QR with redirect links')}</span>
+                </li>
+              </ul>
+              <Link to="/qrcode-generator" className="block mt-6">
+                <Button
+                  className="w-full text-base h-12 cursor-pointer"
+                  size="lg"
+                  variant="secondary"
+                >
+                  {__('Enter QRCode Generator')}
+                  <QrCode className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
             </CardContent>

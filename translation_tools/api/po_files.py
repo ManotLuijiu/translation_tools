@@ -527,7 +527,7 @@ def get_po_files(language=None):
                     ["filename", "in", filename_patterns],
                     ["app_name", "in", installed_apps],
                 ],
-                fields=["MAX(last_scanned) as last_scan"],
+                fields=[{"MAX": "last_scanned", "as": "last_scan"}],
                 limit=1,
             )
 

@@ -30,6 +30,7 @@ const ASEANTranslationsPage = lazy(
 const CSVTranslationsPage = lazy(() => import('./pages/CSVTranslationsPage'));
 const UUIDGeneratorPage = lazy(() => import('./pages/UUIDGeneratorPage'));
 const AccountMapperPage = lazy(() => import('./pages/AccountMapperPage'));
+const QRCodeGeneratorPage = lazy(() => import('./pages/QRCodeGeneratorPage'));
 
 // Loading skeleton component for Suspense fallback - mobile-optimized
 const LoadingSkeleton = () => (
@@ -109,6 +110,7 @@ const MainContent: React.FC<{
               />
               <Route path="/uuid-generator" element={<UUIDGeneratorPage />} />
               <Route path="/account-mapper" element={<AccountMapperPage />} />
+              <Route path="/qrcode-generator" element={<QRCodeGeneratorPage />} />
             </Routes>
           </Suspense>
         </div>

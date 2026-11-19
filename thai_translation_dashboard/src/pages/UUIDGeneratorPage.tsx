@@ -6,7 +6,6 @@ import {
   Upload,
   FileSpreadsheet,
   CheckCircle2,
-  AlertCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -108,7 +107,7 @@ const UUIDGeneratorPage: React.FC = () => {
 
   // CSV generator state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [csvContent, setCSVContent] = useState<string>('');
+  const [_csvContent, setCSVContent] = useState<string>(''); // prefixed to indicate intentionally unused
   const [columns, setColumns] = useState<string[]>([]);
   const [rows, setRows] = useState<string[][]>([]);
   const [selectedColumns, setSelectedColumns] = useState<number[]>([]);

@@ -6,7 +6,7 @@
  * Also update: App.tsx (route) and LandingPage.tsx (card)
  */
 
-import { FileText, Hash, Home, Upload, Wrench } from 'lucide-react';
+import { FileText, Hash, Upload, Wrench } from 'lucide-react';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {

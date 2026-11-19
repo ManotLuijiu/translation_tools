@@ -80,7 +80,7 @@ frappe.ui.language_toggle = class LanguageToggle {
             ${__('Settings')}
           </a>
           <div class="dropdown-divider"></div>
-          <a href="/desk/logout" class="dropdown-item text-danger">
+          <a href="#" class="dropdown-item text-danger" onclick="frappe.app.logout(); return false;">
             <span class="mr-2">${logout_icon}</span>
             ${__('Logout')}
           </a>
