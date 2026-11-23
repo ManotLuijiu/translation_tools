@@ -5,20 +5,22 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Set up Git config
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+      - name: Verify the tag belongs to version-16
+        run: git merge-base --is-ancestor HEAD refs/remotes/origin/version-16
 
       - name: Install git-cliff
         run: |
@@ -29,18 +31,12 @@ jobs:
         run: |
           git-cliff -o CHANGELOG.md
 
-      - name: Commit and push CHANGELOG.md
-        run: |
-          git add CHANGELOG.md
-          git commit -m "docs: update changelog for ${{ github.ref_name }}"
-          git push origin HEAD:main  # or 'master' if that's your default branch
-
       - name: Create tar.gz of app
         run: |
           tar -czvf translation_tools-${{ github.ref_name }}.tar.gz translation_tools
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}

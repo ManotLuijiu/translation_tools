@@ -1,54 +1,77 @@
-name: Frappe App CI
+name: Frappe v16 CI
 
 on:
+  workflow_call:
   push:
-    branches: [main]
-    tags:
-      - 'v*'
+    branches: [version-16]
   pull_request:
-    branches: [main]
+    branches: [develop, version-16]
+
+permissions:
+  contents: read
 
 jobs:
   test:
     runs-on: ubuntu-latest
     services:
+      redis-cache:
+        image: redis:7-alpine
+        ports:
+          - 13000:6379
+      redis-queue:
+        image: redis:7-alpine
+        ports:
+          - 11000:6379
       mariadb:
-        image: mariadb:10.6
+        image: mariadb:11.8
         env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: test
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_ROOT_HOST: "%"
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping --silent"
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: Check out Translation Tools
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.10
+          python-version: '3.14'
 
-      - name: Install Bench
-        run: |
-          pip install frappe-bench
-          bench --version
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
 
-      - name: Setup Bench Environment
+      - name: Install Bench dependencies
         run: |
-          bench init frappe-bench --skip-redis --frappe-branch version-15
-          cd frappe-bench
-          bench get-app translation_tools ../translation_tools
-          bench new-site test.local --mariadb-root-password=root --admin-password=admin --no-mariadb-socket
-          bench --site test.local install-app translation_tools
-          bench --site test.local list-apps
+          sudo apt-get update
+          sudo apt-get install -y libmariadb-dev mariadb-client pkg-config redis-server
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
+          python -m pip install --upgrade pip frappe-bench
 
-      - name: Run Custom Test (Optional)
+      - name: Set up Frappe v16 and app dependencies
         run: |
-          cd frappe-bench
+          bench init --frappe-branch version-16 --skip-assets --python "$(command -v python)" "$RUNNER_TEMP/frappe-bench"
+          cd "$RUNNER_TEMP/frappe-bench"
+          bench get-app --branch version-16 --skip-assets https://github.com/frappe/erpnext.git
+          bench get-app --branch version-16 --skip-assets https://github.com/ManotLuijiu/print_designer.git
+          bench get-app --skip-assets translation_tools "$GITHUB_WORKSPACE"
+
+      - name: Install Translation Tools and run tests
+        run: |
+          cd "$RUNNER_TEMP/frappe-bench"
+          bench new-site test.local --db-host 127.0.0.1 --db-root-password root --admin-password admin
+          bench --site test.local install-app erpnext print_designer translation_tools
+          bench build
+          bench --site test.local set-config allow_tests true
           bench --site test.local run-tests --app translation_tools
