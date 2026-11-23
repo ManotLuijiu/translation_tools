@@ -4,43 +4,56 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag, for example v1.7.0'
+        required: true
+        type: string
 
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
   release:
+    if: github.event_name == 'push' || github.ref == 'refs/heads/version-16'
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Check out release history
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Verify the tag belongs to version-16
-        run: git merge-base --is-ancestor HEAD refs/remotes/origin/version-16
-
-      - name: Install git-cliff
-        run: |
-          curl -sSL https://github.com/orhun/git-cliff/releases/latest/download/git-cliff-x86_64-unknown-linux-gnu.tar.gz | tar -xz
-          sudo mv git-cliff /usr/local/bin/
-
-      - name: Generate CHANGELOG.md
-        run: |
-          git-cliff -o CHANGELOG.md
-
-      - name: Create tar.gz of app
-        run: |
-          tar -czvf translation_tools-${{ github.ref_name }}.tar.gz translation_tools
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
-          body_path: CHANGELOG.md
-          files: translation_tools-${{ github.ref_name }}.tar.gz
+      - name: Publish the tagged version-16 release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Expected a version tag such as v1.7.0."
+            exit 1
+          fi
+          commit=$(git rev-parse --verify "refs/tags/$RELEASE_TAG^{commit}")
+          if ! git merge-base --is-ancestor "$commit" refs/remotes/origin/version-16; then
+            echo "Tag $RELEASE_TAG points to a commit outside version-16."
+            exit 1
+          fi
+
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Release $RELEASE_TAG already exists."
+            exit 0
+          fi
+
+          archive="$RUNNER_TEMP/translation_tools-$RELEASE_TAG.tar.gz"
+          git archive --format=tar.gz --output="$archive" "$commit" translation_tools
+
+          release_options=(--verify-tag --generate-notes --title "Release $RELEASE_TAG")
+          if [[ "$RELEASE_TAG" == *-* ]]; then
+            release_options+=(--prerelease)
+          fi
+          gh release create "$RELEASE_TAG" "$archive" "${release_options[@]}"
